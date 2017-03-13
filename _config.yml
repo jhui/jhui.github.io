@@ -1,0 +1,17 @@
+# Site settings
+title: Jonathan Hui blog
+email: 
+description: "Computer Scientist"
+baseurl: ""
+url: "http://jhui.github.io"
+github_username:  jyhui
+
+# Build settings
+markdown: kramdown
+permalink: pretty
+
+highlighter: rouge
+kramdown:
+  input: GFM
+  auto_ids: true
+  syntax_highlighter: rouge
