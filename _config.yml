@@ -1,10 +1,10 @@
 # Site settings
 title: Jonathan Hui blog
 email: 
-description: "Computer Scientist"
+description: “Software architect”
 baseurl: ""
 url: "http://jhui.github.io"
-github_username:  jyhui
+github_username:  jhui
 
 # Build settings
 markdown: kramdown
