@@ -1,6 +1,7 @@
 ---
 layout: post
 comments: true
+mathjax: true
 title: “TensorFlow overview”
 excerpt: “TensorFlow is a very powerful platform for Machine Learning. I will go over some of the basic in this TensorFlow tutorials.”
 date: 2017-03-14 14:00:00
@@ -23,9 +24,11 @@ result = sess.run(product) # Compute the result for “product”
 print(result) # [[26]]
 ```
 The above program hardwire the matrix as a constant. We will implement a new linear equation that feed the graph with data on execution.
+
 $$
 y = Wx + b
 $$
+
 ```python
 import tensorflow as tf
 import numpy as np
