@@ -101,11 +101,11 @@ In this program, we define the training parameters (W & b) in the computational 
 W = tf.Variable([0.1], tf.float32)
 b = tf.Variable([0.0], tf.float32)
 ```
-Then we build the linear model “model”. We define the Mean Square Error (MSE) cost function as:
+We define the Mean Square Error (MSE) cost function as:
 ```python
 loss = tf.reduce_sum(tf.square(model - y))
 ```
-We use gradient descent to find an optimal solution that can fit our training data with the minimum loss.
+We define a gradient descent optimizer and trainer to find an optimal solution that can fit our training data with the minimum loss.
 ```python
 # Optimizer with a 0.01 learning rate
 optimizer = tf.train.GradientDescentOptimizer(0.01)
@@ -132,5 +132,17 @@ l_W, l_b, l_cost  = sess.run([W, b, loss], {x:x_train, y:y_train})
 print(f"W: {l_W} b: {l_b} cost: {l_cost}")
 # W: [ 1.99999797] b: [-0.49999401] cost: 2.2751578399038408e-11
 ```
+Here we model our training data as:
 
+|---+-----+-----+-----+-----|
+| x | 1.0 | 2.0 | 3.0 | 4.0 |
+|---|:----|:----|:----------|
+| y | 1.5 | 3.5 | 5.5 | 7.5 |
+|---+-----+-----+-----+-----|
+
+$$
+y = 2x - 0.5
+$$
+
+1.5, 3.5, 5.5, 7.5
 
