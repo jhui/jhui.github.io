@@ -17,15 +17,16 @@ TensorFlow represent computations with op nodes and graphs. TensorFlow programs 
 2. Open a TensorFlow session and execute the computation graph.
 
 
-```javascript
+```python
 import tensorflow as tf
 
+# Construct the m1 & m2 op node.
 m1 = tf.constant([[3, 5]])
 m2 = tf.constant([[2],[4]])
 
-product = tf.matmul(m1, m2)    # Matrix multiplication: 3*2+5*4
+product = tf.matmul(m1, m2)    # A matrix multiplication op node: 3*2+5*4
 
-with tf.Session() as sess:
+with tf.Session() as sess:     # Open a TensorFlow session to execute the graph. 
     result = sess.run(product)
     print(result)              # [[26]]
 ```
