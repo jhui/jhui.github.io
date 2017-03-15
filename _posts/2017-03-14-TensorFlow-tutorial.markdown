@@ -11,7 +11,7 @@ TensorFlow is an open source software library for machine learning developed by 
 #### First TensorFlow program
 TensorFlow represents computations by linking op nodes into graphs. TensorFlow programs are structured into a construction phase and an execution phase. The following program:
 1. Constructs a computation graph for a matrix multiplication. 
-2. Open a TensorFlow session and execute the computation graph.
+2. Open a TensorFlow session and compute the matrix multiplication by execute the computation graph.
 
 ```python
 import tensorflow as tf
@@ -20,13 +20,13 @@ import tensorflow as tf
 m1 = tf.constant([[3, 5]])
 m2 = tf.constant([[2],[4]])
 
-product = tf.matmul(m1, m2)    # A matrix multiplication op node: 3*2+5*4
+product = tf.matmul(m1, m2)    # A matrix multiplication op node
 
 with tf.Session() as sess:     # Open a TensorFlow session to execute the graph. 
     result = sess.run(product) # Compute the result for “product”
-    print(result) # [[26]]
+    print(result)              # 3*2+5*4: [[26]]
 ```
-The above program hardwire the matrix as a constant. We will implement a new linear equation that feed the graph with data on execution.
+The above program hardwire the matrix as a constant. We will implement a new linear equation that feed the graph with input data on execution.
 
 ```python
 import tensorflow as tf
@@ -48,12 +48,11 @@ with tf.Session() as sess:
 ```
 
 #### Train a linear model
-Let’s do a simple linear regression with a linear model below. We will train our model with our data and later compute the value of W & b.
-
+Let’s do a simple linear regression with a linear model below.
 $$
 y = Wx + b
 $$
-
+We will supply the model with training data (x, y) and later compute the corresponding model parameter W & b.
 ```python
 import tensorflow as tf
 
@@ -101,7 +100,7 @@ In this program, we define the training parameters (W & b) in the computational 
 W = tf.Variable([0.1], tf.float32)
 b = tf.Variable([0.0], tf.float32)
 ```
-We define the Mean Square Error (MSE) cost function as:
+We define the Mean Square Error (MSE) cost function:
 ```python
 loss = tf.reduce_sum(tf.square(model - y))
 ```
@@ -133,7 +132,6 @@ print(f"W: {l_W} b: {l_b} cost: {l_cost}")
 # W: [ 1.99999797] b: [-0.49999401] cost: 2.2751578399038408e-11
 ```
 Here we model our training data as:
-
 $$
 y = 2x - 0.5
 $$
@@ -164,9 +162,10 @@ for name in estimator.get_variable_names():
 # linear/x/weight = [[ 1.90707111]]
 # linear/bias_weight = [-0.21857721]
 ```
-As shown above, the Linear Regressor has a larger error than expected. Sometimes, we can plug in our own model as following:
 
 ### Custom model
+As shown above, the Linear Regressor has a larger error than the last program. Sometimes, we can plug in our own model as following:
+
 ```python
 import numpy as np
 import tensorflow as tf
@@ -201,11 +200,8 @@ for name in estimator.get_variable_names():
 # W = [ 1.99999637]
 # b = [-0.4999892]
 ```
-Plugin a new model to the estimator
+Plugin a new model to the estimator:
 ```python
-import numpy as np
-import tensorflow as tf
-
 def model(features, labels, mode):
 
   W = tf.get_variable("W", [1], dtype=tf.float64)
