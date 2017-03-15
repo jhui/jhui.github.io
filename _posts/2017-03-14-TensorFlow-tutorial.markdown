@@ -225,11 +225,223 @@ estimator = tf.contrib.learn.Estimator(model_fn=model)
 #### Solving MNist
 
 <div class="imgcap">
-<img src="/assets/tensorflow_basic/mnist.png" style="border:none; width:100%;">
+<img src="/assets/tensorflow_basic/mnist.png" style="border:none; width:40%;">
 </div>
 
+The MNIST dataset contains handwritten digits with examples shown as above. It has a training set of 60,000 examples, and a test set of 10,000 examples. The following python file from Tensorflow [mnist_softmax.py](https://github.com/tensorflow/tensorflow/blob/master/tensorflow/examples/tutorials/mnist/mnist_softmax.py) train a linear classifier for MNist digit recognition. The following model reaches an accuracy of *92%*
+
+```python
+"""A very simple MNIST classifier.
+See extensive documentation at
+http://tensorflow.org/tutorials/mnist/beginners/index.md
+"""
+
+import argparse
+import sys
+
+from tensorflow.examples.tutorials.mnist import input_data
+
+import tensorflow as tf
+
+FLAGS = None
 
 
+def main(_):
+  # Import data
+  mnist = input_data.read_data_sets(FLAGS.data_dir, one_hot=True)
+
+  # Create the model
+  x = tf.placeholder(tf.float32, [None, 784])
+  W = tf.Variable(tf.zeros([784, 10]))
+  b = tf.Variable(tf.zeros([10]))
+  y = tf.matmul(x, W) + b
+
+  # Define loss and optimizer
+  y_ = tf.placeholder(tf.float32, [None, 10])
+
+  # The raw formulation of cross-entropy,
+  #
+  #   tf.reduce_mean(-tf.reduce_sum(y_ * tf.log(tf.nn.softmax(y)),
+  #                                 reduction_indices=[1]))
+  #
+  # can be numerically unstable.
+  #
+  # So here we use tf.nn.softmax_cross_entropy_with_logits on the raw
+  # outputs of 'y', and then average across the batch.
+  cross_entropy = tf.reduce_mean(
+      tf.nn.softmax_cross_entropy_with_logits(labels=y_, logits=y))
+  train_step = tf.train.GradientDescentOptimizer(0.5).minimize(cross_entropy)
+
+  sess = tf.InteractiveSession()
+  tf.global_variables_initializer().run()
+  # Train
+  for _ in range(10000):
+    batch_xs, batch_ys = mnist.train.next_batch(100)
+    sess.run(train_step, feed_dict={x: batch_xs, y_: batch_ys})
+
+  # Test trained model
+  correct_prediction = tf.equal(tf.argmax(y, 1), tf.argmax(y_, 1))
+  accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
+  print(sess.run(accuracy, feed_dict={x: mnist.test.images,
+                                      y_: mnist.test.labels}))
+
+if __name__ == '__main__':
+  parser = argparse.ArgumentParser()
+  parser.add_argument('--data_dir', type=str, default='/tmp/tensorflow/mnist/input_data',
+                      help='Directory for storing input data')
+  FLAGS, unparsed = parser.parse_known_args()
+  tf.app.run(main=main, argv=[sys.argv[0]] + unparsed)
+
+# 0.9241
+```
+
+Read training, validation and testing dataset into “moist”.
+```python
+from tensorflow.examples.tutorials.mnist import input_data
+
+def main(_):
+  # Import data
+  mint = input_data.read_data_sets(FLAGS.data_dir, one_hot=True)
+```
+
+Each image is 28x28 = 784. We use a linear classifier to classify the handwritten image from either 0 to 9.
+
+```python
+x = tf.placeholder(tf.float32, [None, 784])
+W = tf.Variable(tf.zeros([784, 10]))
+b = tf.Variable(tf.zeros([10]))
+y = tf.matmul(x, W) + b
+```
+
+We use cross entropy as the cost functions:
+```python
+  # The raw formulation of cross-entropy,
+  #
+  #   tf.reduce_mean(-tf.reduce_sum(y_ * tf.log(tf.nn.softmax(y)),
+  #                                 reduction_indices=[1]))
+  #
+  # However, the method approach may be numerical unstable.
+  #
+  # Therefore we replace it with an equivalent stable version.
+  cross_entropy = tf.reduce_mean(
+      tf.nn.softmax_cross_entropy_with_logits(labels=y_, logits=y))
+```
+
+#### Solving MNist with deep learning
+
+Now we replace this model using deep learning techniques. This new model achieves an accuracy of **98%**!
+
+```python
+import argparse
+import sys
+
+from tensorflow.examples.tutorials.mnist import input_data
+
+import tensorflow as tf
+import numpy as np
+
+FLAGS = None
+
+
+def main(_):
+  # Import data
+  mnist = input_data.read_data_sets(FLAGS.data_dir, one_hot=True)
+
+  ### Building a model
+  # Create a fully connected network with 2 hidden layers
+  # Initialize the weight with a normal distribution.
+  x = tf.placeholder(tf.float32, [None, 784])
+  W1 = tf.Variable(tf.truncated_normal([784, 256], stddev=np.sqrt(2.0 / (784 * 784))))
+  b1 = tf.Variable(tf.zeros([256]))
+  W2 = tf.Variable(tf.truncated_normal([256, 100], stddev=np.sqrt(2.0 / (256 * 256))))
+  b2 = tf.Variable(tf.zeros([100]))
+  W3 = tf.Variable(tf.truncated_normal([100, 10], stddev=np.sqrt(2.0 / (100 * 100))))
+  b3 = tf.Variable(tf.zeros([10]))
+
+  # 2 hidden layers using relu (z = max(0, x)) as an activation function.
+  h1 = tf.nn.relu(tf.matmul(x, W1) + b1)
+  h2 = tf.nn.relu(tf.matmul(h1, W2) + b2)
+  y = tf.matmul(h2, W3) + b3
+
+  # Define loss and optimizer
+  labels = tf.placeholder(tf.float32, [None, 10])
+
+  # Use a cross entropy cost fuction with a L2 regularization.
+  lmbda = tf.placeholder(tf.float32)
+  cross_entropy = tf.reduce_mean(
+      tf.nn.softmax_cross_entropy_with_logits(labels=labels, logits=y) +
+         lmbda * (tf.nn.l2_loss(W1) + tf.nn.l2_loss(W2) + tf.nn.l2_loss(W3)))
+  train_step = tf.train.AdamOptimizer(learning_rate=0.001).minimize(cross_entropy)
+
+  init = tf.global_variables_initializer()
+  with tf.Session() as sess:
+      sess.run(init)
+      # Train
+      for _ in range(10000):
+        batch_xs, batch_ys = mnist.train.next_batch(100)
+        sess.run(train_step, feed_dict={x: batch_xs, labels: batch_ys, lmbda:5e-5})
+
+      # Test trained model
+      correct_prediction = tf.equal(tf.argmax(y, 1), tf.argmax(labels, 1))
+      accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
+      print(sess.run(accuracy, feed_dict={x: mnist.test.images,
+                                          labels: mnist.test.labels}))
+
+if __name__ == '__main__':
+  parser = argparse.ArgumentParser()
+  parser.add_argument('--data_dir', type=str, default='/tmp/tensorflow/mnist/input_data',
+                      help='Directory for storing input data')
+  FLAGS, unparsed = parser.parse_known_args()
+  tf.app.run(main=main, argv=[sys.argv[0]] + unparsed)
+
+# 0.9785
+```
+
+We create a model with 2 fully connected hidden layers with a linear classifier. We also use relu function as the activation function for our hidden layers.
+
+$$
+a = max(0, z)
+$$
+
+```python
+### Building a model
+# Create a fully connected network with 2 hidden layers
+# Initialize the weight with a normal distribution.
+x = tf.placeholder(tf.float32, [None, 784])
+W1 = tf.Variable(tf.truncated_normal([784, 256], stddev=np.sqrt(2.0 / (784 * 784))))
+b1 = tf.Variable(tf.zeros([256]))
+W2 = tf.Variable(tf.truncated_normal([256, 100], stddev=np.sqrt(2.0 / (256 * 256))))
+b2 = tf.Variable(tf.zeros([100]))
+W3 = tf.Variable(tf.truncated_normal([100, 10], stddev=np.sqrt(2.0 / (100 * 100))))
+b3 = tf.Variable(tf.zeros([10]))
+
+# 2 hidden layers using relu (z = max(0, x)) as an activation function.
+h1 = tf.nn.relu(tf.matmul(x, W1) + b1)
+h2 = tf.nn.relu(tf.matmul(h1, W2) + b2)
+y = tf.matmul(h2, W3) + b3
+```
+
+
+We initializes the weight with a normal distribution with standard deviation inverse proportional to the input size.
+```python
+W1 = tf.Variable(tf.truncated_normal([784, 256], stddev=np.sqrt(2.0 / (784 * 784))))
+W2 = tf.Variable(tf.truncated_normal([256, 100], stddev=np.sqrt(2.0 / (256 * 256))))
+W3 = tf.Variable(tf.truncated_normal([100, 10], stddev=np.sqrt(2.0 / (100 * 100))))
+```
+
+
+We add a L2 regularization to the cross entropy lost with regularization factor set to 5e-5.  We also adopted an improved version of gradient descent (Adam optimizer).
+```python
+  # Use a cross entropy cost fuction with a L2 regularization.
+  lmbda = tf.placeholder(tf.float32)
+  cross_entropy = tf.reduce_mean(
+      tf.nn.softmax_cross_entropy_with_logits(labels=labels, logits=y) +
+         lmbda * (tf.nn.l2_loss(W1) + tf.nn.l2_loss(W2) + tf.nn.l2_loss(W3)))
+  train_step = tf.train.AdamOptimizer(learning_rate=0.001).minimize(cross_entropy)
+```
+```python
+sess.run(train_step, feed_dict={x: batch_xs, labels: batch_ys, lmbda:5e-5})
+```
 
 
  
