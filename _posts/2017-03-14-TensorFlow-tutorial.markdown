@@ -49,9 +49,11 @@ with tf.Session() as sess:
 
 #### Train a linear model
 Let’s do a simple linear regression with a linear model below.
+
 $$
 y = Wx + b
 $$
+
 We will supply the model with training data (x, y) and later compute the corresponding model parameter W & b.
 ```python
 import tensorflow as tf
@@ -219,3 +221,9 @@ def model(features, labels, mode):
 
 estimator = tf.contrib.learn.Estimator(model_fn=model)
 ```
+
+#### Solving MNist
+(assets/tensorflow_basic/mnist.png)
+
+
+ 
