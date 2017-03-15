@@ -465,7 +465,7 @@ To push the accuracy higher, we will create a model with 2 CNN layers followed b
 * Use dropout for regularization.
 * Use cross entropy cost function with Adam optimizer.
 
-The following code reaches an accuracy of **99.4%** with little parameter tuning.
+The following code reaches an accuracy of **99.5%** with little parameter tuning.
 
 ```python
 import argparse
@@ -558,7 +558,7 @@ if __name__ == '__main__':
   FLAGS, unparsed = parser.parse_known_args()
   tf.app.run(main=main, argv=[sys.argv[0]] + unparsed)
 
-# 0.994
+# 0.995
 ```
 Define the convolution layer with a 5x5 filter using RELU activation following by a 2x2 max pool:
 ```python
@@ -580,12 +580,12 @@ We flatten the 2D features into a 1D array for the fully connected layer. We use
 h2_flat = tf.reshape(h2, [-1, 3136])
 h_fc1 = tf.nn.relu(tf.matmul(h2_flat, W1) + b1)
 h_fc1_drop = tf.nn.dropout(h_fc1, keep_prob)
-```python
+```
 
 Further possible accuracy improvement:
 * Apply ensemble learning.
 * Use a smaller filter like 3x3.
 * Add batch normalization.
 * Whitening of the input image.
-* Further tuning of the learning rate parameter.
+* Further tuning of the learning rate and dropout parameter.
 
