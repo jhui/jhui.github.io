@@ -332,7 +332,7 @@ We use cross entropy as the cost functions:
 Now we replace the model using deep learning techniques. This example contains 2 hidden fully connected layers. The new model achieves an accuracy of **98%**.
 
 <div class="imgcap">
-<img src="/assets/tensorflow_basic/fc.png" style="border:none; width:50%;">
+<img src="/assets/tensorflow_basic/fc.png" style="border:none; width:80%;">
 </div>
 
 
@@ -574,7 +574,7 @@ cnn1 = tf.nn.conv2d(x_image, cnn_W1, strides=[1, 1, 1, 1], padding='SAME')
 z1 = tf.nn.relu(cnn1 + cnn_b1)
 h1 = tf.nn.max_pool(z1, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME')
 ```
-We flatten the 2D features into a 1D array for the fully connected layer. We use dropout for the regularization.
+We flatten the 2D features into a 1D array for the fully connected layer. We apply dropout for the regularization.
 ```python
 # First FC layer with dropout.
 h2_flat = tf.reshape(h2, [-1, 3136])
