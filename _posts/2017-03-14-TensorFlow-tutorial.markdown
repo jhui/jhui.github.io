@@ -58,7 +58,7 @@ We will supply the model with training data (x, y) and later compute the corresp
 ```python
 import tensorflow as tf
 
-### Define a computational graph
+### Define a model: a computational graph
 # Parameters for a linear model y = Wx + b
 W = tf.Variable([0.1], tf.float32)
 b = tf.Variable([0.0], tf.float32)
@@ -70,6 +70,7 @@ y = tf.placeholder(tf.float32)
 # Define a linear model y = Wx + b
 model = W * x + b
 
+### Define a cost function, an optimizer and a trainer
 # Define a cost function (Mean square error - MSE)
 loss = tf.reduce_sum(tf.square(model - y))
 
@@ -77,7 +78,7 @@ loss = tf.reduce_sum(tf.square(model - y))
 optimizer = tf.train.GradientDescentOptimizer(0.01)
 train = optimizer.minimize(loss)
 
-### Running the computational graph (Fitting)
+### Training (Fitting)
 # Training data
 x_train = [1.0, 2.0, 3.0, 4.0]
 y_train = [1.5, 3.5, 5.5, 7.5]
@@ -97,11 +98,33 @@ with tf.Session() as sess:
     print(f"W: {l_W} b: {l_b} cost: {l_cost}")
     # W: [ 1.99999797] b: [-0.49999401] cost: 2.2751578399038408e-11
 ```
-In this program, we define the training parameters (W & b) in the computational graph as follows:
+A typical TensorFlow program contains:
+* Define a model
+* Define a loss function and a trainer
+* Training (fitting)
+
+##### Model
+```python
+### Define a model: a computational graph
+# Parameters for a linear model y = Wx + b
+W = tf.Variable([0.1], tf.float32)
+b = tf.Variable([0.0], tf.float32)
+
+# Placeholder for input and prediction
+x = tf.placeholder(tf.float32)
+y = tf.placeholder(tf.float32)
+```
+# Define a linear model y = Wx + b
+model = W * x + b
+```
+
+Here we define the training parameters (W & b) as:
 ```python
 W = tf.Variable([0.1], tf.float32)
 b = tf.Variable([0.0], tf.float32)
 ```
+
+##### Lost function and optimizer & trainner
 We define the Mean Square Error (MSE) cost function:
 ```python
 loss = tf.reduce_sum(tf.square(model - y))
@@ -112,6 +135,8 @@ We define a gradient descent optimizer and trainer to find an optimal solution t
 optimizer = tf.train.GradientDescentOptimizer(0.01)
 train = optimizer.minimize(loss)
 ```
+
+##### Training (fitting)
 Before any execution, we need to initialize all the parameters:
 ```python
 init = tf.global_variables_initializer()
