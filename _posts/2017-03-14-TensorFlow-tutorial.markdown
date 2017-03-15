@@ -223,7 +223,10 @@ estimator = tf.contrib.learn.Estimator(model_fn=model)
 ```
 
 #### Solving MNist
-(assets/tensorflow_basic/mnist.png)
+<div class="imgcap">
+<img src="/tensorflow_basic/mnist.png" style="border:none; width:100%;">
+</div>
+
 
 
  
