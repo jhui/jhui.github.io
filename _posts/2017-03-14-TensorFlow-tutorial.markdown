@@ -228,7 +228,7 @@ estimator = tf.contrib.learn.Estimator(model_fn=model)
 <img src="/assets/tensorflow_basic/mnist.png" style="border:none; width:40%;">
 </div>
 
-The MNIST dataset contains handwritten digits with examples shown as above. It has a training set of 60,000 examples, and a test set of 10,000 examples. The following python file from Tensorflow [mnist_softmax.py](https://github.com/tensorflow/tensorflow/blob/master/tensorflow/examples/tutorials/mnist/mnist_softmax.py) train a linear classifier for MNist digit recognition. The following model reaches an accuracy of *92%*
+The MNIST dataset contains handwritten digits with examples shown as above. It has a training set of 60,000 examples, and a test set of 10,000 examples. The following python file from Tensorflow [mnist_softmax.py](https://github.com/tensorflow/tensorflow/blob/master/tensorflow/examples/tutorials/mnist/mnist_softmax.py) train a linear classifier for MNist digit recognition. The following model reaches an accuracy of **92%**.
 
 ```python
 """A very simple MNIST classifier.
@@ -295,13 +295,13 @@ if __name__ == '__main__':
 # 0.9241
 ```
 
-Read training, validation and testing dataset into “moist”.
+Read training, validation and testing dataset into “mnist”.
 ```python
 from tensorflow.examples.tutorials.mnist import input_data
 
 def main(_):
   # Import data
-  mint = input_data.read_data_sets(FLAGS.data_dir, one_hot=True)
+  mnist = input_data.read_data_sets(FLAGS.data_dir, one_hot=True)
 ```
 
 Each image is 28x28 = 784. We use a linear classifier to classify the handwritten image from either 0 to 9.
@@ -351,11 +351,11 @@ def main(_):
   # Create a fully connected network with 2 hidden layers
   # Initialize the weight with a normal distribution.
   x = tf.placeholder(tf.float32, [None, 784])
-  W1 = tf.Variable(tf.truncated_normal([784, 256], stddev=np.sqrt(2.0 / (784 * 784))))
+  W1 = tf.Variable(tf.truncated_normal([784, 256], stddev=np.sqrt(2.0 / 784)))
   b1 = tf.Variable(tf.zeros([256]))
-  W2 = tf.Variable(tf.truncated_normal([256, 100], stddev=np.sqrt(2.0 / (256 * 256))))
+  W2 = tf.Variable(tf.truncated_normal([256, 100], stddev=np.sqrt(2.0 / 256)))
   b2 = tf.Variable(tf.zeros([100]))
-  W3 = tf.Variable(tf.truncated_normal([100, 10], stddev=np.sqrt(2.0 / (100 * 100))))
+  W3 = tf.Variable(tf.truncated_normal([100, 10], stddev=np.sqrt(2.0 / 100)))
   b3 = tf.Variable(tf.zeros([10]))
 
   # 2 hidden layers using relu (z = max(0, x)) as an activation function.
@@ -408,12 +408,12 @@ $$
 # Create a fully connected network with 2 hidden layers
 # Initialize the weight with a normal distribution.
 x = tf.placeholder(tf.float32, [None, 784])
-W1 = tf.Variable(tf.truncated_normal([784, 256], stddev=np.sqrt(2.0 / (784 * 784))))
-b1 = tf.Variable(tf.zeros([256]))
-W2 = tf.Variable(tf.truncated_normal([256, 100], stddev=np.sqrt(2.0 / (256 * 256))))
-b2 = tf.Variable(tf.zeros([100]))
-W3 = tf.Variable(tf.truncated_normal([100, 10], stddev=np.sqrt(2.0 / (100 * 100))))
-b3 = tf.Variable(tf.zeros([10]))
+  W1 = tf.Variable(tf.truncated_normal([784, 256], stddev=np.sqrt(2.0 / 784)))
+  b1 = tf.Variable(tf.zeros([256]))
+  W2 = tf.Variable(tf.truncated_normal([256, 100], stddev=np.sqrt(2.0 / 256)))
+  b2 = tf.Variable(tf.zeros([100]))
+  W3 = tf.Variable(tf.truncated_normal([100, 10], stddev=np.sqrt(2.0 / 100)))
+  b3 = tf.Variable(tf.zeros([10]))
 
 # 2 hidden layers using relu (z = max(0, x)) as an activation function.
 h1 = tf.nn.relu(tf.matmul(x, W1) + b1)
@@ -424,9 +424,9 @@ y = tf.matmul(h2, W3) + b3
 
 We initializes the weight with a normal distribution with standard deviation inverse proportional to the input size.
 ```python
-W1 = tf.Variable(tf.truncated_normal([784, 256], stddev=np.sqrt(2.0 / (784 * 784))))
-W2 = tf.Variable(tf.truncated_normal([256, 100], stddev=np.sqrt(2.0 / (256 * 256))))
-W3 = tf.Variable(tf.truncated_normal([100, 10], stddev=np.sqrt(2.0 / (100 * 100))))
+W1 = tf.Variable(tf.truncated_normal([784, 256], stddev=np.sqrt(2.0 / 784)))
+W2 = tf.Variable(tf.truncated_normal([256, 100], stddev=np.sqrt(2.0 / 256)))
+W3 = tf.Variable(tf.truncated_normal([100, 10], stddev=np.sqrt(2.0 / 100)))
 ```
 
 
