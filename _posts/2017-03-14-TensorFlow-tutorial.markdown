@@ -103,7 +103,8 @@ A typical TensorFlow program contains:
 * Define a loss function and a trainer
 * Training (fitting)
 
-##### Model
+#### Model
+Define the linear model y = Wx + b
 ```python
 ### Define a model: a computational graph
 # Parameters for a linear model y = Wx + b
@@ -113,7 +114,7 @@ b = tf.Variable([0.0], tf.float32)
 # Placeholder for input and prediction
 x = tf.placeholder(tf.float32)
 y = tf.placeholder(tf.float32)
-```
+
 # Define a linear model y = Wx + b
 model = W * x + b
 ```
@@ -124,8 +125,8 @@ W = tf.Variable([0.1], tf.float32)
 b = tf.Variable([0.0], tf.float32)
 ```
 
-##### Lost function and optimizer & trainner
-We define the Mean Square Error (MSE) cost function:
+#### Lost function and optimizer & trainner
+Define the Mean Square Error (MSE) cost function:
 ```python
 loss = tf.reduce_sum(tf.square(model - y))
 ```
@@ -136,7 +137,7 @@ optimizer = tf.train.GradientDescentOptimizer(0.01)
 train = optimizer.minimize(loss)
 ```
 
-##### Training (fitting)
+#### Training (fitting)
 Before any execution, we need to initialize all the parameters:
 ```python
 init = tf.global_variables_initializer()
