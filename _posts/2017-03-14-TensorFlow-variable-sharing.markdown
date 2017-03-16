@@ -150,9 +150,10 @@ with tf.variable_scope("foo", reuse=True):
 Instead set the reuse flag probably.
 ```python
 with tf.variable_scope("foo"):
-    v = tf.get_variable("v2", [1])
+    v = tf.get_variable("v2", [1]) # Create a new variable.
+
 with tf.variable_scope("foo", reuse=True):
-    v1 = tf.get_variable("v2")  # reuse/share the variable "foo/v2"
+    v1 = tf.get_variable("v2")  # reuse/share the variable "foo/v2".
 assert v1 == v
 
 with tf.variable_scope("foo") as scope:
@@ -188,15 +189,15 @@ print(v4.name)  # foo2/v2:0
 
 The best way to avoid nasty issues with shared variables are
 * Do **NOT** use *tf.name_scope* and *tf.Variables* with shareable variables. 
-* Always use *tf.variable_scope* to define the scope of a variable.
-* Use *tf,get_varaible* to create or retrieve a shared variable.
+* Always use *tf.variable_scope* to define the scope of a shared variable.
+* Use *tf.get_varaible* to create or retrieve a shared variable.
 
 ```python
 with tf.variable_scope("foo"):
-    v = tf.get_variable("v2", [1])
+    v = tf.get_variable("v2", [1])    # Create a new variable
 
 with tf.variable_scope("foo", reuse=True):
-    v1 = tf.get_variable("v2")
+    v1 = tf.get_variable("v2")        # Reuse a variable created before.
 ```
 
 
