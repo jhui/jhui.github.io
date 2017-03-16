@@ -30,7 +30,7 @@ with tf.name_scope('CNN1'):
 ```
 Which create the following data hierarchy and can be browsed with the TensorBoard later:
 <div class="imgcap">
-<img src="/assets/tensorboard/name_space.png" style="border:none; width:70%;">
+<img src="/assets/tensorboard/name_space.png" style="border:none;">
 </div>
 
 
