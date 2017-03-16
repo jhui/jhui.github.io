@@ -121,22 +121,20 @@ with tf.variable_scope("n2"):
 with tf.variable_scope("n2", reuse=True):
     nn2 = affine_reuseable(x, [784, 500])
 ```
-If a variable with the give "scope/name" exists, *tf.get_variable* returns that variable instead of creating one.
+If a variable with the give "scope/name" exists, *tf.get_variable* returns the existing variable instead of creating one.
 ```python
-W = tf.get_variable("W", shape,
-                    initializer=tf.random_normal_initializer())
+W = tf.get_variable("W", shape, initializer=tf.random_normal_initializer())
 ```
-So for the second affine_reuseable call, *tf.get_variable* reuse the old variable instead of creating a new one.
+So for the second affine_reuseable call below, *tf.get_variable* reuses the W & b variables created before.
 ```python
 with tf.variable_scope("nl1", reuse=True):
-    nl2 = affine_reuseable(x, [784, 500])
+    nn2 = affine_reuseable(x, [784, 500])
 ```
 
 #### Reuse
-However, TensorFlow wants the developer to be self-aware whether the variable exists or now.
-Both scenario below will throw an exception when calling *tf.get_variable*:
-*  if the reuse flag is None and the variable already exists
-*  if the reuse flag is True and the variable does not exists
+However, TensorFlow wants the developer to be self-aware of whether the variable exists or not. Developers need to have the correct setting for the "reuse" flag before calling *tf.get_variable*. Both scenarios below will throw an exception when calling *tf.get_variable*:
+*  if the reuse flag is None and the variable already exists.
+*  if the reuse flag is True and the variable does not exists.
 
 Do **NOT** do this
 ```python
@@ -149,7 +147,7 @@ with tf.variable_scope("foo", reuse=True):
     v = tf.get_variable("v", [1])
     # Raises ValueError("... v does not exists ...").
 ```
-Instead set the reuse flag probably
+Instead set the reuse flag probably.
 ```python
 with tf.variable_scope("foo"):
     v = tf.get_variable("v2", [1])
@@ -163,6 +161,20 @@ with tf.variable_scope("foo") as scope:
     v1 = tf.get_variable("v3", [1])
 assert v1 == v
 ```
+
+#### Nested scope
+```python
+with tf.variable_scope("foo"):
+    with tf.variable_scope("bar"):
+        v = tf.get_variable("v", [1])
+        assert v.name == "foo/bar/v:0"
+```
+### Caveat of variable sharing
+Most developers learn TensorFlow variables with *tf.name_scope* and *tf.Variables* methods.  In variable sharing, they mixed these calls with *tf.get_variable* & *tf.variable_scope*. Those methods are not for variable sharing and behave un-expectedly in the context of variable sharing.  For shareable variables, do **NOT** call *tf.name_scope* and *tf.Variables* for those shareable variables. Always use *tf.variable_scope* and *tf.get_variable* only.
+
+
+
+
 
 
 
