@@ -133,18 +133,18 @@ with tf.variable_scope("nl1", reuse=True):
 
 #### Reuse
 However, TensorFlow wants the developer to be self-aware of whether the variable exists or not. Developers need to have the correct setting for the "reuse" flag before calling *tf.get_variable*. Both scenarios below will throw an exception when calling *tf.get_variable*:
-*  if the reuse flag is None and the variable already exists.
+*  if the reuse flag is None (default) and the variable already exists.
 *  if the reuse flag is True and the variable does not exists.
 
 Do **NOT** do this
 ```python
 with tf.variable_scope("foo"):
     v = tf.get_variable("v", [1])
-    v1 = tf.get_variable("v", [1])
+    v1 = tf.get_variable("v")
     # Raises ValueError("... v already exists ...").
     
 with tf.variable_scope("foo", reuse=True):
-    v = tf.get_variable("v", [1])
+    v = tf.get_variable("v")
     # Raises ValueError("... v does not exists ...").
 ```
 Instead set the reuse flag probably.
@@ -152,13 +152,13 @@ Instead set the reuse flag probably.
 with tf.variable_scope("foo"):
     v = tf.get_variable("v2", [1])
 with tf.variable_scope("foo", reuse=True):
-    v1 = tf.get_variable("v2", [1])
+    v1 = tf.get_variable("v2")  # reuse/share the variable "foo/v2"
 assert v1 == v
 
 with tf.variable_scope("foo") as scope:
     v = tf.get_variable("v3", [1])
     scope.reuse_variables()
-    v1 = tf.get_variable("v3", [1])
+    v1 = tf.get_variable("v3")
 assert v1 == v
 ```
 
@@ -170,10 +170,32 @@ with tf.variable_scope("foo"):
         assert v.name == "foo/bar/v:0"
 ``` 
 ### Caveat of variable sharing
-Developers start learning TensorFlow variables with *tf.name_scope* and *tf.Variables* methods.  In variable sharing, developers mixed these calls with *tf.get_variable* & *tf.variable_scope*. Those methods are not for shared variables. Their behavior under the shared variable context will surprise you. The best way to avoid nasty issue is:
-* Do **NOT** use *tf.name_scope* and *tf.Variables* for those shareable variables. 
-* Always use *tf.variable_scope* and *tf.get_variable* instead.
-In additional, shared variable practices behaves similar to global variables. As always, use it with care out of necessarity only.
+Most developers are familiar with *tf.name_scope* and *tf.Variables* methods. However, these APIs are NOT for shared variables.  For example, *tf.get_variable* below does not pick up the name scope created from *tf.name_scope*.
+```python
+with tf.name_scope("foo1"):
+    v1 = tf.get_variable("v", [1])
+    v2 = tf.Variable(1, name="v2")
 
+with tf.variable_scope("foo2"):
+    v3 = tf.get_variable("v", [1])
+    v4 = tf.Variable(1, name="v2")
+
+print(v1.name)  # v:0 (Unexpected!)
+print(v2.name)  # foo1/v2:0
+print(v3.name)  # foo2/v:0  
+print(v4.name)  # foo2/v2:0
+```
+
+The best way to avoid nasty issues with shared variables are
+* Do **NOT** use *tf.name_scope* and *tf.Variables* with shareable variables. 
+* Always use *tf.variable_scope* to define the scope of a variable.
+* Use *tf,get_varaible* to create or retrieve a shared varaiable.
+```python
+with tf.variable_scope("foo"):
+    v = tf.get_variable("v2", [1])
+
+with tf.variable_scope("foo", reuse=True):
+    v1 = tf.get_variable("v2")
+```
 
 
