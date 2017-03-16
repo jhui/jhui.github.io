@@ -100,7 +100,7 @@ x = tf.placeholder(tf.float32, [None, 784])
 with tf.variable_scope("n1"):
     n1 = affine(x, [784, 500])
 
-with tf.variable_scope("n2"):
+with tf.variable_scope("n1"):
     n2 = affine(x, [784, 500])
 ```
 
@@ -115,11 +115,11 @@ def affine_reuseable(x, shape):
     return model
 
 nx = tf.placeholder(tf.float32, [None, 784])
-with tf.variable_scope("nl1"):
-    nl1 = affine_reuseable(x, [784, 500])
+with tf.variable_scope("n2"):
+    nn1 = affine_reuseable(x, [784, 500])
 
-with tf.variable_scope("nl1", reuse=True):
-    nl2 = affine_reuseable(x, [784, 500])
+with tf.variable_scope("n2", reuse=True):
+    nn2 = affine_reuseable(x, [784, 500])
 ```
 If a variable with the give "scope/name" exists, *tf.get_variable* returns that variable instead of creating one.
 ```python
@@ -132,7 +132,37 @@ with tf.variable_scope("nl1", reuse=True):
     nl2 = affine_reuseable(x, [784, 500])
 ```
 
+#### Reuse
+However, TensorFlow wants the developer to be self-aware whether the variable exists or now.
+Both scenario below will throw an exception when calling *tf.get_variable*:
+*  if the reuse flag is None and the variable already exists
+*  if the reuse flag is True and the variable does not exists
 
+Do **NOT** do this
+```python
+with tf.variable_scope("foo"):
+    v = tf.get_variable("v", [1])
+    v1 = tf.get_variable("v", [1])
+    # Raises ValueError("... v already exists ...").
+    
+with tf.variable_scope("foo", reuse=True):
+    v = tf.get_variable("v", [1])
+    # Raises ValueError("... v does not exists ...").
+```
+Instead set the reuse flag probably
+```python
+with tf.variable_scope("foo"):
+    v = tf.get_variable("v2", [1])
+with tf.variable_scope("foo", reuse=True):
+    v1 = tf.get_variable("v2", [1])
+assert v1 == v
+
+with tf.variable_scope("foo") as scope:
+    v = tf.get_variable("v3", [1])
+    scope.reuse_variables()
+    v1 = tf.get_variable("v3", [1])
+assert v1 == v
+```
 
 
 
