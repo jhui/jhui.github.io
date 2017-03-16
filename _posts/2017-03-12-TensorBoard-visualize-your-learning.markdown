@@ -248,7 +248,7 @@ if __name__ == '__main__':
 ```
 
 ### Logging and monitoring
-The code for monitoring is pretty simple and focus on the *validation_metrics* and *validation_monitor* below:
+TensorFlow also provide some pre-built monitoring to be used. The code for monitoring is pretty simple and focus on the *validation_metrics* and *validation_monitor* below:
 ```python
 """Model training for Iris data set using Validation Monitor."""
 
