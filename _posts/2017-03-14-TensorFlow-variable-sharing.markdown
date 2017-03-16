@@ -189,7 +189,8 @@ print(v4.name)  # foo2/v2:0
 The best way to avoid nasty issues with shared variables are
 * Do **NOT** use *tf.name_scope* and *tf.Variables* with shareable variables. 
 * Always use *tf.variable_scope* to define the scope of a variable.
-* Use *tf,get_varaible* to create or retrieve a shared varaiable.
+* Use *tf,get_varaible* to create or retrieve a shared variable.
+
 ```python
 with tf.variable_scope("foo"):
     v = tf.get_variable("v2", [1])
