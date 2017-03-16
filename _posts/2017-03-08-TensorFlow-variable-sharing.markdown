@@ -36,8 +36,7 @@ with tf.Session() as sess:
   print(b)
 ```
 
-#### Save and restore variable
-
+#### Save a Checkpoint
 Variables can be saved to a disk during and after training and be restored for prediction or analyze later.
 ```python
 ### Save and restore variables

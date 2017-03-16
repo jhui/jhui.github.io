@@ -616,5 +616,78 @@ Further possible accuracy improvement:
 * Further tuning of the learning rate and dropout parameter.
 
 ### Further thoughts
-Tensorflow provides [a MNlist implementation using CNN with the higher level API Estimator](https://github.com/tensorflow/tensorflow/blob/master/tensorflow/examples/tutorials/layers/cnn_mnist.py). For people want to work with the Estimator, this worth taking a look. 
+Tensorflow provides [a MNlist implementation using CNN with the higher level API Estimator](https://github.com/tensorflow/tensorflow/blob/master/tensorflow/examples/tutorials/layers/cnn_mnist.py). For people want to work with the Estimator, this worths taking a look. 
 ```
+
+### Appendix
+#### DNNClassifier (tf.contrib.learn.DNNClassifier)
+We use a Deep network classifier (with 3 hidden-layers) to classify the iris samples into 3 subclasses. We load 150 samples and split it into 120 training data and 30 testing data.
+
+The 4 features used as the model input:
+<div class="imgcap">
+<img src="/assets/tensorflow_basic/iris.png" style="border:none;">
+</div>
+
+
+```python
+"""Example of DNNClassifier for Iris plant dataset."""
+
+from sklearn import metrics
+from sklearn import model_selection
+
+import tensorflow as tf
+
+
+def main(unused_argv):
+  ### Loading dataset
+  # iris dataset contains 150 samples.
+  iris = tf.contrib.learn.datasets.load_dataset('iris')
+  x_train, x_test, y_train, y_test = model_selection.train_test_split(
+      iris.data, iris.target, test_size=0.2, random_state=42)
+  print(x_train.shape)    # (120, 4) - 120 samples
+  print(x_test.shape)     # (30, 4)
+
+  ### Define the model feature and the model
+  # Define the features used in the DNN model
+  # feature_columns[0] -> RealValuedColumn(column_name='', dimension=4, default_value=None, dtype=tf.float64, normalizer=None)
+  feature_columns = tf.contrib.learn.infer_real_valued_columns_from_input(x_train)
+
+  # Build 3 layer DNN with 10, 20, 10 units respectively.
+  classifier = tf.contrib.learn.DNNClassifier(
+      feature_columns=feature_columns, hidden_units=[10, 20, 10], n_classes=3)
+
+  ### Train and predict
+  # Fit
+  classifier.fit(x_train, y_train, steps=200)
+
+  # Predict
+  predictions = list(classifier.predict(x_test, as_iterable=True)) # a list of 30 elements. 30 predictions for 30 samples.
+  score = metrics.accuracy_score(y_test, predictions)
+  print(f"Accuracy: {score:f}")
+
+
+if __name__ == '__main__':
+  tf.app.run()
+```
+#### InteractiveSession
+TensorFlow provide another way to execute a computational graph using *tf.InteractiveSession*. 
+
+```python
+import tensorflow as tf
+sess = tf.InteractiveSession()
+
+x = tf.Variable([1.0, 2.0])
+a = tf.constant([5.0, 6.0])
+
+# Run the op that 'x' depends on, and then run 'x'
+x.initializer.run()
+
+addition = tf.add(x, a)
+
+# addition.eval is shorthand for tf.Session.run (where sess is the current tf.get_default_session.)
+print(addition.eval())      # [6. 8.]
+
+# Close the Session when we're done.
+sess.close()
+```
+This API is sometimes used in ipython environment.
