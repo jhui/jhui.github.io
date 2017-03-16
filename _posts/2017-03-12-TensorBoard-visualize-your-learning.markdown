@@ -30,7 +30,7 @@ def variable_summaries(var):
     tf.summary.scalar('min', tf.reduce_min(var))
     # Log var as a histogram
     tf.summary.histogram('histogram', var)
-``
+```
 We call affine_layer which calls variable_summaries.
 ```python
 h1, _ = affine_layer(x, 'layer1', [784, 256], keep_prob)
