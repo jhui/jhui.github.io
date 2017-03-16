@@ -10,7 +10,7 @@ date: 2017-03-12 12:00:00
 TensorBoard is a browser based application that help you to visualize your training parameters (like weights & biases), metrics (like loss), hyper parameters or any statistics. For example, we plot the histogram distribution of the weight for the first fully connected layer every 20 iterations.
 
 <div class="imgcap">
-<img src="/assets/tensorboard/tb_hist_summary.png" style="border:none; width:100%;">
+<img src="/assets/tensorboard/tb_hist.png" style="border:none; width:100%;">
 </div>
 
 #### Namespace
@@ -28,20 +28,20 @@ with tf.name_scope('CNN1'):
 	tf.summary.scalar('stddev', stddev)
         tf.summary.histogram('histogram', var)
 ```
-Which create the following data hierarchy and can be browse with the TensorBoard later:
+Which create the following data hierarchy and can be browsed with the TensorBoard later:
 <div class="imgcap">
 <img src="/assets/tensorboard/name_space.png" style="border:none; width:70%;">
 </div>
 
 
-#### Implementation
+#### Implement TensorBoard
 To add & view data summaries to the TensorBoard. We need to:
 1. Define all the summary information to be logged.
 2. Add summary information to the writer to flush it out to a log file.
 3. View the data in the TensorBoard.
 
 ### Define summary information
-Number can be added to the TensorBoard with *tf_summary.scalar* and array with tf.summary.histogram
+Number can be added to the TensorBoard with *tf_summary.scalar* and array with *tf.summary.histogram*
 ```python
 with tf.name_scope('CNN1'):
     with tf.name_scope('W'):
@@ -51,7 +51,7 @@ with tf.name_scope('CNN1'):
 ```
 
 Here is the summary of both scalar and histogram summary in the TensorBoard.
-
+For data logged with *tf_summary.scalar*
 <div class="imgcap">
 <img src="/assets/tensorboard/tb_scalar_summary.png" style="border:none; width:100%;">
 </div>
@@ -60,7 +60,7 @@ Here is the summary of both scalar and histogram summary in the TensorBoard.
 <img src="/assets/tensorboard/tb_scalar.png" style="border:none; width:100%;">
 </div>
 
-
+For summary logged with *tf.summary.histogram*
 <div class="imgcap">
 <img src="/assets/tensorboard/tb_hist_summary.png" style="border:none; width:100%;">
 </div>
@@ -98,6 +98,7 @@ def variable_summaries(var):
     tf.summary.histogram('histogram', var)
 ```
 ### Add summary information to a writer
+After we define what summary information to be logged, we merge all the summary data into one single operation node with *tf.summary.merge_all()*. We create a summary writer with *tf.summary.FileWriter*, and then write and flush out the information to the log file every 20 iterations:
 ```python
 def main(_):
   ...
@@ -248,6 +249,11 @@ if __name__ == '__main__':
 
 ### TensorBoard images & embedding
 TensorFlow can also plot many different kinds of information including images and word embedding.
+To add image summary:
+```python
+image = tf.reshape(x[:1], [-1, 28, 28, 1])
+tf.summary.image("image", image)
+```
 <div class="imgcap">
 <img src="/assets/tensorboard/tb_image.png" style="border:none; width:100%;">
 </div>
