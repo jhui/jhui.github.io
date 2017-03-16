@@ -617,7 +617,6 @@ Further possible accuracy improvement:
 
 ### Further thoughts
 Tensorflow provides [a MNlist implementation using CNN with the higher level API Estimator](https://github.com/tensorflow/tensorflow/blob/master/tensorflow/examples/tutorials/layers/cnn_mnist.py). For people want to work with the Estimator, this worths taking a look. 
-```
 
 ### Appendix
 #### DNNClassifier (tf.contrib.learn.DNNClassifier)
