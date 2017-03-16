@@ -3,7 +3,7 @@ layout: post
 comments: true
 mathjax: true
 title: “TensorFlow overview”
-excerpt: “TensorFlow is a very powerful platform for Machine Learning. I will go over some of the basic in this TensorFlow tutorials.”
+excerpt: “TensorFlow is a very powerful platform for Machine Learning. I will go over some of the basic in this TensorFlow tutorial.”
 date: 2017-03-14 14:00:00
 ---
 ### Basic
