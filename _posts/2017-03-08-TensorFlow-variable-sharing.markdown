@@ -3,7 +3,7 @@ layout: post
 comments: true
 title: “TensorFlow variables, variable sharing and scoping.”
 excerpt: “Explain the Tensor variables, name sharing & scoping without the confusion.”
-date: 2017-03-14 12:00:00
+date: 2017-03-08 12:00:00
 ---
 ### Variables
 
