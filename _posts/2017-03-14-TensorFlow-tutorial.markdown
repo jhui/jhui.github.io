@@ -622,7 +622,7 @@ Tensorflow provides [a MNlist implementation using CNN with the higher level API
 #### DNNClassifier (tf.contrib.learn.DNNClassifier)
 We use a Deep network classifier (with 3 hidden-layers) to classify the iris samples into 3 subclasses. We load 150 samples and split it into 120 training data and 30 testing data.
 
-The 4 features used as the model input:
+The 4 features used as the model input: (image from wiki)
 <div class="imgcap">
 <img src="/assets/tensorflow_basic/iris.png" style="border:none;">
 </div>
@@ -636,7 +636,6 @@ from sklearn import model_selection
 
 import tensorflow as tf
 
-
 def main(unused_argv):
   ### Loading dataset
   # iris dataset contains 150 samples.
@@ -647,8 +646,7 @@ def main(unused_argv):
   print(x_test.shape)     # (30, 4)
 
   ### Define the model feature and the model
-  # Define the features used in the DNN model
-  # feature_columns[0] -> RealValuedColumn(column_name='', dimension=4, default_value=None, dtype=tf.float64, normalizer=None)
+  # Define the features used in the DNN model: 4 features with real value
   feature_columns = tf.contrib.learn.infer_real_valued_columns_from_input(x_train)
 
   # Build 3 layer DNN with 10, 20, 10 units respectively.
@@ -667,7 +665,9 @@ def main(unused_argv):
 
 if __name__ == '__main__':
   tf.app.run()
+
 ```
+
 #### InteractiveSession
 TensorFlow provide another way to execute a computational graph using *tf.InteractiveSession*. 
 
@@ -690,3 +690,8 @@ print(addition.eval())      # [6. 8.]
 sess.close()
 ```
 This API is sometimes used in ipython environment.
+
+### Caveat
+* Some APIs like tf.split, tf.concat in v1.0 are not backward compatible with pre-v1.0 version. Some files are moved to different directories. Care must be taken between the version of Tensorflow and the version the code is intended for.
+* Github example directories, including v1.0 and nightly build, contains some code that have not ported to v1.0. However, the changes usually is not too complicated. Just some information is hard to find. Read the doc API for any signature changes.
+
