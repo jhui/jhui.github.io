@@ -168,13 +168,12 @@ with tf.variable_scope("foo"):
     with tf.variable_scope("bar"):
         v = tf.get_variable("v", [1])
         assert v.name == "foo/bar/v:0"
-```
+``` 
 ### Caveat of variable sharing
-Most developers learn TensorFlow variables with *tf.name_scope* and *tf.Variables* methods.  In variable sharing, they mixed these calls with *tf.get_variable* & *tf.variable_scope*. Those methods are not for variable sharing and behave un-expectedly in the context of variable sharing.  For shareable variables, do **NOT** call *tf.name_scope* and *tf.Variables* for those shareable variables. Always use *tf.variable_scope* and *tf.get_variable* only.
-
-
-
-
+Developers start learning TensorFlow variables with *tf.name_scope* and *tf.Variables* methods.  In variable sharing, developers mixed these calls with *tf.get_variable* & *tf.variable_scope*. Those methods are not for shared variables. Their behavior under the shared variable context will surprise you. The best way to avoid nasty issue is:
+* Do **NOT** use *tf.name_scope* and *tf.Variables* for those shareable variables. 
+* Always use *tf.variable_scope* and *tf.get_variable* instead.
+In additional, shared variable practices behaves similar to global variables. As always, use it with care out of necessarity only.
 
 
 
