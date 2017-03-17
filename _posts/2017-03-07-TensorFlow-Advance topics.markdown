@@ -4,7 +4,7 @@ comments: true
 mathjax: true
 title: “TensorFlow advance topics”
 excerpt: “Cover TensorFlow advance topics including Supervisor.”
-date: 2017-03-107 14:00:00
+date: 2017-03-07 14:00:00
 ---
 ### Supervisor
 
