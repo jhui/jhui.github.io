@@ -4,7 +4,7 @@ comments: true
 mathjax: true
 title: “TensorFlow - Reading data, threading & queues.”
 excerpt: “How threading & queue work? We later focus on how to read data into the TensorFlow.”
-date: 2017-03-05 14:00:00
+date: 2017-03-08 14:00:00
 ---
 
 Before we learn how to read data into a TensorFlow programing through a pipeline, some basic understanding of the TensorFlow thread and queues are helpful but not required. 
