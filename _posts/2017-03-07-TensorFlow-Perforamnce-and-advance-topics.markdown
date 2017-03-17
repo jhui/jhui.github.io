@@ -3,7 +3,7 @@ layout: post
 comments: true
 mathjax: true
 title: “TensorFlow performance and advance topics”
-excerpt: “Cover TensorFlow advance topics including performance and Supervisor.”
+excerpt: “Cover TensorFlow advance topics including performance and other advance topics.”
 date: 2017-03-07 14:00:00
 ---
 ### Performance
@@ -13,6 +13,7 @@ date: 2017-03-07 14:00:00
 * Reading many small files are not efficient. Pre-process the data and create a few large one with TFRecord.
 * When using tf.contrib.layers.batch_norm, set the attribute fused=True.
 * Consider quantize the Neural network for inference in particular for mobile devices.
+
 ### Supervisor
 
 Supervisor allows a long running training to be recovered after a crash.  Checkpoint is constantly made.  When the process die, it can reload trained parameters from the checkpoint appoint startup. The code related to supervisor is shown as below:
@@ -166,10 +167,60 @@ with sv.managed_session() as sess:
     # W: [ 1.99999797] b: [-0.49999401] cost: 2.2751578399038408e-11
 ```
 
+### GPU
 
+To determine where your computation node is running on (CPU/GPU)?
 
+```python
+import tensorflow as tf
 
+# Construct 2 op nodes (m1, m2) representing 2 matrix.
+m1 = tf.constant([[3, 5]])
+m2 = tf.constant([[2],[4]])
 
+product = tf.matmul(m1, m2)    # A matrix multiplication op node
+
+sess = tf.Session(config=tf.ConfigProto(log_device_placement=True))
+print(sess.run(product))
+
+sess.close()
+
+# MatMul: (MatMul): /job:localhost/replica:0/task:0/cpu:0
+# Const_1: (Const): /job:localhost/replica:0/task:0/cpu:0
+# Const: (Const): /job:localhost/replica:0/task:0/cpu:0
+```
+To run m1, m2 and product op node on specific device CPU 0.
+```python
+import tensorflow as tf
+
+# Construct 2 op nodes (m1, m2) representing 2 matrix.
+with tf.device('/cpu:0'):
+    m1 = tf.constant([[3, 5]])
+    m2 = tf.constant([[2],[4]])
+
+    product = tf.matmul(m1, m2)    # A matrix multiplication op node
+
+sess = tf.Session(config=tf.ConfigProto(log_device_placement=True))
+print(sess.run(product))
+
+sess.close()
+```
+Using multiple GPUs
+```python
+for d in ['/gpu:1', '/gpu:2']:
+  with tf.device(d):
+     ...
+with tf.device('/cpu:0'):
+     ...
+```
+
+Soft placement: If GPU 2 does not exist, allow_soft_placement=True will place it onto an alternative device to run the operation.  Otherwise, the operation will throw an exception if GPU 2 does not exist.
+```python
+with tf.device('/gpu:2'):
+	...
+sess = tf.Session(config=tf.ConfigProto(
+      allow_soft_placement=True, log_device_placement=True))
+```
 
 
 

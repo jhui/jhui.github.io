@@ -334,7 +334,7 @@ At the end of the pipeline we can use another queue to batch together data. *tf.
 The following animation (from TensorFlow) indicates how data is read from the data pipeline.
 
 <div class="imgcap">
-<img src="/assets/read_data/pipeline.png" style="border:none;">
+<img src="/assets/read_data/pipeline.gif" style="border:none;">
 </div>
 
  
