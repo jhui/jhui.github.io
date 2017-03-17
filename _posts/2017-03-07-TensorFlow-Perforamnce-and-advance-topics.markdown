@@ -2,10 +2,17 @@
 layout: post
 comments: true
 mathjax: true
-title: “TensorFlow advance topics”
-excerpt: “Cover TensorFlow advance topics including Supervisor.”
+title: “TensorFlow performance and advance topics”
+excerpt: “Cover TensorFlow advance topics including performance and Supervisor.”
 date: 2017-03-07 14:00:00
 ---
+### Performance
+*  Building from source with compiler optimizations for the target hardware CPU and GPU. Install latest CUDA and cuDNN libraries. 
+* Use queue in reading data. Do not use feed data.
+* Put the data preprocessing on the CPU.
+* Reading many small files are not efficient. Pre-process the data and create a few large one with TFRecord.
+* When using tf.contrib.layers.batch_norm, set the attribute fused=True.
+* Consider quantize the Neural network for inference in particular for mobile devices.
 ### Supervisor
 
 Supervisor allows a long running training to be recovered after a crash.  Checkpoint is constantly made.  When the process die, it can reload trained parameters from the checkpoint appoint startup. The code related to supervisor is shown as below:

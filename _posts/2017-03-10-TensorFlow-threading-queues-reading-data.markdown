@@ -331,6 +331,10 @@ with tf.Session() as sess:
 
 At the end of the pipeline we can use another queue to batch together data. *tf.train.shuffle_batch* randomize the data in its queue for consumptions. If more parallelism is needed, use *tf.train.shuffle_batch_join* to deploy multiple reader instances to enqueue the data queue.
 
+The following animation (from TensorFlow) indicates how data is read from the data pipeline.
 
+<div class="imgcap">
+<img src="/assets/read_data/pipeline.png" style="border:none;">
+</div>
 
  
