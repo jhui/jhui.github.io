@@ -6,10 +6,13 @@ title: “Deep learning without going down the rabbit holes too early.”
 excerpt: “How to learn deep learning from easy concept to complex idea? How to build insight along the way?”
 date: 2017-03-01 14:00:00
 ---
-> ** This is work in progress **
+** This is work in progress **
 
 ### What is deep learning?
-[Deep Learning](assets/dl_intro/deep_learner.jpg)
+<div class="imgcap">
+<img src="/assets/dl_intro/deep_learner.jpg" style="border:none; width:40%;">
+</div>
+
 ### Build a Linear regression model
 
 ### Learning from mistakes
