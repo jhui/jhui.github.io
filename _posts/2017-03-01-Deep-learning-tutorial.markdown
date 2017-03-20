@@ -10,7 +10,7 @@ date: 2017-03-01 14:00:00
 
 ### What is deep learning?
 <div class="imgcap">
-<img src="/assets/dl_intro/deep_learner.jpg" style="border:none; width:40%;">
+<img src="/assets/dl_intro/deep_learner.jpg" style="border:none;">
 </div>
 
 ### Build a Linear regression model
