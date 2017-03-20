@@ -13,7 +13,7 @@ Before we learn how to read data into a TensorFlow programing through a pipeline
 TensorFlow use a coordinator *tf.train.Coordinator* for thread coordination. The code below:
 * Start 4 threads
 	* Each thread print out a hello message and then sleep for a random amount of time.
-        * When the thread wake up from sleep, it print another message.
+	* When the thread wake up from sleep, it print another message.
 * Whenever a thread print out 4 messages already, it will ask the coordinator to request all other threads to stop.
  
 ```python
@@ -283,7 +283,7 @@ filename_queue = tf.train.string_input_producer(["iris_training.csv", "iris_trai
 
 *string_input_producer* has options for shuffling and setting a maximum number of epochs. QueueRunner adds the whole list of filenames to the queue once for each epoch. Optional shuffling within an epoch (shuffle=True) provides a uniform sampling of files.
 
-#### 
+#### A reader
 ```python
 reader = tf.TextLineReader(skip_header_lines=1)
 key, value = reader.read(filename_queue)
@@ -331,7 +331,7 @@ with tf.Session() as sess:
 
 At the end of the pipeline we can use another queue to batch together data. *tf.train.shuffle_batch* randomize the data in its queue for consumptions. If more parallelism is needed, use *tf.train.shuffle_batch_join* to deploy multiple reader instances to enqueue the data queue.
 
-The following animation (from TensorFlow) indicates how data is read from the data pipeline.
+The following animation (diagram from TensorFlow) indicates how data is read from the data pipeline.
 
 <div class="imgcap">
 <img src="/assets/read_data/pipeline.gif" style="border:none;">
