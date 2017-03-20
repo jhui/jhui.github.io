@@ -159,7 +159,7 @@ Create an op node which will put the (x, y) pair to the queue.
 enqueue_op = queue.enqueue_many([x, y])
 ```
 Or we can define multiple nodes to enqueue messages.
-```
+```python
 enqueue_op1 = queue.enqueue_many([x, y])
 enqueue_op2 = queue.enqueue_many([x2, y])
 ```
@@ -171,7 +171,7 @@ data_sample, label_sample = queue.dequeue()
 ```
 
 #### Create a QueueRunner 
-Define a QueueRunner which will later start NUM_THREADS of enqueue_op1
+Define a QueueRunner which will later start a number of threads for enqueue_op1.
 ```python
 qr = tf.train.QueueRunner(queue, [enqueue_op1] * NUM_THREADS)
 ```
