@@ -9,13 +9,33 @@ date: 2017-03-01 14:00:00
 ** This is work in progress **
 
 ### What is deep learning?
+People may approach deep learning by explaining the neural network in our brain. Historically, this is where deep learning gets its insight.  Nevertheless, once you pass this and realize building a deep learning network is about building a **function estimator**, you will realize the real potential of deep learning in many aspects of AI.
+ 
+Let us build a new andriod named Pieter. Our first task is to teach Pieter visual recognition. Can the visual system in our brain be replaced by a big function estimator? Simply, we read the pixel value of an image, pass it to a function and calculate the chance that it is a school bus, an airplane or a truck etc ...
+  
 <div class="imgcap">
 <img src="/assets/dl_intro/deep_learner.jpg" style="border:none;">
 </div>
 
+Indeed, in our later example of hand writing recognition, we will build a system very similar to the following:
 <div class="imgcap">
 <img src="/assets/dl_intro/fc.jpg" style="border:none;">
 </div>
+
+with the simple equations
+$$
+f(x)
+$$ be:
+
+$$
+z(x_i, W, b) =  \sum_{i} W_i  x_i + b
+$$
+
+$$
+f(x_i, W, b) =  max(0, z)
+$$
+
+We are still missing a few pieces, but the fundermental is shown above and such system will easily recognize the zip code written in our hand written postal mail with pretty high successful rate.
 
 ### Build a Linear regression model
 
