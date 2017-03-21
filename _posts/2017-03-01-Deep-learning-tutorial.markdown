@@ -9,7 +9,7 @@ date: 2017-03-01 14:00:00
 ** This is work in progress **
 
 ### What is deep learning?
-**Deep learing is about building a function estimator.** Historically, people approach deep learning through the neural network in our brain. Indeed, this is where deep learning gets its insight.  Nevertheless, deep learning has out grown this explaination. Once you realize building a deep learning network is about building a function estimator, you will unveil the real potential of deep learning in AI.
+**Deep learing is about building a function estimator.** Historically, people approach deep learning through the neural network in our brain. Indeed, this is where deep learning gets its insight.  Nevertheless, deep learning has out grown the neural network explaination. Once you realize building a deep learning network is about building a function estimator, you will unveil the real potential of deep learning in AI.
  
 Let us build a new andriod named Pieter. Our first task is to teach Pieter how to recognize visual objects. Can the visual system in our brain be replaced by a big function estimator? Can we read the pixel values of an image, pass it to a function and calculate the chance that it is a school bus, an airplane or a truck etc ...?
 
@@ -43,7 +43,7 @@ $$
 x_{i}
 $$ 
 represents the pixel value i.
-These equation looks intimidating. But let me go through one example to illustrate how simple it is. For example, for a grayscale image with just 4 pixels (0.1, 0.3, 0.2, 0.1) and weight (0.3, 0.2, 0.4, 0.3) and bias (-0.8), the output of the node will be:
+These equation looks intimidating. But let me go through one example to illustrate how simple it is. For example, for a grayscale image with just 4 pixels (0.1, 0.3, 0.2, 0.1) and weight (0.3, 0.2, 0.4, 0.3) and bias (-0.8), the output of the first node circled in red will be:
 
 $$
 z_j =  0.3 * 0.1 + 0.2 * 0.3 + 0.4 * 0.2 + 0.3 * 0.1  - 0.8 = -0.6
@@ -70,7 +70,7 @@ $$
 z_j =  \sum_{i} W_i * x_i + b_i
 $$
 
-The following is the code listing implementing the network above.
+The following is the code implementing the network above.
 ```python
 import numpy as np
 
@@ -105,7 +105,7 @@ print("%.2f" % xor(0, 1))   # 1.00
 print("%.2f" % xor(1, 0))   # 1.00
 print("%.2f" % xor(1, 1))   # 0.00
 ````
-And the XOR output:
+And the XOR output match with its expected logical value:
 ```
  0 ^ 0 = 0.00
  0 ^ 1 = 1.00
@@ -113,7 +113,7 @@ And the XOR output:
  1 ^ 1 = 0.00
 ```
 #### Delta function
-Back to the basic calculus, we know that functions can decomposed to narrow rectangles. Can we use the technique above to construct such narrow shaped rectangles. (aka delta function)
+Back to the basic calculus, we know that functions can be built with infinite narrow rectangles. Can we use the technique above to construct such narrow shaped rectangles. (aka delta function)
 
 <div class="imgcap">
 <img src="/assets/dl_intro/delta.png" style="border:none;width:50%">
@@ -149,6 +149,7 @@ Output:
 <div class="imgcap">
 <img src="/assets/dl_intro/delta_func.png" style="border:none;width:60%">
 </div>
+
 
 
 ### Build a Linear regression model
