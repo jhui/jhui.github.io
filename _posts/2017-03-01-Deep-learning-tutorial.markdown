@@ -110,10 +110,10 @@ And the XOR output:
  1 ^ 1 = 0.00
 ```
 #### Delta function
-Back to the basic calculus, we know that functions can decomposed to narrow rectangles. Can we use the technique above to construct such function. (aka delta function)
+Back to the basic calculus, we know that functions can decomposed to narrow rectangles. Can we use the technique above to construct such narrow shaped rectangles. (aka delta function)
 
 <div class="imgcap">
-<img src="/assets/dl_intro/delta.png" style="border:none;;width:50%">
+<img src="/assets/dl_intro/delta.png" style="border:none;width:50%">
 </div>
 
 Here is the code listing:
@@ -144,7 +144,7 @@ plt.show()
 ```
 Output:
 <div class="imgcap">
-<img src="/assets/dl_intro/delta_func.png" style="border:none;">
+<img src="/assets/dl_intro/delta_func.png" style="border:none;width:60%">
 </div>
 
 
