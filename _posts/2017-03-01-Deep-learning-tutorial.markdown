@@ -29,7 +29,7 @@ $$
 be:
 
 $$
-z_j =  \sum_{j} W_{ij}  x_i + b_j_
+z_j =  \sum_{j} W_{ij}  x_i + b_j
 $$
 
 $$
@@ -42,7 +42,7 @@ We will miss a few more pieces, but the fundermental is there. This system can r
 We may be still skeptical about replacing our neural network using a functional estimator. Can we build XOR using the basic equations and the following network:
 
 $$
-z_j =  \sum_{i} W_i * x_i + b_i_
+z_j =  \sum_{i} W_i * x_i + b_i
 $$
 
 $$
