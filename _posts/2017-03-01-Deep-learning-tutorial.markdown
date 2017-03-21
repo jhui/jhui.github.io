@@ -6,7 +6,7 @@ title: “Deep learning without going down the rabbit holes too early.”
 excerpt: “How to learn deep learning from easy concept to complex idea? How to build insight along the way?”
 date: 2017-03-01 14:00:00
 ---
-** This is work in progress **
+**This is work in progress**
 
 ### What is deep learning?
 **Deep learing is about building a function estimator.** Historically, people approach deep learning through the neural network in our brain. Indeed, this is where deep learning gets its insight.  Nevertheless, deep learning has out grown the neural network explaination. Once you realize building a deep learning network is about building a function estimator, you will unveil the real potential of deep learning in AI.
@@ -42,7 +42,7 @@ which
 $$
 x_{i}
 $$ 
-represents the pixel value i for the first hidden layer or the input from the previous layer otherwise.
+represents the pixel value i for the first hidden layer or the output from the previous layer otherwise.
 These equation looks intimidating. But let us go through one example to illustrate how simple it is. For example, for a grayscale image with just 4 pixels (0.1, 0.3, 0.2, 0.1) and weight (0.3, 0.2, 0.4, 0.3) and bias (-0.8), the output of the first node circled in red will be:
 
 $$
