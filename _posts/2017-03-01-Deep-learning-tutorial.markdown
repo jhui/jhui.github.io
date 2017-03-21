@@ -58,7 +58,7 @@ Each node above will have its own set of weight (W) and bias (b). From the left 
 #### XOR
 For the skeptics, we will build an exclusive "or" (XOR) using a similar approach:
 <div class="imgcap">
-<img src="/assets/dl_intro/xor.jpg" style="border:none;width:50%">
+<img src="/assets/dl_intro/xor.jpg" style="border:none;">
 </div>
 with the same equations:
 
