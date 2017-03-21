@@ -26,14 +26,14 @@ with
 $$
 f(x)
 $$ 
-be:
+in each node above be:
 
 $$
 f(x) =  max(0, z_{j})
 $$
 
 $$
-z_j =  \sum_{i} W_{ij}  x_i + b_j \text{which x_i is the value in each pixel.}
+z_j =  \sum_{i} W_{ij}  x_i + b_j \text{     which} x_i \text{is the value in each pixel.}
 $$
 
 We will miss a few more pieces, but the fundermental is there. This system can recognize the zip code written in a letter's envelop with reasonable high successful rate.
