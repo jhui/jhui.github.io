@@ -113,7 +113,7 @@ And the XOR output match with its expected logical value:
  1 ^ 1 = 0.00
 ```
 #### Delta function
-Back to the basic calculus, we know that functions can be built with infinite narrow rectangles. Can we use the technique above to construct such narrow shaped rectangles. (aka delta function)
+Back to the basic calculus, we know that functions can be construct with infinite narrow rectangles. Can we use the technique above to construct such narrow shaped rectangles. (a.k.a. delta function)
 
 <div class="imgcap">
 <img src="/assets/dl_intro/delta.png" style="border:none;width:50%">
@@ -150,11 +150,13 @@ Output:
 <img src="/assets/dl_intro/delta_func.png" style="border:none;width:60%">
 </div>
 
-
+Discussing XOR or the delta function is not significant in deep learning.  But through this exercise, we demonstrate the potential of building a complex function estimator through a network of simple computation nodes.
 
 ### Build a Linear regression model
 
+
 ### Learning from mistakes
+**Deep learing is about learning from mistakes.**
 
 #### Gradient descent
 
