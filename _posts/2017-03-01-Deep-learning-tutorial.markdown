@@ -22,11 +22,11 @@ Indeed, in our later example of hand writing recognition, we will build a system
 <img src="/assets/dl_intro/fc.jpg" style="border:none;">
 </div>
 
-with
+For every node, we compute
 $$
 f(x)
 $$ 
-in each node above be:
+:
 
 $$
 f(z_j) = \frac{1}{1 + e^{-z_j}}
@@ -46,21 +46,21 @@ represents the pixel value i.
 These equation looks intimidating. But let me go through one example to illustrate how simple it is. For example, for a grayscale image with just 4 pixels (0.1, 0.3, 0.2, 0.1) and weight (0.3, 0.2, 0.4, 0.3) and bias (-0.8), the output of the node will be:
 
 $$
-z_j =  0.3 * 0.1 + 0.2 * 0.3 - 0.4 * 0.2 + 0.3 * 0.1  - 0.8 = -0.76
+z_j =  0.3 * 0.1 + 0.2 * 0.3 + 0.4 * 0.2 + 0.3 * 0.1  - 0.8 = -0.6
 $$
 
 $$
-f(z) =  \frac{1}{1 + e^{0.76}} = 0.3186
+f(z) =  \frac{1}{1 + e^{-(-0.6)}} = 0.3543
 $$
 
-Each node above will have its own set of weight (W) and bias (b). From the left most layer, we compute the output of each node and eventaully we feed forward the output through each layer. Eventually, we calculate the probability of each object classification (a school bus, an airplane or a truck). In this exercise, we supply the weight and bias values for each node to our android Pieter. But as the term "deep learning" imply, by the end of this tutorial, Pieter will manage to learn those parameters by himself. We still miss a few pieces of the puzzle, but the network diagram above lay down the fundation of our deep learning network. In fact, this simple design can recognize the zip code written on a envelop with reasonable high successful rate.
+Each node above will have its own set of weight (W) and bias (b). From the left most layer, we compute the output of each node and we feed forward the output through each layer. Eventually, the right most layer is the likeliness for each object classification (a school bus, an airplane or a truck). In this exercise, we supply the weight and bias values for each node to our android Pieter. But as the term "deep learning" imply, by the end of this tutorial, Pieter will manage to learn those parameters by himself. We still miss a few pieces of the puzzle, but the network diagram above lay down the fundation of our first deep learning network. In fact, this design can recognize the zip code written on a envelop with reasonable high accuracy.
 
 #### XOR
-For the skeptics, we will build an exclusive "or" (XOR) using the following networks:
+For the skeptics, we will build an exclusive "or" (XOR) using a similar approach:
 <div class="imgcap">
 <img src="/assets/dl_intro/xor.jpg" style="border:none;width:50%">
 </div>
-and the corresponding equations:
+with the same equations:
 
 $$
 h_j = \sigma(z) = \frac{1}{1 + e^{-z_j}}
