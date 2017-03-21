@@ -9,9 +9,9 @@ date: 2017-03-01 14:00:00
 **This is work in progress**
 
 ### What is deep learning?
-**Deep learing is about building a function estimator.** Historically, people approach deep learning through the neural network in our brain. Indeed, this is where deep learning gets its insight.  Nevertheless, deep learning has out grown the neural network explaination. Once you realize building a deep learning network is about building a function estimator, you will unveil the real potential of deep learning in AI.
+**Deep learing is about building a function estimator.** Historically, people describe deep learning through the neural network in our brain. Indeed, this is where deep learning gets its insight.  Nevertheless, deep learning has out grown this explaination. Once you realize building a deep learning network is about building a function estimator, you will unveil its real potential in AI.
  
-Let us build a new andriod named Pieter. Our first task is to teach Pieter how to recognize visual objects. Can the visual system in our brain be replaced by a big function estimator? Can we read the pixel values of an image, pass it to a function and calculate the chance that it is a school bus, an airplane or a truck etc ...?
+Let us build a new andriod named Pieter. Our first task is to teach Pieter how to recognize visual objects. Can the visual system in our brain be replaced by a big function estimator? Can we pass the pixel values of an image to a function and calculate the chance that it is a school bus, an airplane or a truck etc ...?
 
 <div class="imgcap">
 <img src="/assets/dl_intro/deep_learner.jpg" style="border:none;">
@@ -32,7 +32,7 @@ $$
 f(z_j) = \frac{1}{1 + e^{-z_j}}
 $$
 
-and, 
+which, 
 
 $$
 z_j = \sum_{i} W_{ij} x_{i} + b_{i}
@@ -42,21 +42,21 @@ which
 $$
 x_{i}
 $$ 
-represents the pixel value i for the first hidden layer or the output from the previous layer otherwise.
+represents the pixel value i for the first hidden layer or the output from the previous layer.
 These equation looks intimidating. But let us go through one example to illustrate how simple it is. For example, for a grayscale image with just 4 pixels (0.1, 0.3, 0.2, 0.1) and weight (0.3, 0.2, 0.4, 0.3) and bias (-0.8), the output of the first node circled in red will be:
 
 $$
-z_j =  0.3 * 0.1 + 0.2 * 0.3 + 0.4 * 0.2 + 0.3 * 0.1  - 0.8 = -0.6
+z_j =  0.3*0.1 + 0.2*0.3 + 0.4*0.2 + 0.3*0.1  - 0.8 = -0.6
 $$
 
 $$
 f(z) =  \frac{1}{1 + e^{-(-0.6)}} = 0.3543
 $$
 
-Each node above will have its own set of weight (W) and bias (b). From the left most layer, we compute the output of each node and we feed forward the output through each layer. Eventually, the right most layer is the likeliness for each object classification (a school bus, an airplane or a truck). In this exercise, we supply the weight and bias values for each node to our android Pieter. But as the term "deep learning" imply, by the end of this tutorial, Pieter will manage to learn those parameters by himself. We still miss a few pieces of the puzzle, and we will go deeper into the details later in this tutorial. But the network diagram above already lay down the fundation of our first deep learning network. In fact, this network design can recognize the zip code written on a envelop with reasonable high accuracy.
+Each node will have its own set of weight (W) and bias (b). From the left most layer, we compute the output of each node and we feed forward the output to the layer on the right. Eventually, the right most layer is the likeliness for each object classification (a school bus, an airplane or a truck). In this exercise, we supply the weight and bias values for each node to our android Pieter. But as the term "deep learning" may imply, by the end of this tutorial, Pieter will manage to learn those parameters by himself. We still miss a few pieces of the puzzle, and we will go deeper into the details later. But the network diagram above and the equations already lay down the fundation of a deep learning network. In fact, this design can recognize the zip code written on a envelop with reasonable high accuracy.
 
 #### XOR
-For the skeptics, we will build an exclusive "or" (XOR) using a similar approach:
+For the skeptics, we will build an exclusive "or" (a xor b) using a similar approach:
 <div class="imgcap">
 <img src="/assets/dl_intro/xor.jpg" style="border:none;">
 </div>
@@ -70,7 +70,7 @@ $$
 z_j =  \sum_{i} W_i * x_i + b_i
 $$
 
-The following is the code implementing the network above.
+The following is the code implementing which is pretty easy to understand without further explanation.
 ```python
 import numpy as np
 
@@ -81,10 +81,10 @@ def layer1(a, b):
     w11, w21, b1 = 20, 20, -10
     w12, w22, b2 = -20, -20, 30
 
-    v = w11 * a + w21 * b + b1
+    v = w11*a + w21*b + b1
     h11 = sigmoid(v)
 
-    v = w12 * a + w22 * b + b2
+    v = w12*a + w22*b + b2
     h12 = sigmoid(v)
 
     return h11, h12
@@ -92,7 +92,7 @@ def layer1(a, b):
 def layer2(a, b):
     w1, w2, bias = 20, 20, -30
 
-    v = w1 * a + w2 * b + bias
+    v = w1*a + w2*b + bias
     return sigmoid(v)
 
 def xor(a, b):
@@ -104,7 +104,7 @@ print(" 0 ^ 1 = %.2f" % xor(0, 1))   # 1.00
 print(" 1 ^ 0 = %.2f" % xor(1, 0))   # 1.00
 print(" 1 ^ 1 = %.2f" % xor(1, 1))   # 0.00
 ```
-And the XOR output match with its expected logical value:
+And the XOR output matches with its expected logical value:
 ```
  0 ^ 0 = 0.00
  0 ^ 1 = 1.00
@@ -126,17 +126,17 @@ import matplotlib.pyplot as plt
 def sigmoid(x):
   return 1 / (1 + np.exp(-x))
 
-def f_layer1(x):
+def layer1(x):
     h11 = sigmoid(1000 * x - 400)
     h12 = sigmoid(1000 * x - 500)
     return h11, h12
 
-def f_layer2(v1, v2):
+def layer2(v1, v2):
     return sigmoid(0.8 * v1 - 0.8 * v2)
 
 def func_estimator(x):
-    h11, h12 = f_layer1(x)
-    return f_layer2(h11, h12)
+    h11, h12 = layer1(x)
+    return layer2(h11, h12)
 
 x = np.arange(0, 3, 0.001)
 y = func_estimator(x)
