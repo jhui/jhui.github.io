@@ -42,8 +42,8 @@ which
 $$
 x_{i}
 $$ 
-represents the pixel value i.
-These equation looks intimidating. But let me go through one example to illustrate how simple it is. For example, for a grayscale image with just 4 pixels (0.1, 0.3, 0.2, 0.1) and weight (0.3, 0.2, 0.4, 0.3) and bias (-0.8), the output of the first node circled in red will be:
+represents the pixel value i for the first hidden layer or the input from the previous layer otherwise.
+These equation looks intimidating. But let us go through one example to illustrate how simple it is. For example, for a grayscale image with just 4 pixels (0.1, 0.3, 0.2, 0.1) and weight (0.3, 0.2, 0.4, 0.3) and bias (-0.8), the output of the first node circled in red will be:
 
 $$
 z_j =  0.3 * 0.1 + 0.2 * 0.3 + 0.4 * 0.2 + 0.3 * 0.1  - 0.8 = -0.6
@@ -53,7 +53,7 @@ $$
 f(z) =  \frac{1}{1 + e^{-(-0.6)}} = 0.3543
 $$
 
-Each node above will have its own set of weight (W) and bias (b). From the left most layer, we compute the output of each node and we feed forward the output through each layer. Eventually, the right most layer is the likeliness for each object classification (a school bus, an airplane or a truck). In this exercise, we supply the weight and bias values for each node to our android Pieter. But as the term "deep learning" imply, by the end of this tutorial, Pieter will manage to learn those parameters by himself. We still miss a few pieces of the puzzle, but the network diagram above lay down the fundation of our first deep learning network. In fact, this design can recognize the zip code written on a envelop with reasonable high accuracy.
+Each node above will have its own set of weight (W) and bias (b). From the left most layer, we compute the output of each node and we feed forward the output through each layer. Eventually, the right most layer is the likeliness for each object classification (a school bus, an airplane or a truck). In this exercise, we supply the weight and bias values for each node to our android Pieter. But as the term "deep learning" imply, by the end of this tutorial, Pieter will manage to learn those parameters by himself. We still miss a few pieces of the puzzle, and we will go deeper into the details later in this tutorial. But the network diagram above already lay down the fundation of our first deep learning network. In fact, this network design can recognize the zip code written on a envelop with reasonable high accuracy.
 
 #### XOR
 For the skeptics, we will build an exclusive "or" (XOR) using a similar approach:
@@ -95,16 +95,15 @@ def layer2(a, b):
     v = w1 * a + w2 * b + bias
     return sigmoid(v)
 
-
 def xor(a, b):
     h11, h12 = layer1(a, b)
     return layer2(h11, h12)
 
-print("%.2f" % xor(0, 0))   # 0.00
-print("%.2f" % xor(0, 1))   # 1.00
-print("%.2f" % xor(1, 0))   # 1.00
-print("%.2f" % xor(1, 1))   # 0.00
-````
+print(" 0 ^ 0 = %.2f" % xor(0, 0))   # 0.00
+print(" 0 ^ 1 = %.2f" % xor(0, 1))   # 1.00
+print(" 1 ^ 0 = %.2f" % xor(1, 0))   # 1.00
+print(" 1 ^ 1 = %.2f" % xor(1, 1))   # 0.00
+```
 And the XOR output match with its expected logical value:
 ```
  0 ^ 0 = 0.00
@@ -119,7 +118,7 @@ Back to the basic calculus, we know that functions can be construct with infinit
 <img src="/assets/dl_intro/delta.png" style="border:none;width:50%">
 </div>
 
-Here is the code listing:
+Here is the code listing using the same set of equations and network layoyt:
 ```python
 import numpy as np
 import matplotlib.pyplot as plt
@@ -145,7 +144,7 @@ y = func_estimator(x)
 plt.plot(x, y)
 plt.show()
 ```
-Output:
+Which output something similar to a delta function:
 <div class="imgcap">
 <img src="/assets/dl_intro/delta_func.png" style="border:none;width:60%">
 </div>
