@@ -43,7 +43,7 @@ $$
 x_{i}
 $$ 
 represents the pixel value i.
-These equation looks intimidating. But let me go through one example to illustrate how simple it is. For example, for a grayscale image with just 4 pixels (0.1, 0.3, 0.2, 0.1) and weight (0.3, 0.2, 0.4, 0.3) and bias (-0.2), the output of the node will be:
+These equation looks intimidating. But let me go through one example to illustrate how simple it is. For example, for a grayscale image with just 4 pixels (0.1, 0.3, 0.2, 0.1) and weight (0.3, 0.2, 0.4, 0.3) and bias (-0.8), the output of the node will be:
 
 $$
 z_j =  0.3 * 0.1 + 0.2 * 0.3 - 0.4 * 0.2 + 0.3 * 0.1  - 0.8 = -0.76
@@ -53,7 +53,7 @@ $$
 f(z) =  \frac{1}{1 + e^{0.76}} = 0.3186
 $$
 
-Each node above will have its own set of weight (W) and bias (b). From the left most layer, we compute the output of each node and eventaully we find the probability of each object classification (a school bus, an airplane or a truck). In this exercise, we supply the weight and bias values for each node to our android Pieter. But as the term "deep learning" may imply, by the end of this tutorial, Pieter will manage to learn those parameters by himself. We still miss a few pieces, but the fundermental is there. In fact, the system above can recognize the zip code written on a envelop with reasonable high successful rate.
+Each node above will have its own set of weight (W) and bias (b). From the left most layer, we compute the output of each node and eventaully we feed forward the output through each layer. Eventually, we calculate the probability of each object classification (a school bus, an airplane or a truck). In this exercise, we supply the weight and bias values for each node to our android Pieter. But as the term "deep learning" imply, by the end of this tutorial, Pieter will manage to learn those parameters by himself. We still miss a few pieces of the puzzle, but the network diagram above lay down the fundation of our deep learning network. In fact, this simple design can recognize the zip code written on a envelop with reasonable high successful rate.
 
 #### XOR
 For the skeptics, we will build an exclusive "or" (XOR) using the following networks:
