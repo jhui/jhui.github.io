@@ -70,34 +70,34 @@ $$
 z_j =  \sum_{i} W_i * x_i + b_i
 $$
 
-The following is the code implementing which is pretty easy to understand without further explanation.
+The following is the code implementation. Try to understand it by yourself in case you may have any mis-conceptions.
 ```python
 import numpy as np
 
 def sigmoid(x):
   return 1 / (1 + np.exp(-x))
 
-def layer1(a, b):
+def layer1(x1, x2):
     w11, w21, b1 = 20, 20, -10
     w12, w22, b2 = -20, -20, 30
 
-    v = w11*a + w21*b + b1
+    v = w11*x1 + w21*x2 + b1
     h11 = sigmoid(v)
 
-    v = w12*a + w22*b + b2
+    v = w12*x1 + w22*x2 + b2
     h12 = sigmoid(v)
 
     return h11, h12
 
-def layer2(a, b):
+def layer2(x1, x2):
     w1, w2, bias = 20, 20, -30
 
-    v = w1*a + w2*b + bias
+    v = w1*x1 + w2*x2 + bias
     return sigmoid(v)
 
 def xor(a, b):
     h11, h12 = layer1(a, b)
-    return layer2(h11, h12)
+    return layer2(h11, h12)             # Feed the output of last layer to the next layer 
 
 print(" 0 ^ 0 = %.2f" % xor(0, 0))   # 0.00
 print(" 0 ^ 1 = %.2f" % xor(0, 1))   # 1.00
