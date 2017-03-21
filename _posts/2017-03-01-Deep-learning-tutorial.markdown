@@ -9,7 +9,7 @@ date: 2017-03-01 14:00:00
 ** This is work in progress **
 
 ### What is deep learning?
-**Deep learing is about building a function estimator.** Historically, people approach deep learning by explaining the neural network in our brain. Indeed, this is where deep learning gets its insight.  Nevertheless, deep learning has out grown this explaination. Once you realize building a deep learning network is about building a function estimator, you will unveil the real potential of deep learning in AI.
+**Deep learing is about building a function estimator.** Historically, people approach deep learning through the neural network in our brain. Indeed, this is where deep learning gets its insight.  Nevertheless, deep learning has out grown this explaination. Once you realize building a deep learning network is about building a function estimator, you will unveil the real potential of deep learning in AI.
  
 Let us build a new andriod named Pieter. Our first task is to teach Pieter how to recognize visual objects. Can the visual system in our brain be replaced by a big function estimator? Can we read the pixel values of an image, pass it to a function and calculate the chance that it is a school bus, an airplane or a truck etc ...?
 
@@ -29,7 +29,7 @@ $$
 in each node above be:
 
 $$
-f(z) = \frac{1}{1 + e^{-z_j}}
+f(z_j) = \frac{1}{1 + e^{-z_j}}
 $$
 
 and, 
