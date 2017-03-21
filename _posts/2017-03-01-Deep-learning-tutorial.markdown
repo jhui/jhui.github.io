@@ -40,17 +40,17 @@ which
 $$
 x_i 
 $$
-is the value in each pixel. For example, for a pixel of (0.5, 0.5, 0.5) and weight (3,0, 2.0, 4.0) and bias (0.5), we compute the output of a node be:
+For example, for a grayscale image (0.1, 0.3, 0.2, 0.1, ...) and weight (3,0, 2.0, 4.0, 0.3, ...) and bias (-0.2), we compute the output of a node be:
 
 $$
-z_j =  3.0 * 0.5 + 2 * 0.5 - 4 * 0.5 - 0.6 
+z_j =  3.0 * 0.1 + 2 * 0.3 - 4 * 0.5 - 0.2 + 0.3 * 0.1 \dots 
 $$
 
 $$
-f(x) =  max(0, -0.1) = 0
+f(x) =  max(0, z_j) 
 $$
 
-We will miss a few more pieces, but the fundermental is there. This system can recognize the zip code written in a letter's envelop with reasonable high successful rate.
+Note, each node above will have its own set of weight (W) and bias (b). We still miss a few more pieces to make it work, but the fundermental is there. This system can recognize the zip code written on a envelop with reasonable high successful rate.
 
 #### XOR
 For the skeptics, we will build an exclusive "or" (XOR) using the following networks:
