@@ -25,17 +25,114 @@ Indeed, in our later example of hand writing recognition, we will build a system
 with the simple equations
 $$
 f(x)
-$$ be:
+$$ 
+be:
 
 $$
 z_j =  \sum_{j} W_{ij}  x_i + b_j_
 $$
 
 $$
-f(x) =  max(0, z_{ij})
+f(x) =  max(0, z_{j})
 $$
 
-We will miss a few more pieces, but the fundermental is there. The system will recognize the zip code written in our letter's envelop with reasonable high successful rate.
+We will miss a few more pieces, but the fundermental is there. This system can recognize the zip code written in a letter's envelop with reasonable high successful rate.
+
+#### XOR
+We may be still skeptical about replacing our neural network using a functional estimator. Can we build XOR using the basic equations and the following network:
+
+$$
+z_j =  \sum_{i} W_i * x_i + b_i_
+$$
+
+$$
+h_j = \sigma(z) = \frac{1}{1 + e^{-z_j}}
+$$
+
+<div class="imgcap">
+<img src="/assets/dl_intro/xor.jpg" style="border:none;">
+</div>
+
+The following is the code listing implement the above network.
+```python
+import numpy as np
+
+def sigmoid(x):
+  return 1 / (1 + np.exp(-x))
+
+def layer1(a, b):
+    w11, w21, b1 = 20, 20, -10
+    w12, w22, b2 = -20, -20, 30
+
+    v = w11 * a + w21 * b + b1
+    h11 = sigmoid(v)
+
+    v = w12 * a + w22 * b + b2
+    h12 = sigmoid(v)
+
+    return h11, h12
+
+def layer2(a, b):
+    w1, w2, bias = 20, 20, -30
+
+    v = w1 * a + w2 * b + bias
+    return sigmoid(v)
+
+
+def xor(a, b):
+    h11, h12 = layer1(a, b)
+    return layer2(h11, h12)
+
+print("%.2f" % xor(0, 0))   # 0.00
+print("%.2f" % xor(0, 1))   # 1.00
+print("%.2f" % xor(1, 0))   # 1.00
+print("%.2f" % xor(1, 1))   # 0.00
+````
+And the XOR output:
+```
+ 0 ^ 0 = 0.00
+ 0 ^ 1 = 1.00
+ 1 ^ 0 = 1.00
+ 1 ^ 1 = 0.00
+```
+#### Delta function
+Back to the basic calculus, we know that any functions are composed of very narrow rectangle. Can we use the technique above to construct a very narrow function. (aka delta function)
+
+<div class="imgcap">
+<img src="/assets/dl_intro/delta.png" style="border:none;">
+</div>
+
+```python
+import numpy as np
+import matplotlib.pyplot as plt
+
+def sigmoid(x):
+  return 1 / (1 + np.exp(-x))
+
+def f_layer1(x):
+    h11 = sigmoid(1000 * x - 400)
+    h12 = sigmoid(1000 * x - 500)
+    return h11, h12
+
+def f_layer2(v1, v2):
+    return sigmoid(0.8 * v1 - 0.8 * v2)
+
+def func_estimator(x):
+    h11, h12 = f_layer1(x)
+    return f_layer2(h11, h12)
+
+x = np.arange(0, 3, 0.001)
+y = func_estimator(x)
+
+plt.plot(x, y)
+plt.show()
+```
+Output:
+
+<div class="imgcap">
+<img src="/assets/dl_intro/delta_func.png" style="border:none;">
+</div>
+
 
 ### Build a Linear regression model
 
