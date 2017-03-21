@@ -22,38 +22,38 @@ Indeed, in our later example of hand writing recognition, we will build a system
 <img src="/assets/dl_intro/fc.jpg" style="border:none;">
 </div>
 
-with the simple equations
+with
 $$
 f(x)
 $$ 
 be:
 
 $$
-z_j =  \sum_{j} W_{ij}  x_i + b_j
+f(x) =  max(0, z_{j})
 $$
 
 $$
-f(x) =  max(0, z_{j})
+z_j =  \sum_{i} W_{ij}  x_i + b_j which x_i is the value in each pixel.
 $$
 
 We will miss a few more pieces, but the fundermental is there. This system can recognize the zip code written in a letter's envelop with reasonable high successful rate.
 
 #### XOR
-We may be still skeptical about replacing our neural network using a functional estimator. Can we build XOR using the basic equations and the following network:
-
-$$
-z_j =  \sum_{i} W_i * x_i + b_i
-$$
+For the skeptics, we will build an exclusive "or" (XOR) using the following networks:
+<div class="imgcap">
+<img src="/assets/dl_intro/xor.jpg" style="border:none;width:50%">
+</div>
+and the corresponding equations:
 
 $$
 h_j = \sigma(z) = \frac{1}{1 + e^{-z_j}}
 $$
 
-<div class="imgcap">
-<img src="/assets/dl_intro/xor.jpg" style="border:none;">
-</div>
+$$
+z_j =  \sum_{i} W_i * x_i + b_i
+$$
 
-The following is the code listing implement the above network.
+The following is the code listing implementing the network above.
 ```python
 import numpy as np
 
@@ -96,12 +96,13 @@ And the XOR output:
  1 ^ 1 = 0.00
 ```
 #### Delta function
-Back to the basic calculus, we know that any functions are composed of very narrow rectangle. Can we use the technique above to construct a very narrow function. (aka delta function)
+Back to the basic calculus, we know that functions can decomposed to narrow rectangles. Can we use the technique above to construct such function. (aka delta function)
 
 <div class="imgcap">
-<img src="/assets/dl_intro/delta.png" style="border:none;">
+<img src="/assets/dl_intro/delta.png" style="border:none;;width:50%">
 </div>
 
+Here is the code listing:
 ```python
 import numpy as np
 import matplotlib.pyplot as plt
@@ -128,7 +129,6 @@ plt.plot(x, y)
 plt.show()
 ```
 Output:
-
 <div class="imgcap">
 <img src="/assets/dl_intro/delta_func.png" style="border:none;">
 </div>
