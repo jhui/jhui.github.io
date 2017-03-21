@@ -9,9 +9,9 @@ date: 2017-03-01 14:00:00
 ** This is work in progress **
 
 ### What is deep learning?
-People may approach deep learning by explaining the neural network in our brain. Historically, this is where deep learning gets its insight.  Nevertheless, once you pass this and realize building a deep learning network is about building a **function estimator**, you will unveil the real potential of deep learning in AI.
+**Deep learing is about building a function estimator.** Historically, people approach deep learning by explaining the neural network in our brain. Indeed, this is where deep learning gets its insight.  Nevertheless, deep learning has out grown this explaination. Once you realize building a deep learning network is about building a function estimator, you will unveil the real potential of deep learning in AI.
  
-Let us build a new andriod named Pieter. Our first task is to teach Pieter visual recognition. Can the visual system in our brain be replaced by a big function estimator? Can we read the pixel value of an image, pass it to a function and calculate the chance that it is a school bus, an airplane or a truck etc ...
+Let us build a new andriod named Pieter. Our first task is to teach Pieter how to recognize visual objects. Can the visual system in our brain be replaced by a big function estimator? Can we read the pixel values of an image, pass it to a function and calculate the chance that it is a school bus, an airplane or a truck etc ...?
 
 <div class="imgcap">
 <img src="/assets/dl_intro/deep_learner.jpg" style="border:none;">
@@ -29,28 +29,31 @@ $$
 in each node above be:
 
 $$
-f(x) =  max(0, z_{j})
+f(z) = \frac{1}{1 + e^{-z_j}}
+$$
+
+and, 
+
+$$
+z_j = \sum_{i} W_{ij} x_{i} + b_{i}
+$$
+
+which
+$$
+x_{i}
+$$ 
+represents the pixel value i.
+These equation looks intimidating. But let me go through one example to illustrate how simple it is. For example, for a grayscale image with just 4 pixels (0.1, 0.3, 0.2, 0.1) and weight (0.3, 0.2, 0.4, 0.3) and bias (-0.2), the output of the node will be:
+
+$$
+z_j =  0.3 * 0.1 + 0.2 * 0.3 - 0.4 * 0.2 + 0.3 * 0.1  - 0.8 = -0.76
 $$
 
 $$
-z_j =  \sum_{i} W_{ij}  x_i + b_j 
+f(z) =  \frac{1}{1 + e^{0.76}} = 0.3186
 $$
 
-which 
-$$
-x_i 
-$$
-For example, for a grayscale image (0.1, 0.3, 0.2, 0.1, ...) and weight (3,0, 2.0, 4.0, 0.3, ...) and bias (-0.2), we compute the output of a node be:
-
-$$
-z_j =  3.0 * 0.1 + 2 * 0.3 - 4 * 0.5 - 0.2 + 0.3 * 0.1 \dots 
-$$
-
-$$
-f(x) =  max(0, z_j) 
-$$
-
-Note, each node above will have its own set of weight (W) and bias (b). We still miss a few more pieces to make it work, but the fundermental is there. This system can recognize the zip code written on a envelop with reasonable high successful rate.
+Each node above will have its own set of weight (W) and bias (b). From the left most layer, we compute the output of each node and eventaully we find the probability of each object classification (a school bus, an airplane or a truck). In this exercise, we supply the weight and bias values for each node to our android Pieter. But as the term "deep learning" may imply, by the end of this tutorial, Pieter will manage to learn those parameters by himself. We still miss a few pieces, but the fundermental is there. In fact, the system above can recognize the zip code written on a envelop with reasonable high successful rate.
 
 #### XOR
 For the skeptics, we will build an exclusive "or" (XOR) using the following networks:
