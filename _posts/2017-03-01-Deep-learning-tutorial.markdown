@@ -177,15 +177,15 @@ $$
 J(W, b, h, y) = \text{mean square error } (W, b, h, y) = \frac{1}{N} \sum_i (h_i - y_i)^2
 $$
 
-where h is what we predict in the mode, y is the value from our data and N is the number of samples. The intution is pretty simple.  We can visualize the cost as below with x being all the possible value of
+where h is what we predict about the number of dates in our model, y is the value from our sample data and N is the number of samples. The intution is pretty simple.  We can visualize the cost as below with x-axis being all the possible value of
 $$
 W_1
 $$
-and y the possible value of
+and y-axis the possible value of
 $$
 W_2
 $$
-between -1 and 1 and z the corresponding cost for (x, y). The solution of out model is where W and b has the lowest cost. i.e. picking the value of W and b such that the cost is the lowest (the blue area).
+between -1 and 1, and z the corresponding cost J(x, y). The solution of our model is where W and b has the lowest cost. i.e. picking the value of W and b such that the cost is the lowest (the blue area).
 
 <div class="imgcap">
 <img src="/assets/dl_intro/solution.png" style="border:none;">
@@ -195,7 +195,9 @@ We can first pick a random W and b, visualize dropping a marble at
 $$
 (W_1, W_2)
 $$
-and let the gravity to do its work. Visualize 3D or higher dimensions are hard. It is much easier to study the problem in 2D since the solution usually works in higher dimension.
+and let the gravity to do its work. 
+
+Visualize 3D or higher dimensions are hard. It is much easier to study any DL problem in 2D first.
 
 <div class="imgcap">
 <img src="/assets/dl_intro/gd.jpg" style="border:none;">
@@ -205,41 +207,55 @@ The X-axis is the value of
 $$
 W_1
 $$
-and the y axis is its corresponding cost average by N samples.
+and the y axis is its corresponding average cost of the N data samples.
 
 $$
-J(W, b, h, y) = \frac{1}{N} \sum_i (W_1*x_i + - y_i)^2
+J(W, b, h, y) = \frac{1}{N} \sum_i (W_1*x_i - y_i)^2
 $$
 
 We are ignoring 
 $$
-W_2 \text{ and } b.
+W_2 \text{ and } b
 $$
-It is clear that when the gradient at L1 is negative (as shown), we should move W to the right. But by how much? We can plot the value of 
+for now, or consider them as constants. When the gradient at L1 is negative (as shown), we should move W to the right. But by how much? We can plot the value of 
 $$
 W_2
 $$
-with 
+while fixing the value of
 $$
 W_1
 $$
-set to the x value of L1. We realize at L2, the gradient is smaller. It means the change of 
+at L1. We realize at L2, the gradient is smaller. i.e. the change of 
 $$
 W_2
 $$
 has a smaller impact on the cost comparable with
 $$
-W_1.
+W_1
 $$
-It is pretty obvious that the amount of adjustment for each paramter should be proportional to its partial gradient.
+at that point. Therefore, the amount of adjustment for each paramter at 
+$$
+(W_1, W_2)
+$$
+should be proportional to its partial gradient at that point. i.e.
 
 $$
 \Delta W_i \propto \frac{\partial J}{\partial W_i}
 $$
 
 $$
+\Delta W_i = \alpha \frac{\partial J}{\partial W_i}
+$$
+
+$$
 W_i = W_i - \alpha \Delta W_i
 $$
+
+In DL, the varaible 
+$$
+\alpha
+$$
+introduce here is called **learning rate**.  Smaller learning rate will take a longer time (more interation) to find the minima. However, as we learn from calcus, the larger the step the higher the error. In DL, finding the right value of learning rate is unfortunately a try and error exercise.  Sometimes we will try value from 1e-6 to 1. But let Pieter implement the new idea before going into the details of finding the right value of the learning rate.
 
 #### Backpropagation
 
