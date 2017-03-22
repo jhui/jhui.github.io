@@ -304,6 +304,8 @@ To compute the partial gradient efficiently, we perform a foward pass to compute
 <img src="/assets/dl_intro/fp.jpg" style="border:none;">
 </div>
 
+> Always keep track of the shape (dimension) of the data. This is a great tip when you do the programming. (N,) means a 1-D array with N elements. (N,1) means 2-D array with N rows each containing 1 element. (N, 3, 4) means a 3D array.
+
 $$
 out = W_1* X_1 + W_2*X_2 + b
 $$
@@ -345,8 +347,17 @@ J(out_i) = \frac{1}{N} (out_i - y_i)^2
 $$
 
 $$
-\frac{\partial J}{\partial \text{ out_i}} = \frac{2}{N} (out_i - y_i)
+\frac{\partial J}{\partial \text{ out}_i} = \frac{2}{N} (out_i - y_i)
 $$
+
+```python
+def mean_square_loss(h, y):
+    # h: prediction (N,)
+    # y: true value (N,)
+    ...
+    dout = 2 * (h-y) / N                  # Compute the partial derviative of J relative to out
+    return loss, dout
+```
 
 <div class="imgcap">
 <img src="/assets/dl_intro/bp1.jpg" style="border:none;">
@@ -361,6 +372,30 @@ and we apply the chain rule to compute the gradient at the second left layer.  (
 $$
 \frac{\partial J}{\partial W} = \frac{\partial J}{\partial out} \frac{\partial out}{\partial W}  
 $$ 
+
+```python
+def forward(x, W, b):
+    out = x.dot(W) + b
+    cache = (x, W, b)
+    return out, cache
+
+def backward(dout, cache):
+    # dout: dJ/dout (N,)
+    # x: input sample (N, 2)
+    # W: Weight (2,)
+    # b: bias float
+    x, W, b = cache
+    dw = x.T.dot(dout)            # Transpose x and multiple with dout. (2, N) * (N, ) -> (2,)
+    db = np.sum(dout, axis=0)     # Add all dout (N,) -> scalar
+    return dw, db
+
+def compute_loss(X, W, b, y=None):
+    h, cache = forward(X, W, b)
+
+    loss, dout = mean_square_loss(h, y)
+    dW, db = backward(dout, cache)
+    return loss, dW, db
+```
 
 In DL programing, we often name
 
