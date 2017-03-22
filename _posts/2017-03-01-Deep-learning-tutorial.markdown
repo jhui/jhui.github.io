@@ -551,20 +551,23 @@ $$
 \frac{\partial \text{out}_k}{\partial \text{out}_{k-1}}  = \frac{\partial f_{k}}{\partial \text{out}_{k-1}} 
 $$
 
-
-
-
-
-
-
-<div class="imgcap">
-<img src="/assets/dl_intro/bp4.jpg" style="border:none;">
-</div>
-
+In backprogragation, we need to backprogate multiple path back to the same node and add both result together:
 <div class="imgcap">
 <img src="/assets/dl_intro/bp_m1.jpg" style="border:none;">
 </div>
+$$
+\frac{\partial J}{\partial o_3}  = \frac{\partial J}{\partial o_4} \frac{\partial f_4} {\partial o_3} *+ \frac{\partial J}{\partial o_5} \frac{\partial f_4} {\partial o_3} 
+$$
 
+Backprogation is tedious and error prone. But most of time, it is not because it is hard but we lost track of those notations and index.
+> For backprogation, try to draw a diagram with the shape information. Name your key variables and put the derivative equation under each node. Expand equations with sub-index if needed.
+
+<div class="imgcap">
+<img src="/assets/dl_intro/bp.jpg" style="border:none;width:50%">
+</div>
+$$
+\frac{\partial J}{\partial \text{ out}_i} = \frac{2}{N} (out_i - y_i)
+$$
 
 ### Non-linearity
 
