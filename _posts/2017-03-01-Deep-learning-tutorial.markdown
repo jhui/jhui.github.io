@@ -313,9 +313,11 @@ $$
 J(out) = \frac{1}{N} \sum_i (out_i - y_i)^2
 J(out_i) = \frac{1}{N} (out_i - y_i)^2
 $$
+
 $$
 J(out_i) = \frac{1}{N} (out_i - y_i)^2
 $$
+
 $$
 frac{\partial J}{\partial out_i} = \frac{2}{N} (out_i - y_i)
 $$
