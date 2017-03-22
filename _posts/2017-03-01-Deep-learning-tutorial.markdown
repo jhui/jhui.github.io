@@ -236,7 +236,7 @@ $$
 should be proportional to its partial gradient at that point. i.e.
 
 $$
-\Delta W_i \propto \frac{\partial J}{\partial W_i}
+\Delta W_i \propto \frac{\partial J}{\partial W_i} \text{ i.e. } \Delta W_1 \propto \frac{\partial J}{\partial W_1} \text{ and } \Delta W_2 \propto \frac{\partial J}{\partial W_2}
 $$
 
 $$
@@ -244,7 +244,7 @@ $$
 $$
 
 $$
-W_i = W_i - \alpha \Delta W_i
+W_i = W_i - \Delta W_i
 $$
 
 In DL, the varaible 
