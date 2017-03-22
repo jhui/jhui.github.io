@@ -155,7 +155,7 @@ Implement a XOR or a delta function is not important for deep learning (DL). Nev
 Before teaching Pieter how to learn those parameters, we try to build a simple model first. For example, Pieter wants to expand on his horizon and try to start online dating. He wants to find out the relationship between the number of online dates with the number of years in eductaion and the monthly income.  Pieter starts with a simple linear model as follows:
 
 $$
-dates = W_1*years in school + W_2*monthly income + bias
+dates = W_1* \text{years in school} + W_2*\text{monthly income} + bias
 $$
 
 He asks 1000 people in each community and collect the information on their income, education and the corresponding number of online dates.  Pieter is interested in finding out how each community values their intellectual vs his humble post-doc salary.  So even this model looks overwhemly simple, it serves its purpose.
@@ -167,8 +167,8 @@ He asks 1000 people in each community and collect the information on their incom
 4. Pieter will also compute how a small change in the current value of W and b will impact on the error.
 5. With this rate change information regarding W & b on the error, Pieter re-adjust W & b. (**Gradient descent**)
 6. Go back to step 2 for N iterations.
-7. When it is complete, we should have the correct parameter for W and b trainned with the collected sample data. 
-8. We use the final W & b on the model to make a prediction on how Pieter will do on each community.
+7. When it is complete, we get the correct parameter for W and b trainned with the sample data. 
+8. We use the final W & b to make a prediction on how Pieter will do in each community.
 
 #### Gradient descent
 Step 3-5 is called the gradient descent in ML. First we need to define a function to measure our errors betweent the real life and our model.  Mean square error (MSE) is one obvious candidate. In ML, we call this error function **cost function**.
