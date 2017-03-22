@@ -304,7 +304,7 @@ To compute the partial gradient efficiently, we perform a foward pass to compute
 <img src="/assets/dl_intro/fp.jpg" style="border:none;">
 </div>
 
-> Always keep track of the shape (dimension) of the data. This is a great tip when you do the programming. (N,) means a 1-D array with N elements. (N,1) means 2-D array with N rows each containing 1 element. (N, 3, 4) means a 3D array.
+> Always keep track of the shape (dimension) of the data. This is one great tip when you program DL. (N,) means a 1-D array with N elements. (N,1) means 2-D array with N rows each containing 1 element. (N, 3, 4) means a 3D array.
 
 $$
 out = W_1* X_1 + W_2*X_2 + b
@@ -363,14 +363,30 @@ def mean_square_loss(h, y):
 <img src="/assets/dl_intro/bp1.jpg" style="border:none;">
 </div>
 
-Now we compute the left most graident
+Now we have
 $$
 \frac{\partial J}{\partial out_i}
 $$ 
-and we apply the chain rule to compute the gradient at the second right layer.  (Backpropage the gradient from right to left.)
+. We apply the chain rule to compute the gradient at the second right layer.  (Backpropage the gradient from right to left.)
 
 $$
 \frac{\partial J}{\partial W} = \frac{\partial J}{\partial out} \frac{\partial out}{\partial W}  
+$$ 
+
+$$
+out = W_1* X_1 + W_2*X_2 + b
+$$
+
+$$
+\frac{\partial out}{\partial W}  = X
+$$ 
+
+$$
+\frac{\partial out}{\partial b}  = 1
+$$ 
+
+$$
+\frac{\partial J}{\partial W} = \frac{\partial J}{\partial out} X
 $$ 
 
 ```python
@@ -385,7 +401,7 @@ def backward(dout, cache):
     # W: Weight (2,)
     # b: bias float
     x, W, b = cache
-    dw = x.T.dot(dout)            # Transpose x and multiple with dout. (2, N) * (N, ) -> (2,)
+    dw = x.T.dot(dout)            # Transpose x (N, 2) -> (2, N) and multiple with dout. (2, N) * (N, ) -> (2,)
     db = np.sum(dout, axis=0)     # Add all dout (N,) -> scalar
     return dw, db
 
@@ -444,7 +460,7 @@ def backward(dout, cache):
     # W: Weight (2,)
     # b: bias float
     x, W, b = cache
-    dw = x.T.dot(dout)            # Transpose x and multiple with dout. (2, N) * (N, ) -> (2,)
+    dw = x.T.dot(dout)            # Transpose x (N, 2) -> (2, N) and multiple with dout. (2, N) * (N, ) -> (2,)
     db = np.sum(dout, axis=0)     # Add all dout (N,) -> scalar
     return dw, db
 
