@@ -174,10 +174,10 @@ He asks 1000 people in each community and collect the information on their incom
 Step 3-5 is called the gradient descent in DL. First we need to define a function to measure our errors betweent the real life and our model. In DL, we call this error function **cost function**. Mean square error (MSE) is one obvious candidate. 
 
 $$
-J(W, b, h, y) = \text{mean square error} (W, b, h, y) = \frac{1}{N} \sum_i (h - y)^2
+J(W, b, h, y) = \text{mean square error } (W, b, h, y) = \frac{1}{N} \sum_i (h_i - y_i)^2
 $$
 
-The intution is pretty simple.  We can visualize the cost as below with x being all the possible value of
+where h is what we predict in the mode, y is the value from our data and N is the number of samples. The intution is pretty simple.  We can visualize the cost as below with x being all the possible value of
 $$
 W_1
 $$
