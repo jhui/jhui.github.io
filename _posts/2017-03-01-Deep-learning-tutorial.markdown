@@ -185,11 +185,57 @@ and y the possible value of
 $$
 W_2
 $$
-(between -1 and 1) and z the corresponding cost for (x, y)
+between -1 and 1 and z the corresponding cost for (x, y). The solution of out model is where W and b has the lowest cost. i.e. picking the value of W and b such that the cost is the lowest (the blue area).
 
 <div class="imgcap">
 <img src="/assets/dl_intro/solution.png" style="border:none;">
 </div>
+
+We can first pick a random W and b, visualize dropping a marble at 
+$$
+(W_1, W_2)
+$$
+and let the gravity to do its work. Visualize 3D or higher dimensions are hard. It is much easier to study the problem in 2D since the solution usually works in higher dimension.
+
+<div class="imgcap">
+<img src="/assets/dl_intro/gd.jpg" style="border:none;">
+</div>
+
+The X-axis is the value of 
+$$
+W_1
+$$
+and the y axis is its corresponding cost average by N samples.
+
+$$
+J(W, b, h, y) = \frac{1}{N} \sum_i (W_1*x_i + - y_i)^2
+$$
+
+We are ignoring 
+$$
+W_2 \text{ and } b
+$$
+It is clear that if the gradient at L1 is negative, we should move W to the right. But by how much? We can plot the value of 
+$$
+W_2
+$$
+with 
+$$
+W_1
+$$
+set to the x value of L1. We realize at L2, the gradient is smaller. So the change of 
+$$
+W_1
+$$
+has a higher impact on the cost comparable with
+$$
+W_2
+$$
+So it is clear that the change of our parameter should be proportional to the gradient at the point. ie.
+$$
+\Delta W_i = \frac{\partial J}{\partial W_i}
+$$
+
 
 #### Backpropagation
 
