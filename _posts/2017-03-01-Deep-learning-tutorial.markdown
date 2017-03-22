@@ -163,15 +163,15 @@ He asks 1000 people in each community and collect the information on their incom
 **Deep learing is about learning from mistakes.** His stratragy to create a model for each community will be:
 1. Take a first guess on W and b.
 2. Use the model above to compute the number of dates.
-3. With the computed value and the number provided by each sample, he compute the error of his model.
-4. Pieter will also compute how a small change in the current value of W and b will impact on the error.
-5. With this rate change information regarding W & b on the error, Pieter re-adjust W & b. (**Gradient descent**)
+3. With the computed value and the number of dates provided by each sample, compute the error of the model.
+4. Compute how a small change in the current value of W and b will impact on the error.
+5. Re-adjust W & b according to the error rate change relative to W & b, . (**Gradient descent**)
 6. Go back to step 2 for N iterations.
-7. When it is complete, we get the correct parameter for W and b trainned with the sample data. 
-8. We use the final W & b to make a prediction on how Pieter will do in each community.
+7. When it is complete, we have the correct parameter for W and b trainned with the sample data. 
+8. Use the final W & b to make a prediction on how Pieter will do in each community.
 
 #### Gradient descent
-Step 3-5 is called the gradient descent in DL. First we need to define a function to measure our errors betweent the real life and our model. In DL, we call this error function **cost function**. Mean square error (MSE) is one obvious candidate. 
+Step 3-5 is called the gradient descent in DL. First we need to define a function to measure our errors between the real life and our model. In DL, we call this error function **cost function**. Mean square error (MSE) is one obvious candidate. 
 
 $$
 J(W, b, h, y) = \text{mean square error } (W, b, h, y) = \frac{1}{N} \sum_i (h_i - y_i)^2
@@ -206,7 +206,7 @@ The X-axis is the value of
 $$
 W_1
 $$
-and the y axis is its corresponding average cost of the N data samples.
+and the y axis is its corresponding average cost of the data samples.
 
 $$
 J(W, b, h, y) = \frac{1}{N} \sum_i (W_1*x_i - y_i)^2
@@ -254,21 +254,22 @@ In DL, the varaible
 $$
 \alpha
 $$
-introduce here is called the **learning rate**.  Small learning rate will take a longer time (more iteration) to find the minima. However, as we learn from calculus, the larger the step we take, the bigger the error in our calculation. In DL, finding the right value of learning rate is sometimes a try and error exercise.  Sometimes we will try values ranging from 1e-7 to 1 in logarithmic scale (1e-7, 5e-7, 1e-6, 5e-6, 1e-5 ...). 
+introduce here is called the **learning rate**.  Small learning rate will take a longer time (more iteration) to find the minima. However, as we learn from calculus, the larger the step, the bigger the error in our calculation. In DL, finding the right value of learning rate is sometimes a try and error exercise.  Sometimes we will try values ranging from 1e-7 to 1 in logarithmic scale (1e-7, 5e-7, 1e-6, 5e-6, 1e-5 ...). 
 
-Large learning step also introduce a big problem:
+Large learning step may cost w to oscillate with increasing cost:
 <div class="imgcap">
 <img src="/assets/dl_intro/learning_rate.jpg" style="border:none;">
 </div>
 
-We start with w = -6, if the gradient is huge, a relatively large learning rate will swing w far to the other side with even a larger gradient. Eventually, rather than drop down slowly to a minima, w keeps oscalliate and the cost keep increasing. 
+We start with w = -6 (x-axis) at L1 , if the gradient is huge, a relatively large learning rate will swing w far to the other side to L2 with even a larger gradient. Eventually, rather than drop down slowly to a minima, w keeps oscalliate and the cost keep increasing. The follow demonstrates how a learning rate of 0.6 may swing the cost inward instead of downward. When loss starts going upward, we need to reduce the learning rate.
 
 <div class="imgcap">
 <img src="/assets/dl_intro/lr_flow.png" style="border:none;">
 </div>
-Sometimes, we need to be careful about the scale used in plotting the x-axis and y-axis. In the diagram shown about, the gradient looks smaller than it should be because we use a larger scale for y-axis.
+Sometimes, we need to be careful about the scale used in plotting the x-axis and y-axis. In the diagram shown above, the gradient looks smaller than the real value because we use a larger scale for y-axis than the x-axis (0 to 150 vs -10 to 10).
 
 #### Backpropagation
+
 
 ### Non-linearity
 
