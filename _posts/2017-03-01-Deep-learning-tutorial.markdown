@@ -270,7 +270,7 @@ We start with w = -6 (x-axis) at L1 , if the gradient is huge, a relatively larg
 
 > Sometimes, we need to be careful about the scale used in plotting the x-axis and y-axis. In the diagram shown above, the gradient does not seem large.  It is because we use a much smaller scale for y-axis than the x-axis (0 to 150 vs -10 to 10).
 
-#### Find the partial derviative
+#### Naive gradient checking
 There are many ways to compute the paritial derviative. One naive but important method is using the simple partial derviative definition.
 
 Here is a simple demonstration of finding the derivative of 
@@ -293,14 +293,32 @@ print(gradient_check(f, 4))
 We don't call this method in the production code. But computing partial derviative can be tedious and therefore we always verify the value we computed with this naive method during the development time.
 
 ### Backpropagation
+To compute the partial derviatives, 
+$$
+\frac{\partial J}{\partial W_i}
+$$
+We can start from each node in the left most layer and compute the gradient using the naive gradient checking, and progagate the gradient until it reach the right most layer computing the cost.  Then we move to the next layer and start the process again. For a deep network, this is very inefficient.
 
+To compute the partial gradient efficiently, we perform a foward pass to compute the cost.
 <div class="imgcap">
 <img src="/assets/dl_intro/fp.jpg" style="border:none;">
 </div>
 
+Then we backprogragate the gradient from the right most layer to the left in one single pass.
 <div class="imgcap">
 <img src="/assets/dl_intro/bp.jpg" style="border:none;">
 </div>
+
+$$
+J(out) = \frac{1}{N} \sum_i (out_i - y_i)^2
+J(out_i) = \frac{1}{N} (out_i - y_i)^2
+$$
+$$
+J(out_i) = \frac{1}{N} (out_i - y_i)^2
+$$
+$$
+frac{\partial J}{\partial out_i} = \frac{2}{N} (out_i - y_i)
+$$
 
 <div class="imgcap">
 <img src="/assets/dl_intro/bp1.jpg" style="border:none;">
