@@ -284,7 +284,7 @@ $$
 
 ```python
 def gradient_check(f, x, h=0.00001):
-  grad = (f(x+h) - f(x-h))/ (2*h)
+  grad = (f(x+h) - f(x-h)) / (2*h)
   return grad
 
 f = lambda x: x**2
@@ -311,7 +311,6 @@ Then we backprogragate the gradient from the right most layer to the left in one
 
 $$
 J(out) = \frac{1}{N} \sum_i (out_i - y_i)^2
-J(out_i) = \frac{1}{N} (out_i - y_i)^2
 $$
 
 $$
@@ -319,8 +318,33 @@ J(out_i) = \frac{1}{N} (out_i - y_i)^2
 $$
 
 $$
-frac{\partial J}{\partial out_i} = \frac{2}{N} (out_i - y_i)
+\frac{\partial J}{\partial out_i} = \frac{2}{N} (out_i - y_i)
 $$
+
+Now we compute the left most graident
+$$
+\frac{\partial J}{\partial out_i}
+$$ 
+and we apply the chain rule to compute the gradient at the second left layer.  (Backpropage the gradient from left to right.)
+
+$$
+\frac{\partial J}{\partial dW} = \frac{\partial J}{\partial dout} \frac{\partial out}{\partial dW}  
+$$ 
+
+In DL programing, we often name
+
+$$
+\frac{\partial J}{\partial dout} \text{ as dout}
+$$
+
+$$
+\frac{\partial out}{\partial dW} \text{ as dW}
+$$
+
+$$
+\frac{\partial next}{\partial dcurrent} \text{ as dcurrent}
+$$
+
 
 <div class="imgcap">
 <img src="/assets/dl_intro/bp1.jpg" style="border:none;">
