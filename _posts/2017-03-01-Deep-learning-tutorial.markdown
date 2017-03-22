@@ -297,7 +297,7 @@ To compute the partial derviatives,
 $$
 \frac{\partial J}{\partial W_i}
 $$
-We can start from each node in the left most layer and compute the gradient using the naive gradient checking, and progagate the gradient until it reach the right most layer computing the cost.  Then we move to the next layer and start the process again. For a deep network, this is very inefficient.
+We can start from each node in the left most layer and compute the gradient using the naive gradient checking, and progagate the result until it reach the right most layer that computing the cost.  Then we move to the next layer and start the process again. For a deep network, this is very inefficient.
 
 To compute the partial gradient efficiently, we perform a foward pass to compute the cost.
 <div class="imgcap">
