@@ -213,9 +213,9 @@ $$
 
 We are ignoring 
 $$
-W_2 \text{ and } b
+W_2 \text{ and } b.
 $$
-It is clear that if the gradient at L1 is negative, we should move W to the right. But by how much? We can plot the value of 
+It is clear that when the gradient at L1 is negative (as shown), we should move W to the right. But by how much? We can plot the value of 
 $$
 W_2
 $$
@@ -223,19 +223,23 @@ with
 $$
 W_1
 $$
-set to the x value of L1. We realize at L2, the gradient is smaller. So the change of 
-$$
-W_1
-$$
-has a higher impact on the cost comparable with
+set to the x value of L1. We realize at L2, the gradient is smaller. It means the change of 
 $$
 W_2
 $$
-So it is clear that the change of our parameter should be proportional to the gradient at the point. ie.
+has a smaller impact on the cost comparable with
 $$
-\Delta W_i = \frac{\partial J}{\partial W_i}
+W_1.
+$$
+It is pretty obvious that the amount of adjustment for each paramter should be proportional to its partial gradient.
+
+$$
+\Delta W_i \propto \frac{\partial J}{\partial W_i}
 $$
 
+$$
+W_i = W_i - \alpha \Delta W_i
+$$
 
 #### Backpropagation
 
