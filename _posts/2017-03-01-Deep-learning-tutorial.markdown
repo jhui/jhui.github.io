@@ -560,7 +560,7 @@ $$
 $$
 
 Backprogation is tedious and error prone. But most of time, it is not because it is hard but we lost track of those notations and index.
-> For backprogation, try to draw a diagram with the shape information. Name your key variables and put the derivative equation under each node. Expand equations with sub-index if needed.
+> For backprogation, try to draw a diagram with the shape information. Name your key variables consistently and put the derivative equation under each node. Expand equations with sub-index if needed.
 
 <div class="imgcap">
 <img src="/assets/dl_intro/bp.jpg" style="border:none;width:50%">
