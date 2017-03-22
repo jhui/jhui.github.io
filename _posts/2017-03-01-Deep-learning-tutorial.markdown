@@ -185,7 +185,7 @@ and y-axis the possible value of
 $$
 W_2
 $$
-between -1 and 1, and z the corresponding cost J(x, y). The solution of our model is where W and b has the lowest cost. i.e. picking the value of W and b such that the cost is the lowest (the blue area). Imaging pick a random point W, and visualize dropping a marble at 
+between -1 and 1, and z the corresponding cost J(x, y). The solution of our model is where W and b has the lowest cost. i.e. picking the value of W and b such that the cost is the lowest (the blue area).Visualize dropping a marble at a random point
 $$
 (W_1, W_2)
 $$
@@ -197,7 +197,7 @@ and let the gravity to do its work.
 
 #### Learning rate
 
-Visualize 3D or higher dimensions are hard. It is much easier to study any DL problem in 2D first.
+Thinking in 3D or higher dimensions are hard. It is much easier to study any DL problem in 2D first.
 <div class="imgcap">
 <img src="/assets/dl_intro/gd.jpg" style="border:none;">
 </div>
