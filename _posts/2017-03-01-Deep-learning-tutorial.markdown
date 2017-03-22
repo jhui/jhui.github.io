@@ -236,7 +236,11 @@ $$
 should be proportional to its partial gradient at that point. i.e.
 
 $$
-\Delta W_i \propto \frac{\partial J}{\partial W_i} \text{ i.e. } \Delta W_1 \propto \frac{\partial J}{\partial W_1} \text{ and } \Delta W_2 \propto \frac{\partial J}{\partial W_2}
+\Delta W_i \propto \frac{\partial J}{\partial W_i} 
+$$
+
+$$
+\text{ i.e. } \Delta W_1 \propto \frac{\partial J}{\partial W_1} \text{ and } \Delta W_2 \propto \frac{\partial J}{\partial W_2}
 $$
 
 $$
@@ -258,7 +262,7 @@ Large learning step may cost w to oscillate with increasing cost:
 <img src="/assets/dl_intro/learning_rate.jpg" style="border:none;">
 </div>
 
-We start with w = -6 (x-axis) at L1 , if the gradient is huge, a relatively large learning rate will swing w far to the other side to L2 with even a larger gradient. Eventually, rather than drop down slowly to a minima, w keeps oscalliate and the cost keep increasing. The follow demonstrates how a learning rate of 0.6 may swing the cost inward instead of downward. When loss starts going upward, we need to reduce the learning rate. The following table trace how W change from L1 to L2 and then L3.
+We start with w = -6 (x-axis) at L1 , if the gradient is huge, a relatively large learning rate will swing w far to the other side to L2 with even a larger gradient. Eventually, rather than drop down slowly to a minima, w keeps oscalliate and the cost keep increasing. The follow demonstrates how a learning rate of 0.8 may swing the cost upward instead of downward. When loss starts going upward, we need to reduce the learning rate. The following table traces how W change from L1 to L2 and then L3.
 
 <div class="imgcap">
 <img src="/assets/dl_intro/lr_flow.png" style="border:none;">
@@ -266,7 +270,56 @@ We start with w = -6 (x-axis) at L1 , if the gradient is huge, a relatively larg
 
 > Sometimes, we need to be careful about the scale used in plotting the x-axis and y-axis. In the diagram shown above, the gradient does not seem large.  It is because we use a much smaller scale for y-axis than the x-axis (0 to 150 vs -10 to 10).
 
-#### Backpropagation
+#### Find the partial derviative
+There are many ways to compute the paritial derviative. One naive but important method is using the simple partial derviative definition.
+
+Here is a simple demonstration of finding the derivative of 
+$$
+x^2 \text{ at } x = 4
+$$
+
+$$
+\frac{\partial f}{\partial x} = \frac{f(x+\Delta x_i) - f(x-\Delta x_i) } { 2 \Delta x_i} 
+$$
+```python
+def gradient_check(f, x, h=0.00001):
+  grad = (f(x+h) - f(x-h))/ (2*h)
+  return grad
+
+f = lambda x: x**2
+print(gradient_check(f, 4))
+```
+We don't call this method in the production code. But computing partial derviative can be tedious and therefore we always verify the value we computed with this naive method during the development time.
+
+### Backpropagation
+
+<div class="imgcap">
+<img src="/assets/dl_intro/fp.png" style="border:none;">
+</div>
+
+<div class="imgcap">
+<img src="/assets/dl_intro/bp.png" style="border:none;">
+</div>
+
+<div class="imgcap">
+<img src="/assets/dl_intro/bp1.png" style="border:none;">
+</div>
+
+<div class="imgcap">
+<img src="/assets/dl_intro/bp2.png" style="border:none;">
+</div>
+
+<div class="imgcap">
+<img src="/assets/dl_intro/bp3.png" style="border:none;">
+</div>
+
+<div class="imgcap">
+<img src="/assets/dl_intro/bp4.png" style="border:none;">
+</div>
+
+<div class="imgcap">
+<img src="/assets/dl_intro/bp_m1.jpg" style="border:none;">
+</div>
 
 
 ### Non-linearity
