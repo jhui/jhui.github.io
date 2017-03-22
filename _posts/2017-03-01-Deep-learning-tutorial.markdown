@@ -281,6 +281,7 @@ $$
 $$
 \frac{\partial f}{\partial x} = \frac{f(x+\Delta x_i) - f(x-\Delta x_i) } { 2 \Delta x_i} 
 $$
+
 ```python
 def gradient_check(f, x, h=0.00001):
   grad = (f(x+h) - f(x-h))/ (2*h)
@@ -294,27 +295,27 @@ We don't call this method in the production code. But computing partial derviati
 ### Backpropagation
 
 <div class="imgcap">
-<img src="/assets/dl_intro/fp.png" style="border:none;">
+<img src="/assets/dl_intro/fp.jpg" style="border:none;">
 </div>
 
 <div class="imgcap">
-<img src="/assets/dl_intro/bp.png" style="border:none;">
+<img src="/assets/dl_intro/bp.jpg" style="border:none;">
 </div>
 
 <div class="imgcap">
-<img src="/assets/dl_intro/bp1.png" style="border:none;">
+<img src="/assets/dl_intro/bp1.jpg" style="border:none;">
 </div>
 
 <div class="imgcap">
-<img src="/assets/dl_intro/bp2.png" style="border:none;">
+<img src="/assets/dl_intro/bp2.jpg" style="border:none;">
 </div>
 
 <div class="imgcap">
-<img src="/assets/dl_intro/bp3.png" style="border:none;">
+<img src="/assets/dl_intro/bp3.jpg" style="border:none;">
 </div>
 
 <div class="imgcap">
-<img src="/assets/dl_intro/bp4.png" style="border:none;">
+<img src="/assets/dl_intro/bp4.jpg" style="border:none;">
 </div>
 
 <div class="imgcap">
