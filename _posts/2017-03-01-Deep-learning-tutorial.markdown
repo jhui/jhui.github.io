@@ -149,7 +149,7 @@ Which output something with shape like a delta function:
 <img src="/assets/dl_intro/delta_func.png" style="border:none;width:60%">
 </div>
 
-Implement a XOR or a delta function is not important for deep learning (DL). Nevertheless, we demonstrate the possibilities of building a complex function estimator through a network of simple computation nodes. In both cases, we need a network with 2 layers. A network with 3 or 4 layer can push the hand written recognition of numbers to an accuracy of 95%. Naturally, a network with many layers (deeper) can reproduce a much complicated model. For example, Microsoft ResNet for image recognition has 100+ layers.
+Implement a XOR or a delta function is not important for deep learning (DL). Nevertheless, we demonstrate the possibilities of building a complex function estimator through a network of simple computation nodes. In both cases, we need a network with 2 layers. A network with 3 or 4 layer can push the hand written recognition of numbers to an accuracy of 90+%. Naturally, a network with many layers (deeper) can reproduce a much complicated model. For example, Microsoft ResNet for image recognition has 100+ layers.
 
 ### Build a Linear regression model
 Before teaching Pieter how to learn those parameters, we try to build a simple model first. For example, Pieter wants to expand on his horizon and try to start online dating. He wants to find out the relationship between the number of online dates with the number of years in eductaion and the monthly income.  Pieter starts with a simple linear model as follows:
@@ -160,18 +160,21 @@ $$
 
 He asks 1000 people in each community and collect the information on their income, education and the corresponding number of online dates.  Pieter is interested in finding out how each community values their intellectual vs his humble post-doc salary.  So even this model looks overwhemly simple, it serves its purpose.
 
-**Deep learing is about learning from mistakes.** His stratragy to create a model for each community will be:
+Pieter will define a model with trainable parameters (W & b). He make a guess on the parameters and calculate how a tiny change in those parameters will impact on the error. With this informatin, he make tiny change to those parameter. He keeps continue until the parameters converge to stable numbers.
+
+**Deep learing is about learning from mistakes.** This is the high level steps for Pieter to build the model.
 1. Take a first guess on W and b.
 2. Use the model above to compute the number of dates.
-3. With the computed value and the number of dates provided by each sample, compute the error of the model.
-4. Compute how a small change in the current value of W and b will impact on the error.
-5. Re-adjust W & b according to the error rate change relative to W & b, . (**Gradient descent**)
-6. Go back to step 2 for N iterations.
-7. When it is complete, we have the correct parameter for W and b trainned with the sample data. 
-8. Use the final W & b to make a prediction on how Pieter will do in each community.
+3. With the computed value and the number of dates provided by each sample, compute the mean square error of the model.
+4. Then compute how a small change in the current W and b may impact on the error.
+5. Re-adjust W & b according to this error rate change relative to W & b, . (**Gradient descent**)
+6. Go back to step 2.
+7. After N iterations or when the parameters converge, we stop and have the final value for W & b. 
+8. Use the sample from another community to build a model with different W & b.
+9. Make a prediction on how Pieter will do in each community with different models.
 
-#### Gradient descent
-Step 3-5 is called the gradient descent in DL. First we need to define a function to measure our errors between the real life and our model. In DL, we call this error function **cost function**. Mean square error (MSE) is one obvious candidate. 
+### Gradient descent
+Step 3-5 is called the gradient descent in DL. First we need to define a function to measure our errors between the real life and our model. In DL, we call this error function **cost function** or **loss function**. Mean square error (MSE) is one obvious candidate. 
 
 $$
 J(W, b, h, y) = \text{mean square error } (W, b, h, y) = \frac{1}{N} \sum_i (h_i - y_i)^2
@@ -185,7 +188,7 @@ and y-axis the possible value of
 $$
 W_2
 $$
-between -1 and 1, and z the corresponding cost J(x, y). The solution of our model is where W and b has the lowest cost. i.e. picking the value of W and b such that the cost is the lowest (the blue area).Visualize dropping a marble at a random point
+between -1 and 1, and z the corresponding cost J(x, y). The solution of our model is where W and b has the lowest cost. i.e. picking the value of W and b such that the cost is the lowest (the lowest oint in the blue region).Visualize dropping a marble at a random point
 $$
 (W_1, W_2)
 $$
@@ -195,44 +198,38 @@ and let the gravity to do its work.
 <img src="/assets/dl_intro/solution.png" style="border:none;">
 </div>
 
-#### Learning rate
+### Learning rate
 
-Thinking in 3D or higher dimensions are hard. It is much easier to study any DL problem in 2D first.
+Thinking in 3D or higher dimensions are hard to impossible. Always think in 2D first.
+
+Consider a point at (L1, L2), we cut through the diagram alone the red and orange and plot those curve in a 2D diagram:
+<div class="imgcap">
+<img src="/assets/dl_intro/solution_2d.jpg" style="border:none;">
+</div>
+
 <div class="imgcap">
 <img src="/assets/dl_intro/gd.jpg" style="border:none;">
 </div>
 
 The X-axis is the value of 
 $$
-W_1
+W
 $$
-and the y axis is its corresponding average cost of the data samples.
+and the y axis is its corresponding average cost for the data samples.
 
 $$
 J(W, b, h, y) = \frac{1}{N} \sum_i (W_1*x_i - y_i)^2
 $$
 
-We are ignoring 
-$$
-W_2 \text{ and } b
-$$
-for now, or consider them as constants. When the gradient at L1 is negative (as shown), we should move W to the right. But by how much? We can plot the value of 
-$$
-W_2
-$$
-while taking the value of
+Since the gradient at L1 is negative (as shown), we move 
 $$
 W_1
 $$
-at L1. We realize at L2, the gradient is smaller. i.e. the change of 
+to the right. But by how much? Let's compare the gradient for L1 and L2. We realize L2 has a smaller gradient. i.e. the change of
 $$
-W_2
+W2
 $$
-has a smaller impact on the cost comparable with
-$$
-W_1
-$$
-at the same point. Therefore, the amount of adjustment for each paramter at 
+has a smaller impact to the change of cost compare to L1. Obviosuly, the greater the impact, the larger adjustment we should make. Therefore, the amount of adjustment for the parameters
 $$
 (W_1, W_2)
 $$
@@ -261,12 +258,13 @@ Large learning step may cost w to oscillate with increasing cost:
 <img src="/assets/dl_intro/learning_rate.jpg" style="border:none;">
 </div>
 
-We start with w = -6 (x-axis) at L1 , if the gradient is huge, a relatively large learning rate will swing w far to the other side to L2 with even a larger gradient. Eventually, rather than drop down slowly to a minima, w keeps oscalliate and the cost keep increasing. The follow demonstrates how a learning rate of 0.6 may swing the cost inward instead of downward. When loss starts going upward, we need to reduce the learning rate.
+We start with w = -6 (x-axis) at L1 , if the gradient is huge, a relatively large learning rate will swing w far to the other side to L2 with even a larger gradient. Eventually, rather than drop down slowly to a minima, w keeps oscalliate and the cost keep increasing. The follow demonstrates how a learning rate of 0.6 may swing the cost inward instead of downward. When loss starts going upward, we need to reduce the learning rate. The following table trace how W change from L1 to L2 and then L3.
 
 <div class="imgcap">
 <img src="/assets/dl_intro/lr_flow.png" style="border:none;">
 </div>
-Sometimes, we need to be careful about the scale used in plotting the x-axis and y-axis. In the diagram shown above, the gradient looks smaller than the real value because we use a larger scale for y-axis than the x-axis (0 to 150 vs -10 to 10).
+
+> Sometimes, we need to be careful about the scale used in plotting the x-axis and y-axis. In the diagram shown above, the gradient does not seem large.  It is because we use a much smaller scale for y-axis than the x-axis (0 to 150 vs -10 to 10).
 
 #### Backpropagation
 
