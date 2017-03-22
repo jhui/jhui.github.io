@@ -328,7 +328,7 @@ $$
 and we apply the chain rule to compute the gradient at the second left layer.  (Backpropage the gradient from left to right.)
 
 $$
-\frac{\partial J}{\partial dW} = \frac{\partial J}{\partial dout} \frac{\partial out}{\partial dW}  
+\frac{\partial J}{\partial W} = \frac{\partial J}{\partial out} \frac{\partial out}{\partial W}  
 $$ 
 
 In DL programing, we often name
@@ -338,11 +338,7 @@ $$
 $$
 
 $$
-\frac{\partial out}{\partial dW} \text{ as dW}
-$$
-
-$$
-\frac{\partial next}{\partial dcurrent} \text{ as dcurrent}
+\frac{\partial \text{ next}}{\partial d \text{ current}} \text{ as dcurrent}
 $$
 
 
