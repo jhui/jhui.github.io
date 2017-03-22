@@ -70,7 +70,7 @@ $$
 z_j =  \sum_{i} W_i * x_i + b_i
 $$
 
-The following is the code implementation. It is self-explainatory and a working implementation can help your to identify any mis-conceptions.
+The following is the code implementation. It is self-explainatory and a working implementation can help you to identify any mis-conceptions.
 ```python
 import numpy as np
 
@@ -149,15 +149,33 @@ Which output something with shape like a delta function:
 <img src="/assets/dl_intro/delta_func.png" style="border:none;width:60%">
 </div>
 
-Implement a XOR or a delta function is not important for deep learning (DL). Nevertheless, we demonstrate the possibilities of building a complex function estimator through a network of simple computation nodes. In both cases, we need a network with 2 layers. A network with 3 or 4 layer can push the hand written recognition of number to an accuracy of 95% easily. Naturally, a network for many layers (deeper) can reproduce a much complicated model. For example, Microsoft ResNet for image recognition has 100+ layers.
+Implement a XOR or a delta function is not important for deep learning (DL). Nevertheless, we demonstrate the possibilities of building a complex function estimator through a network of simple computation nodes. In both cases, we need a network with 2 layers. A network with 3 or 4 layer can push the hand written recognition of numbers to an accuracy of 95%. Naturally, a network with many layers (deeper) can reproduce a much complicated model. For example, Microsoft ResNet for image recognition has 100+ layers.
 
 ### Build a Linear regression model
+Before teaching Pieter how to learn those parameters, we try to build a simple model first. For example, Pieter wants to expand on his horizon and try to start online dating. He wants to find out the relationship between the number of online dates with the number of years in eductaion and the monthly income.  Pieter starts with a simple linear model as follows:
 
+$$
+dates = W_1*years in school + W_2*monthly income + bias
+$$
 
-### Learning from mistakes
-**Deep learing is about learning from mistakes.**
+He asks 1000 people in each community and collect the information on their income, education and the corresponding number of online dates.  Pieter is interested in finding out how each community values their intellectual vs his humble post-doc salary.  So even this model looks overwhemly simple, it serves its purpose.
+
+**Deep learing is about learning from mistakes.** His stratragy to create a model for each community will be:
+1. Take a first guess on W and b.
+2. Use the model above to compute the number of dates.
+3. With the computed value and the number provided by each sample, he compute the error of his model.
+4. Pieter will also compute how a small change in the current value of W and b will impact on the error.
+5. With this rate change information regarding W & b on the error, Pieter re-adjust W & b. (**Gradient descent**)
+6. Go back to step 2 for N iterations.
+7. When it is complete, we should have the correct parameter for W and b trainned with the collected sample data. 
+8. We use the final W & b on the model to make a prediction on how Pieter will do on each community.
 
 #### Gradient descent
+Step 3-5 is called the gradient descent in ML. First we need to define a function to measure our errors betweent the real life and our model.  Mean square error (MSE) is one obvious candidate. In ML, we call this error function **cost function**.
+
+$$
+J(W, b, h, y) = mean square error (W, b, h, y) = \frac{1}{N} \sum_i (h - y)^2
+$$
 
 #### Backpropagation
 
