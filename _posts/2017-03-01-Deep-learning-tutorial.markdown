@@ -378,16 +378,39 @@ $$
 $$ 
 
 $$
+\frac{\partial J}{\partial W} = \frac{\partial J}{\partial out} X
+$$ 
+
+<div class="imgcap">
+<img src="/assets/dl_intro/bp3.jpg" style="border:none;">
+</div>
+
+$$
 \frac{\partial out}{\partial b}  = 1
 $$ 
 
 $$
-\frac{\partial J}{\partial W} = \frac{\partial J}{\partial out} X
+\frac{\partial J}{\partial b} = \frac{\partial J}{\partial out}
 $$ 
 
+<div class="imgcap">
+<img src="/assets/dl_intro/bp2.jpg" style="border:none;">
+</div>
+
+In DL programing, we often name
+
 $$
-\frac{\partial J}{\partial W} = \frac{\partial J}{\partial out}
-$$ 
+\frac{\partial J}{\partial \text{dout}} \text{ as dout}
+$$
+
+$$
+\frac{\partial \text{ next}}{\partial \text{ current}} \text{ as dcurrent}
+$$
+
+Here is the code computing
+$$
+dw, db
+$$
 
 ```python
 def forward(x, W, b):
@@ -516,10 +539,6 @@ $$
 \frac{\partial J}{\partial \text{ out}} = \frac{2}{N} (out - y)
 $$
 
-$$
-\frac{\partial J}{\partial W} = \frac{\partial J}{\partial out} \frac{\partial out}{\partial W}  
-$$
-
 Progagate from the right layer to the left using the chain rule one layer at a time:
 
 $$
@@ -529,27 +548,14 @@ $$
 and, compute
 
 $$
-\frac{\partial \text{out}_k}{\partial \text{out}_{k-1}}  = \frac{f_{k+1}}{partial \text{out}_k} 
-$$
-
-In DL programing, we often name
-
-$$
-\frac{\partial J}{\partial \text{dout}} \text{ as dout}
-$$
-
-$$
-\frac{\partial \text{ next}}{\partial \text{ current}} \text{ as dcurrent}
+\frac{\partial \text{out}_k}{\partial \text{out}_{k-1}}  = \frac{\partial f_{k}}{\partial \text{out}_{k-1}} 
 $$
 
 
-<div class="imgcap">
-<img src="/assets/dl_intro/bp2.jpg" style="border:none;">
-</div>
 
-<div class="imgcap">
-<img src="/assets/dl_intro/bp3.jpg" style="border:none;">
-</div>
+
+
+
 
 <div class="imgcap">
 <img src="/assets/dl_intro/bp4.jpg" style="border:none;">
