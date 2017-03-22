@@ -304,6 +304,33 @@ To compute the partial gradient efficiently, we perform a foward pass to compute
 <img src="/assets/dl_intro/fp.jpg" style="border:none;">
 </div>
 
+$$
+out = W_1* X_1 + W_2*X_2 + b
+$$
+
+```python
+def forward(x, W, b):
+    # x: input sample (N, 2)
+    # W: Weight (2,)
+    # b: bias float
+    # out: (N,)
+    out = x.dot(W) + b        # Multiple X with W + b: (N, 2) * (2,) -> (N,)
+    return out
+```
+
+$$
+J = \frac{1}{N} \sum_i (out - y_i)^2
+$$
+
+```python
+def mean_square_loss(h, y):
+    # h: prediction (N,)
+    # y: true value (N,)
+    N = X.shape[0]            # Find the number of samples
+    loss = np.sum(np.square(h - y)) / N   # Compute the mean square error from its true value y
+    return loss
+```
+
 Then we backprogragate the gradient from the right most layer to the left in one single pass.
 <div class="imgcap">
 <img src="/assets/dl_intro/bp.jpg" style="border:none;">
@@ -318,8 +345,12 @@ J(out_i) = \frac{1}{N} (out_i - y_i)^2
 $$
 
 $$
-\frac{\partial J}{\partial out_i} = \frac{2}{N} (out_i - y_i)
+\frac{\partial J}{\partial \text{ out_i}} = \frac{2}{N} (out_i - y_i)
 $$
+
+<div class="imgcap">
+<img src="/assets/dl_intro/bp1.jpg" style="border:none;">
+</div>
 
 Now we compute the left most graident
 $$
@@ -338,13 +369,9 @@ $$
 $$
 
 $$
-\frac{\partial \text{ next}}{\partial d \text{ current}} \text{ as dcurrent}
+\frac{\partial \text{ next}}{\partial \text{ current}} \text{ as dcurrent}
 $$
 
-
-<div class="imgcap">
-<img src="/assets/dl_intro/bp1.jpg" style="border:none;">
-</div>
 
 <div class="imgcap">
 <img src="/assets/dl_intro/bp2.jpg" style="border:none;">
