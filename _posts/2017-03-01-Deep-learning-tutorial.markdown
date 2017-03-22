@@ -359,22 +359,18 @@ def mean_square_loss(h, y):
     return loss, dout
 ```
 
-<div class="imgcap">
-<img src="/assets/dl_intro/bp1.jpg" style="border:none;">
-</div>
-
 Now we have
 $$
 \frac{\partial J}{\partial out_i}
 $$ 
-. We apply the chain rule to compute the gradient at the second right layer.  (Backpropage the gradient from right to left.)
+. We apply the chain rule to compute the gradient at the second right layer.  (Backpropagate the gradient from right to left.)
 
 $$
 \frac{\partial J}{\partial W} = \frac{\partial J}{\partial out} \frac{\partial out}{\partial W}  
 $$ 
 
 $$
-out = W_1* X_1 + W_2*X_2 + b
+out = W * X + b
 $$
 
 $$
@@ -387,6 +383,10 @@ $$
 
 $$
 \frac{\partial J}{\partial W} = \frac{\partial J}{\partial out} X
+$$ 
+
+$$
+\frac{\partial J}{\partial W} = \frac{\partial J}{\partial out}
 $$ 
 
 ```python
@@ -496,16 +496,51 @@ for i in range(iteration):
 print(f"W = {W}")
 print(f"b = {b}")
 ```
+
+#### General principle in backpropagation
+
+We can genealize the above method to multiple layers:
+<div class="imgcap">
+<img src="/assets/dl_intro/bp1.jpg" style="border:none;">
+</div>
+
+Provide with a cost fumction like:
+
+$$
+J(out) = \frac{1}{N} \sum_i (out_i - y_i)^2
+$$
+
+Compute the dervative:
+
+$$
+\frac{\partial J}{\partial \text{ out}} = \frac{2}{N} (out - y)
+$$
+
+$$
+\frac{\partial J}{\partial W} = \frac{\partial J}{\partial out} \frac{\partial out}{\partial W}  
+$$
+
+Progagate from the right layer to the left using the chain rule one layer at a time:
+
+$$
+\frac{\partial J}{\partial \text{out}_{k-1}} = \frac{\partial J}{\partial \text{out}_{k}} \frac{\partial \text{out}_k}{\partial \text{out}_{k-1}}  
+$$ 
+
+and, compute
+
+$$
+\frac{\partial \text{out}_k}{\partial \text{out}_{k-1}}  = \frac{f_{k+1}}{partial \text{out}_k} 
+$$
+
 In DL programing, we often name
 
 $$
-\frac{\partial J}{\partial dout} \text{ as dout}
+\frac{\partial J}{\partial \text{dout}} \text{ as dout}
 $$
 
 $$
 \frac{\partial \text{ next}}{\partial \text{ current}} \text{ as dcurrent}
 $$
-
 
 
 <div class="imgcap">
