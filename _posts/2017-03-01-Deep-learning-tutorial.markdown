@@ -185,20 +185,19 @@ and y-axis the possible value of
 $$
 W_2
 $$
-between -1 and 1, and z the corresponding cost J(x, y). The solution of our model is where W and b has the lowest cost. i.e. picking the value of W and b such that the cost is the lowest (the blue area).
-
-<div class="imgcap">
-<img src="/assets/dl_intro/solution.png" style="border:none;">
-</div>
-
-We can first pick a random W and b, visualize dropping a marble at 
+between -1 and 1, and z the corresponding cost J(x, y). The solution of our model is where W and b has the lowest cost. i.e. picking the value of W and b such that the cost is the lowest (the blue area). Imaging pick a random point W, and visualize dropping a marble at 
 $$
 (W_1, W_2)
 $$
 and let the gravity to do its work. 
 
-Visualize 3D or higher dimensions are hard. It is much easier to study any DL problem in 2D first.
+<div class="imgcap">
+<img src="/assets/dl_intro/solution.png" style="border:none;">
+</div>
 
+#### Learning rate
+
+Visualize 3D or higher dimensions are hard. It is much easier to study any DL problem in 2D first.
 <div class="imgcap">
 <img src="/assets/dl_intro/gd.jpg" style="border:none;">
 </div>
@@ -221,7 +220,7 @@ for now, or consider them as constants. When the gradient at L1 is negative (as 
 $$
 W_2
 $$
-while fixing the value of
+while taking the value of
 $$
 W_1
 $$
@@ -233,7 +232,7 @@ has a smaller impact on the cost comparable with
 $$
 W_1
 $$
-at that point. Therefore, the amount of adjustment for each paramter at 
+at the same point. Therefore, the amount of adjustment for each paramter at 
 $$
 (W_1, W_2)
 $$
@@ -255,11 +254,21 @@ In DL, the varaible
 $$
 \alpha
 $$
-introduce here is called **learning rate**.  Smaller learning rate will take a longer time (more interation) to find the minima. However, as we learn from calcus, the larger the step the higher the error. In DL, finding the right value of learning rate is unfortunately a try and error exercise.  Sometimes we will try value from 1e-6 to 1. But let Pieter implement the new idea before going into the details of finding the right value of the learning rate.
+introduce here is called the **learning rate**.  Small learning rate will take a longer time (more iteration) to find the minima. However, as we learn from calculus, the larger the step we take, the bigger the error in our calculation. In DL, finding the right value of learning rate is sometimes a try and error exercise.  Sometimes we will try values ranging from 1e-7 to 1 in logarithmic scale (1e-7, 5e-7, 1e-6, 5e-6, 1e-5 ...). 
+
+Large learning step also introduce a big problem:
+<div class="imgcap">
+<img src="/assets/dl_intro/learning_rate.jpg" style="border:none;">
+</div>
+
+We start with w = -6, if the gradient is huge, a relatively large learning rate will swing w far to the other side with even a larger gradient. Eventually, rather than drop down slowly to a minima, w keeps oscalliate and the cost keep increasing. 
+
+<div class="imgcap">
+<img src="/assets/dl_intro/lr_flow.png" style="border:none;">
+</div>
+Sometimes, we need to be careful about the scale used in plotting the x-axis and y-axis. In the diagram shown about, the gradient looks smaller than it should be because we use a larger scale for y-axis.
 
 #### Backpropagation
-
-#### Learning rate
 
 ### Non-linearity
 
