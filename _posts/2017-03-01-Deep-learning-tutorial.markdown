@@ -378,20 +378,20 @@ $$
 $$ 
 
 $$
-\frac{\partial J}{\partial W} = \frac{\partial J}{\partial out} X
+\frac{\partial out}{\partial b}  = 1
 $$ 
 
-<div class="imgcap">
-<img src="/assets/dl_intro/bp3.jpg" style="border:none;">
-</div>
-
 $$
-\frac{\partial out}{\partial b}  = 1
+\frac{\partial J}{\partial W} = \frac{\partial J}{\partial out} X
 $$ 
 
 $$
 \frac{\partial J}{\partial b} = \frac{\partial J}{\partial out}
 $$ 
+
+<div class="imgcap">
+<img src="/assets/dl_intro/bp3.jpg" style="border:none;">
+</div>
 
 <div class="imgcap">
 <img src="/assets/dl_intro/bp2.jpg" style="border:none;">
@@ -409,7 +409,7 @@ $$
 
 Here is the code computing
 $$
-dw, db
+dW, db
 $$
 
 ```python
@@ -424,9 +424,9 @@ def backward(dout, cache):
     # W: Weight (2,)
     # b: bias float
     x, W, b = cache
-    dw = x.T.dot(dout)            # Transpose x (N, 2) -> (2, N) and multiple with dout. (2, N) * (N, ) -> (2,)
+    dW = x.T.dot(dout)            # Transpose x (N, 2) -> (2, N) and multiple with dout. (2, N) * (N, ) -> (2,)
     db = np.sum(dout, axis=0)     # Add all dout (N,) -> scalar
-    return dw, db
+    return dW, db
 
 def compute_loss(X, W, b, y=None):
     h, cache = forward(X, W, b)
