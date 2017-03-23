@@ -268,6 +268,11 @@ We start with w = -6 (x-axis) at L1 , if the gradient is huge, a relatively larg
 <img src="/assets/dl_intro/lr_flow.png" style="border:none;">
 </div>
 
+Here is another illustration that actually could happen.  When we gradudally descent, we land in an area with high gradient that make it bounce way back with high cost. This type of shape will be very hard to reach the minima with the current descent method.
+<div class="imgcap">
+<img src="/assets/dl_intro/ping.jpg" style="border:none;">
+</div>
+
 > Sometimes, we need to be careful about the scale used in plotting the x-axis and y-axis. In the diagram shown above, the gradient does not seem large.  It is because we use a much smaller scale for y-axis than the x-axis (0 to 150 vs -10 to 10).
 
 #### Naive gradient checking
@@ -593,12 +598,12 @@ I strongly recommend you to think about a linear regression model inerested you 
 
 So let Pieter train the system.
 ```
-iteration 0: loss=2.7e+05 W1= 0.09 dW1=1e+04 W2= -5.6 dW2=5.7e+06 b= -0.00089 db = 885.7
-iteration 100: loss=  inf W1=-1.5e+175 dW1=1.6e+181 W2=-8.3e+177 dW2=8.5e+183 b= -1.3e+174 db = 1.32e+180
-iteration 200: loss=  nan W1=  nan dW1=  nan W2=  nan dW2=  nan b=   nan db =   nan
-iteration 300: loss=  nan W1=  nan dW1=  nan W2=  nan dW2=  nan b=   nan db =   nan
+iteration 0: loss=2.825e+05 W1=0.09882 dW1=1.183e+04 W2=-0.4929 dW2=5.929e+06 b= -8.915e-05 db = 891.5
+iteration 200: loss=3.899e+292 W1=-3.741e+140 dW1=4.458e+147 W2=-1.849e+143 dW2=2.203e+150 b= -2.8e+139 db = 3.337e+146
+iteration 400: loss=inf W1=-1.39e+284 dW1=1.656e+291 W2=-6.869e+286 dW2=8.184e+293 b= -1.04e+283 db = 1.24e+290
+iteration 600: loss=nan W1=nan dW1=nan W2=nan dW2=nan b= nan db = nan
 ```
-The application overflow within 200 iterations! Since the loss and the graident is so high, we can try out whether we have the learning rate too high. We decrease the learning rate and run just a short time to see if any changes.
+The application overflow within 600 iterations! Since the loss and the graident is so high, we can try out whether we have the learning rate too high. We decrease the learning rate and run just a short time to see if any changes.
 
 For learning rate of 1e-8, we do not have the overflow problem but the result is not good. We can try much smaller value and more iteration.
 ```
@@ -617,21 +622,25 @@ The loss in our first try have similar symptoms with bad learning rate. But it m
 
 This is a U shape curve which is different from a bowl shape curve that we used for gradient descent explanation. 
 <div class="imgcap">
-<img src="/assets/dl_intro/solution.png" style="border:none;width:70%">
+<img src="/assets/dl_intro/ushape.png" style="border:none;width:50%">
+</div>
+
+If we change the y-axis closer to the range that we are interested in, we will find the situation much worse.
+<div class="imgcap">
+<img src="/assets/dl_intro/ushape2.png" style="border:none;width:50%">
 </div>
 
 <div class="imgcap">
-<img src="/assets/dl_intro/ushape.png" style="border:none;width:70%">
+<img src="/assets/dl_intro/solution.png" style="border:none;width:50%">
 </div>
 
-If we make the scale 
-The y-axis is the 
+The y-axis is 
 $$
 W_2
 $$
 which the cost is much responsive to change comparing with the x-axis
 $$
-W_1
+W_1![Gauss2](../../../Desktop/gauss2.png)
 $$
 . If we look at the linear model 
 $$
@@ -643,9 +652,61 @@ X_2
 $$
 is the monthly income from 0 to 10,000. 
 
-
+Obviously, the different of scale in these 2 features cause a major difference in its gradient. Simply say, we cannot find a single learning rate than can work well with both of them. The solution is pretty simple with a couple line of code change. We re-scale the income value. Here is the output which is close to our true model:
+```
+iteration 0: loss=518.7 W1=0.1624 dW1=-624.5 W2=0.3585 dW2=-2.585e+03 b= 0.004237 db = -42.37
+iteration 10000: loss=0.4414 W1=0.8392 dW1=0.0129 W2=0.3128 dW2=0.004501 b= 0.5781 db = -0.4719
+iteration 20000: loss=0.2764 W1=0.8281 dW1=0.009391 W2=0.3089 dW2=0.003277 b= 0.9825 db = -0.3436
+iteration 30000: loss=0.1889 W1=0.8201 dW1=0.006837 W2=0.3061 dW2=0.002386 b= 1.277 db = -0.2501
+iteration 40000: loss=0.1425 W1=0.8142 dW1=0.004978 W2=0.3041 dW2=0.001737 b= 1.491 db = -0.1821
+iteration 50000: loss=0.1179 W1=0.81 dW1=0.003624 W2=0.3026 dW2=0.001265 b= 1.647 db = -0.1326
+iteration 60000: loss=0.1049 W1=0.8069 dW1=0.002639 W2=0.3015 dW2=0.0009208 b= 1.761 db = -0.09653
+iteration 70000: loss=0.09801 W1=0.8046 dW1=0.001921 W2=0.3007 dW2=0.0006704 b= 1.844 db = -0.07028
+iteration 80000: loss=0.09435 W1=0.803 dW1=0.001399 W2=0.3001 dW2=0.0004881 b= 1.904 db = -0.05117
+iteration 90000: loss=0.09241 W1=0.8018 dW1=0.001018 W2=0.2997 dW2=0.0003553 b= 1.948 db = -0.03725
+W = [ 0.80088848  0.29941657]
+b = 1.9795590414763997
+```
 
 ### Non-linearity
+
+Pieter come back and say our linear model is not adequate enough. He find that the relationship between years of education and dates are closer to:
+<div class="imgcap">
+<img src="/assets/dl_intro/educ.png" style="border:none;width:50%">
+</div>
+
+Can we combine linear functions with multiple layers to form a non-linear function?
+$$
+f(x) = Wx + b
+$$
+
+$$
+g(z) = Uz + c
+$$
+
+The answer is no.
+$$
+g(f(x)) = Vx + d
+$$
+
+As shown in our first example, we apply a non-linear functional to our output.
+
+$$
+f(z_j) = \frac{1}{1 + e^{-z_j}}
+$$
+
+After some thoughts, we apply to Pieter's data.
+$$
+f(x) = max(0, x)
+$$
+
+As shown below, we should be able to construct a non-linear function addressing Pieter's requirement.
+<div class="imgcap">
+<img src="/assets/dl_intro/solution.png" style="border:none;width:50%">
+</div>
+<div class="imgcap">
+<img src="/assets/dl_intro/solution.png" style="border:none;width:50%">
+</div>
 
 ### Classifier
 
