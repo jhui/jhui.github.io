@@ -514,7 +514,7 @@ for i in range(iteration):
     W -= learning_rate * dW
     b -= learning_rate * db
     if i%100==0:
-        print(f"iteration {i}: loss={loss:5.2} W1={W[0]:5.2} dW1={dW[0]:5.2} W2={W[1]:5.2} dW2={dW[1]:5.2} b= {b:5.2} db = {db:5.4}")
+        print(f"iteration {i}: loss={loss:.4} W1={W[0]:.4} dW1={dW[0]:.4} W2={W[1]:.4} dW2={dW[1]:.4} b= {b:.4} db = {db:.4}")
 
 print(f"W = {W}")
 print(f"b = {b}")
@@ -551,23 +551,99 @@ $$
 \frac{\partial \text{out}_k}{\partial \text{out}_{k-1}}  = \frac{\partial f_{k}}{\partial \text{out}_{k-1}} 
 $$
 
-In backprogragation, we need to backprogate multiple path back to the same node and add both result together:
+In backprogragation, we may backprogate multiple path back to the same node. To compute the gradient correctly, we need to add both path together:
 <div class="imgcap">
 <img src="/assets/dl_intro/bp_m1.jpg" style="border:none;">
 </div>
+
 $$
 \frac{\partial J}{\partial o_3}  = \frac{\partial J}{\partial o_4} \frac{\partial f_4} {\partial o_3} *+ \frac{\partial J}{\partial o_5} \frac{\partial f_4} {\partial o_3} 
 $$
 
-Backprogation is tedious and error prone. But most of time, it is not because it is hard but we lost track of those notations and index.
-> For backprogation, try to draw a diagram with the shape information. Name your key variables consistently and put the derivative equation under each node. Expand equations with sub-index if needed.
+Backprogation is tedious and error prone. But most of the time, it is because we lost track of the notations and index.
+> For backprogation, try to draw a diagram with the shape information. Name your key variables consistently and put the derivative equation under each node. Expand equations with sub-index for analysis if needed.
 
 <div class="imgcap">
-<img src="/assets/dl_intro/bp.jpg" style="border:none;width:50%">
+<img src="/assets/dl_intro/bp.jpg" style="border:none;width:80%">
 </div>
+
 $$
 \frac{\partial J}{\partial \text{ out}_i} = \frac{2}{N} (out_i - y_i)
 $$
+
+### Trouble shooting
+
+Many places can go wrong when training a deep network. We will cover more technical topics on how to train a DL network. But here are some simple tips:
+* Unit test the forward pass, back propagation and code with a lot of math & vectorization.
+* Compare the back progataion result with the naive gradient check.
+* Create scenaiors to test the code easier. For example, remove the nose or assign W & b guess to be the same as the true model.
+* Create simple cases and verify whether the matrics collected are expected.
+* Don't be too aggressive in build up your model at the begining. Trouble shoot multiple issues at a time is particular hard in DL.
+* Instead, build up a simple but working model first. 
+* Start debugging with 1-2 sample data with a small number of iteration.
+* Don't waste time in large dataset and iterations at the beginning. Look for sign that your model beat the random odd of guessing.
+* At the early debugging, use non-random data for input and parameters.
+* Always keep track of the shape of the data and doucment it in the code.
+* Use consistence naming for variable in the forward pass and backpropagation.
+* Verify the sample data in your training.
+* Keep track of the loss, and when in debugging also the magnitude of the gradient.
+* Plot out the loss, accuracy or some runtime data after the training.
+
+I strongly recommend you to think about a linear regression model inerested you and train a simple network now. A lot of issues happened in complex model will show up even in such a simple model. Through this process, you will learn trouble shooting techniques as well as how these training parameters changed during learning. Work with a simple model allows you to trace the data easier and learn better. Most tutorial have already pre-cooked parameters. So they teach you the easier part without letting you to complete the real tough part.
+
+So let Pieter train the system.
+```
+iteration 0: loss=2.7e+05 W1= 0.09 dW1=1e+04 W2= -5.6 dW2=5.7e+06 b= -0.00089 db = 885.7
+iteration 100: loss=  inf W1=-1.5e+175 dW1=1.6e+181 W2=-8.3e+177 dW2=8.5e+183 b= -1.3e+174 db = 1.32e+180
+iteration 200: loss=  nan W1=  nan dW1=  nan W2=  nan dW2=  nan b=   nan db =   nan
+iteration 300: loss=  nan W1=  nan dW1=  nan W2=  nan dW2=  nan b=   nan db =   nan
+```
+The application overflow within 200 iterations! Since the loss and the graident is so high, we can try out whether we have the learning rate too high. We decrease the learning rate and run just a short time to see if any changes.
+
+For learning rate of 1e-8, we do not have the overflow problem but the result is not good. We can try much smaller value and more iteration.
+```
+iteration 90000: loss=4.3e+01 W1= 0.23 dW1=-1.3e+02 W2=0.0044 dW2= 0.25 b= 0.0045 db = -4.633
+W = [ 0.2437896   0.00434705]
+b = 0.004981262980767952
+```
+
+We are very reluctant to take action without information. But since the application run very fast, we can give a few simple guess. With10000000 iterations and a learning_rate of 1e-10. The application run for a few minutes but we are still not there. Running much longer may improve the result. But it will be better to trace the source of problem.
+```
+iteration 9990000: loss=3.7e+01 W1= 0.22 dW1=-1.1e+02 W2=0.0043 dW2= 0.19 b= 0.0049 db = -4.593
+W = [ 0.22137005  0.00429005]
+b = 0.004940551119084607
+```
+The loss in our first try have similar symptoms with bad learning rate. But it may not be the cause. After some tracing, we find the gradient is very high. Unlike many real DL problems, the model is not a black box to us, we can plot the cost function related with W.
+
+This is a U shape curve which is different from a bowl shape curve that we used for gradient descent explanation. 
+<div class="imgcap">
+<img src="/assets/dl_intro/solution.png" style="border:none;width:70%">
+</div>
+
+<div class="imgcap">
+<img src="/assets/dl_intro/ushape.png" style="border:none;width:70%">
+</div>
+
+If we make the scale 
+The y-axis is the 
+$$
+W_2
+$$
+which the cost is much responsive to change comparing with the x-axis
+$$
+W_1
+$$
+. If we look at the linear model 
+$$
+X_1 
+$$ 
+represent the years of education which may range from 0 to 30. 
+$$
+X_2 
+$$
+is the monthly income from 0 to 10,000. 
+
+
 
 ### Non-linearity
 
