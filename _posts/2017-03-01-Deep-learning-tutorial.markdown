@@ -627,7 +627,7 @@ This is a U shape curve which is different from a bowl shape curve that we used 
 
 If we change the y-axis closer to the range that we are interested in, we will find the situation much worse.
 <div class="imgcap">
-<img src="/assets/dl_intro/ushape2.png" style="border:none;width:40%">
+<img src="/assets/dl_intro/ushape2.png" style="border:none;width:30%">
 </div>
 
 <div class="imgcap">
@@ -691,12 +691,6 @@ $$
 g(f(x)) = Vx + d
 $$
 
-As shown in our first example, we apply a non-linear functional to our output.
-
-$$
-f(z_j) = \frac{1}{1 + e^{-z_j}}
-$$
-
 After some thoughts, we apply the following to Pieter's data.
 $$
 f(x) = max(0, x)
@@ -704,11 +698,17 @@ $$
 
 As shown below, we should be able to construct a non-linear function addressing Pieter's requirement.
 <div class="imgcap">
-<img src="/assets/dl_intro/l1.png" style="border:none;width:50%">
+<img src="/assets/dl_intro/l1.png" style="border:none;width:80%">
 </div>
 <div class="imgcap">
-<img src="/assets/dl_intro/l2.png" style="border:none;width:50%">
+<img src="/assets/dl_intro/l2.png" style="border:none;width:80%">
 </div>
+
+This insight tells us to add a non-linear function after a linear equation can enrich the complexity of out model. Here are some of the common **activation function**.
+
+#### Sigmoid
+#### ReLU
+#### tanh
 
 ### Classifier
 
@@ -720,8 +720,6 @@ As shown below, we should be able to construct a non-linear function addressing 
 
 #### Mean square error 
 
-### Backpropagation
-
 ### Issues
 
 ### Exploding and vanishing gradient
@@ -731,11 +729,6 @@ As shown below, we should be able to construct a non-linear function addressing 
 ### Softmax classifier
 
 ### Log likelihood
-
-### Activation function
-#### Sigmoid
-#### ReLU
-#### tanh
 
 ### Network layers
 
