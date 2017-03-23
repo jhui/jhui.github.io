@@ -268,12 +268,12 @@ We start with w = -6 (x-axis) at L1 , if the gradient is huge, a relatively larg
 <img src="/assets/dl_intro/lr_flow.png" style="border:none;">
 </div>
 
+> Sometimes, we need to be careful about the scale used in plotting the x-axis and y-axis. In the diagram shown above, the gradient does not seem large.  It is because we use a much smaller scale for y-axis than the x-axis (0 to 150 vs -10 to 10).
+
 Here is another illustration that actually could happen.  When we gradudally descent, we land in an area with high gradient that make it bounce way back with high cost. This type of shape will be very hard to reach the minima with the current descent method.
 <div class="imgcap">
 <img src="/assets/dl_intro/ping.jpg" style="border:none;">
 </div>
-
-> Sometimes, we need to be careful about the scale used in plotting the x-axis and y-axis. In the diagram shown above, the gradient does not seem large.  It is because we use a much smaller scale for y-axis than the x-axis (0 to 150 vs -10 to 10).
 
 #### Naive gradient checking
 There are many ways to compute the paritial derviative. One naive but important method is using the simple partial derviative definition.
@@ -627,7 +627,7 @@ This is a U shape curve which is different from a bowl shape curve that we used 
 
 If we change the y-axis closer to the range that we are interested in, we will find the situation much worse.
 <div class="imgcap">
-<img src="/assets/dl_intro/ushape2.png" style="border:none;width:50%">
+<img src="/assets/dl_intro/ushape2.png" style="border:none;width:40%">
 </div>
 
 <div class="imgcap">
@@ -640,7 +640,7 @@ W_2
 $$
 which the cost is much responsive to change comparing with the x-axis
 $$
-W_1![Gauss2](../../../Desktop/gauss2.png)
+W_1
 $$
 . If we look at the linear model 
 $$
@@ -676,6 +676,7 @@ Pieter come back and say our linear model is not adequate enough. He find that t
 </div>
 
 Can we combine linear functions with multiple layers to form a non-linear function?
+
 $$
 f(x) = Wx + b
 $$
@@ -685,6 +686,7 @@ g(z) = Uz + c
 $$
 
 The answer is no.
+
 $$
 g(f(x)) = Vx + d
 $$
@@ -695,17 +697,17 @@ $$
 f(z_j) = \frac{1}{1 + e^{-z_j}}
 $$
 
-After some thoughts, we apply to Pieter's data.
+After some thoughts, we apply the following to Pieter's data.
 $$
 f(x) = max(0, x)
 $$
 
 As shown below, we should be able to construct a non-linear function addressing Pieter's requirement.
 <div class="imgcap">
-<img src="/assets/dl_intro/solution.png" style="border:none;width:50%">
+<img src="/assets/dl_intro/l1.png" style="border:none;width:50%">
 </div>
 <div class="imgcap">
-<img src="/assets/dl_intro/solution.png" style="border:none;width:50%">
+<img src="/assets/dl_intro/l2.png" style="border:none;width:50%">
 </div>
 
 ### Classifier
