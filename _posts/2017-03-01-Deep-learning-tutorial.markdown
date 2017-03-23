@@ -695,16 +695,66 @@ As shown below, we should be able to construct a non-linear function addressing 
 <div class="imgcap">
 <img src="/assets/dl_intro/l1.png" style="border:none;width:80%">
 </div>
+Adding both output:
 <div class="imgcap">
 <img src="/assets/dl_intro/l2.png" style="border:none;width:80%">
 </div>
 
-This insight tells us to add a non-linear function after a linear equation can enrich the complexity of out model. Here are some of the common **activation function**.
-
+Add a non-linear function after a linear equation can enrich the complexity of out model.  The common one are sigmoid, tanh and ReLU.
+ 
 #### Sigmoid
-#### ReLU
-#### tanh
+Sigmoid is one of the earliest function used in a deep network. Simoid is popular as an "on/off" gate.
+However, for other purpose, ReLU has mostly replaced the use of sigmoid. 
 
+<div class="imgcap">
+<img src="/assets/dl_intro/sigmoid.png" style="border:none">
+</div>
+
+#### ReLU
+One of the popular non-linear function.
+<div class="imgcap">
+<img src="/assets/dl_intro/relu.png" style="border:none">
+</div>
+
+#### tanh
+Popular for output prefer to be within [-1, 1]
+<div class="imgcap">
+<img src="/assets/dl_intro/tanh.png" style="border:none">
+</div>
+
+Code implement those functions
+```python
+import numpy as np
+import matplotlib.pyplot as plt
+
+def sigmoid(x):
+  return 1 / (1 + np.exp(-x))
+
+def relu(x):
+  return np.maximum(0, x)
+
+def tanh(x):
+  return np.tanh(x)
+
+x = np.arange(-20, 20, 0.001)
+
+y = sigmoid(x)
+plt.axvline(x=0, color="0.8")
+plt.plot(x, y)
+plt.show()
+
+y = relu(x)
+plt.axvline(x=0, color="0.8")
+plt.axhline(y=0, color="0.8")
+plt.plot(x, y)
+plt.show()
+
+y = tanh(x)
+plt.plot(x, y)
+plt.axhline(y=0, color="0.8")
+plt.show()
+
+```
 ### Classifier
 
 #### Logistic regression (Sigmoid)
