@@ -625,11 +625,6 @@ This is a U shape curve which is different from a bowl shape curve that we used 
 <img src="/assets/dl_intro/ushape.png" style="border:none;width:50%">
 </div>
 
-If we change the y-axis closer to the range that we are interested in, we will find the situation much worse.
-<div class="imgcap">
-<img src="/assets/dl_intro/ushape2.png" style="border:none;width:30%">
-</div>
-
 <div class="imgcap">
 <img src="/assets/dl_intro/solution.png" style="border:none;width:50%">
 </div>
@@ -670,7 +665,7 @@ b = 1.9795590414763997
 
 ### Non-linearity
 
-Pieter come back and say our linear model is not adequate enough. He find that the relationship between years of education and dates are closer to:
+Pieter come back and realize our linear model is not adequate. The relationship between years of education and dates are not exactly linear:
 <div class="imgcap">
 <img src="/assets/dl_intro/educ.png" style="border:none;width:50%">
 </div>
