@@ -6,7 +6,7 @@ title: “Deep learning without going down the rabbit holes.”
 excerpt: “How to learn deep learning from easy concept to complex idea? How to build insight along the way?”
 date: 2017-03-01 14:00:00
 ---
-**This is work in progress...**
+**This is work in progress... The content needs major editing.**
 
 ### What is deep learning (DL)?
 **Deep learing is about building a function estimator.** Historically, people describe deep learning (DL) using the neural network in our brain. Indeed, this is where deep learning gets its insight.  Nevertheless, deep learning has out grown this explaination. Once you realize building a deep learning network is about building a function estimator, you will unveil its real potential in AI.
@@ -58,7 +58,7 @@ Each node will have its own set of weight (W) and bias (b). From the left most l
 #### XOR
 For the skeptics, we will build an exclusive "or" (a xor b) using a similar approach:
 <div class="imgcap">
-<img src="/assets/dl_intro/xor.jpg" style="border:none;">
+<img src="/assets/dl_intro/xor.jpg" style="border:none;width:50%">
 </div>
 with the same equations:
 
@@ -177,7 +177,7 @@ Pieter will define a model with trainable parameters (W & b). He make a guess on
 Step 3-5 is called the gradient descent in DL. First we need to define a function to measure our errors between the real life and our model. In DL, we call this error function **cost function** or **loss function**. Mean square error (MSE) is one obvious candidate. 
 
 $$
-J(W, b, h, y) = \text{mean square error } (W, b, h, y) = \frac{1}{N} \sum_i (h_i - y_i)^2
+\text{mean square error} = J(W, b, h, y) = \frac{1}{N} \sum_i (h_i - y_i)^2
 $$
 
 where h is what we predict about the number of dates in our model, y is the value from our sample data and N is the number of samples. The intution is pretty simple.  We can visualize the cost as below with x-axis being all the possible value of
@@ -594,7 +594,7 @@ Many places can go wrong when training a deep network. We will cover more techni
 * Keep track of the loss, and when in debugging also the magnitude of the gradient.
 * Plot out the loss, accuracy or some runtime data after the training.
 
-I strongly recommend you to think about a linear regression model inerested you and train a simple network now. A lot of issues happened in complex model will show up even in such a simple model. Through this process, you will learn trouble shooting techniques as well as how these training parameters changed during learning. Work with a simple model allows you to trace the data easier and learn better. Most tutorial have already pre-cooked parameters. So they teach you the easier part without letting you to complete the real tough part.
+I strongly recommend you to think about a linear regression model interested you and train a simple network now. A lot of issues happened in complex model will show up even in such a simple model. Through this process, you will learn trouble shooting techniques as well as how these training parameters changed during learning. Work with a simple model allows you to trace the data easier and learn better. Most tutorial have already pre-cooked parameters. So they teach you the easier part without letting you to complete the real tough part.
 
 So let Pieter train the system.
 ```
@@ -665,7 +665,7 @@ b = 1.9795590414763997
 
 ### Non-linearity
 
-Pieter come back and realize our linear model is not adequate. Pieter claims the relationship between years of education and dates are not exactly linear:
+Pieter come back and realize our linear model is not adequate. Pieter claims the relationship between years of education and dates are not exactly linear. We should give more rewards for people holding advance degree.
 <div class="imgcap">
 <img src="/assets/dl_intro/educ.png" style="border:none;width:50%">
 </div>
@@ -683,10 +683,11 @@ $$
 The answer is no.
 
 $$
-g(f(x)) = Vx + d
+g(f(x)) = U(Wx+b) + c = Vx + d
 $$
 
 After some thoughts, we apply the following to Pieter's data.
+
 $$
 f(x) = max(0, x)
 $$
@@ -755,7 +756,7 @@ plt.axhline(y=0, color="0.8")
 plt.show()
 
 ```
-The following is the code to perform forward feed and backpropagation for ReLU and sigmoid function.
+The following is the code to perform forward feed and backpropagation for ReLU function.
 
 $$
 f(x)=\text{max}(0,x)
@@ -771,10 +772,14 @@ f'(x)=
 \end{equation}
 $$
 
+For sigmoid:
+
 $$
 \sigma (x) = \frac{1}{1+e^{-x}}
 $$
+
 With some calculus, we can find the derviative of sigmoid as:
+
 $$
 \frac{d\sigma (x)}{d(x)} = \sigma (x)\cdot (1-\sigma(x))
 $$
@@ -807,6 +812,7 @@ Let's apply all our knowledge so far to build a fully connected network as follo
 </div>
 
 With each nodes in the hidden layer (except the last one), we apply:
+
 $$
 z_j = \sum_{i} W_{ij} x_{i} + b_{i}
 $$
@@ -817,10 +823,258 @@ $$
 
 But the one before the output, we apply the linear equation but not the ReLU equation.
 
+Here is the code performaing the forward pass
+```python
+z1, cache_z1 = affine_forward(X, W[0], b[0])
+h1, cache_relu1 = relu_forward(z1)
+
+z2, cache_z2 = affine_forward(h1, W[1], b[1])
+h2, cache_relu2 = relu_forward(z2)
+
+z3, cache_z3 = affine_forward(h2, W[2], b[2])
+h3, cache_relu3 = relu_forward(z3)
+
+z4, cache_z4 = affine_forward(h3, W[3], b[3])
+```
+
+Here is the backpropagation:
+```python
+dz4, dW[3], db[3] = affine_backward(dout, cache_z4)
+
+dh3 = relu_backward(dz4, cache_relu3)
+dz3, dW[2], db[2] = affine_backward(dh3, cache_z3)
+
+dh2 = relu_backward(dz3, cache_relu2)
+dz2, dW[1], db[1] = affine_backward(dh2, cache_z2)
+
+dh1 = relu_backward(dz2, cache_relu1)
+_, dW[0], db[0] = affine_backward(dh1, cache_z1)
+```
+
+For those interested in details, we list some of the code we change/add:
+```python
+iteration = 100000
+learning_rate = 1e-4
+N = 100
+...
+def affine_forward(x, W, b):
+    # x: input sample (N, D)
+    # W: Weight (2, k)
+    # b: bias (k,)
+    # out: (N, k)
+    out = x.dot(W) + b           # (N, D) * (D, k) -> (N, k)
+    cache = (x, W, b)
+    return out, cache
+
+def affine_backward(dout, cache):
+    # dout: dJ/dout (N, K)
+    # x: input sample (N, D)
+    # W: Weight (D, K)
+    # b: bias (K, )
+    x, W, b = cache
+
+    if len(dout.shape)==1:
+        dout = dout[:, np.newaxis]
+    if len(W.shape) == 1:
+        W = W[:, np.newaxis]
+
+    W = W.T
+    dx = dout.dot(W)
+
+    dW = x.T.dot(dout)
+    db = np.sum(dout, axis=0)
+
+    return dx, dW, db
+
+def relu_forward(x):
+    cache = x
+    out = np.maximum(0, x)
+    return out, cache
+
+def relu_backward(dout, cache):
+    out = cache
+    dh = dout
+    dh[out < 0] = 0
+    return dh
+
+def mean_square_loss(h, y):
+    # h: prediction (N,)
+    # y: true value (N,)
+    N = X.shape[0]                        # Find the number of samples
+    h = h.reshape(-1)
+    loss = np.sum(np.square(h - y)) / N   # Compute the mean square error from its true value y
+    nh = h.reshape(-1)
+    dout = 2 * (nh-y) / N                  # Compute the partial derivative of J relative to out
+    return loss, dout
+
+def compute_loss(X, W, b, y=None, use_relu=True):
+    z1, cache_z1 = affine_forward(X, W[0], b[0])
+    h1, cache_relu1 = relu_forward(z1)
+
+    z2, cache_z2 = affine_forward(h1, W[1], b[1])
+    h2, cache_relu2 = relu_forward(z2)
+
+    z3, cache_z3 = affine_forward(h2, W[2], b[2])
+    h3, cache_relu3 = relu_forward(z3)
+
+    z4, cache_z4 = affine_forward(h3, W[3], b[3])
+
+    if y is None:
+        return z4, None, None
+
+    dW = [None] * 4
+    db = [None] * 4
+    loss, dout = mean_square_loss(z4, y)
+
+    dz4, dW[3], db[3] = affine_backward(dout, cache_z4)
+
+    dh3 = relu_backward(dz4, cache_relu3)
+    dz3, dW[2], db[2] = affine_backward(dh3, cache_z3)
+
+    dh2 = relu_backward(dz3, cache_relu2)
+    dz2, dW[1], db[1] = affine_backward(dh2, cache_z2)
+
+    dh1 = relu_backward(dz2, cache_relu1)
+    _, dW[0], db[0] = affine_backward(dh1, cache_z1)
+
+    return loss, dW, db
+...
+
+W = [None] * 4
+b = [None] * 4
+
+W[0] = np.array([[0.7, 0.05, 0.0, 0.2, 0.2], [0.3, 0.01, 0.01, 0.3, 0.2]])  # (2, K)
+b[0] = np.array([0.8, 0.2, 1.0, 0.2, 0.1])
+
+W[1] = np.array([[0.7, 0.05, 0.0, 0.2, 0.1], [0.3, 0.01, 0.01, 0.3, 0.1], [0.3, 0.01, 0.01, 0.3, 0.1], [0.07, 0.04, 0.01, 0.1, 0.1], [0.1, 0.1, 0.01, 0.02, 0.03]])  # (K, K)
+b[1] = np.array([0.8, 0.2, 1.0, 0.2, 0.1])
+
+W[2] = np.array([[0.7, 0.05, 0.0, 0.2, 0.1], [0.3, 0.01, 0.01, 0.3, 0.1], [0.3, 0.01, 0.01, 0.3, 0.1], [0.07, 0.04, 0.01, 0.1, 0.1], [0.1, 0.1, 0.01, 0.02, 0.03]])  # (K, K)
+b[2] = np.array([0.8, 0.2, 1.0, 0.2, 0.1])
+
+W[3] = np.array([[0.8], [0.5], [0.05], [0.05], [0.1]])                 # (K, 1)
+b[3] = np.array([0.2])
+
+X = np.concatenate((education[:, np.newaxis], income[:, np.newaxis]), axis=1) # (N, 2) N samples with 2 features
+
+for i in range(iteration):
+    loss, dW, db = compute_loss(X, W, b, Y)
+    for j, (cdW, cdb) in enumerate(zip(dW, db)):
+        W[j] -= learning_rate * cdW
+        b[j] -= learning_rate * cdb
+    if i%20000==0:
+        print(f"iteration {i}: loss={loss:.4}")
+```
+We also generate some testing data to measure how well our model can predict.
+```python
+TN = 100
+test_education = np.full(TN, 22)
+test_income = np.random.randint(TN, size=test_education.shape[0])
+test_income = np.sort(test_income)
+
+true_model_Y = true_y(test_education, test_income)
+true_sample_Y = sample(test_education, test_income, verbose=False)
+X = np.concatenate((test_education[:, np.newaxis], test_income[:, np.newaxis]), axis=1)
+
+out, _, _ = compute_loss(X, W, b)
+loss_model, _ = mean_square_loss(out, true_model_Y)
+loss_sample, _ = mean_square_loss(out, true_sample_Y)
+
+print(f"testing: loss (compare with Oracle)={loss_model:.6}")
+print(f"testing: loss (compare with sample)={loss_sample:.4}")
+```
+
+We plot the result with our predicted value from our computed model vs the one from the true model. (The model from the Oracle.) In this first model, we have 2 hidden layers. We fix the number of years in education to 22 and plot how the number of dates varied with income.The orange line is what we may predicted from our model, the blue dot is from Oracle and orange dot is where we add some noise to the Oracle model when we create the training data. The data match pretty well with each other.
+<div class="imgcap">
+<img src="/assets/dl_intro/fc_2l.png" style="border:none;">
+</div>
+
+Now we are increasing the hidden layer from 2 to 4. We find that our prediction slightly different from the true model. And it takes more time to train it and more tuning to make it correct. When we plot it in 3D with variable income and eduction, we realized some part of the 2D plain is bended instead of flat.
+<div class="imgcap">
+<img src="/assets/dl_intro/fc_4l.png" style="border:none;">
+</div>
+
+<div class="imgcap">
+<img src="/assets/dl_intro/fc_4l2.png" style="border:none;">
+</div>
+
+If you run the program many times, we may find one that make relative bad prediction.
+<div class="imgcap">
+<img src="/assets/dl_intro/fc_4l3.png" style="border:none;">
+</div>
+
+When we create sample data for our training, we add some noise to our true value (the dates). When we build a more complex model, not only it model more complex real life problem, but it also increase its capability to model the noise signal. We hope that when we add more samples those noise can cancel each other. But this issue is much harder than we thought. But one thing for sure, when we apply a more complex model, it is much harder to train and far more easy to go wrong. This is why it is good to start with a simple model. This is pretty intutiive but a major source of mistake when we implement DL.
+```python
+def sample(education, income, verbose=True):
+    dates = true_y(education, income)
+    noise =  dates * 0.15 * np.random.randn(education.shape[0]) # Add some noise
+    return dates + noise
+```
+
+We also replace our ReLU function with sigmoid function, we find that it is even harder to make it work with our original problem. It is more bended when we visualize it in 3D. 
+<div class="imgcap">
+<img src="/assets/dl_intro/fc_si1.png" style="border:none;">
+</div>
+<div class="imgcap">
+<img src="/assets/dl_intro/fc_si2.png" style="border:none;">
+</div>
 
 ### Overfit
+This lead us to a very important topic in DL.  We know that when we increase the complexity of our model, we risk the chance of modeling the noise also. But even with no noise in our data, a complex model can still make mistakes even when we train it well and long enough.
 
-### Regularization
+We start with the following samples, how will you connect the dots or how you will create a equation to model the data.
+<div class="imgcap">
+<img src="/assets/dl_intro/fc_d1.png" style="border:none;">
+</div>
+
+One possiblity is
+$$
+y = x
+$$ which is simple and just slightly miss 2 on the left and 2 on the right of the line.
+<div class="imgcap">
+<img src="/assets/dl_intro/fc_d2.png" style="border:none;">
+</div>
+
+But when we show it to Pieter which has much higher computation capability than us, he model it as:
+
+$$
+y = 1.927  \cdot 10^{-7}  x^9 - 1.613 \cdot 10^{-5} x^8 + 5.569 \cdot 10^{-4} x^7 - 0.01021 x^6 + 0.1067 x^5 - 0.6286 x^4 + 1.9  x^3 - 2.189  x^2 + 0.8961 x - 0.008221
+$$
+
+Which does not miss a single point in the sample.
+<div class="imgcap">
+<img src="/assets/dl_intro/fc_d3.png" style="border:none;">
+</div>
+
+Which model is correct? The answer is "don't know". Some people may think the first one is simplier and simple explanation deserves more credits. But if you show it to a stock broker, they will say the second curve is more real if it is the market closing price of a stock. The question we like to ask is whether our model is too **overfit** that it makes bad prediction because the training set does not cover the right spectrum of data that we want to predict, or it starts model the noise because we do not have enough data to cancel the noise together.  
+
+#### Validation
+**Machine learning is about making prediction.** A model that have 100% accuracy in training can be a bad model in making prediction. For that, we often split our testing data into 3 parts. Sometimes 80% for training to build models. Run 10% on a validation data set to pick which model has the best accuracy, or use this to find what set of hyper parameters, like learning rate, that yield to the best result. As a warning, you can always hand pick data to justify your theory. Hence, we have another 10% of testing for a final insanity check. Note that the testing data is for one last checking but not for model selection. If your testing result is dramatically difference, you may need to randomize your sample more or to collect more data. Sometime you may make mistakes during the validation.
+
+#### Visualization 
+We can train a model to create a boundary to separate the blue from the white dot below. In the circled area, if we miss the 2 right white dots sample in our training, a complex model can make a curvely boundary just like the curve made by Pieter's model above.
+<div class="imgcap">
+<img src="/assets/dl_intro/fc_d3.png" style="border:none;">
+</div>
+
+Let's recall from Pieter's equation below:
+
+$$
+y = 1.927  \cdot 10^{-7}  x^9 - 1.613 \cdot 10^{-5} x^8 + 5.569 \cdot 10^{-4} x^7 - 0.01021 x^6 + 0.1067 x^5 - 0.6286 x^4 + 1.9  x^3 - 2.189  x^2 + 0.8961 x - 0.008221
+$$
+
+We can find even better fit curve by increasing the order of the polynomial equation say to 
+$$ 
+x^10, x^11, \cdots
+$$
+We start with the simple equation
+$$
+x = y
+$$
+In fact there are infinite answer to the problems. But in order to make the curve less curvely, we need some parameters to cancel the effect of each other.
+
+
+
 #### Train/validation accuracy
 #### L0, L1, L2 regularization
 
