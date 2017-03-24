@@ -647,7 +647,7 @@ X_2
 $$
 is the monthly income from 0 to 10,000. 
 
-Obviously, the different of scale in these 2 features cause a major difference in its gradient. Simply say, we cannot find a single learning rate than can work well with both of them. The solution is pretty simple with a couple line of code change. We re-scale the income value. Here is the output which is close to our true model:
+Obviously, the different scale in these 2 features cause a major difference in its gradient. Simply say, we cannot find a single learning rate than can work well with both of them. The solution is pretty simple with a couple line of code change. We re-scale the income value. Here is the output which is close to our true model:
 ```
 iteration 0: loss=518.7 W1=0.1624 dW1=-624.5 W2=0.3585 dW2=-2.585e+03 b= 0.004237 db = -42.37
 iteration 10000: loss=0.4414 W1=0.8392 dW1=0.0129 W2=0.3128 dW2=0.004501 b= 0.5781 db = -0.4719
@@ -665,12 +665,12 @@ b = 1.9795590414763997
 
 ### Non-linearity
 
-Pieter come back and realize our linear model is not adequate. The relationship between years of education and dates are not exactly linear:
+Pieter come back and realize our linear model is not adequate. Pieter claims the relationship between years of education and dates are not exactly linear:
 <div class="imgcap">
 <img src="/assets/dl_intro/educ.png" style="border:none;width:50%">
 </div>
 
-Can we combine linear functions with multiple layers to form a non-linear function?
+Can we combine 2 linear functions with multiple layers to form a non-linear function?
 
 $$
 f(x) = Wx + b
@@ -707,19 +707,19 @@ Sigmoid is one of the earliest function used in a deep network. Simoid is popula
 However, for other purpose, ReLU has mostly replaced the use of sigmoid. 
 
 <div class="imgcap">
-<img src="/assets/dl_intro/sigmoid.png" style="border:none">
+<img src="/assets/dl_intro/sigmoid.png" style="border:none;width:50%">
 </div>
 
 #### ReLU
 One of the popular non-linear function.
 <div class="imgcap">
-<img src="/assets/dl_intro/relu.png" style="border:none">
+<img src="/assets/dl_intro/relu.png" style="border:none;width:50%">
 </div>
 
 #### tanh
 Popular for output prefer to be within [-1, 1]
 <div class="imgcap">
-<img src="/assets/dl_intro/tanh.png" style="border:none">
+<img src="/assets/dl_intro/tanh.png" style="border:none;width:50%">
 </div>
 
 Code implement those functions
@@ -755,6 +755,76 @@ plt.axhline(y=0, color="0.8")
 plt.show()
 
 ```
+The following is the code to perform forward feed and backpropagation for ReLU and sigmoid function.
+
+$$
+f(x)=\text{max}(0,x)
+$$
+
+$$
+\begin{equation} 
+f'(x)=
+    \begin{cases}
+      1, & \text{if}\ x>0 \\
+      0, & \text{otherwise}
+    \end{cases}
+\end{equation}
+$$
+
+$$
+\sigma (x) = \frac{1}{1+e^{-x}}
+$$
+With some calculus, we can find the derviative of sigmoid as:
+$$
+\frac{d\sigma (x)}{d(x)} = \sigma (x)\cdot (1-\sigma(x))
+$$
+
+```python
+def relu_forward(x):
+    cache = x
+    out = np.maximum(0, x)
+    return out, cache
+
+def relu_backward(dout, cache):
+    out = cache
+    dh = dout
+    dh[out < 0] = 0
+    return dh
+
+def sigmoid_forward(x):
+    out = 1 / (1 + np.exp(-x))
+    return out, out
+
+def sigmoid_backward(dout, cache):
+    dh = cache * (1-cache)
+    return dh * dout
+```
+### Fully connected network
+
+Let's apply all our knowledge so far to build a fully connected network as follows:
+<div class="imgcap">
+<img src="/assets/dl_intro/fc_net.png" style="border:none;">
+</div>
+
+With each nodes in the hidden layer (except the last one), we apply:
+$$
+z_j = \sum_{i} W_{ij} x_{i} + b_{i}
+$$
+
+$$
+h(z_j)=\text{max}(0,z_j)
+$$
+
+But the one before the output, we apply the linear equation but not the ReLU equation.
+
+
+### Overfit
+
+### Regularization
+#### Train/validation accuracy
+#### L0, L1, L2 regularization
+
+
 ### Classifier
 
 #### Logistic regression (Sigmoid)
@@ -781,10 +851,8 @@ plt.show()
 
 ### Mini-batch gradient descent
 
-### Overfit
 
 ### Regularization
-#### Train/validation accuracy
 #### L0, L1, L2 regularization
 #### Gradient clipping
 #### Dropout
