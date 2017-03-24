@@ -1024,7 +1024,7 @@ This lead us to a very important topic in DL.  We know that when we increase the
 
 We start with the following samples, how will you connect the dots or how you will create a equation to model the data.
 <div class="imgcap">
-<img src="/assets/dl_intro/fc_d1.png" style="border:none;">
+<img src="/assets/dl_intro/d1.png" style="border:none;">
 </div>
 
 One possiblity is
@@ -1032,18 +1032,19 @@ $$
 y = x
 $$ which is simple and just slightly miss 2 on the left and 2 on the right of the line.
 <div class="imgcap">
-<img src="/assets/dl_intro/fc_d2.png" style="border:none;">
+<img src="/assets/dl_intro/d2.png" style="border:none;">
 </div>
 
 But when we show it to Pieter which has much higher computation capability than us, he model it as:
 
 $$
-y = 1.927  \cdot 10^{-7}  x^9 - 1.613 \cdot 10^{-5} x^8 + 5.569 \cdot 10^{-4} x^7 - 0.01021 x^6 + 0.1067 x^5 - 0.6286 x^4 + 1.9  x^3 - 2.189  x^2 + 0.8961 x - 0.008221
+y = 1.9  \cdot 10^{-7}  x^9 - 1.6 \cdot 10^{-5} x^8 + 5.6 \cdot 10^{-4} x^7 - 0.01 x^6  + 0.11 x^5 - 0.63 x^4 + 1.9  x^3 - 2.19  x^2 + 0.9 x - 0.0082
 $$
+
 
 Which does not miss a single point in the sample.
 <div class="imgcap">
-<img src="/assets/dl_intro/fc_d3.png" style="border:none;">
+<img src="/assets/dl_intro/d3.png" style="border:none;">
 </div>
 
 Which model is correct? The answer is "don't know". Some people may think the first one is simplier and simple explanation deserves more credits. But if you show it to a stock broker, they will say the second curve is more real if it is the market closing price of a stock. The question we like to ask is whether our model is too **overfit** that it makes bad prediction because the training set does not cover the right spectrum of data that we want to predict, or it starts model the noise because we do not have enough data to cancel the noise together.  
@@ -1052,15 +1053,15 @@ Which model is correct? The answer is "don't know". Some people may think the fi
 **Machine learning is about making prediction.** A model that have 100% accuracy in training can be a bad model in making prediction. For that, we often split our testing data into 3 parts. Sometimes 80% for training to build models. Run 10% on a validation data set to pick which model has the best accuracy, or use this to find what set of hyper parameters, like learning rate, that yield to the best result. As a warning, you can always hand pick data to justify your theory. Hence, we have another 10% of testing for a final insanity check. Note that the testing data is for one last checking but not for model selection. If your testing result is dramatically difference, you may need to randomize your sample more or to collect more data. Sometime you may make mistakes during the validation.
 
 #### Visualization 
-We can train a model to create a boundary to separate the blue from the white dot below. In the circled area, if we miss the 2 right white dots sample in our training, a complex model can make a curvely boundary just like the curve made by Pieter's model above.
+We can train a model to create a boundary to separate the blue from the white dot below. In the circled area, if we miss the 2 left white dots sample in our training, a complex model can predict a sharp boundary like what Pieter's equation do to a straight line.
 <div class="imgcap">
-<img src="/assets/dl_intro/fc_d3.png" style="border:none;">
+<img src="/assets/dl_intro/of.png" style="border:none;">
 </div>
 
-Let's recall from Pieter's equation below:
+Let's recall from Pieter's equation:
 
 $$
-y = 1.927  \cdot 10^{-7}  x^9 - 1.613 \cdot 10^{-5} x^8 + 5.569 \cdot 10^{-4} x^7 - 0.01021 x^6 + 0.1067 x^5 - 0.6286 x^4 + 1.9  x^3 - 2.189  x^2 + 0.8961 x - 0.008221
+y = 1.9  \cdot 10^{-7}  x^9 - 1.6 \cdot 10^{-5} x^8 + 5.6 \cdot 10^{-4} x^7 - 0.01 x^6  + 0.11 x^5 - 0.63 x^4 + 1.9  x^3 - 2.19  x^2 + 0.9 x - 0.0082
 $$
 
 We can find even better fitting curve by increasing the order of the polynomial equation. 
@@ -1071,9 +1072,58 @@ In fact there are infinite answer to the problems. We start with the simple equa
 $$
 x = y
 $$
-But in order to make the curve not to grow expotentially in the region of 0 to 20, we add some parameters to cancel the effect of each other.
+But in order to make the curve not to grow expotentially in the region of 0 to 20, we need the parameters to cancel some of the effect of others. The magnitude grows
+$$
+||c||
+$$
+bigger from just 1 in the simple equation.
+$$
+y = x
+$$
+
+Now we create a polynomal model to fit our sample data.
+
+$$
+y = c_5 x^5 + c_4 x^4 + c_3 x^3 + c_2 x^2 + c_1 x + c_0
+$$
+
+We find that this model is harder to train and we miss more points than the simple model
+$$
+y=x
+$$ 
+.
+<div class="imgcap">
+<img src="/assets/dl_intro/p1.png" style="border:none;">
+</div>
+
+In real life problem, we do need such a complex model and overfitting in some regions are likely. How can we avoid overfitting?
+<div class="imgcap">
+<img src="/assets/dl_intro/p2.png" style="border:none;">
+</div>
+
+As we observe before, there are many solutions to a problem but in order to have a very close fit, the coefficient in our training parameters needs to have higher magnitude. So we can add a penalty in our cost function to penalize high magnitude.
+
+$$
+	J = \text{mean square error} + \lambda ||W||
+$$
+
+which we introduce another hyper parameter called **regularization factor**
+$$
+lambda
+$$
+that we need to tune.
+
+After many try and error, we pick 1 and have our prediction closer to our training data.
+<div class="imgcap">
+<img src="/assets/dl_intro/p3.png" style="border:none;">
+</div>
+
+<div class="imgcap">
+<img src="/assets/dl_intro/p4.png" style="border:none;">
+</div>
 
 
+We are building 
 #### Train/validation accuracy
 #### L0, L1, L2 regularization
 
