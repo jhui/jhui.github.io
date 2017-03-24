@@ -1066,7 +1066,7 @@ $$
 
 We can find even better fitting curve by increasing the order of the polynomial equation. 
 $$ 
-x^10, x^11, \cdots
+x^{10}, x^{11}, \cdots
 $$
 In fact there are infinite answer to the problems. We start with the simple equation
 $$
@@ -1104,19 +1104,25 @@ In real life problem, we do need such a complex model and overfitting in some re
 As we observe before, there are many solutions to a problem but in order to have a very close fit, the coefficient in our training parameters needs to have higher magnitude. So we can add a penalty in our cost function to penalize high magnitude.
 
 $$
-	J = \text{mean square error} + \lambda ||W||
+J = \text{mean square error} + \lambda ||W||
 $$
 
 which we introduce another hyper parameter called **regularization factor**
 $$
-lambda
+\lambda
 $$
 that we need to tune.
 
-After many try and error, we pick 1 and have our prediction closer to our training data.
+After many try and error, we pick 
+$$
+lambda
+$$
+as 1 and our model make prediction closer to the training data.
 <div class="imgcap">
 <img src="/assets/dl_intro/p3.png" style="border:none;">
 </div>
+Like other hyper parameter for training, the process is try and error. In fact we have a very high value in this problem because we do not have too much parameters in our model and we do know that we have overfit problem when we visualize the data. But in real life, the value is lower and need to try different values just like the learning rate.
+
 
 <div class="imgcap">
 <img src="/assets/dl_intro/p4.png" style="border:none;">
