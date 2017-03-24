@@ -1111,30 +1111,70 @@ which we introduce another hyper parameter called **regularization factor**
 $$
 \lambda
 $$
-that we need to tune.
+that we need to tune. In this example, we use L2 norm (the magnitude of the vector) as penality which is also known as **L2 regularization**
+
+$$
+||c|| = \sqrt{(c_5^2 + c_3^2 + c_3^2 + c_2^2 + c_1^2 + c_0^2 +)}
+$$
 
 After many try and error, we pick 
 $$
-lambda
+\lambda
 $$
 as 1 and our model make prediction closer to the training data.
 <div class="imgcap">
 <img src="/assets/dl_intro/p3.png" style="border:none;">
 </div>
-Like other hyper parameter for training, the process is try and error. In fact we have a very high value in this problem because we do not have too much parameters in our model and we do know that we have overfit problem when we visualize the data. But in real life, the value is lower and need to try different values just like the learning rate.
+Like other hyper parameter for training, the process is try and error. In fact we use a very high 
+$$
+\lambda
+$$
+in this problem because there are not too many trainable parameters in our model, and we do know that the model is overfit when we visualize the data. But in real life, the value is lower and needs a lot of try and error similar to tuning other hyper parameters.
 
+There are another interesting point we notice in the loss value during training. The loss may suddenly go up sharply and drop to previous valye after a few thousand iterations. 
+```
+Iteration 87000 [2.5431744485195127]
+Iteration 88000 [2.525734745522529]
+Iteration 89000 [223.88938197268865]
+Iteration 90000 [195.08231216279583]
+Iteration 91000 [3.0582387198108449]
+Iteration 92000 [2.4587727305339286]
+```
+If we look into the equation, we realize the gradient
 
+$$
+\frac{\partial y}{\partial c_i}   = i \dot x^{i-1}
+$$
+
+can be very steep and have cost escalated which takes many more iterations to undo. For example, from iteration 10,000 to 11,000, the relative small change for the coefficient
+$$
+x^5
+$$
+from -0.000038 to -0.000021 has a big jump of cost for the sample data.
+```
+Iteration 10000 [82.128486144319155, 
+ array([[  1.66841311e+00],
+       [  5.15883024e-01],
+       [  1.05449372e-01],
+       [ -1.15910560e-01],
+       [  1.32065116e-02],
+       [ -3.83863265e-04]])]
+Iteration11000 [34312.355686493174, 
+  array([[  1.82722611e+00],
+       [  5.83582807e-01],
+       [  1.28332499e-01],
+       [ -1.11263342e-01],
+       [  1.24705708e-02],
+       [ -2.05131433e-04]])]
+```
+
+When we build our model, we first try out a polynomial model with order of 9. We find it impossible to train with our sample data so we decide to start with an order of 3. When reach the order of 7, we already find the model is so easily overfitted with the sample data.
 <div class="imgcap">
 <img src="/assets/dl_intro/p4.png" style="border:none;">
 </div>
 
-
-We are building 
-#### Train/validation accuracy
-#### L0, L1, L2 regularization
-
-
 ### Classifier
+
 
 #### Logistic regression (Sigmoid)
 
@@ -1200,7 +1240,6 @@ We are building
 
 ### Hyperparameter tuning
 
-#### Cross validation
 #### Random search
 
 ### CNN
