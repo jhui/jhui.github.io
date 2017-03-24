@@ -1063,16 +1063,15 @@ $$
 y = 1.927  \cdot 10^{-7}  x^9 - 1.613 \cdot 10^{-5} x^8 + 5.569 \cdot 10^{-4} x^7 - 0.01021 x^6 + 0.1067 x^5 - 0.6286 x^4 + 1.9  x^3 - 2.189  x^2 + 0.8961 x - 0.008221
 $$
 
-We can find even better fit curve by increasing the order of the polynomial equation say to 
+We can find even better fitting curve by increasing the order of the polynomial equation. 
 $$ 
 x^10, x^11, \cdots
 $$
-We start with the simple equation
+In fact there are infinite answer to the problems. We start with the simple equation
 $$
 x = y
 $$
-In fact there are infinite answer to the problems. But in order to make the curve less curvely, we need some parameters to cancel the effect of each other.
-
+But in order to make the curve not to grow expotentially in the region of 0 to 20, we add some parameters to cancel the effect of each other.
 
 
 #### Train/validation accuracy
