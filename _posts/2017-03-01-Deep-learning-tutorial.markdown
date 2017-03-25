@@ -1046,10 +1046,10 @@ Layer 4:
        [-0.03501616],
        [ 0.07363663]])]
 ```
-When we model a simple model with 4 layers of computation nodes. We can end up with many possible solutions. Should we prefer one solution over the other? Should we prefer a solution with smaller values over the other? If we look into the true model provided by the Oracle, we should realize a lot of nodes should just cancelling the effect of each other.
+When we model a simple model with 4 layers of computation nodes. We can end up with many possible solutions. Should we prefer one solution over the other? Should we prefer a solution with smaller values over the other? If we look into the true model provided by the Oracle, we realize the true model is much simplier than above, i.e. a lot of nodes here are just cancelling the effects of others.
 
 ### Overfit
-This lead us to a very important topic in DL.  We know that when we increase the complexity of our model, we risk the chance of modeling the noise also. But even with no noise in our data, a complex model can still make mistakes even when we train it well and long enough.
+This lead us to a very important topic in DL.  We know that when we increase the complexity of our model, we risk the chance of modeling the noise into a model. If we do not have enough sample data to cancel out each other, we will make wrong predictions. But even with no noise in our data, a complex model can still make mistakes even when we train it well and long enough.
 
 We start with the training samples with input values range from 0 to 20, how will you connect the dots or how you will create a equation to model the data below.
 <div class="imgcap">
@@ -1075,15 +1075,15 @@ Which does not miss a single point in the sample.
 <img src="/assets/dl_intro/d3.png" style="border:none;">
 </div>
 
-Which model is correct? The answer is "don't know". Some people may think the first one is simplier and simple explanation deserves more credits. But if you show it to a stock broker, they will say the second curve is more real if it is the market closing price of a stock. The question we like to ask is whether our model is too **overfit** that it makes bad prediction because 
-* it starts model the noise and we do not have enough data to cancel the noise with each othe, or. 
-* the training set does not cover the same right spectrum of data that we want to predict.
+Which model is correct? The answer is "don't know". Some people may think the first one is simplier and simple explanation deserves more credits. But if you show it to a stock broker, they will say the second curve is more real if it is the market closing price of a stock. 
+
+The question that interest us is whether our model is too "custom taylor" for the sample data that make bad prediction. The second curve fit the sample data100% but will make some wrong predictions if the true model is a straight line.
 
 #### Validation
 **Machine learning is about making prediction.** A model that have 100% accuracy in training can be a bad model in making prediction. For that, we often split our testing data into 3 parts. Sometimes 80% for training to build models. Run 10% on a validation data set to pick which model has the best accuracy, or use this to find what set of hyper parameters, like learning rate, that yield to the best result. As a warning, you can always hand pick data to justify your theory. Hence, we have another 10% of testing for a final insanity check. Note that the testing data is for one last checking but not for model selection. If your testing result is dramatically difference, you may need to randomize your sample more or to collect more data. Sometime you may make mistakes during the validation.
 
 #### Visualization 
-We can train a model to create a boundary to separate the blue dots from the white dots below. In the circled area, if we miss the 2 left white dots sample in our training, a complex model may create a sharp boundary.
+We can train a model to create a boundary to separate the blue dots from the white dots below. In the circled area, if we miss the 2 left white dots sample in our training, a complex model may create an un-necessary odd shape boundary. A less complex model may create a smoother boundary that include those 2 white dots that make better predictions.
 <div class="imgcap">
 <img src="/assets/dl_intro/of.png" style="border:none;">
 </div>
@@ -1098,7 +1098,7 @@ In fact there are infinite answers to the problem with different order of the po
 $$
 x^k \cdots
 $$
-But you may realize that the magnitude of the coefficent also grow. But there are some issues:
+But you may realize that the magnitude of the coefficent also grow. There are other issues:
 * The search space increases significantly, and
 * The high order also make certain region to have a steep gradient.
 Both of them making training much harder. 
@@ -1108,17 +1108,23 @@ $$
 y = c_5 x^5 + c_4 x^4 + c_3 x^3 + c_2 x^2 + c_1 x + c_0
 $$
 
-Since it is much harder to train, we find the new model is less accurate when we just train with the same number of iterations comparing with the simplier model.
+The model is much harder to train compare with a model with order 3, and less accuate with the same number of iteration.
 <div class="imgcap">
 <img src="/assets/dl_intro/p1.png" style="border:none;">
 </div>
 
-But why are we bother with a complex model? In real life problem, a complex model is the only way to push accuracy to an acceptable level. But yet overfitting is always un-avoidable. One solution is to add more sample data such that it is much harder to overfit. Here, we mange to have a better model when we double our sample data.
+But why don't we focus on making the model with the right complexity. In real life problem, a complex model is the only way to push accuracy to an acceptable level. But yet overfitting in some region is un-avoidable. One solution is to add more sample data such that it is much harder to overfit. Here, we mange to have a better model when we double our sample data.
 <div class="imgcap">
 <img src="/assets/dl_intro/p2.png" style="border:none;">
 </div>
 
-As we observe before, there are many solutions to a problem but in order to have a very close fit, the coefficient in our training parameters needs to have higher magnitude. To encourage our training not to be too agressive, we can add a penalty in our cost function to penalize high magnitude.
+As we observe before, there are many solutions to the problem but in order to have a very close fit, the coefficient in our training parameters tends to have larger magnitude. 
+
+$$
+||c|| = \sqrt{(c_5^2 + c_3^2 + c_3^2 + c_2^2 + c_1^2 + c_0^2 +)}
+$$
+
+To encourage our training not to be too agressive, we can add a penalty in our cost function to penalize large magnitude.
 
 $$
 J = \text{mean square error} + \lambda ||W||
@@ -1130,15 +1136,11 @@ $$
 $$
 In this example, we use L2 norm (the magnitude of the vector) as penality which is also known as **L2 regularization**
 
-$$
-||c|| = \sqrt{(c_5^2 + c_3^2 + c_3^2 + c_2^2 + c_1^2 + c_0^2 +)}
-$$
-
 After many try and error, we pick 
 $$
 \lambda
 $$
-as 1 and our model make prediction closer to the training data with the same number of iterations.
+to be1 and our model make prediction closer to the training data with the same number of iterations.
 
 <div class="imgcap">
 <img src="/assets/dl_intro/p3.png" style="border:none;">
@@ -1162,7 +1164,7 @@ Iteration 92000 [2.4587727305339286]
 If we look into the equation, we realize the gradient
 
 $$
-\frac{\partial y}{\partial c_i}   = i \dot x^{i-1}
+\frac{\partial y}{\partial c_i}   = i  x^{i-1}
 $$
 
 can be very steep which can suffer the learning rate problem discussed before. The cost can escalate which takes many more iterations to undo. For example, from iteration 10,000 to 11,000, the relative small change for the coefficient
@@ -1187,7 +1189,7 @@ Iteration11000 [34312.355686493174,
        [ -2.05131433e-04]])]
 ```
 
-When we build our model, we first try out a polynomial model with order of 9. We find it impossible to train with our sample data so we decide to start with an order of 3. When reach the order of 7, we already find the model is so easily overfitted with the sample data.
+When we build our model, we first try out a polynomial model with order of 9. We find it impossible to train with our sample data so we decide to start with an order of 3. When reach the order of 7, we already find the model is so hard to train.
 <div class="imgcap">
 <img src="/assets/dl_intro/p4.png" style="border:none;">
 </div>
