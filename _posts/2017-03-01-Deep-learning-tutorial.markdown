@@ -1003,7 +1003,7 @@ If you run the program many times, we may find one that make relative bad predic
 <img src="/assets/dl_intro/fc_4l3.png" style="border:none;">
 </div>
 
-When we create sample data for our training, we add some noise to our true value (the dates). When we build a more complex model, not only it model more complex real life problem, but it also increase its capability to model the noise signal. We hope that when we add more samples those noise can cancel each other. But this issue is much harder than we thought. But one thing for sure, when we apply a more complex model, it is much harder to train and far more easy to go wrong. This is why it is good to start with a simple model. This is pretty intutiive but a major source of mistake when we implement DL.
+When we create sample data for our training, we add some noise to our true value (the dates). When we build a more complex model, it also increase its capability to model the noise signal. We hope that when we add more samples those noise can cancel each other. But this issue is much harder than we thought. But one thing for sure, when we apply a more complex model, it is much harder to train and far more easy to go wrong. This is why it is good to start with a simple model. This is pretty intutiive but a major source of mistake when we implement DL.
 ```python
 def sample(education, income, verbose=True):
     dates = true_y(education, income)
@@ -1011,7 +1011,7 @@ def sample(education, income, verbose=True):
     return dates + noise
 ```
 
-We also replace our ReLU function with sigmoid function, we find that it is even harder to make it work with our original problem. It is more bended when we visualize it in 3D. 
+We also replace our ReLU function with sigmoid function, we find that it is hard to make it work with our original problem. It is more bended when we visualize it in 3D.
 <div class="imgcap">
 <img src="/assets/dl_intro/fc_si1.png" style="border:none;">
 </div>
@@ -1019,10 +1019,39 @@ We also replace our ReLU function with sigmoid function, we find that it is even
 <img src="/assets/dl_intro/fc_si2.png" style="border:none;">
 </div>
 
+The following is one of the many possible models that we generate using our program with different seeds of W.
+```
+Layer 1:
+      [[ 1.10727659,  0.22189273,  0.13302861,  0.2646622 ,  0.2835898 ],
+       [ 0.23522207,  0.01791731, -0.01386124,  0.28925567,  0.187561  ]]
+	   
+Layer 2:
+ 	[[ 0.9450821 ,  0.14869831,  0.07685842,  0.23896402,  0.15320876],
+       [ 0.33076781,  0.02230716,  0.01925127,  0.30486342,  0.10669098],
+       [ 0.18483084, -0.03456052, -0.01830806,  0.28216702,  0.07498301],
+       [ 0.11560201,  0.05810744,  0.021574  ,  0.10670155,  0.11009798],
+       [ 0.17446553,  0.12954657,  0.03042245,  0.03142454,  0.04630127]]), 
+	   
+Layer 3:	   
+	[[ 0.79405847,  0.10679984,  0.00465651,  0.20686431,  0.11202472],
+       [ 0.31141474,  0.01717969,  0.00995529,  0.30057041,  0.10141655],
+       [ 0.13030365, -0.09887915,  0.0265004 ,  0.29536237,  0.07935725],
+       [ 0.07790114,  0.04409276,  0.01333717,  0.10145275,  0.10112565],
+       [ 0.12152267,  0.11339623,  0.00993313,  0.02115832,  0.03268988]]), 
+	   
+Layer 4:	  
+	[[ 0.67123192],
+       [ 0.48754364],
+       [-0.2018187 ],
+       [-0.03501616],
+       [ 0.07363663]])]
+```
+When we model a simple model with 4 layers of computation nodes. We can end up with many possible solutions. Should we prefer one solution over the other? Should we prefer a solution with smaller values over the other? If we look into the true model provided by the Oracle, we should realize a lot of nodes should just cancelling the effect of each other.
+
 ### Overfit
 This lead us to a very important topic in DL.  We know that when we increase the complexity of our model, we risk the chance of modeling the noise also. But even with no noise in our data, a complex model can still make mistakes even when we train it well and long enough.
 
-We start with the following samples, how will you connect the dots or how you will create a equation to model the data.
+We start with the training samples with input values range from 0 to 20, how will you connect the dots or how you will create a equation to model the data below.
 <div class="imgcap">
 <img src="/assets/dl_intro/d1.png" style="border:none;">
 </div>
@@ -1041,67 +1070,55 @@ $$
 y = 1.9  \cdot 10^{-7}  x^9 - 1.6 \cdot 10^{-5} x^8 + 5.6 \cdot 10^{-4} x^7 - 0.01 x^6  + 0.11 x^5 - 0.63 x^4 + 1.9  x^3 - 2.19  x^2 + 0.9 x - 0.0082
 $$
 
-
 Which does not miss a single point in the sample.
 <div class="imgcap">
 <img src="/assets/dl_intro/d3.png" style="border:none;">
 </div>
 
-Which model is correct? The answer is "don't know". Some people may think the first one is simplier and simple explanation deserves more credits. But if you show it to a stock broker, they will say the second curve is more real if it is the market closing price of a stock. The question we like to ask is whether our model is too **overfit** that it makes bad prediction because the training set does not cover the right spectrum of data that we want to predict, or it starts model the noise because we do not have enough data to cancel the noise together.  
+Which model is correct? The answer is "don't know". Some people may think the first one is simplier and simple explanation deserves more credits. But if you show it to a stock broker, they will say the second curve is more real if it is the market closing price of a stock. The question we like to ask is whether our model is too **overfit** that it makes bad prediction because 
+* it starts model the noise and we do not have enough data to cancel the noise with each othe, or. 
+* the training set does not cover the same right spectrum of data that we want to predict.
 
 #### Validation
 **Machine learning is about making prediction.** A model that have 100% accuracy in training can be a bad model in making prediction. For that, we often split our testing data into 3 parts. Sometimes 80% for training to build models. Run 10% on a validation data set to pick which model has the best accuracy, or use this to find what set of hyper parameters, like learning rate, that yield to the best result. As a warning, you can always hand pick data to justify your theory. Hence, we have another 10% of testing for a final insanity check. Note that the testing data is for one last checking but not for model selection. If your testing result is dramatically difference, you may need to randomize your sample more or to collect more data. Sometime you may make mistakes during the validation.
 
 #### Visualization 
-We can train a model to create a boundary to separate the blue from the white dot below. In the circled area, if we miss the 2 left white dots sample in our training, a complex model can predict a sharp boundary like what Pieter's equation do to a straight line.
+We can train a model to create a boundary to separate the blue dots from the white dots below. In the circled area, if we miss the 2 left white dots sample in our training, a complex model may create a sharp boundary.
 <div class="imgcap">
 <img src="/assets/dl_intro/of.png" style="border:none;">
 </div>
 
-Let's recall from Pieter's equation:
+Recall from Pieter's equation, our sample data can be model nicely with the following equations:
 
 $$
 y = 1.9  \cdot 10^{-7}  x^9 - 1.6 \cdot 10^{-5} x^8 + 5.6 \cdot 10^{-4} x^7 - 0.01 x^6  + 0.11 x^5 - 0.63 x^4 + 1.9  x^3 - 2.19  x^2 + 0.9 x - 0.0082
 $$
 
-We can find even better fitting curve by increasing the order of the polynomial equation. 
-$$ 
-x^{10}, x^{11}, \cdots
+In fact there are infinite answers to the problem with different order of the polynomal equations.
 $$
-In fact there are infinite answer to the problems. We start with the simple equation
+x^k \cdots
 $$
-x = y
-$$
-But in order to make the curve not to grow expotentially in the region of 0 to 20, we need the parameters to cancel some of the effect of others. The magnitude grows
-$$
-||c||
-$$
-bigger from just 1 in the simple equation.
-$$
-y = x
-$$
+But you may realize that the magnitude of the coefficent also grow. But there are some issues:
+* The search space increases significantly, and
+* The high order also make certain region to have a steep gradient.
+Both of them making training much harder. 
 
-Now we create a polynomal model to fit our sample data.
-
+Let us create a polynomal model with order 5 to fit our sample data, and see how the training model make prediction.
 $$
 y = c_5 x^5 + c_4 x^4 + c_3 x^3 + c_2 x^2 + c_1 x + c_0
 $$
 
-We find that this model is harder to train and we miss more points than the simple model
-$$
-y=x
-$$ 
-.
+Since it is much harder to train, we find the new model is less accurate when we just train with the same number of iterations comparing with the simplier model.
 <div class="imgcap">
 <img src="/assets/dl_intro/p1.png" style="border:none;">
 </div>
 
-In real life problem, we do need such a complex model and overfitting in some regions are likely. How can we avoid overfitting?
+But why are we bother with a complex model? In real life problem, a complex model is the only way to push accuracy to an acceptable level. But yet overfitting is always un-avoidable. One solution is to add more sample data such that it is much harder to overfit. Here, we mange to have a better model when we double our sample data.
 <div class="imgcap">
 <img src="/assets/dl_intro/p2.png" style="border:none;">
 </div>
 
-As we observe before, there are many solutions to a problem but in order to have a very close fit, the coefficient in our training parameters needs to have higher magnitude. So we can add a penalty in our cost function to penalize high magnitude.
+As we observe before, there are many solutions to a problem but in order to have a very close fit, the coefficient in our training parameters needs to have higher magnitude. To encourage our training not to be too agressive, we can add a penalty in our cost function to penalize high magnitude.
 
 $$
 J = \text{mean square error} + \lambda ||W||
@@ -1111,7 +1128,7 @@ which we introduce another hyper parameter called **regularization factor**
 $$
 \lambda
 $$
-that we need to tune. In this example, we use L2 norm (the magnitude of the vector) as penality which is also known as **L2 regularization**
+In this example, we use L2 norm (the magnitude of the vector) as penality which is also known as **L2 regularization**
 
 $$
 ||c|| = \sqrt{(c_5^2 + c_3^2 + c_3^2 + c_2^2 + c_1^2 + c_0^2 +)}
@@ -1121,10 +1138,12 @@ After many try and error, we pick
 $$
 \lambda
 $$
-as 1 and our model make prediction closer to the training data.
+as 1 and our model make prediction closer to the training data with the same number of iterations.
+
 <div class="imgcap">
 <img src="/assets/dl_intro/p3.png" style="border:none;">
 </div>
+
 Like other hyper parameter for training, the process is try and error. In fact we use a very high 
 $$
 \lambda
@@ -1146,7 +1165,7 @@ $$
 \frac{\partial y}{\partial c_i}   = i \dot x^{i-1}
 $$
 
-can be very steep and have cost escalated which takes many more iterations to undo. For example, from iteration 10,000 to 11,000, the relative small change for the coefficient
+can be very steep which can suffer the learning rate problem discussed before. The cost can escalate which takes many more iterations to undo. For example, from iteration 10,000 to 11,000, the relative small change for the coefficient
 $$
 x^5
 $$
