@@ -165,18 +165,21 @@ y = 2x - 0.5
 $$
 
 ### Linear Regressor
-TensorFlow comes with many prebuilt models. The following code replace the last program with a prebuilt Linear Regressor.
-
+TensorFlow comes with many prebuilt models. The following code replace the last program with a prebuilt Linear Regressor. It constructs a linear regressor as an estimator and we will create an input functions to pre-process and feed data into the models. 
 ```python
 import tensorflow as tf
 
 import numpy as np
 
+# Create a linear regressorw with 1 feature "x".
 features = [tf.contrib.layers.real_valued_column("x", dimension=1)]
 estimator = tf.contrib.learn.LinearRegressor(feature_columns=features)
 
 x = np.array([1., 2., 3., 4.])
 y = np.array([1.5, 3.5, 5.5, 7.5])
+
+# Construct an input_fn to pre-process and feed data into the models.
+# Create 1000 epochs with batch size = 4.
 input_fn = tf.contrib.learn.io.numpy_input_fn({"x":x}, y, batch_size=4, num_epochs=1000)
 
 estimator.fit(input_fn=input_fn, steps=1000)
@@ -248,7 +251,7 @@ def model(features, labels, mode):
 estimator = tf.contrib.learn.Estimator(model_fn=model)
 ```
 
-### Solving Moist
+### Solving Mnist
 
 <div class="imgcap">
 <img src="/assets/tensorflow_basic/mnist.png" style="border:none; width:40%;">
@@ -615,10 +618,55 @@ Further possible accuracy improvement:
 * Whitening of the input image.
 * Further tuning of the learning rate and dropout parameter.
 
+### Tips
+#### Training trouble shooting using gradient
+During training, we may interest in the gradients for each varaibles. For example, from the gradients, we may tell how well the gradient descent is working for the deep network. To expose the gradient, replace the following code:
+```python
+optimizer = tf.train.GradientDescentOptimizer(0.01)
+optimizer = optimizer.minimize(loss)
+```
+With:
+```python
+global_step = tf.Variable(0)
+
+optimizer = tf.train.GradientDescentOptimizer(0.01)
+gradients, v = zip(*optimizer.compute_gradients(loss))
+optimizer = optimizer.apply_gradients(zip(gradients, v), global_step=global_step)
+```
+
 ### Further thoughts
 Tensorflow provides [a MNlist implementation using CNN with the higher level API Estimator](https://github.com/tensorflow/tensorflow/blob/master/tensorflow/examples/tutorials/layers/cnn_mnist.py). For people want to work with the Estimator, this worths taking a look. 
 
 ### Appendix
+#### Download remote file
+```
+import tempfile
+
+import tensorflow as tf
+import urllib
+
+FLAGS = None
+
+tf.logging.set_verbosity(tf.logging.INFO)
+
+def maybe_download(train_data):
+  if train_data:
+    train_file_name = train_data
+  else:
+    train_file = tempfile.NamedTemporaryFile(delete=False)
+    urllib.request.urlretrieve(
+        "http://download.tensorflow.org/data/abalone_train.csv",
+        train_file.name)
+    train_file_name = train_file.name
+    train_file.close()
+    print("Training data is downloaded to %s" % train_file_name)
+  return train_file_name
+
+
+local_file_name = ""
+local_file_name = maybe_download(local_file_name)
+```
+
 #### DNNClassifier (tf.contrib.learn.DNNClassifier)
 We use a Deep network classifier (with 3 hidden-layers) to classify the iris samples into 3 subclasses. We load 150 samples and split it into 120 training data and 30 testing data.
 
@@ -669,8 +717,7 @@ if __name__ == '__main__':
 ```
 
 #### InteractiveSession
-TensorFlow provide another way to execute a computational graph using *tf.InteractiveSession*. 
-
+TensorFlow provide another way to execute a computational graph using *tf.InteractiveSession* which is more convenient for an ipython environment.
 ```python
 import tensorflow as tf
 sess = tf.InteractiveSession()
@@ -689,7 +736,6 @@ print(addition.eval())      # [6. 8.]
 # Close the Session when we're done.
 sess.close()
 ```
-This API is sometimes used in ipython environment.
 
 ### Caveat
 * Some APIs like tf.split, tf.concat in v1.0 are not backward compatible with pre-v1.0 version. Some files are moved to different directories. Care must be taken between the version of Tensorflow and the version the code is intended for.

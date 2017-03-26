@@ -149,7 +149,7 @@ Which output something with shape like a delta function:
 <img src="/assets/dl_intro/delta_func.png" style="border:none;width:60%">
 </div>
 
-Implement a XOR or a delta function is not important for deep learning (DL). Nevertheless, we demonstrate the possibilities of building a complex function estimator through a network of simple computation nodes. In both cases, we need a network with 2 layers. A network with 3 or 4 layer can push the hand written recognition of numbers to an accuracy of 90+%. Naturally, a network with many layers (deeper) can reproduce a much complicated model. For example, Microsoft ResNet for image recognition has 100+ layers.
+Implement a XOR or a delta function is not important for deep learning (DL). Nevertheless, we demonstrate the possibilities of building a complex function estimator through a network of simple computation nodes. In both cases, we need a network with 2 layers. A network with 2 hidden layer can push the hand written recognition of numbers to an accuracy of 95+%. Naturally, a network with many layers (deeper) can reproduce a much complicated model. For example, Microsoft ResNet for image recognition has 100+ layers.
 
 ### Build a Linear regression model
 Before teaching Pieter how to learn those parameters, we try to build a simple model first. For example, Pieter wants to expand on his horizon and try to start online dating. He wants to find out the relationship between the number of online dates with the number of years in eductaion and the monthly income.  Pieter starts with a simple linear model as follows:
@@ -1205,8 +1205,6 @@ When we build our model, we first try out a polynomial model with order of 9. We
 
 #### Mean square error 
 
-### Issues
-
 ### Exploding and vanishing gradient
 
 ### Cross entropy cost function
@@ -1216,8 +1214,6 @@ When we build our model, we first try out a polynomial model with order of 9. We
 ### Log likelihood
 
 ### Network layers
-
-### Implementation
 
 ### Mini-batch gradient descent
 
@@ -1266,8 +1262,6 @@ When we build our model, we first try out a polynomial model with order of 9. We
 ### CNN
 
 ### LSTM
-
-### Backprogation
 
 ### Data argumentation
 
