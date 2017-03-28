@@ -189,9 +189,15 @@ print(f"loss = {result['loss']}")
 for name in estimator.get_variable_names():
     print(f'{name} = {estimator.get_variable_value(name)}')
 
-# loss = 0.013192394748330116
-# linear/x/weight = [[ 1.90707111]]
-# linear/bias_weight = [-0.21857721]
+predictions = estimator.predict(input_fn=input_fn)
+for i, p in enumerate(predictions):
+    print("Prediction %s: %s" % (i + 1, p))
+
+# {'loss': 6.7292158e-11, 'global_step': 1000}
+# W = [ 1.99999637]
+# b = [-0.4999892]
+# Prediction 1: 11.5000004526
+# Prediction 2: 9.50000029689
 ```
 
 ### Custom model
@@ -619,6 +625,155 @@ Further possible accuracy improvement:
 * Further tuning of the learning rate and dropout parameter.
 
 ### Tips
+#### Reshape
+Find the shape of a numpy array and reshape it.
+```python
+import tensorflow as tf
+import numpy as np
+
+### ndarray shape
+x = np.array([[2, 3], [4, 5], [6, 7]])
+print(x.shape)          # (3, 2)
+
+x = x.reshape((2, 3))
+print(x.shape)          # (2, 3)
+
+x = x.reshape((-1))
+print(x.shape)          # (6,)
+
+x = x.reshape((6, -1))
+print(x.shape)          # (6, 1)
+
+x = x.reshape((-1, 6))
+print(x.shape)          # (1, 6)
+```
+
+Find the shape of an tensor and reshape it
+```python
+import tensorflow as tf
+import numpy as np
+
+### Tensor
+W = tf.Variable(tf.random_uniform([4, 5], -1.0, 1.0))
+
+print(W.get_shape())    # Get the shape of W (4, 5)
+print(tf.shape(W))      # Wrong. tf.shape(W) returns an tensor that in runtime returns the shape.
+                        # Tensor("Shape:0", shape=(2,), dtype=int32)
+
+W = tf.reshape(W, [10, 2])
+print(W.get_shape())    # (10, 2)
+
+W = tf.reshape(W, [-1])
+print(W.get_shape())    # (20,)
+
+W = tf.reshape(W, [5, -1])
+print(W.get_shape())    # (5, 4)
+```
+
+> Use W.get_shape instead of tf.shape to find the shape of a variable if it is known during a model construction.
+
+tf.unique(x) returns a 1D tensor contains all unique elements. The shape is dynamic which depends on "x" and need to evaluate at runtime:
+```python
+import tensorflow as tf
+import numpy as np
+
+c = tf.constant([1, 2, 3, 1])
+y, _ = tf.unique(c)     # y only contains the unique elements.
+
+print(y.get_shape())    # (?,) This is a dynamic shape. Only know in runtime
+
+y_shape = tf.shape(y)   # Define an op to get the dynamic shape.
+
+init = tf.global_variables_initializer()
+
+with tf.Session() as sess:
+    sess.run(init)
+    print(sess.run(y_shape))   # [3] contains 3 unique elements
+```
+
+#### Intialize varaibles
+
+Initialize variables with constant:
+```python
+import tensorflow as tf
+import numpy as np
+
+a1 = np.array([1, 2, 3])
+
+v1 = tf.Variable(2.0, trainable=False)   # float32 scalar
+v2 = tf.Variable([0.1], tf.float32)      # float32 (1,)
+
+v3 = tf.Variable(tf.constant(0.1, shape=[2, 2]))   # float32 (2, 2)
+v4 = tf.Variable(tf.constant(a1))                  # int64 (3,)
+
+b1 = tf.Variable(tf.zeros([3]))                    # float32 (3,)
+b2 = tf.Variable(tf.zeros([3], dtype=tf.int32))    # int32 (3,)
+b3 = tf.Variable(tf.fill([3], 1))                  # int32 (3,)
+```
+
+Randomized the value of varaibles:
+```python
+import tensorflow as tf
+import numpy as np
+
+W1 = tf.Variable(tf.truncated_normal([1], stddev=1.0))    # float32 (1,)
+print(W1.get_shape())
+print(W1)
+
+W2 = tf.Variable(tf.truncated_normal([3, 2], stddev=1.0)) # float32 (3, 2)
+W3 = tf.Variable(tf.truncated_normal([3, 2], mean=0, stddev=1.0, dtype=tf.float64))
+W4 = tf.Variable(tf.random_uniform([1], -1, 1))        # float32 (1,)
+W5 = tf.Variable(tf.random_uniform([1], -0.1, 0.1))    # float32 (1,)
+W6 = tf.Variable(tf.random_uniform([2, 3], -0.1, 0.1)) # float32 (2, 3)
+W7 = tf.Variable(tf.random_uniform([2, 3], -0.1, 0.1, dtype=tf.float64, name="W3"))
+```
+
+#### Utilities function
+Concat and split
+```python
+import tensorflow as tf
+
+t1 = [[1, 2], [3, 4]]
+t2 = [[5, 6], [7, 8]]
+tf.concat([t1, t2], 0) # [[1, 2], [3, 4], [5, 6], [7, 8]]
+tf.concat([t1, t2], 1) # [[1, 2, 5, 6], [3, 4, 7, 8]]
+
+value = tf.Variable(tf.zeros([4, 10]))
+
+s1, s2, s3 = tf.split(value, [2, 3, 5], 1)
+# s1 shape(4, 2)
+# s2 shape(4, 3)
+# s3 shape(4, 5)
+
+# Split 'value' into 2 tensors along dimension 1
+s0, s1= tf.split(value, num_or_size_splits=2, axis=1)  # s0 shape(4, 5)
+
+```
+Generate one-hot vector
+```python
+import tensorflow as tf
+
+# Generate a one hot array using indexes
+indexes = tf.Variable(tf.constant([2, 0, -1, 0]))
+target = tf.one_hot(indexes, 3, 2, 0)
+
+init = tf.global_variables_initializer()
+
+with tf.Session() as sess:
+    sess.run(init)
+    print(sess.run(target))
+# [[0 0 2]
+# [2 0 0]
+# [0 0 0]
+# [2 0 0]]	
+```
+
+#### Casting
+```python
+s0 = tf.cast(s0, tf.int32)
+s0 = tf.to_int64(s0)
+```
+
 #### Training trouble shooting using gradient
 During training, we may interest in the gradients for each varaibles. For example, from the gradients, we may tell how well the gradient descent is working for the deep network. To expose the gradient, replace the following code:
 ```python
@@ -634,16 +789,13 @@ gradients, v = zip(*optimizer.compute_gradients(loss))
 optimizer = optimizer.apply_gradients(zip(gradients, v), global_step=global_step)
 ```
 
-### Further thoughts
-Tensorflow provides [a MNlist implementation using CNN with the higher level API Estimator](https://github.com/tensorflow/tensorflow/blob/master/tensorflow/examples/tutorials/layers/cnn_mnist.py). For people want to work with the Estimator, this worths taking a look. 
-
-### Appendix
-#### Download remote file
+#### Download and reading CSV file
 ```
 import tempfile
 
 import tensorflow as tf
-import urllib
+import urllib.request
+import numpy as np
 
 FLAGS = None
 
@@ -663,10 +815,41 @@ def maybe_download(train_data):
   return train_file_name
 
 
-local_file_name = ""
-local_file_name = maybe_download(local_file_name)
+training_local_file = ""
+training_local_file = maybe_download(training_local_file)
+
+training_set = tf.contrib.learn.datasets.base.load_csv_without_header(
+  filename=training_local_file, target_dtype=np.int, features_dtype=np.float64)
+
+print(f"data shape = {training_set.data.shape}")      # (3320, 7)
+print(f"label shape = {training_set.target.shape}")   # (3320,)
 ```
 
+#### InteractiveSession
+TensorFlow provide another way to execute a computational graph using *tf.InteractiveSession* which is more convenient for an ipython environment.
+```python
+import tensorflow as tf
+sess = tf.InteractiveSession()
+
+x = tf.Variable([1.0, 2.0])
+a = tf.constant([5.0, 6.0])
+
+# Run the op that 'x' depends on, and then run 'x'
+x.initializer.run()
+
+addition = tf.add(x, a)
+
+# addition.eval is shorthand for tf.Session.run (where sess is the current tf.get_default_session.)
+print(addition.eval())      # [6. 8.]
+
+# Close the Session when we're done.
+sess.close()
+```
+
+### Further thoughts
+Tensorflow provides [a MNlist implementation using CNN with the higher level API Estimator](https://github.com/tensorflow/tensorflow/blob/master/tensorflow/examples/tutorials/layers/cnn_mnist.py). For people want to work with the Estimator, this worths taking a look. 
+
+### Appendix
 #### DNNClassifier (tf.contrib.learn.DNNClassifier)
 We use a Deep network classifier (with 3 hidden-layers) to classify the iris samples into 3 subclasses. We load 150 samples and split it into 120 training data and 30 testing data.
 
@@ -674,7 +857,6 @@ The 4 features used as the model input: (image from wiki)
 <div class="imgcap">
 <img src="/assets/tensorflow_basic/iris.png" style="border:none;">
 </div>
-
 
 ```python
 """Example of DNNClassifier for Iris plant dataset."""
@@ -714,27 +896,6 @@ def main(unused_argv):
 if __name__ == '__main__':
   tf.app.run()
 
-```
-
-#### InteractiveSession
-TensorFlow provide another way to execute a computational graph using *tf.InteractiveSession* which is more convenient for an ipython environment.
-```python
-import tensorflow as tf
-sess = tf.InteractiveSession()
-
-x = tf.Variable([1.0, 2.0])
-a = tf.constant([5.0, 6.0])
-
-# Run the op that 'x' depends on, and then run 'x'
-x.initializer.run()
-
-addition = tf.add(x, a)
-
-# addition.eval is shorthand for tf.Session.run (where sess is the current tf.get_default_session.)
-print(addition.eval())      # [6. 8.]
-
-# Close the Session when we're done.
-sess.close()
 ```
 
 ### Caveat
