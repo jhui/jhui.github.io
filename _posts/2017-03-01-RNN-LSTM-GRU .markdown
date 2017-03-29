@@ -13,7 +13,7 @@ date: 2017-03-01 12:00:00
 If Convolution networks are deep networks exploring the spatial information, recurrent networks are the correspnding network for the time sequence data. This type of networks are popular with natural language processing (NLP).
 
 <div class="imgcap">
-<img src="/assets/rnn/rnn_b.png" style="border:none;width:80%;">
+<img src="/assets/rnn/rnn_b.png" style="border:none;width:60%;">
 </div>
 
 In a RNN, 
@@ -23,12 +23,12 @@ h_t = f(x_t, h_{t-1})
 $$
 
 <div class="imgcap">
-<img src="/assets/rnn/rnn_b3.png" style="border:none;width:80%;">
+<img src="/assets/rnn/rnn_b3.png" style="border:none;width:40%;">
 </div>
 
 For example, we unroll the RNN into 3 consecutive time steps (t-1, t & t+1):
 <div class="imgcap">
-<img src="/assets/rnn/rnn_b2.png" style="border:none;width:80%;">
+<img src="/assets/rnn/rnn_b2.png" style="border:none;width:40%;">
 </div>
 
 
