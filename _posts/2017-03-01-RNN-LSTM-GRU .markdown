@@ -16,12 +16,11 @@ If Convolution networks are deep networks exploring the spatial information, rec
 <img src="/assets/rnn/rnn_b.png" style="border:none;width:60%;">
 </div>
 
-In a RNN, 
-
 $$
 h_t = f(x_t, h_{t-1})
 $$
 
+At each time step t in a RNN:
 <div class="imgcap">
 <img src="/assets/rnn/rnn_b3.png" style="border:none;width:40%;">
 </div>
@@ -29,6 +28,36 @@ $$
 For example, we unroll the RNN into 3 consecutive time steps (t-1, t & t+1):
 <div class="imgcap">
 <img src="/assets/rnn/rnn_b2.png" style="border:none;width:40%;">
+</div>
+
+#### Create image caption using RNN
+Consider we want to use deep learning to create captions for an image.
+<div class="imgcap">
+<img src="/assets/rnn/cap.png" style="border:none;">
+</div>
+
+<div class="imgcap">
+<img src="/assets/rnn/cap2.png" style="border:none;;">
+</div>
+
+<div class="imgcap">
+<img src="/assets/rnn/cap3.png" style="border:none;;">
+</div>
+
+<div class="imgcap">
+<img src="/assets/rnn/cap4.png" style="border:none;;">
+</div>
+
+<div class="imgcap">
+<img src="/assets/rnn/cap5.png" style="border:none;;">
+</div>
+
+<div class="imgcap">
+<img src="/assets/rnn/cap6.png" style="border:none;;">
+</div>
+
+<div class="imgcap">
+<img src="/assets/rnn/cap7.png" style="border:none;;">
 </div>
 
 
