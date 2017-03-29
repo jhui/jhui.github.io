@@ -60,6 +60,23 @@ Consider we want to use deep learning to create captions for an image.
 <img src="/assets/rnn/cap7.png" style="border:none;;">
 </div>
 
+<div class="imgcap">
+<img src="/assets/rnn/cap8.png" style="border:none;;">
+</div>
+
+<div class="imgcap">
+<img src="/assets/rnn/cap9.png" style="border:none;;">
+</div>
+
+<div class="imgcap">
+<img src="/assets/rnn/cap10.png" style="border:none;;">
+</div>
+
+<div class="imgcap">
+<img src="/assets/rnn/cap11.png" style="border:none;;">
+</div>
+
+
 
 ```python
 input_dim   = 512   # CNN feature dimension: 512  
