@@ -260,7 +260,7 @@ estimator = tf.contrib.learn.Estimator(model_fn=model)
 ### Solving Mnist
 
 <div class="imgcap">
-<img src="/assets/tensorflow_basic/mnist.png" style="border:none; width:40%;">
+<img src="/assets/tensorflow/mnist.png" style="border:none; width:40%;">
 </div>
 
 The MNIST dataset contains handwritten digits with examples shown as above. It has a training set of 60,000 examples, and a test set of 10,000 examples. The following python file from Tensorflow [mnist_softmax.py](https://github.com/tensorflow/tensorflow/blob/master/tensorflow/examples/tutorials/mnist/mnist_softmax.py) train a linear classifier for MNist digit recognition. The following model reaches an accuracy of **92%**.
@@ -367,7 +367,7 @@ We use cross entropy as the cost functions:
 Now we replace the model using deep learning techniques. This example contains 2 hidden fully connected layers. The new model achieves an accuracy of **98%**.
 
 <div class="imgcap">
-<img src="/assets/tensorflow_basic/fc.png" style="border:none; width:80%;">
+<img src="/assets/tensorflow/fc.png" style="border:none; width:80%;">
 </div>
 
 
@@ -855,7 +855,7 @@ We use a Deep network classifier (with 3 hidden-layers) to classify the iris sam
 
 The 4 features used as the model input: (image from wiki)
 <div class="imgcap">
-<img src="/assets/tensorflow_basic/iris.png" style="border:none;">
+<img src="/assets/tensorflow/iris.png" style="border:none;">
 </div>
 
 ```python

@@ -14,12 +14,12 @@ date: 2017-03-01 14:00:00
 Let us build a new andriod named Pieter. Our first task is to teach Pieter how to recognize visual objects. Can the visual system in our brain be replaced by a big function estimator? Can we pass the pixel values of an image to a function and calculate the likeliness that it is a school bus, an airplane or a truck etc ...?
 
 <div class="imgcap">
-<img src="/assets/dl_intro/deep_learner.jpg" style="border:none;">
+<img src="/assets/dl/deep_learner.jpg" style="border:none;">
 </div>
 
 Indeed, in our later example of hand writing recognition, we will build a system very similar to the following:
 <div class="imgcap">
-<img src="/assets/dl_intro/fc.jpg" style="border:none;">
+<img src="/assets/dl/fc.jpg" style="border:none;">
 </div>
 
 For every node, we compute
@@ -58,7 +58,7 @@ Each node will have its own set of weight (W) and bias (b). From the left most l
 #### XOR
 For the skeptics, we will build an exclusive "or" (a xor b) using a similar approach:
 <div class="imgcap">
-<img src="/assets/dl_intro/xor.jpg" style="border:none;width:50%">
+<img src="/assets/dl/xor.jpg" style="border:none;width:50%">
 </div>
 with the same equations:
 
@@ -115,7 +115,7 @@ And the XOR output matches with its expected logical value:
 Back to the basic calculus, a function can be constructed with infinite narrow rectangles. Can we use the technique above to construct a narrow shaped rectangles. (a.k.a. delta function)
 
 <div class="imgcap">
-<img src="/assets/dl_intro/delta.png" style="border:none;width:50%">
+<img src="/assets/dl/delta.png" style="border:none;width:50%">
 </div>
 
 Here is the code using the same set of equations and network layout:
@@ -146,7 +146,7 @@ plt.show()
 ```
 Which output something with shape like a delta function:
 <div class="imgcap">
-<img src="/assets/dl_intro/delta_func.png" style="border:none;width:60%">
+<img src="/assets/dl/delta_func.png" style="border:none;width:60%">
 </div>
 
 Implement a XOR or a delta function is not important for deep learning (DL). Nevertheless, we demonstrate the possibilities of building a complex function estimator through a network of simple computation nodes. In both cases, we need a network with 2 layers. A network with 2 hidden layer can push the hand written recognition of numbers to an accuracy of 95+%. Naturally, a network with many layers (deeper) can reproduce a much complicated model. For example, Microsoft ResNet for image recognition has 100+ layers.
@@ -195,7 +195,7 @@ $$
 and let the gravity to do its work. 
 
 <div class="imgcap">
-<img src="/assets/dl_intro/solution.png" style="border:none;">
+<img src="/assets/dl/solution.png" style="border:none;">
 </div>
 
 ### Learning rate
@@ -204,11 +204,11 @@ Thinking in 3D or higher dimensions are hard to impossible. Always think in 2D f
 
 Consider a point at (L1, L2), we cut through the diagram alone the red and orange and plot those curve in a 2D diagram:
 <div class="imgcap">
-<img src="/assets/dl_intro/solution_2d.jpg" style="border:none;">
+<img src="/assets/dl/solution_2d.jpg" style="border:none;">
 </div>
 
 <div class="imgcap">
-<img src="/assets/dl_intro/gd.jpg" style="border:none;">
+<img src="/assets/dl/gd.jpg" style="border:none;">
 </div>
 
 The X-axis is the value of 
@@ -259,20 +259,20 @@ introduce here is called the **learning rate**.  Small learning rate will take a
 
 Large learning step may cost w to oscillate with increasing cost:
 <div class="imgcap">
-<img src="/assets/dl_intro/learning_rate.jpg" style="border:none;">
+<img src="/assets/dl/learning_rate.jpg" style="border:none;">
 </div>
 
 We start with w = -6 (x-axis) at L1 , if the gradient is huge, a relatively large learning rate will swing w far to the other side to L2 with even a larger gradient. Eventually, rather than drop down slowly to a minima, w keeps oscalliate and the cost keep increasing. The follow demonstrates how a learning rate of 0.8 may swing the cost upward instead of downward. When loss starts going upward, we need to reduce the learning rate. The following table traces how W change from L1 to L2 and then L3.
 
 <div class="imgcap">
-<img src="/assets/dl_intro/lr_flow.png" style="border:none;">
+<img src="/assets/dl/lr_flow.png" style="border:none;">
 </div>
 
 > Sometimes, we need to be careful about the scale used in plotting the x-axis and y-axis. In the diagram shown above, the gradient does not seem large.  It is because we use a much smaller scale for y-axis than the x-axis (0 to 150 vs -10 to 10).
 
 Here is another illustration that actually could happen.  When we gradudally descent, we land in an area with high gradient that make it bounce way back with high cost. This type of shape will be very hard to reach the minima with the current descent method.
 <div class="imgcap">
-<img src="/assets/dl_intro/ping.jpg" style="border:none;">
+<img src="/assets/dl/ping.jpg" style="border:none;">
 </div>
 
 #### Naive gradient checking
@@ -306,7 +306,7 @@ We can start from each node in the left most layer and compute the gradient usin
 
 To compute the partial gradient efficiently, we perform a foward pass to compute the cost.
 <div class="imgcap">
-<img src="/assets/dl_intro/fp.jpg" style="border:none;">
+<img src="/assets/dl/fp.jpg" style="border:none;">
 </div>
 
 > Always keep track of the shape (dimension) of the data. This is one great tip when you program DL. (N,) means a 1-D array with N elements. (N,1) means 2-D array with N rows each containing 1 element. (N, 3, 4) means a 3D array.
@@ -340,7 +340,7 @@ def mean_square_loss(h, y):
 
 Then we backprogragate the gradient from the right most layer to the left in one single pass.
 <div class="imgcap">
-<img src="/assets/dl_intro/bp.jpg" style="border:none;">
+<img src="/assets/dl/bp.jpg" style="border:none;">
 </div>
 
 $$
@@ -395,11 +395,11 @@ $$
 $$ 
 
 <div class="imgcap">
-<img src="/assets/dl_intro/bp3.jpg" style="border:none;">
+<img src="/assets/dl/bp3.jpg" style="border:none;">
 </div>
 
 <div class="imgcap">
-<img src="/assets/dl_intro/bp2.jpg" style="border:none;">
+<img src="/assets/dl/bp2.jpg" style="border:none;">
 </div>
 
 In DL programing, we often name
@@ -529,7 +529,7 @@ print(f"b = {b}")
 
 We can genealize the above method to multiple layers:
 <div class="imgcap">
-<img src="/assets/dl_intro/bp1.jpg" style="border:none;">
+<img src="/assets/dl/bp1.jpg" style="border:none;">
 </div>
 
 Provide with a cost fumction like:
@@ -558,7 +558,7 @@ $$
 
 In backprogragation, we may backprogate multiple path back to the same node. To compute the gradient correctly, we need to add both path together:
 <div class="imgcap">
-<img src="/assets/dl_intro/bp_m1.jpg" style="border:none;">
+<img src="/assets/dl/bp_m1.jpg" style="border:none;">
 </div>
 
 $$
@@ -569,7 +569,7 @@ Backprogation is tedious and error prone. But most of the time, it is because we
 > For backprogation, try to draw a diagram with the shape information. Name your key variables consistently and put the derivative equation under each node. Expand equations with sub-index for analysis if needed.
 
 <div class="imgcap">
-<img src="/assets/dl_intro/bp.jpg" style="border:none;width:80%">
+<img src="/assets/dl/bp.jpg" style="border:none;width:80%">
 </div>
 
 $$
@@ -622,11 +622,11 @@ The loss in our first try have similar symptoms with bad learning rate. But it m
 
 This is a U shape curve which is different from a bowl shape curve that we used for gradient descent explanation. 
 <div class="imgcap">
-<img src="/assets/dl_intro/ushape.png" style="border:none;width:50%">
+<img src="/assets/dl/ushape.png" style="border:none;width:50%">
 </div>
 
 <div class="imgcap">
-<img src="/assets/dl_intro/solution.png" style="border:none;width:50%">
+<img src="/assets/dl/solution.png" style="border:none;width:50%">
 </div>
 
 The y-axis is 
@@ -667,7 +667,7 @@ b = 1.9795590414763997
 
 Pieter come back and realize our linear model is not adequate. Pieter claims the relationship between years of education and dates are not exactly linear. We should give more rewards for people holding advance degree.
 <div class="imgcap">
-<img src="/assets/dl_intro/educ.png" style="border:none;width:50%">
+<img src="/assets/dl/educ.png" style="border:none;width:50%">
 </div>
 
 Can we combine 2 linear functions with multiple layers to form a non-linear function?
@@ -694,11 +694,11 @@ $$
 
 As shown below, we should be able to construct a non-linear function addressing Pieter's requirement.
 <div class="imgcap">
-<img src="/assets/dl_intro/l1.png" style="border:none;width:80%">
+<img src="/assets/dl/l1.png" style="border:none;width:80%">
 </div>
 Adding both output:
 <div class="imgcap">
-<img src="/assets/dl_intro/l2.png" style="border:none;width:80%">
+<img src="/assets/dl/l2.png" style="border:none;width:80%">
 </div>
 
 Add a non-linear function after a linear equation can enrich the complexity of out model.  The common one are sigmoid, tanh and ReLU.
@@ -708,19 +708,19 @@ Sigmoid is one of the earliest function used in a deep network. Simoid is popula
 However, for other purpose, ReLU has mostly replaced the use of sigmoid. 
 
 <div class="imgcap">
-<img src="/assets/dl_intro/sigmoid.png" style="border:none;width:50%">
+<img src="/assets/dl/sigmoid.png" style="border:none;width:50%">
 </div>
 
 #### ReLU
 One of the popular non-linear function.
 <div class="imgcap">
-<img src="/assets/dl_intro/relu.png" style="border:none;width:50%">
+<img src="/assets/dl/relu.png" style="border:none;width:50%">
 </div>
 
 #### tanh
 Popular for output prefer to be within [-1, 1]
 <div class="imgcap">
-<img src="/assets/dl_intro/tanh.png" style="border:none;width:50%">
+<img src="/assets/dl/tanh.png" style="border:none;width:50%">
 </div>
 
 Code implement those functions
@@ -808,7 +808,7 @@ def sigmoid_backward(dout, cache):
 
 Let's apply all our knowledge so far to build a fully connected network as follows:
 <div class="imgcap">
-<img src="/assets/dl_intro/fc_net.png" style="border:none;">
+<img src="/assets/dl/fc_net.png" style="border:none;">
 </div>
 
 With each nodes in the hidden layer (except the last one), we apply:
@@ -986,21 +986,21 @@ print(f"testing: loss (compare with sample)={loss_sample:.4}")
 
 We plot the result with our predicted value from our computed model vs the one from the true model. (The model from the Oracle.) In this first model, we have 2 hidden layers. We fix the number of years in education to 22 and plot how the number of dates varied with income.The orange line is what we may predicted from our model, the blue dot is from Oracle and orange dot is where we add some noise to the Oracle model when we create the training data. The data match pretty well with each other.
 <div class="imgcap">
-<img src="/assets/dl_intro/fc_2l.png" style="border:none;">
+<img src="/assets/dl/fc_2l.png" style="border:none;">
 </div>
 
 Now we are increasing the hidden layer from 2 to 4. We find that our prediction slightly different from the true model. And it takes more time to train it and more tuning to make it correct. When we plot it in 3D with variable income and eduction, we realized some part of the 2D plain is bended instead of flat.
 <div class="imgcap">
-<img src="/assets/dl_intro/fc_4l.png" style="border:none;">
+<img src="/assets/dl/fc_4l.png" style="border:none;">
 </div>
 
 <div class="imgcap">
-<img src="/assets/dl_intro/fc_4l2.png" style="border:none;">
+<img src="/assets/dl/fc_4l2.png" style="border:none;">
 </div>
 
 If you run the program many times, we may find one that make relative bad prediction.
 <div class="imgcap">
-<img src="/assets/dl_intro/fc_4l3.png" style="border:none;">
+<img src="/assets/dl/fc_4l3.png" style="border:none;">
 </div>
 
 When we create sample data for our training, we add some noise to our true value (the dates). When we build a more complex model, it also increase its capability to model the noise signal. We hope that when we add more samples those noise can cancel each other. But this issue is much harder than we thought. But one thing for sure, when we apply a more complex model, it is much harder to train and far more easy to go wrong. This is why it is good to start with a simple model. This is pretty intutiive but a major source of mistake when we implement DL.
@@ -1013,10 +1013,10 @@ def sample(education, income, verbose=True):
 
 We also replace our ReLU function with sigmoid function, we find that it is hard to make it work with our original problem. It is more bended when we visualize it in 3D.
 <div class="imgcap">
-<img src="/assets/dl_intro/fc_si1.png" style="border:none;">
+<img src="/assets/dl/fc_si1.png" style="border:none;">
 </div>
 <div class="imgcap">
-<img src="/assets/dl_intro/fc_si2.png" style="border:none;">
+<img src="/assets/dl/fc_si2.png" style="border:none;">
 </div>
 
 The following is one of the many possible models that we generate using our program with different seeds of W.
@@ -1053,7 +1053,7 @@ This lead us to a very important topic in DL.  We know that when we increase the
 
 We start with the training samples with input values range from 0 to 20, how will you connect the dots or how you will create a equation to model the data below.
 <div class="imgcap">
-<img src="/assets/dl_intro/d1.png" style="border:none;">
+<img src="/assets/dl/d1.png" style="border:none;">
 </div>
 
 One possiblity is
@@ -1061,7 +1061,7 @@ $$
 y = x
 $$ which is simple and just slightly miss 2 on the left and 2 on the right of the line.
 <div class="imgcap">
-<img src="/assets/dl_intro/d2.png" style="border:none;">
+<img src="/assets/dl/d2.png" style="border:none;">
 </div>
 
 But when we show it to Pieter which has much higher computation capability than us, he model it as:
@@ -1072,7 +1072,7 @@ $$
 
 Which does not miss a single point in the sample.
 <div class="imgcap">
-<img src="/assets/dl_intro/d3.png" style="border:none;">
+<img src="/assets/dl/d3.png" style="border:none;">
 </div>
 
 Which model is correct? The answer is "don't know". Some people may think the first one is simplier and simple explanation deserves more credits. But if you show it to a stock broker, they will say the second curve is more real if it is the market closing price of a stock. 
@@ -1085,7 +1085,7 @@ The question that interest us is whether our model is too "custom taylor" for th
 #### Visualization 
 We can train a model to create a boundary to separate the blue dots from the white dots below. In the circled area, if we miss the 2 left white dots sample in our training, a complex model may create an un-necessary odd shape boundary. A less complex model may create a smoother boundary that include those 2 white dots that make better predictions.
 <div class="imgcap">
-<img src="/assets/dl_intro/of.png" style="border:none;">
+<img src="/assets/dl/of.png" style="border:none;">
 </div>
 
 Recall from Pieter's equation, our sample data can be model nicely with the following equations:
@@ -1110,12 +1110,12 @@ $$
 
 The model is much harder to train compare with a model with order 3, and less accuate with the same number of iteration.
 <div class="imgcap">
-<img src="/assets/dl_intro/p1.png" style="border:none;">
+<img src="/assets/dl/p1.png" style="border:none;">
 </div>
 
 But why don't we focus on making the model with the right complexity. In real life problem, a complex model is the only way to push accuracy to an acceptable level. But yet overfitting in some region is un-avoidable. One solution is to add more sample data such that it is much harder to overfit. Here, we mange to have a better model when we double our sample data.
 <div class="imgcap">
-<img src="/assets/dl_intro/p2.png" style="border:none;">
+<img src="/assets/dl/p2.png" style="border:none;">
 </div>
 
 As we observe before, there are many solutions to the problem but in order to have a very close fit, the coefficient in our training parameters tends to have larger magnitude. 
@@ -1143,7 +1143,7 @@ $$
 to be1 and our model make prediction closer to the training data with the same number of iterations.
 
 <div class="imgcap">
-<img src="/assets/dl_intro/p3.png" style="border:none;">
+<img src="/assets/dl/p3.png" style="border:none;">
 </div>
 
 Like other hyper parameter for training, the process is try and error. In fact we use a very high 
@@ -1191,7 +1191,7 @@ Iteration11000 [34312.355686493174,
 
 When we build our model, we first try out a polynomial model with order of 9. We find it impossible to train with our sample data so we decide to start with an order of 3. When reach the order of 7, we already find the model is so hard to train.
 <div class="imgcap">
-<img src="/assets/dl_intro/p4.png" style="border:none;">
+<img src="/assets/dl/p4.png" style="border:none;">
 </div>
 
 ### Classifier
