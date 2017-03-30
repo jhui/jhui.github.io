@@ -25,10 +25,18 @@ h_t = f(x_t, h_{t-1})
 $$
 
 <div class="imgcap">
-<img src="/assets/rnn/rnn_b.png" style="border:none;width:50%;">
+<img src="/assets/rnn/rnn_b.png" style="border:none;width:45%;">
 </div>
 
-So at time step t, we take both the output at t-1 and input at t to make the next prediction
+So at time step t, we take both the output at 
+$$
+t-1 
+$$
+and input at 
+$$
+t
+$$ 
+to make the next prediction
 $$
 h_t
 $$
@@ -36,7 +44,15 @@ $$
 <img src="/assets/rnn/rnn_b3.png" style="border:none;width:35%;">
 </div>
 
-For example, the following diagram unroll a RNN for time step t-1 to t+1:
+For example, the following diagram unroll a RNN for time step 
+$$
+t-1
+$$ 
+ to 
+$$
+t+1
+$$
+:
 <div class="imgcap">
 <img src="/assets/rnn/rnn_b2.png" style="border:none;width:60%;">
 </div>
@@ -63,9 +79,9 @@ $$
 h_0
 $$ to the RNN.
 $$
-h_1 = f(X, h_0)
+h_1 = f(X_1, h_0)
 $$
-6. Use a project matrix to map 
+6. Use a projector matrix to map 
 $$
 h
 $$
@@ -74,7 +90,7 @@ to the final predicted word.
 $$
 h_1
 $$ 
-and the word predicted in the last time step for the RNN input.
+and the last predicted word as input.
 
 Here is the complete flow of the RNN we used and will be explained seperately in later section.
 <div class="imgcap">
