@@ -126,7 +126,7 @@ $$
 <img src="/assets/rnn/cap8.png" style="border:none;width:80%;">
 </div>
 
-The shape of the CNN features (N, 512) and the h (N, 512) which N is the batch size.
+The shape of CNN features (N, 512) and h (N, 512) which N is the batch size:
 ```python
 input_dim   = 512   # CNN features dimension: 512  
 hidden_dim  = 512   # Hidden state dimension: 512
@@ -167,14 +167,8 @@ $$
 h_t
 $$
 
-We mulitiply 
-$$
-h
-$$ 
-with another matrix to generate a score for each word in the vocabulary. This fit into a softmax function to calculate the loss in the training or to make prediction.
-
 <div class="imgcap">
-<img src="/assets/rnn/encode.png" style="border:none;;">
+<img src="/assets/rnn/encode.png" style="border:none;width:70%;">
 </div>
 
 
@@ -201,11 +195,45 @@ We will create a lookup table to
 <img src="/assets/rnn/cap6.png" style="border:none;;">
 </div>
 
+
+We mulitiply 
+$$
+h
+$$ 
+with another matrix to generate a score for each word in the vocabulary. This fit into a softmax function to calculate the loss in the training or to make prediction.
+
+
 <div class="imgcap">
-<img src="/assets/rnn/cap7.png" style="border:none;;">
+<img src="/assets/rnn/cap11.png" style="border:none;;">
 </div>
 
 
+#### Making prediction
+
+We will use the CNN to generate features for the image.
+<div class="imgcap">
+<img src="/assets/rnn/cap4.png" style="border:none;width:80%;">
+</div>
+
+At time step 1, we feed the RNN with the word <start>. The RNN computes the value 
+$$
+h_1
+$$
+which will multiply with 
+$$
+W_vocab 
+$$
+to generate score for all the words in the vocabulary (1004). We will make the first word prediction by select the one with the highest score ("A"). At time step 2, we will fit "A" into the time step 2. With 
+$$
+h_1
+$$ 
+computed at time step 1, we made the second preduction "bus".
+```python
+scores, _ = affine_forward(next_h, W_vocab, b_vocab)
+captions[:, t] = scores.argmax(axis=1)
+prev_word = captions[:, t].reshape(N, 1)
+```
+	
 <div class="imgcap">
 <img src="/assets/rnn/cap11.png" style="border:none;;">
 </div>
