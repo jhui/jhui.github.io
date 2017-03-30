@@ -601,9 +601,10 @@ $$
 
 which $$ \sigma $$ is the sigmoid function.
 
-> All gates have different set of W and b. But people feel lost in the LSTM equations without realize its simplicity. So we just assume they all take different set of W and b.
+> All gates have different set of W and b. But people feel lost in the LSTM equations without realize its simplicity. So we just assume they all take different set of W and b for now.
 
-You may find a lot of W, b in later equations, but all are belong to the same pattern:
+You may also find a lot of W, b in later equations, but all are belong to the same pattern:
+
 $$
 z(X_t, h_{t-1}) = (W_{x} X_t + W_{h} h_{t-1} + b) 
 $$
@@ -645,10 +646,9 @@ $$
 C_t = gate_{forget} \cdot C_{t-1} + gate_{input} \cdot \tilde{C}
 $$
 
-
 #### Update h
 <div class="imgcap">
-<img src="/assets/rnn/lstm1.png" style="border:none;;">
+<img src="/assets/rnn/lstm1.png" style="border:none;width:20%;">
 </div>
 
 To update $$ h_{t} $$, we compute a new output gate and compute the new $$ h_t $$
@@ -662,7 +662,56 @@ $$
  $$
  
  
- 
+#### Image captures with LSTM
+Now we can have an optional to use a LSTM network instead of RNN. 
+```python
+if self.cell_type == 'rnn':
+  h, cache_rnn = rnn_forward(x, h0, Wx, Wh, b)
+else:
+  h, cache_rnn = lstm_forward(x, h0, Wx, Wh, b)
+``` 
+
+```python
+def lstm_forward(x, h0, Wx, Wh, b):
+  h, cache = None, None
+  N, T, D = x.shape
+  H, _ = Wh.shape
+  next_h = h0
+  next_c = np.zeros((N, H))
+
+  cache_step = [None] * T
+
+  h = np.zeros((N, T, H))
+  for t in range(T):
+    xt = x[:, t, :]
+    next_h, next_c, cache_step[t] = lstm_step_forward(xt, next_h, next_c, Wx, Wh, b)
+    h[:, t, :] = next_h
+  cache = (cache_step, D)
+  
+  return h, cache
+```
+
+
+```python
+def lstm_step_forward(x, prev_h, prev_c, Wx, Wh, b):
+  next_h, next_c, cache = None, None, None
+  N, H = prev_h.shape
+  a = x.dot(Wx) + prev_h.dot(Wh) + b
+  ai = a[:, :H]
+  af = a[:, H:2 * H]
+  ao = a[:, 2 * H:3 * H]
+  au = a[:, 3 * H:]
+  ig = sigmoid(ai)
+  fg = sigmoid(af)
+  og = sigmoid(ao)
+  update = np.tanh(au)
+  next_c = fg * prev_c + ig * update
+  next_h = og * np.tanh(next_c)
+
+  cache = (next_c, og, ig, fg, og, update, ai, af, ao, au, Wx, x, Wh, prev_h, prev_c)
+  
+  return next_h, next_c, cache
+```
 
 <div class="imgcap">
 <img src="/assets/rnn/cap6.png" style="border:none;;">
