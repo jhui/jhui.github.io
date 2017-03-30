@@ -66,13 +66,13 @@ $$
 <img src="/assets/rnn/rnn_b2.png" style="border:none;width:60%;">
 </div>
 
-We may multiply 
+Later we map the hidden state 
 $$
 h_t
 $$
-with a matrix to make a prediction for time step t. 
+to a final prediction. For example, this can be done by multipy it with a matrix. 
 <div class="imgcap">
-<img src="/assets/rnn/cap14.png" style="border:none;width:60%;">
+<img src="/assets/rnn/cap14.png" style="border:none;width:40%;">
 </div>
 
 #### Create image caption using RNN
@@ -91,7 +91,11 @@ $$
 h_0
 $$
 to the RNN.
-4. Use a word embedding lookup table to convert a word to a vector. (a.k.a word2vec)
+4. Use a word embedding lookup table to convert a word to a vector 
+$$
+X_1
+$$
+. (a.k.a word2vec)
 5. Feed the word vector and
 $$
 h_0
@@ -108,7 +112,7 @@ to the final predicted word say "A".
 $$
 h_1
 $$ 
-and the last predicted word "A" as input.
+and the word "A" as input.
 
 <div class="imgcap">
 <img src="/assets/rnn/cap12.png" style="border:none;;">
@@ -137,7 +141,7 @@ h_0
 $$
 for the RNN to compute
 $$
-h_1 = f(h_0, X_0)
+h_1 = f(h_0, X_1)
 $$
 
 <div class="imgcap">
@@ -241,10 +245,7 @@ is then multipy with
 $$
 W_{vocab}
 $$
-to generate scores for each word in the vocabulary for prediction. We compute the softmax loss with the scores with the true caption
-$$
-\text{captions_out} \big[ 0  \big]
-$$.
+to generate scores for each word in the vocabulary for prediction. For example, if we have 10004 words in the vocabulary, it will generate 10004 scores predicting how likely each word will be the predicted word at this time step. During training, our focus is to compute the softmax loss comparing with our prediction and the true caption from the training dataset.
 
 <div class="imgcap">
 <img src="/assets/rnn/score_1.png" style="border:none;">
@@ -270,7 +271,7 @@ Here is how we train with the image feature
 $$
 h_0
 $$
-and the first word 'start' and the prediction 'A'.
+and the first word 'start' to compute the softmax loss.
 
 <div class="imgcap">
 <img src="/assets/rnn/cap11.png" style="border:none;width:70%;">
@@ -282,14 +283,14 @@ After we completed the first time step.  we move onto the next time step with
 $$
 h_1
 $$
-and the next caption word 'A'. Note that, for training, we do not use our best prediction as the next input
+and the next caption word 'A'. Note that, for training, we do not use our best prediction as the input
 $$
 X_t
 $$
-. We always use the captions provided by the training set.  i.e., even the word 'A' has a very low score in our prediction, we still use the work 'A' as the next input word since the whole purpose is to optimize the RNN with the true caption at the lowest cost.
+. We always use the true captions provided by the training set.  i.e., even the word 'A' has a very low score in our previous step prediction, we still use the work 'A' as the next input word since the whole purpose is to optimize the RNN with the true caption.
 
 <div class="imgcap">
-<img src="/assets/rnn/cap13.png" style="border:none;;">
+<img src="/assets/rnn/cap13.png" style="border:none;width:60%;">
 </div>
 
 Here is the detail complete flow in training 1 sample data.
@@ -300,15 +301,15 @@ Here is the detail complete flow in training 1 sample data.
 Here is the code for the forward feed, backpropagation and the loss.
 ```python
   def loss(self, features, captions):
-	# For training, say the caption is "<start> A yellow bus idles near a park"
-	# captions_in is the Xt input: "<start> A yellow bus idles near a"
-	# captions_out is the true label: "A yellow bus idles near a park"
+    # For training, say the caption is "<start> A yellow bus idles near a park"
+    # captions_in is the Xt input: "<start> A yellow bus idles near a"
+    # captions_out is the true label: "A yellow bus idles near a park"
     captions_in = captions[:, :-1]
     captions_out = captions[:, 1:]
     
     mask = (captions_out != self._null)
 
-	# Retrieve the trainable parameters
+    # Retrieve the trainable parameters
     W_proj, b_proj = self.params['W_proj'], self.params['b_proj']    
     W_embed = self.params['W_embed']
     Wx, Wh, b = self.params['Wx'], self.params['Wh'], self.params['b']
@@ -333,19 +334,19 @@ Here is the code for the forward feed, backpropagation and the loss.
     # scores      : (N, 16, vocab_size)
     # W_vocab     : (hidden_dim, vocab_size)
 
-	# Compute h0 from the image features.
+    # Compute h0 from the image features.
     h0 = features.dot(W_proj) + b_proj
 
-	# Find the word vector of the input caption word.
+    # Find the word vector of the input caption word.
     x, cache_embed = word_embedding_forward(captions_in, W_embed)
 
-	# Forward feed for the RNN
+    # Forward feed for the RNN
     h, cache_rnn = rnn_forward(x, h0, Wx, Wh, b)
 
     # Compute the scores for each words in the vocabulary
     scores, cache_scores = temporal_affine_forward(h, W_vocab, b_vocab)
 	
-	# Compute the softmax loss
+    # Compute the softmax loss
     loss, dscores = temporal_softmax_loss(scores, captions_out, mask)
 
     # Perform the backpropagation
@@ -360,7 +361,7 @@ Here is the code for the forward feed, backpropagation and the loss.
 
 #### Making prediction
 
-We will use the CNN to generate features for the image and map it to  
+We will use the CNN to generate features for the image and map it to
 $$
 h_0
 $$
@@ -381,17 +382,17 @@ which will multiply with
 $$
 W_{vocab}
 $$
-to generate score for each word in the vocabulary (1004). We will make the first word prediction by select the one with the highest score (say, "A"). At time step 2, we will fit "A" as an input into the time step 2. With 
+to generate score for each word in the vocabulary (1004). We will make the first word prediction by select the one with the highest score (say, "A"). At time step 2, we will fit the highest score prediction "A" as an input into the time step 2. With 
 $$
 h_1
 $$ 
-computed at time step 1, we then made the second preduction "bus".
+computed at time step 1, we made the second preduction "bus".
 	
 <div class="imgcap">
 <img src="/assets/rnn/cap7.png" style="border:none;;">
 </div>
 
-Here we compute the score and set the caption word at time step t to be the word with the highest score. We set prev_word to our prediction which will be used in the next time step.
+Here we compute the score and set the caption word at time step t to be the word with the highest score. We set prev_word to this prediction which will be used as data input for the next time step.
 ```python
 scores, _ = affine_forward(next_h, W_vocab, b_vocab)
 captions[:, t] = scores.argmax(axis=1)
@@ -410,7 +411,7 @@ def sample(self, features, max_length=30):
     Wx, Wh, b = self.params['Wx'], self.params['Wh'], self.params['b']
     W_vocab, b_vocab = self.params['W_vocab'], self.params['b_vocab']
     
-	# N is the size of the data to test
+    # N is the size of the data to test
     # prev_word : (N, 1)
     #
     # next_h    : (N, hidden_dim)
@@ -434,22 +435,23 @@ def sample(self, features, max_length=30):
     next_h, affine_cache = affine_forward(features, W_proj, b_proj)
 
     H, _ = Wh.shape
-	# for each time step
+    # for each time step
     for t in range(max_length):
-	  # Compute the word vector.
+      # Compute the word vector.
       embed, embed_cache = word_embedding_forward(prev_word, W_embed)
-	  # Compute h from the RNN
+      # Compute h from the RNN
       next_h, cache = rnn_step_forward(np.squeeze(embed), next_h, Wx, Wh, b)
-	  # Map h to scores for each vocabulary word
+      # Map h to scores for each vocabulary word
       scores, _ = affine_forward(next_h, W_vocab, b_vocab)
-	  # Set the caption word at time t.
+      # Set the caption word at time t.
       captions[:, t] = scores.argmax(axis=1)
-	  # Set it to be the next word input in next time step.
+      # Set it to be the next word input in next time step.
       prev_word = captions[:, t].reshape(N, 1)
 
     return captions
 ```
 
+Finally here is the final detail flows:
 <div class="imgcap">
 <img src="/assets/rnn/cap5.png" style="border:none;;">
 </div>
