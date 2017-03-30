@@ -578,9 +578,9 @@ Finally here is the final detail flows:
 
 $$ h_t $$ in RNN serves 2 purpose:
 * Make an output prediction, and
-* Be a hidden state extracting the information in the sequence data process so far.
+* Be a hidden state representing the information in the sequence data process so far.
 
-This actually serve 2 different purposes and therefore LSTM breaks $$ h_t $$ according to the roles above. The hidden state of the LSTM cell will now be $$ C $$.
+This actually serve 2 different purposes and therefore LSTM breaks $$ h_t $$ into 2 according to the roles above. The hidden state of the LSTM cell will now be $$ C $$.
 
 <div class="imgcap">
 <img src="/assets/rnn/lstm.png" style="border:none;width:50%;">
@@ -661,6 +661,36 @@ $$
  h_t = gate_{out} \cdot \tanh (C_t)
  $$
  
+#### LSTM Equations
+ 
+Here are the LSTM equations:
+ 
+$$
+Z_u = (W_{xu} X_t + W_{hu} h_{t-1} + b_u) 
+$$
+ 
+Compute 
+$$ gate_{forget} $$ 
+ , $$ gate_{input} $$
+ , $$ gate_{output} $$
+$$
+with 
+
+$$ 
+gate_u =  \sigma (Z_u) 
+$$
+  
+$$
+\tilde{C} = \tanh (Z_{\tilde{C}})
+$$
+
+$$
+C_t = gate_{forget} \cdot C_{t-1} + gate_{input} \cdot \tilde{C}
+$$
+  
+$$
+h_t = gate_{out} \cdot \tanh (C_t)
+$$ 
  
 #### Image captures with LSTM
 Now we can have an optional to use a LSTM network instead of RNN. 
@@ -670,7 +700,7 @@ if self.cell_type == 'rnn':
 else:
   h, cache_rnn = lstm_forward(x, h0, Wx, Wh, b)
 ``` 
-
+lstm_forward will look very similar to the RNN with the exception that it track both $$ h $$ and $$ C $$ now.
 ```python
 def lstm_forward(x, h0, Wx, Wh, b):
   h, cache = None, None
@@ -691,7 +721,7 @@ def lstm_forward(x, h0, Wx, Wh, b):
   return h, cache
 ```
 
-
+One of the reason that we do not sub-index W and b is that they can concatent all W and b into one big matrix and apply the same operation. The following code compute 3 different gates and compute $$ \tilde{C} $$, $$C $$ and $$ h $$ .
 ```python
 def lstm_step_forward(x, prev_h, prev_c, Wx, Wh, b):
   next_h, next_c, cache = None, None, None
