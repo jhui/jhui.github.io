@@ -601,6 +601,15 @@ $$
 
 which $$ \sigma $$ is the sigmoid function.
 
+> All gates have different set of W and b. But people feel lost in the LSTM equations without realize its simplicity. So we just assume they all take different set of W and b.
+
+You may find a lot of W, b in later equations, but all are belong to the same pattern:
+$$
+z(X_t, h_{t-1}) = (W_{x} X_t + W_{h} h_{t-1} + b) 
+$$
+
+Once realize that, all the LSTM equations are pretty simple.
+
 #### Updating C
 <div class="imgcap">
 <img src="/assets/rnn/lstm2.png" style="border:none;width:20%;">
@@ -617,8 +626,6 @@ $$
 $$
 gate_{input} = \sigma (W_{x} X_t + W_{h} h_{t-1} + b) 
 $$
-
-> Both gates have different set of W and b. But people feel lost in all LSTM equations without realize its simplicity. So we simply assume they have different set of W and b for now.
 
 In RNN, the mechanism to update $$ h_t $$ is pretty simple:
 
@@ -644,12 +651,18 @@ $$
 <img src="/assets/rnn/lstm1.png" style="border:none;;">
 </div>
 
-To update $$ h_{t} $$, we compute a new output gate:
+To update $$ h_{t} $$, we compute a new output gate and compute the new $$ h_t $$
 
 $$
 gate_{out} = \sigma (W_{x} X_t + W_{h} h_{t-1} + b) 
 $$
-
+ 
+ $$
+ h_t = gate_{out} \cdot \tanh (C_t)
+ $$
+ 
+ 
+ 
 
 <div class="imgcap">
 <img src="/assets/rnn/cap6.png" style="border:none;;">
