@@ -226,7 +226,7 @@ W_{vocab}
 $$
 to generate scores for each word in the vocabulary for prediction. We compute the softmax loss with the scores with the true caption
 $$
-captions_out[0]
+\text{captions_out} \big[ 0  \big]
 $$.
 
 <div class="imgcap">
@@ -249,12 +249,33 @@ loss, dscores = temporal_softmax_loss(scores, captions_out, mask)
 ```
 
 #### Time step 0
-Here is the RNN for time step 0:
+Here is how we train with the image feature
+$$
+h_0
+$$
+and the first word 'start' and the prediction 'A'.
+
 <div class="imgcap">
-<img src="/assets/rnn/cap11.png" style="border:none;;">
+<img src="/assets/rnn/cap11.png" style="border:none;width:70%;">
 </div>
 
-#### Flow in the training
+#### Complete flow
+
+After we completed the first time step.  we move onto the next time step with
+$$
+h_1
+$$
+and the next caption word 'A'. Note that, for training, we do not use our best prediction as the next input
+$$
+X_t
+$$
+. We always use the captions provided by the training set.  i.e., even the word 'A' has a very low score in our prediction, we still use the work 'A' as the next input word since the whole purpose is to optimize the RNN with the true caption at the lowest cost.
+
+<div class="imgcap">
+<img src="/assets/rnn/cap13.png" style="border:none;;">
+</div>
+
+Here is the detail complete flow in training 1 sample data.
 <div class="imgcap">
 <img src="/assets/rnn/cap3.png" style="border:none;;">
 </div>
