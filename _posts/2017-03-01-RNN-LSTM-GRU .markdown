@@ -187,11 +187,7 @@ W_proj /= np.sqrt(input_dim)
 b_proj  = np.zeros(hidden_dim)
 ```
 
-Compute
-$$
-h_0
-$$
-.
+Compute $$ h_0 $$ by multipy the image features with $$ W_{proj} $$.
 ```python
 # Initialize CNN -> hidden state projection parameters
 # h0: (N, hidden_dim)
@@ -252,6 +248,7 @@ W_embed /= 100
 x, cache_embed = word_embedding_forward(captions_in, W_embed)
 ```
 
+Loop up the word vector of x from the lookup table W.
 ```python
 def word_embedding_forward(x, W):
   """
@@ -293,11 +290,11 @@ to generate scores for each word in the vocabulary. For example, if we have 1000
 <img src="/assets/rnn/score_1.png" style="border:none;">
 </div>
 
-The coding in computing the hidden states
-$$
-h_t
-$$
-, the scores and the softmax loss.
+> We provide codes for readers want more concrete details. Nevertheless, fully understanding of the code is not needed or suggested.
+
+We comput $$ h_t $$ 
+by feeding the RNN with $$ X_t $$ and $$ h_{t-1} $$.
+We then map $$ h_t $$ to scores which are used to compute the softmax cost.
 ```python
 # h: (N, 16, hidden_dim)
 # Wx: (wordvec_dim, hidden_dim)
@@ -310,11 +307,17 @@ scores, cache_scores = temporal_affine_forward(h, W_vocab, b_vocab)
 loss, dscores = temporal_softmax_loss(scores, captions_out, mask)
 ```
 
-rnn_forward simply unroll the RNN to T time steps and update 
+#### rnn_forward
+
+<div class="imgcap">
+<img src="/assets/rnn/cap13.png" style="border:none;width:60%;">
+</div>
+
+rnn_forward simply unroll the RNN T time steps and update 
 $$
 h_t
 $$
-with each RNN step computation.
+with each RNN computation.
 ```python
 def rnn_forward(x, h0, Wx, Wh, b):
   h, cache = None, None
@@ -334,26 +337,10 @@ def rnn_forward(x, h0, Wx, Wh, b):
   return h, cache
 ```
 
-For each RNN step, we multiple 
-$$
-h_{t-1}
-$$
-with
-$$
-W_h
-$$ 
-and
-$$
-x_{t}
-$$
-with
-$$
-W_x
-$$
-to generate
-$$
-h_t
-$$
+
+For each RNN step, we multiple $$ h_{t-1} $$ with $$ W_h $$ and $$ x_{t} $$ with $$ W_x $$ to generate 
+$$ h_t $$
+
 ```python
 def rnn_step_forward(x, prev_h, Wx, Wh, b):
   next_h, cache = None, None
@@ -364,7 +351,9 @@ def rnn_step_forward(x, prev_h, Wx, Wh, b):
   return next_h, cache
 ```    
 
-Compute the scores by multiply
+#### Scores
+
+After finding $$ h_t $$, we compute the scores by multiply
 $$
 W_{vocab}
 $$
@@ -381,7 +370,9 @@ $$
    return out, cache
 ```
 
-For each words in the vocabulary (1004 words), we predict the probability of the word to be the next word in the caption. Then we compute the softmax cost to train the RNN later.
+#### Softmax cost
+
+For each words in the vocabulary (1004 words), we predict the probability of each word to be the next caption word. Then we compute the softmax cost to train the RNN later.
 ```python
 def temporal_softmax_loss(x, y, mask):
   N, T, V = x.shape
@@ -426,10 +417,6 @@ $$
 X_t
 $$
 . We always use the true captions provided by the training set.  i.e., even the word 'A' has a very low score in our previous step prediction, we still use the work 'A' as the next input word since the whole purpose is to optimize the RNN with the true caption.
-
-<div class="imgcap">
-<img src="/assets/rnn/cap13.png" style="border:none;width:60%;">
-</div>
 
 Here is the detail complete flow in training 1 sample data.
 <div class="imgcap">
