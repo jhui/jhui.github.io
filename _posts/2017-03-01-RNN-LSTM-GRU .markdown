@@ -234,6 +234,67 @@ Here is what happen for time step 0:
 <img src="/assets/rnn/cap3.png" style="border:none;;">
 </div>
 
+Here is the code for the forward feed, backpropagation and the loss.
+```python
+  def loss(self, features, captions):
+	# For training, say the caption is "<start> A yellow bus idles near a park"
+	# captions_in is the Xt input: "<start> A yellow bus idles near a"
+	# captions_out is the true label: "A yellow bus idles near a park"
+    captions_in = captions[:, :-1]
+    captions_out = captions[:, 1:]
+    
+    mask = (captions_out != self._null)
+
+	# Retrieve the trainable parameters
+    W_proj, b_proj = self.params['W_proj'], self.params['b_proj']    
+    W_embed = self.params['W_embed']
+    Wx, Wh, b = self.params['Wx'], self.params['Wh'], self.params['b']
+    W_vocab, b_vocab = self.params['W_vocab'], self.params['b_vocab']
+    
+    loss, grads = 0.0, {}
+    # vocab_size = 1004
+    # T          = 16
+    #
+    # features    : (N, input_dim)
+    # W_proj      : (input_dim, hidden_dim)
+    # h0          : (N, hidden_dim)
+    #
+    # x           : (N, T, wordvec_dim)
+    # captions_in : (N, T) of word index
+    # W-embed     : (vacab_size, wordvec_dim)
+    #
+    # h           : (N, 16, hidden_dim)
+    # Wx          : (wordvec_dim, hidden_dim)
+    # Wh          : (hidden_dim, hidden_dim)
+    #
+    # scores      : (N, 16, vocab_size)
+    # W_vocab     : (hidden_dim, vocab_size)
+
+	# Compute h0 from the image features.
+    h0 = features.dot(W_proj) + b_proj
+
+	# Find the word vector of the input caption word.
+    x, cache_embed = word_embedding_forward(captions_in, W_embed)
+
+	# Forward feed for the RNN
+    h, cache_rnn = rnn_forward(x, h0, Wx, Wh, b)
+
+    # Compute the scores for each words in the vocabulary
+    scores, cache_scores = temporal_affine_forward(h, W_vocab, b_vocab)
+	
+	# Compute the softmax loss
+    loss, dscores = temporal_softmax_loss(scores, captions_out, mask)
+
+    # Perform the backpropagation
+    dh, grads['W_vocab'], grads['b_vocab'] = temporal_affine_backward(dscores, cache_scores)
+    dx, dh0, grads['Wx'], grads['Wh'], grads['b'] = rnn_backward(dh, cache_rnn)
+    grads['W_embed'] = word_embedding_backward(dx, cache_embed)
+    grads['b_proj'] = np.sum(dh0, axis=0)
+    grads['W_proj'] = features.T.dot(dh0)
+    
+    return loss, grads
+```
+
 #### Making prediction
 
 We will use the CNN to generate features for the image and map it to  
