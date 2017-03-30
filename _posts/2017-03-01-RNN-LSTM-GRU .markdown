@@ -41,23 +41,71 @@ For example, the following diagram unroll a RNN from time step t-1 to t+1:
 </div>
 
 #### Create image caption using RNN
-How to create captions for an image? For example, we may input a school bus image into the RNN and expect it to create a caption like below:
+How to create captions for an image? For example, we may input a school bus image into the RNN and expect it to create a caption like:
 <div class="imgcap">
 <img src="/assets/rnn/cap.png" style="border:none;">
 </div>
-Here are the major high level steps in the training:
+Here are the major high level steps for the training:
 1. Capture features for an image.
 2. Map the captions in the training data to word vectors.
 3. Use a RNN to make a prediction.
 4. Map the RNN prediction to a caption.
 5. Compute the loss and optimize the network.
 
-#### Capture image features
+Here is the complete flow of the RNN we used and will be explained seperately in later section.
+<div class="imgcap">
+<img src="/assets/rnn/cap3.png" style="border:none;;">
+</div>
 
+#### Capture image features
+We pass the image into a CNN and use one of the activation layer in the fully connected (FC) network to initialize the RNN. For example, in the picture below, we pick the output of the FC layer which has a shape of (512,).
+
+<div class="imgcap">
+<img src="/assets/rnn/cnn.png" style="border:none;;">
+</div>
+
+We multiple the features with a matrix and use it for the initial state
+$$
+h_0
+$$
+of the RNN.
 
 <div class="imgcap">
 <img src="/assets/rnn/cap2.png" style="border:none;;">
 </div>
+
+<div class="imgcap">
+<img src="/assets/rnn/cap8.png" style="border:none;;">
+</div>
+
+```python
+input_dim   = 512   # CNN features dimension: 512  
+hidden_dim  = 512   # Hidden state dimension: 512
+```
+
+```python
+# W_proj: (input_dim, hidden_dim)
+W_proj  = np.random.randn(input_dim, hidden_dim)
+W_proj /= np.sqrt(input_dim)
+b_proj  = np.zeros(hidden_dim)
+```
+
+```python
+# Initialize CNN -> hidden state projection parameters
+# h0: (N, hidden_dim)
+h0 = features.dot(W_proj) + b_proj
+```
+
+#### Map the captions to word vectors
+In our training data, it contains both the images and captions. It also have a dictionary which map a word to an integer.For example, the caption "A yellow school bus idles near a park" is stored as "1 5 3401 3461 78 5634 87 5 111 2" in the training dataset
+which 1 represents start of a string, 5 represents 'a', 3401 represents 'yellow' etc...
+
+
+<div class="imgcap">
+<img src="/assets/rnn/cap9.png" style="border:none;;">
+</div>
+
+
 
 <div class="imgcap">
 <img src="/assets/rnn/cap3.png" style="border:none;;">
@@ -79,13 +127,6 @@ Here are the major high level steps in the training:
 <img src="/assets/rnn/cap7.png" style="border:none;;">
 </div>
 
-<div class="imgcap">
-<img src="/assets/rnn/cap8.png" style="border:none;;">
-</div>
-
-<div class="imgcap">
-<img src="/assets/rnn/cap9.png" style="border:none;;">
-</div>
 
 <div class="imgcap">
 <img src="/assets/rnn/cap10.png" style="border:none;;">
@@ -95,26 +136,13 @@ Here are the major high level steps in the training:
 <img src="/assets/rnn/cap11.png" style="border:none;;">
 </div>
 
-
-
 ```python
-input_dim   = 512   # CNN feature dimension: 512  
+input_dim   = 512   # CNN features dimension: 512  
 hidden_dim  = 512   # Hidden state dimension: 512
 wordvec_dim = 256  			   
 ```
 
-```python
-# W_proj: (input_dim, hidden_dim)
-W_proj  = np.random.randn(input_dim, hidden_dim)
-W_proj /= np.sqrt(input_dim)
-b_proj  = np.zeros(hidden_dim)
-```
 
-```python
-# Initialize CNN -> hidden state projection parameters
-# h0: (N, hidden_dim)
-h0 = features.dot(W_proj) + b_proj
-```
 
 ```python
 W_embed  = np.random.randn(vocab_size, wordvec_dim)
