@@ -8,6 +8,10 @@ date: 2017-03-01 12:00:00
 ---
 **This is work in progress... The content needs major editing.**
 
+This is $$K$$ happy
+This is $$K$$
+happy
+
 ### Recurrent Neural Network (RNN)
 
 If convolution networks are deep networks for images, recurrent networks are networks for the time sequence data, like speeh or natural language. For example, the more advanced LSTM and GRU networks are popular for the natural language processing (NLP). But to illustrate the core ideas, we will look into a simplier network called Recurrent neural netwok (RNN).
@@ -231,7 +235,7 @@ $$
 <img src="/assets/rnn/cap9.png" style="border:none;width:40%;">
 </div>
 
->  word2vec is a method to map a word to a vector say with 256 values. The mapping maintains the semantic relationship among words. The embedding lookup table is also trainable.
+>  word2vec is a method to map a word to a vector say with 256 values. The mapping maintains the semantic relationship among words. The embedding lookup table is trained with deep learning.
 
 When we create the training data, we convert words to the corresponding word index using a vocabulary dictionary. In runtime, we map the word index to a word vector.
 <div class="imgcap">
@@ -301,7 +305,11 @@ to generate scores for each word in the vocabulary. For example, if we have 1000
 <img src="/assets/rnn/score_1.png" style="border:none;">
 </div>
 
-The coding in computing the hidden states, the scores and the softmax loss.
+The coding in computing the hidden states
+$$
+h_t
+$$
+, the scores and the softmax loss.
 ```python
 # h: (N, 16, hidden_dim)
 # Wx: (wordvec_dim, hidden_dim)
@@ -318,7 +326,7 @@ rnn_forward simply unroll the RNN to T time steps and update
 $$
 h_t
 $$
-with each RNN step.
+with each RNN step computation.
 ```python
 def rnn_forward(x, h0, Wx, Wh, b):
   h, cache = None, None
@@ -368,9 +376,13 @@ def rnn_step_forward(x, prev_h, Wx, Wh, b):
   return next_h, cache
 ```    
 
-Compute the scores with 
+Compute the scores by multiply
 $$
-W_vocab
+W_{vocab}
+$$
+with
+$$
+h_t
 $$
 ```python
  def temporal_affine_forward(x, w, b):
@@ -381,7 +393,7 @@ $$
    return out, cache
 ```
 
-For each words in the vocabulary (1004 words), we predict the probability of the word to be the next word in the caption. Then we compute the softmax cost to train the RNN.
+For each words in the vocabulary (1004 words), we predict the probability of the word to be the next word in the caption. Then we compute the softmax cost to train the RNN later.
 ```python
 def temporal_softmax_loss(x, y, mask):
   N, T, V = x.shape
@@ -401,7 +413,7 @@ def temporal_softmax_loss(x, y, mask):
   dx = dx_flat.reshape(N, T, V)
   
   return loss, dx
-```python
+```
 
     
 #### Time step 0
