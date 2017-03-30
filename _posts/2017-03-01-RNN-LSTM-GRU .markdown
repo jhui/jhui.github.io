@@ -46,18 +46,25 @@ How to create captions for an image? For example, we may input a school bus imag
 <div class="imgcap">
 <img src="/assets/rnn/cap.png" style="border:none;">
 </div>
-We will walk through the flow briefly during the training stage:
+During the training, we
 1. Use a CNN network to capture features of an image.
-2. Multiple the features with a matrix.
-3. Use the result to initiate the RNN
+2. Multiple the features with a matrix to generate
 $$
 h_0
 $$
+3. Feed 
+$$ 
+h_0
+$$
+to the RNN.
 4. Use a word vector to convert a word to a vector.
 5. Feed the word vector and
 $$
 h_0
 $$ to the RNN.
+$$
+h_1 = f(X, h_0)
+$$
 6. Use a project matrix to map 
 $$
 h
@@ -67,12 +74,11 @@ to the final predicted word.
 $$
 h_1
 $$ 
-and the word predicted in the last time step.
-
+and the word predicted in the last time step for the RNN input.
 
 Here is the complete flow of the RNN we used and will be explained seperately in later section.
 <div class="imgcap">
-<img src="/assets/rnn/cap3.png" style="border:none;;">
+<img src="/assets/rnn/cap12.png" style="border:none;;">
 </div>
 
 #### Capture image features
