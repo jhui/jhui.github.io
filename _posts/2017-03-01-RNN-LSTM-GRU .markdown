@@ -10,34 +10,35 @@ date: 2017-03-01 12:00:00
 
 ### Recurrent Neural Network (RNN)
 
-If Convolution networks are deep networks for images, recurrent networks are the networks for the time sequence data. LSTM and GRU networks are popular for the natural language processing (NLP). But before discussing those networks, we will look into a simplier network called Recurrent neural netwok (RNN).
+If Convolution networks are deep networks for images, recurrent networks are the networks for the time sequence data, like speeh or natural language. For example, the more advanced LSTM and GRU networks are popular for the natural language processing (NLP). But before discussing LSTM or GRU, we will look into a simplier network called Recurrent neural netwok (RNN).
 
-In a fully connected network, we model h as a function of X 
+In a fully connected network, we model h as 
 $$
-f(X_i)
+h = f(X_i)
 $$
+.
 
-For time sequence data, we use the output from the previous time step and the current input to make a prediction.
+For time sequence data, besides the current input, we remember the output from the last time step to make a prediction.
 
 $$
 h_t = f(x_t, h_{t-1})
 $$
 
 <div class="imgcap">
-<img src="/assets/rnn/rnn_b.png" style="border:none;width:60%;">
+<img src="/assets/rnn/rnn_b.png" style="border:none;width:50%;">
 </div>
 
-So at time step t, we take the output at t-1 and input at t to compute on next prediction
+So at time step t, we take both the output at t-1 and input at t to make the next prediction
 $$
-h(t)
+h_t
 $$
 <div class="imgcap">
-<img src="/assets/rnn/rnn_b3.png" style="border:none;width:40%;">
+<img src="/assets/rnn/rnn_b3.png" style="border:none;width:35%;">
 </div>
 
-For example, the following diagram unroll a RNN from time step t-1 to t+1:
+For example, the following diagram unroll a RNN for time step t-1 to t+1:
 <div class="imgcap">
-<img src="/assets/rnn/rnn_b2.png" style="border:none;width:40%;">
+<img src="/assets/rnn/rnn_b2.png" style="border:none;width:60%;">
 </div>
 
 #### Create image caption using RNN
@@ -45,12 +46,29 @@ How to create captions for an image? For example, we may input a school bus imag
 <div class="imgcap">
 <img src="/assets/rnn/cap.png" style="border:none;">
 </div>
-Here are the major high level steps for the training:
-1. Capture features for an image.
-2. Map the captions in the training data to word vectors.
-3. Use a RNN to make a prediction.
-4. Map the RNN prediction to a caption.
-5. Compute the loss and optimize the network.
+We will walk through the flow briefly during the training stage:
+1. Use a CNN network to capture features of an image.
+2. Multiple the features with a matrix.
+3. Use the result to initiate the RNN
+$$
+h_0
+$$
+4. Use a word vector to convert a word to a vector.
+5. Feed the word vector and
+$$
+h_0
+$$ to the RNN.
+6. Use a project matrix to map 
+$$
+h
+$$
+to the final predicted word.
+7. Move to the next time step with 
+$$
+h_1
+$$ 
+and the word predicted in the last time step.
+
 
 Here is the complete flow of the RNN we used and will be explained seperately in later section.
 <div class="imgcap">
