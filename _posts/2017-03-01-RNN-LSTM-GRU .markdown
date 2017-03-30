@@ -8,10 +8,6 @@ date: 2017-03-01 12:00:00
 ---
 **This is work in progress... The content needs major editing.**
 
-This is $$K$$ happy
-This is $$K$$
-happy
-
 ### Recurrent Neural Network (RNN)
 
 If convolution networks are deep networks for images, recurrent networks are networks for the time sequence data, like speeh or natural language. For example, the more advanced LSTM and GRU networks are popular for the natural language processing (NLP). But to illustrate the core ideas, we will look into a simplier network called Recurrent neural netwok (RNN).
@@ -23,15 +19,7 @@ h = f(X_i)
 $$
 
 
-For time sequence data, besides the input, we maintain a hidden state representing the features in the previous time sequence. Hence, to make prediction at time step t, we takes both input
-$$
-X_t
-$$
-and the hidden state from the previous time step
-$$
-h_{t-1}
-$$
-to compute:
+For time sequence data, besides the input, we maintain a hidden state representing the features in the previous time sequence. Hence, to make prediction at time step t, we takes both input $$ X_t $$ and the hidden state from the previous time step $$ h_{t-1}$$ to compute:
 
 $$
 h_t = f(x_t, h_{t-1})
