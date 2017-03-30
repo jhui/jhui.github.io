@@ -216,7 +216,7 @@ h_t
 $$
 
 <div class="imgcap">
-<img src="/assets/rnn/cap9.png" style="border:none;width:40%;">
+<img src="/assets/rnn/cap9.png" style="border:none;width:45%;">
 </div>
 
 >  word2vec is a method to map a word to a vector say with 256 values. The mapping maintains the semantic relationship among words. The embedding lookup table is trained with deep learning.
@@ -238,27 +238,20 @@ W_embed /= 100
 ```
 
 ```python
-# captions:    (N, 17) The caption represent "<start> A yellow school bus idles near a park <end> <null> ... <null>" represent in word index. 
-# captions_in  (N, 16) The caption feed into the RNN (X) = captions without the last word.
-# captions_out (N, 16) The true caption output: the caption without "<start>"
+# T = 16: Number of unroll time step.
+# captions:    (N, T+1) The caption represent "<start> A yellow school bus idles near a park <end> <null> ... <null>" represent in word index. 
+# captions_in  (N, T) The caption feed into the RNN (X) = captions without the last word.
+# captions_out (N, T) The true caption output: the caption without "<start>"
 
 # W_embed (vocab_size, wordvec_dim)
-# captions_in: (N, 16) each captions_in contain at most 16 words.
-# x: (N, 16, wordvec_dim)
+# captions_in: (N, T) each captions_in contain at most 16 words.
+# x: (N, T, wordvec_dim)
 x, cache_embed = word_embedding_forward(captions_in, W_embed)
 ```
 
 Loop up the word vector of x from the lookup table W.
 ```python
 def word_embedding_forward(x, W):
-  """
-  Inputs:
-  - x: Integer array of shape (N, T) each representing a word index for T timestep.
-  - W: Weight matrix of shape (V, D) giving word vectors for all words. V is the vocabulary size and D is the size of the word vector.
-  Returns a tuple of:
-  - out: Array of shape (N, T, D) giving word vectors for all input words.
-  - cache: Values needed for the backward pass
-  """
   out, cache = None, None
   N, T = x.shape
   V, D = W.shape
@@ -310,14 +303,15 @@ loss, dscores = temporal_softmax_loss(scores, captions_out, mask)
 #### rnn_forward
 
 <div class="imgcap">
-<img src="/assets/rnn/cap13.png" style="border:none;width:60%;">
+<img src="/assets/rnn/cap13.png" style="border:none;width:40%;">
 </div>
 
 rnn_forward simply unroll the RNN T time steps and update 
 $$
 h_t
 $$
-with each RNN computation.
+with each RNN computation. At each step, it takes the $$ h $$ from the previous step and use the true captions provided by the training set as input $$ X_t $$.  i.e., even the word 'A' has a very low score in our previous step prediction, we still use the work 'A' as the next input word since the whole purpose is to optimize the RNN with the true caption.
+
 ```python
 def rnn_forward(x, h0, Wx, Wh, b):
   h, cache = None, None
@@ -393,7 +387,6 @@ def temporal_softmax_loss(x, y, mask):
   
   return loss, dx
 ```
-
     
 #### Time step 0
 Here is how we train with the image feature
@@ -412,18 +405,18 @@ After we completed the first time step.  we move onto the next time step with
 $$
 h_1
 $$
-and the next caption word 'A'. Note that, for training, we do not use our best prediction as the input
+and the next true caption word 'A'. Note that, for training, we do not use our best prediction as the input
 $$
 X_t
 $$
-. We always use the true captions provided by the training set.  i.e., even the word 'A' has a very low score in our previous step prediction, we still use the work 'A' as the next input word since the whole purpose is to optimize the RNN with the true caption.
+. 
 
 Here is the detail complete flow in training 1 sample data.
 <div class="imgcap">
 <img src="/assets/rnn/cap3.png" style="border:none;;">
 </div>
 
-Here is the code for the forward feed, backpropagation and the loss.
+Here is the code listing for the forward feed, backpropagation and the loss.
 ```python
   def loss(self, features, captions):
     # For training, say the caption is "<start> A yellow bus idles near a park"
@@ -507,17 +500,17 @@ which will multiply with
 $$
 W_{vocab}
 $$
-to generate score for each word in the vocabulary (1004). We will make the first word prediction by select the one with the highest score (say, "A"). At time step 2, we will fit the highest score prediction "A" as an input into the time step 2. With 
+to generate scores for each word in the vocabulary (1004). We will make the first word prediction by select the one with the highest score (say, "A"). At time step 2, we will fit the highest score prediction "A" as an input into the time step 2. With 
 $$
 h_1
 $$ 
-computed at time step 1, we made the second preduction "bus".
+computed at time step 1 and "A", we made the second preduction "bus".
 	
 <div class="imgcap">
 <img src="/assets/rnn/cap7.png" style="border:none;;">
 </div>
 
-Here we compute the score and set the caption word at time step t to be the word with the highest score. We set prev_word to this prediction which will be used as data input for the next time step.
+Here we compute the score and set the caption word at time step t to be the word with the highest score. We set prev_word to this prediction which will be used in the next time step.
 ```python
 scores, _ = affine_forward(next_h, W_vocab, b_vocab)
 captions[:, t] = scores.argmax(axis=1)
@@ -582,6 +575,70 @@ Finally here is the final detail flows:
 </div>
 
 ### Long Short Term Memory network (LSTM)
+
+$$ h_t $$ in RNN serves 2 purpose:
+* Make an output prediction, and
+* Be a hidden state remember the features for the sequence data process so far.
+
+This actually serve 2 different purpose and therefore LSTM breaks $$ h_t $$ according to the role above. The hidden state of the LSTM cell will now be $$ C $$.
+
+<div class="imgcap">
+<img src="/assets/rnn/lstm.png" style="border:none;;">
+</div>
+
+
+### Updating C
+<div class="imgcap">
+<img src="/assets/rnn/lstm.png" style="border:none;;">
+</div>
+
+In LSTM, we want a mechansim to selectively allow what information to remember and what information to ignore. Therefore we construct different gates with value between 0 to 1, and multiple it with the original value. For example, a gate with 0 means no information to pass through and a gate with 1 means everything is passing through.
+
+$$ 
+\text{new value} = \text{gate} \cdot \text{value}
+$$
+
+To update C, we constructs 2 gates:
+* forget gate: a gate to forget previous hidden state informatin $$ C_{t-1} $$.
+* input gate: a gate to allow what current information $$ \tilde{C} $$ is allowed to add to $$ C $$.
+
+forget gate
+$$
+gate_{forget} = g_f(X_t, h_{t-1}) = \sigma (W_{x} X_t + W_{h} h_{t-1} + b) 
+$$
+
+input gate
+$$
+gate_{input} = g_i(X_t, h_{t-1}) = \sigma (W_{x} X_t + W_{h} h_{t-1} + b) 
+$$
+
+> Not to overwhelm with too many sub-indexes, we use the same notatoin W even though it means different W & b.
+
+In RNN, the mechanism to update $$ h_t $$ is pretty simple:
+$$
+h_t = f(X_t, h_{t-1})
+$$
+
+But in LSTM, there are 2 steps in update $$ C $$.
+
+Compute what new information $$ \tilde{C} $$ may generate in time step t:
+
+$$
+\tilde{C} = f(X_t, h_{t-1}) = \tanh (W_{x} X_t + W_{h} h_{t-1} + b) 
+$$
+
+Compute $$ C_t $$ by forget some information in $$ C_{t-1}  $$ and add back some in $$ \tilde{C} $$ .
+
+$$
+C_t = gate_{forget} \cdot C_{t-1} + gate_{input} \cdot \tilde{C}
+$$
+
+
+#### Update h
+<div class="imgcap">
+<img src="/assets/rnn/lstm.png" style="border:none;;">
+</div>
+
 
 <div class="imgcap">
 <img src="/assets/rnn/cap6.png" style="border:none;;">
