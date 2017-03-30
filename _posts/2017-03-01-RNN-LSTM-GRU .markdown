@@ -611,11 +611,11 @@ To update C, we constructs 2 gates:
 * input gate: a gate to allow what current information $$ \tilde{C} $$ will add to $$ C $$.
 
 $$
-gate_{forget} = g_f(X_t, h_{t-1}) = \sigma (W_{x} X_t + W_{h} h_{t-1} + b) 
+gate_{forget} = \sigma (W_{x} X_t + W_{h} h_{t-1} + b) 
 $$
 
 $$
-gate_{input} = g_i(X_t, h_{t-1}) = \sigma (W_{x} X_t + W_{h} h_{t-1} + b) 
+gate_{input} = \sigma (W_{x} X_t + W_{h} h_{t-1} + b) 
 $$
 
 > Both gates have different set of W and b. But people feel lost in all LSTM equations without realize its simplicity. So we simply assume they have different set of W and b for now.
@@ -631,7 +631,7 @@ But in LSTM, there are 2 steps.
 * Forget some old information $$ C_{t-1}  $$ and add back some from $$ \tilde{C} $$.
 
 $$
-\tilde{C} = f(X_t, h_{t-1}) = \tanh (W_{x} X_t + W_{h} h_{t-1} + b) 
+\tilde{C} = \tanh (W_{x} X_t + W_{h} h_{t-1} + b) 
 $$
 
 $$
@@ -641,13 +641,13 @@ $$
 
 #### Update h
 <div class="imgcap">
-<img src="/assets/rnn/lstm_1.png" style="border:none;;">
+<img src="/assets/rnn/lstm1.png" style="border:none;;">
 </div>
 
 To update $$ h_{t} $$, we compute a new output gate:
 
 $$
-gate_{out} = g_o(X_t, h_{t-1}) = \sigma (W_{x} X_t + W_{h} h_{t-1} + b) 
+gate_{out} = \sigma (W_{x} X_t + W_{h} h_{t-1} + b) 
 $$
 
 
