@@ -578,43 +578,47 @@ Finally here is the final detail flows:
 
 $$ h_t $$ in RNN serves 2 purpose:
 * Make an output prediction, and
-* Be a hidden state remember the features for the sequence data process so far.
+* Be a hidden state extracting the information in the sequence data process so far.
 
-This actually serve 2 different purposes and therefore LSTM breaks $$ h_t $$ according to the role above. The hidden state of the LSTM cell will now be $$ C $$.
+This actually serve 2 different purposes and therefore LSTM breaks $$ h_t $$ according to the roles above. The hidden state of the LSTM cell will now be $$ C $$.
 
 <div class="imgcap">
 <img src="/assets/rnn/lstm.png" style="border:none;width:50%;">
 </div>
 
-
-### Updating C
-<div class="imgcap">
-<img src="/assets/rnn/lstm2.png" style="border:none;width:50%;">
-</div>
-
+#### LSTM gates
 In LSTM, we want a mechansim to selectively allow what information to remember and what information to ignore. Therefore we construct different gates with value between 0 to 1, and multiple it with the original value. For example, a gate with 0 means no information to pass through and a gate with 1 means everything is passing through.
 
 $$ 
-\text{new value} = \text{gate} \cdot \text{value}
+\text{value} = \text{gate} \cdot \text{value}
 $$
+
+In LSTM, we have 3 different gates but all with the same form:
+
+$$
+gate = g(X_t, h_{t-1}) = \sigma (W_{x} X_t + W_{h} h_{t-1} + b) 
+$$
+
+which $$ \sigma $$ is the sigmoid function.
+
+#### Updating C
+<div class="imgcap">
+<img src="/assets/rnn/lstm2.png" style="border:none;width:20%;">
+</div>
 
 To update C, we constructs 2 gates:
 * forget gate: a gate to forget previous hidden state informatin $$ C_{t-1} $$.
-* input gate: a gate to allow what current information $$ \tilde{C} $$ is allowed to add to $$ C $$.
-
-forget gate:
+* input gate: a gate to allow what current information $$ \tilde{C} $$ will add to $$ C $$.
 
 $$
 gate_{forget} = g_f(X_t, h_{t-1}) = \sigma (W_{x} X_t + W_{h} h_{t-1} + b) 
 $$
 
-input gate:
-
 $$
 gate_{input} = g_i(X_t, h_{t-1}) = \sigma (W_{x} X_t + W_{h} h_{t-1} + b) 
 $$
 
-> Not to overwhelm with too many sub-indexes, we use the same notatoin W even though it means different W.
+> Both gates have different set of W and b. But people feel lost in all LSTM equations without realize its simplicity. So we simply assume they have different set of W and b for now.
 
 In RNN, the mechanism to update $$ h_t $$ is pretty simple:
 
@@ -622,15 +626,13 @@ $$
 h_t = f(X_t, h_{t-1})
 $$
 
-But in LSTM, there are 2 steps in update $$ C $$.
-
-Compute what new information $$ \tilde{C} $$ may generate in time step t:
+But in LSTM, there are 2 steps.
+* Compute what new information $$ \tilde{C} $$ may generate in time step t
+* Forget some old information $$ C_{t-1}  $$ and add back some from $$ \tilde{C} $$.
 
 $$
 \tilde{C} = f(X_t, h_{t-1}) = \tanh (W_{x} X_t + W_{h} h_{t-1} + b) 
 $$
-
-Compute $$ C_t $$ by forget some information in $$ C_{t-1}  $$ and add back some in $$ \tilde{C} $$ .
 
 $$
 C_t = gate_{forget} \cdot C_{t-1} + gate_{input} \cdot \tilde{C}
@@ -639,8 +641,14 @@ $$
 
 #### Update h
 <div class="imgcap">
-<img src="/assets/rnn/lstm.png" style="border:none;;">
+<img src="/assets/rnn/lstm_1.png" style="border:none;;">
 </div>
+
+To update $$ h_{t} $$, we compute a new output gate:
+
+$$
+gate_{out} = g_o(X_t, h_{t-1}) = \sigma (W_{x} X_t + W_{h} h_{t-1} + b) 
+$$
 
 
 <div class="imgcap">
