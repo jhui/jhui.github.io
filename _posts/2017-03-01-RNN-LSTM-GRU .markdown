@@ -158,13 +158,13 @@ h0 = features.dot(W_proj) + b_proj
 ```
 
 #### Map words to RNN
-Our training data contains both the images and captions. It also have a dictionary which map a vocabulary word to an integer. Words in the dataset are stored as a word index in the training dataset. For example, the caption "A yellow school bus idles near a park" may stored as "1 5 3401 3461 78 5634 87 5 111 2" which 1 represents the "start" of a caption, 5 represents 'a', 3401 represents 'yellow' etc... 
+Our training data contains both the images and captions. It also have a dictionary which map a vocabulary word to an integer. Words in the dataset are stored as word indexes in the training dataset. For example, the caption "A yellow school bus idles near a park" may stored as "1 5 3401 3461 78 5634 87 5 111 2" which 1 represents the "start" of a caption, 5 represents 'a', 3401 represents 'yellow' etc... 
 
-<div class="imgcap">
-<img src="/assets/rnn/encode.png" style="border:none;width:70%;">
-</div>
-
-The RNN does not use the word index directly. Instead, through a word embedding lookup table, the word index is converted to a vector with length wordvec_dim. The RNN will take this vector
+The RNN does not use the word index directly. Instead, through a word embedding lookup table
+$$
+W_{embed}
+$$
+, the word index is converted to a vector with length wordvec_dim. The RNN will take this vector
 $$
 X_t
 $$ 
@@ -180,6 +180,12 @@ $$
 <img src="/assets/rnn/cap9.png" style="border:none;;">
 </div>
 
+The following illustrates how a word is stored in a training dataset and convert to a word vector to be consumed by the RNN.
+<div class="imgcap">
+<img src="/assets/rnn/encode.png" style="border:none;width:70%;">
+</div>
+
+
 Here is the code to convert an input caption word to the word vector x.
 ```python
 wordvec_dim = 256  			   
@@ -191,9 +197,9 @@ W_embed /= 100
 ```
 
 ```python
-# captions:    (N, 17) each contains a word index (0 to (vocab_size 1004 - 1))
-# captions_out (N, 16)
-# mask:        (N, 16)
+# captions:    (N, 17) The caption represent "<start> A yellow school bus idles near a park <end> <null> ... <null>" represent in word index. 
+# captions_in  (N, 16) The caption feed into the RNN (X) = captions without the last word.
+# captions_out (N, 16) The true caption output: the caption without "<start>"
 
 # W_embed (vocab_size, wordvec_dim)
 # captions_in: (N, 16) each captions_in contain at most 16 words.
@@ -201,14 +207,33 @@ W_embed /= 100
 x, cache_embed = word_embedding_forward(captions_in, W_embed)
 ```
 
-
 #### RNN
+<div class="imgcap">
+<img src="/assets/rnn/score.png" style="border:none;width:70%;">
+</div>
 
-We then pass the word vector with the previous step
+We pass the word vector
 $$
-h
+X_0
 $$
-into the RNN.
+into the RNN to make the first word prediction. The output of the RNN 
+$$
+h_1
+$$
+is then multipy with 
+$$
+W_{vocab}
+$$
+to generate scores for each word in the vocabulary for prediction. We compute the softmax loss with the scores with the true caption
+$$
+captions_out[0]
+$$.
+
+<div class="imgcap">
+<img src="/assets/rnn/score_1.png" style="border:none;width:70%;">
+</div>
+
+The coding in computing the predicted caption and the softmax score.
 ```python
 # h: (N, 16, hidden_dim)
 # Wx: (wordvec_dim, hidden_dim)
@@ -216,12 +241,6 @@ into the RNN.
 h, cache_rnn = rnn_forward(x, h0, Wx, Wh, b)
 ```
 
-
-The output of the RNN is then multipy with 
-$$
-W_{vocab}
-$$
-to generate score for each words in the vocabulary for prediction. We compute the softmax loss with the scores and the target caption word.
 ```python
 # W_vocal: (hidden_dim, vocab_size 1004)
 # scores: (N, 16, vocab_size 1004)
@@ -229,7 +248,8 @@ scores, cache_scores = temporal_affine_forward(h, W_vocab, b_vocab)
 loss, dscores = temporal_softmax_loss(scores, captions_out, mask)
 ```
 
-Here is what happen for time step 0:
+#### Time step 0
+Here is the RNN for time step 0:
 <div class="imgcap">
 <img src="/assets/rnn/cap11.png" style="border:none;;">
 </div>
