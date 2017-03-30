@@ -10,18 +10,18 @@ date: 2017-03-01 12:00:00
 
 ### Recurrent Neural Network (RNN)
 
-If Convolution networks are deep networks for images, recurrent networks are the networks for the time sequence data. LSTM and GRU networks are popular for the natural language processing (NLP). But before discussing those networks, we cover the basis a Recurrent neural network first.
+If Convolution networks are deep networks for images, recurrent networks are the networks for the time sequence data. LSTM and GRU networks are popular for the natural language processing (NLP). But before discussing those networks, we will look into a simplier network called Recurrent neural netwok (RNN).
 
 In a fully connected network, we model h as a function of X 
 $$
 f(X_i)
 $$
 
-For time sequence data, RNN has an extra parameter 
+For time sequence data, we use the output from the previous time step and the current input to make a prediction.
+
 $$
-h_{t-1}
+h_t = f(x_t, h_{t-1})
 $$
-which is the output in the previous time step.
 
 <div class="imgcap">
 <img src="/assets/rnn/rnn_b.png" style="border:none;width:60%;">
@@ -31,25 +31,29 @@ So at time step t, we take the output at t-1 and input at t to compute on next p
 $$
 h(t)
 $$
-
-$$
-h_t = f(x_t, h_{t-1})
-$$
-
 <div class="imgcap">
 <img src="/assets/rnn/rnn_b3.png" style="border:none;width:40%;">
 </div>
 
-For example, we can unroll a RNN network from time step t-1 to t+1 below:
+For example, the following diagram unroll a RNN from time step t-1 to t+1:
 <div class="imgcap">
 <img src="/assets/rnn/rnn_b2.png" style="border:none;width:40%;">
 </div>
 
 #### Create image caption using RNN
-Consider we want to use deep learning to create captions for an image.
+How to create captions for an image? For example, we may input a school bus image into the RNN and expect it to create a caption like below:
 <div class="imgcap">
 <img src="/assets/rnn/cap.png" style="border:none;">
 </div>
+Here are the major high level steps in the training:
+1. Capture features for an image.
+2. Map the captions in the training data to word vectors.
+3. Use a RNN to make a prediction.
+4. Map the RNN prediction to a caption.
+5. Compute the loss and optimize the network.
+
+#### Capture image features
+
 
 <div class="imgcap">
 <img src="/assets/rnn/cap2.png" style="border:none;;">
