@@ -215,19 +215,19 @@ We will use the CNN to generate features for the image.
 <img src="/assets/rnn/cap4.png" style="border:none;width:80%;">
 </div>
 
-At time step 1, we feed the RNN with the word <start>. The RNN computes the value 
+At time step 1, we feed the RNN with the word "start". The RNN computes the value 
 $$
 h_1
 $$
 which will multiply with 
 $$
-W_vocab 
+W_{vocab}
 $$
-to generate score for all the words in the vocabulary (1004). We will make the first word prediction by select the one with the highest score ("A"). At time step 2, we will fit "A" into the time step 2. With 
+to generate score for each word in the vocabulary (1004). We will make the first word prediction by select the one with the highest score (i.e. "A"). At time step 2, we will fit "A" into the time step 2. With 
 $$
 h_1
 $$ 
-computed at time step 1, we made the second preduction "bus".
+computed at time step 1, we then made the second preduction "bus".
 ```python
 scores, _ = affine_forward(next_h, W_vocab, b_vocab)
 captions[:, t] = scores.argmax(axis=1)
