@@ -37,7 +37,11 @@ $$
 <img src="/assets/rnn/rnn_b.png" style="border:none;width:60%;">
 </div>
 
-At time step t, we take both the hidden state
+The following unroll the time step 
+$$
+t
+$$
+which take the hidden state
 $$
 h_{t-1} 
 $$
@@ -53,7 +57,7 @@ $$
 <img src="/assets/rnn/rnn_b3.png" style="border:none;width:35%;">
 </div>
 
-For example, the following diagram unroll a RNN for time step 
+Here we unroll a RNN from time step 
 $$
 t-1
 $$ 
@@ -66,23 +70,43 @@ $$
 <img src="/assets/rnn/rnn_b2.png" style="border:none;width:60%;">
 </div>
 
-Later we map the hidden state 
+In a FC network, 
+$$
+h
+$$
+servers as the output of the network. In RNN, 
+$$
+h
+$$
+servers 2 purposes: the hidden state for the previous sequence data as well as producing a prediction. Here we map the hidden state 
 $$
 h_t
 $$
-to a final prediction. For example, this can be done by multipy it with a matrix. 
+to a final prediction. For example, multiply 
+$$
+h_t
+$$
+with the matrix
+$$
+W
+$$
+to produce the desired predictions
+$$
+Y
+$$.
+ 
 <div class="imgcap">
-<img src="/assets/rnn/cap14.png" style="border:none;width:40%;">
+<img src="/assets/rnn/cap14.png" style="border:none;width:30%;">
 </div>
 
 #### Create image caption using RNN
-Let's use a real example for RNN. How to create captions for an image? For example, we take a school bus image into the RNN and output a caption like:
+We will study a real example in explaing the RNN. For example, we input a school bus image into the RNN and output a caption like "A yellow school bus idles near a park." Our RNN will read an image and create an image caption.
 <div class="imgcap">
 <img src="/assets/rnn/cap.png" style="border:none;">
 </div>
-During the training, we
+During the RNN training, we
 1. Use a CNN network to capture features of an image.
-2. Multiple the features with a matrix to generate
+2. Multiple the features with a trainable matrix to generate
 $$
 h_0
 $$
@@ -91,7 +115,7 @@ $$
 h_0
 $$
 to the RNN.
-4. Use a word embedding lookup table to convert a word to a vector 
+4. Use a word embedding lookup table to convert a word to a word vector 
 $$
 X_1
 $$
@@ -103,11 +127,15 @@ $$ to the RNN.
 $$
 h_1 = f(X_1, h_0)
 $$
-6. Use a matrix to map 
+6. Use a trainable matrix to map 
 $$
 h
 $$
-to the final predicted word say "A".
+to scores which predict the probabilities of
+$$
+word_i
+$$
+to be the next caption word.
 7. Move to the next time step with 
 $$
 h_1
@@ -119,13 +147,13 @@ and the word "A" as input.
 </div>
 
 #### Capture image features
-We pass the image into a CNN and use one of the activation layer in the fully connected (FC) network to initialize the RNN. For example, in the picture below, we pick the output of the first FC layer which has a shape of (512,) as the features used to create captions.
+We pass the image into a CNN and use one of the activation layer in the fully connected (FC) network to initialize the RNN. For example, in the picture below, we pick the input of the second FC layer which has a shape of (512,) as the features used to create captions.
 
 <div class="imgcap">
 <img src="/assets/rnn/cnn.png" style="border:none;;">
 </div>
 
-We multiple the CNN features with a matrix to compute
+We multiple the CNN features with a trainable matrix to compute
 $$
 h_0
 $$
@@ -148,7 +176,7 @@ $$
 <img src="/assets/rnn/cap8.png" style="border:none;width:80%;">
 </div>
 
-Define the shape of CNN features (N, 512) and h (N, 512) which N is the batch size:
+Define the shape of CNN features (N, 512) and h (N, 512) which N is the batch size in training:
 ```python
 input_dim   = 512   # CNN features dimension: 512  
 hidden_dim  = 512   # Hidden state dimension: 512
@@ -179,13 +207,15 @@ h0 = features.dot(W_proj) + b_proj
 ```
 
 #### Map words to RNN
-Our training data contains both the images and captions. It also have a dictionary which map a vocabulary word to an integer. Words in the dataset are stored as word indexes in the training dataset. For example, the caption "A yellow school bus idles near a park" may stored as "1 5 3401 3461 78 5634 87 5 111 2" which 1 represents the "start" of a caption, 5 represents 'a', 3401 represents 'yellow' etc... 
+Our training data contains both the images and captions. It also have a dictionary which map a vocabulary word to an integer. Caption words in the dataset are stored as word indexes. For example, the caption "A yellow school bus idles near a park." may stored as "1 5 3401 3461 78 5634 87 5 111 2" which 1 represents the "start" of a caption, 5 represents 'a', 3401 represents 'yellow'  and 2 represents the "end" of a caption.
 
-The RNN does not use the word index directly. Instead, through a word embedding lookup table
+> In this tutorial, we called the captions provided in the training dataset: true caption.
+
+However, the RNN does not use the word index directly. Instead, through a word embedding lookup table (word2vec)
 $$
 W_{embed}
 $$
-, the word index is converted to a vector with length wordvec_dim. The RNN will take this vector
+, the word index is converted to a vector of length wordvec_dim. The RNN will take this vector
 $$
 X_t
 $$ 
@@ -198,10 +228,12 @@ h_t
 $$
 
 <div class="imgcap">
-<img src="/assets/rnn/cap9.png" style="border:none;;">
+<img src="/assets/rnn/cap9.png" style="border:none;width:40%;">
 </div>
 
-The following illustrates how a word is stored in a training dataset and convert to a word vector to be consumed by the RNN.
+>  word2vec is a method to map a word to a vector say with 256 values. The mapping maintains the semantic relationship among words. The embedding lookup table is also trainable.
+
+When we create the training data, we convert words to the corresponding word index using a vocabulary dictionary. In runtime, we map the word index to a word vector.
 <div class="imgcap">
 <img src="/assets/rnn/encode.png" style="border:none;width:70%;">
 </div>
@@ -228,16 +260,35 @@ W_embed /= 100
 x, cache_embed = word_embedding_forward(captions_in, W_embed)
 ```
 
+```python
+def word_embedding_forward(x, W):
+  """
+  Inputs:
+  - x: Integer array of shape (N, T) each representing a word index for T timestep.
+  - W: Weight matrix of shape (V, D) giving word vectors for all words. V is the vocabulary size and D is the size of the word vector.
+  Returns a tuple of:
+  - out: Array of shape (N, T, D) giving word vectors for all input words.
+  - cache: Values needed for the backward pass
+  """
+  out, cache = None, None
+  N, T = x.shape
+  V, D = W.shape
+  out = W[x]
+  cache = (V, x)
+  return out, cache  
+```
+  
+
 #### RNN
 <div class="imgcap">
-<img src="/assets/rnn/score.png" style="border:none;width:50%;">
+<img src="/assets/rnn/score.png" style="border:none;width:40%;">
 </div>
 
 We pass the word vector
 $$
 X_0
 $$
-into the RNN to make the first word prediction. The output of the RNN 
+into the RNN. The output of the RNN 
 $$
 h_1
 $$
@@ -245,27 +296,114 @@ is then multipy with
 $$
 W_{vocab}
 $$
-to generate scores for each word in the vocabulary for prediction. For example, if we have 10004 words in the vocabulary, it will generate 10004 scores predicting how likely each word will be the predicted word at this time step. During training, our focus is to compute the softmax loss comparing with our prediction and the true caption from the training dataset.
-
+to generate scores for each word in the vocabulary. For example, if we have 10004 words in the vocabulary, it will generate 10004 scores predicting how likely each word will be the next word in the caption. With the true caption and the scores, we compute the softmax loss of the RNN. 
 <div class="imgcap">
 <img src="/assets/rnn/score_1.png" style="border:none;">
 </div>
 
-The coding in computing the predicted caption and the softmax score.
+The coding in computing the hidden states, the scores and the softmax loss.
 ```python
 # h: (N, 16, hidden_dim)
 # Wx: (wordvec_dim, hidden_dim)
 # Wh: (hidden_dim, hidden_dim)
 h, cache_rnn = rnn_forward(x, h0, Wx, Wh, b)
-```
 
-```python
 # W_vocal: (hidden_dim, vocab_size 1004)
 # scores: (N, 16, vocab_size 1004)
 scores, cache_scores = temporal_affine_forward(h, W_vocab, b_vocab)
 loss, dscores = temporal_softmax_loss(scores, captions_out, mask)
 ```
 
+rnn_forward simply unroll the RNN to T time steps and update 
+$$
+h_t
+$$
+with each RNN step.
+```python
+def rnn_forward(x, h0, Wx, Wh, b):
+  h, cache = None, None
+  N, T, D = x.shape
+  H = h0.shape[1]
+  h = np.zeros((N, T, H))
+  state = {}
+  state[-1] = h0
+  cache_step = [None] * T
+
+  for t in range(T):
+    xt = x[:, t, :]
+    state[t], cache_step[t] = rnn_step_forward(xt, state[t-1], Wx, Wh, b)
+    h[:, t, :] = state[t]
+
+  cache = (cache_step, D)
+  return h, cache
+```
+
+For each RNN step, we multiple 
+$$
+h_{t-1}
+$$
+with
+$$
+W_h
+$$ 
+and
+$$
+x_{t}
+$$
+with
+$$
+W_x
+$$
+to generate
+$$
+h_t
+$$
+```python
+def rnn_step_forward(x, prev_h, Wx, Wh, b):
+  next_h, cache = None, None
+  state = np.dot(x, Wx) + np.dot(prev_h, Wh) + b
+  next_h = np.tanh(state)
+
+  cache = x, prev_h, Wx, Wh, state
+  return next_h, cache
+```    
+
+Compute the scores with 
+$$
+W_vocab
+$$
+```python
+ def temporal_affine_forward(x, w, b):
+   N, T, D = x.shape
+   M = b.shape[0]
+   out = x.reshape(N * T, D).dot(w).reshape(N, T, M) + b
+   cache = x, w, b, out
+   return out, cache
+```
+
+For each words in the vocabulary (1004 words), we predict the probability of the word to be the next word in the caption. Then we compute the softmax cost to train the RNN.
+```python
+def temporal_softmax_loss(x, y, mask):
+  N, T, V = x.shape
+  
+  x_flat = x.reshape(N * T, V)
+  y_flat = y.reshape(N * T)
+  mask_flat = mask.reshape(N * T)
+  
+  probs = np.exp(x_flat - np.max(x_flat, axis=1, keepdims=True))
+  probs /= np.sum(probs, axis=1, keepdims=True)
+  loss = -np.sum(mask_flat * np.log(probs[np.arange(N * T), y_flat])) / N
+  dx_flat = probs.copy()
+  dx_flat[np.arange(N * T), y_flat] -= 1
+  dx_flat /= N
+  dx_flat *= mask_flat[:, None]
+  
+  dx = dx_flat.reshape(N, T, V)
+  
+  return loss, dx
+```python
+
+    
 #### Time step 0
 Here is how we train with the image feature
 $$
