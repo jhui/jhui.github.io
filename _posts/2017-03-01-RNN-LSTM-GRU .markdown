@@ -10,7 +10,7 @@ date: 2017-03-01 12:00:00
 
 ### Recurrent Neural Network (RNN)
 
-If Convolution networks are deep networks for images, recurrent networks are the networks for the time sequence data, like speeh or natural language. For example, the more advanced LSTM and GRU networks are popular for the natural language processing (NLP). But before discussing LSTM or GRU, we will look into a simplier network called Recurrent neural netwok (RNN).
+If convolution networks are deep networks for images, recurrent networks are networks for the time sequence data, like speeh or natural language. For example, the more advanced LSTM and GRU networks are popular for the natural language processing (NLP). But to illustrate the core ideas, we will look into a simplier network called Recurrent neural netwok (RNN).
 
 In a fully connected network, we model h as 
 
@@ -19,25 +19,33 @@ h = f(X_i)
 $$
 
 
-For time sequence data, besides the current input, we remember the output from the last time step to make a prediction.
+For time sequence data, besides the input, we maintain a hidden state representing the features in the previous time sequence. Hence, to make prediction at time step t, we takes both input
+$$
+X_t
+$$
+and the hidden state from the previous time step
+$$
+h_{t-1}
+$$
+to compute:
 
 $$
 h_t = f(x_t, h_{t-1})
 $$
 
 <div class="imgcap">
-<img src="/assets/rnn/rnn_b.png" style="border:none;width:50%;">
+<img src="/assets/rnn/rnn_b.png" style="border:none;width:60%;">
 </div>
 
-So at time step t, we take both the output at 
+At time step t, we take both the hidden state
 $$
-t-1 
+h_{t-1} 
 $$
-and input at 
+and input
 $$
-t
+X_t
 $$ 
-to make the next prediction
+to compute 
 $$
 h_t
 $$
@@ -56,6 +64,15 @@ $$
 :
 <div class="imgcap">
 <img src="/assets/rnn/rnn_b2.png" style="border:none;width:60%;">
+</div>
+
+We may multiply 
+$$
+h_t
+$$
+with a matrix to make a prediction for time step t. 
+<div class="imgcap">
+<img src="/assets/rnn/cap14.png" style="border:none;width:60%;">
 </div>
 
 #### Create image caption using RNN
