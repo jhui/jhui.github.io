@@ -157,7 +157,11 @@ h0 = features.dot(W_proj) + b_proj
 ```
 
 #### Map words to RNN
-In our training data, it contains both the images and captions. It also have a dictionary which map a vocabulary word to an integer. Words are stored as a word index in the training dataset. For example, the caption "A yellow school bus idles near a park" may stored as "1 5 3401 3461 78 5634 87 5 111 2" which 1 represents start of a caption, 5 represents 'a', 3401 represents 'yellow' etc... 
+In our training data, it contains both the images and captions. It also have a dictionary which map a vocabulary word to an integer. Words are stored as a word index in the training dataset. For example, the caption "A yellow school bus idles near a park" may stored as "1 5 3401 3461 78 5634 87 5 111 2" which 1 represents the "start" of a caption, 5 represents 'a', 3401 represents 'yellow' etc... 
+
+<div class="imgcap">
+<img src="/assets/rnn/encode.png" style="border:none;width:70%;">
+</div>
 
 The RNN does not use the word index directly. Instead, through an word embedding lookup table, the word index is converted to a vector of wordvec_dim. The RNN will take this vector and 
 $$
@@ -168,83 +172,13 @@ h_t
 $$
 
 <div class="imgcap">
-<img src="/assets/rnn/encode.png" style="border:none;width:70%;">
-</div>
-
-
-We will create a lookup table to
-<div class="imgcap">
 <img src="/assets/rnn/cap9.png" style="border:none;;">
 </div>
 
-
-
-<div class="imgcap">
-<img src="/assets/rnn/cap3.png" style="border:none;;">
-</div>
-
-<div class="imgcap">
-<img src="/assets/rnn/cap4.png" style="border:none;;">
-</div>
-
-<div class="imgcap">
-<img src="/assets/rnn/cap5.png" style="border:none;;">
-</div>
-
-<div class="imgcap">
-<img src="/assets/rnn/cap6.png" style="border:none;;">
-</div>
-
-
-We mulitiply 
-$$
-h
-$$ 
-with another matrix to generate a score for each word in the vocabulary. This fit into a softmax function to calculate the loss in the training or to make prediction.
-
-
-<div class="imgcap">
-<img src="/assets/rnn/cap11.png" style="border:none;;">
-</div>
-
-
-#### Making prediction
-
-We will use the CNN to generate features for the image.
-<div class="imgcap">
-<img src="/assets/rnn/cap4.png" style="border:none;width:80%;">
-</div>
-
-At time step 1, we feed the RNN with the word "start". The RNN computes the value 
-$$
-h_1
-$$
-which will multiply with 
-$$
-W_{vocab}
-$$
-to generate score for each word in the vocabulary (1004). We will make the first word prediction by select the one with the highest score (i.e. "A"). At time step 2, we will fit "A" into the time step 2. With 
-$$
-h_1
-$$ 
-computed at time step 1, we then made the second preduction "bus".
+Here is the code to convert an input caption word to the word vector x.
 ```python
-scores, _ = affine_forward(next_h, W_vocab, b_vocab)
-captions[:, t] = scores.argmax(axis=1)
-prev_word = captions[:, t].reshape(N, 1)
-```
-	
-<div class="imgcap">
-<img src="/assets/rnn/cap7.png" style="border:none;;">
-</div>
-
-```python
-input_dim   = 512   # CNN features dimension: 512  
-hidden_dim  = 512   # Hidden state dimension: 512
 wordvec_dim = 256  			   
 ```
-
-
 
 ```python
 W_embed  = np.random.randn(vocab_size, wordvec_dim)
@@ -262,6 +196,14 @@ W_embed /= 100
 x, cache_embed = word_embedding_forward(captions_in, W_embed)
 ```
 
+
+#### RNN
+
+We then pass the word vector with the previous step
+$$
+h
+$$
+into the RNN.
 ```python
 # h: (N, 16, hidden_dim)
 # Wx: (wordvec_dim, hidden_dim)
@@ -269,6 +211,12 @@ x, cache_embed = word_embedding_forward(captions_in, W_embed)
 h, cache_rnn = rnn_forward(x, h0, Wx, Wh, b)
 ```
 
+
+The output of the RNN is then multipy with 
+$$
+W_{vocab}
+$$
+to generate score for each words in the vocabulary for prediction. We compute the softmax loss with the scores and the target caption word.
 ```python
 # W_vocal: (hidden_dim, vocab_size 1004)
 # scores: (N, 16, vocab_size 1004)
@@ -276,6 +224,116 @@ scores, cache_scores = temporal_affine_forward(h, W_vocab, b_vocab)
 loss, dscores = temporal_softmax_loss(scores, captions_out, mask)
 ```
 
+Here is what happen for time step 0:
+<div class="imgcap">
+<img src="/assets/rnn/cap11.png" style="border:none;;">
+</div>
+
+#### Flow in the training
+<div class="imgcap">
+<img src="/assets/rnn/cap3.png" style="border:none;;">
+</div>
+
+#### Making prediction
+
+We will use the CNN to generate features for the image and map it to  
+$$
+h_0
+$$
+with 
+$$
+W_{proj}
+$$
+.
+<div class="imgcap">
+<img src="/assets/rnn/cap4.png" style="border:none;width:80%;">
+</div>
+
+At time step 1, we feed the RNN with "start". The RNN computes the value 
+$$
+h_1
+$$
+which will multiply with 
+$$
+W_{vocab}
+$$
+to generate score for each word in the vocabulary (1004). We will make the first word prediction by select the one with the highest score (say, "A"). At time step 2, we will fit "A" as an input into the time step 2. With 
+$$
+h_1
+$$ 
+computed at time step 1, we then made the second preduction "bus".
+	
+<div class="imgcap">
+<img src="/assets/rnn/cap7.png" style="border:none;;">
+</div>
+
+Here we compute the score and set the caption word at time step t to be the word with the highest score. We set prev_word to our prediction which will be used in the next time step.
+```python
+scores, _ = affine_forward(next_h, W_vocab, b_vocab)
+captions[:, t] = scores.argmax(axis=1)
+prev_word = captions[:, t].reshape(N, 1)
+```
+
+Here is the full code making the prediction with comments:
+```python
+def sample(self, features, max_length=30):
+    N = features.shape[0]
+    captions = self._null * np.ones((N, max_length), dtype=np.int32)
+
+    # Retrive all trainable parameters
+    W_proj, b_proj = self.params['W_proj'], self.params['b_proj']
+    W_embed = self.params['W_embed']
+    Wx, Wh, b = self.params['Wx'], self.params['Wh'], self.params['b']
+    W_vocab, b_vocab = self.params['W_vocab'], self.params['b_vocab']
+    
+	# N is the size of the data to test
+    # prev_word : (N, 1)
+    #
+    # next_h    : (N, hidden_dim)
+    # features  : (N, input_dim)
+    # W_proj    : (input_dim, hidden_dim)
+    #
+    # embed     : (N, 1, wordvec_dim)
+    # W-embed   : (vacab_size, wordvec_dim)
+    #
+    # next_c    : (N, hidden_dim*4) for LSTM
+    #
+    # scores    : (N, vocab_size)
+    # W_vocab     : (hidden_dim, vocab_size)
+    #
+    # captions  : (N, max_length)
+
+    # Set the first word as "<start>"
+    prev_word = self._start * np.ones((N, 1), dtype=np.int32)
+
+    # Compute h0
+    next_h, affine_cache = affine_forward(features, W_proj, b_proj)
+
+    H, _ = Wh.shape
+	# for each time step
+    for t in range(max_length):
+	  # Compute the word vector.
+      embed, embed_cache = word_embedding_forward(prev_word, W_embed)
+	  # Compute h from the RNN
+      next_h, cache = rnn_step_forward(np.squeeze(embed), next_h, Wx, Wh, b)
+	  # Map h to scores for each vocabulary word
+      scores, _ = affine_forward(next_h, W_vocab, b_vocab)
+	  # Set the caption word at time t.
+      captions[:, t] = scores.argmax(axis=1)
+	  # Set it to be the next word input in next time step.
+      prev_word = captions[:, t].reshape(N, 1)
+
+    return captions
+```
+
+<div class="imgcap">
+<img src="/assets/rnn/cap5.png" style="border:none;;">
+</div>
+
 ### Long Short Term Memory network (LSTM)
+
+<div class="imgcap">
+<img src="/assets/rnn/cap6.png" style="border:none;;">
+</div>
 
 ### Gated Recurrent Units (GRU)
