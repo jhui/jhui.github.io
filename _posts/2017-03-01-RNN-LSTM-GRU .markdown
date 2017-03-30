@@ -670,14 +670,13 @@ Z_u = (W_{xu} X_t + W_{hu} h_{t-1} + b_u)
 $$
  
 Compute 
-$$ gate_{forget} $$ 
- , $$ gate_{input} $$
- , $$ gate_{output} $$
-$$
+$$ g_{forget} $$ 
+ , $$ g_{input} $$
+ , $$ g_{output} $$
 with 
 
 $$ 
-gate_u =  \sigma (Z_u) 
+g_u =  \sigma (Z_u) 
 $$
   
 $$
@@ -685,11 +684,11 @@ $$
 $$
 
 $$
-C_t = gate_{forget} \cdot C_{t-1} + gate_{input} \cdot \tilde{C}
+C_t = g_{forget} \cdot C_{t-1} + g_{input} \cdot \tilde{C}
 $$
   
 $$
-h_t = gate_{out} \cdot \tanh (C_t)
+h_t = g_{out} \cdot \tanh (C_t)
 $$ 
  
 #### Image captures with LSTM
