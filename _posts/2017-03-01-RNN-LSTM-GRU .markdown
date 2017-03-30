@@ -81,7 +81,7 @@ $$ to the RNN.
 $$
 h_1 = f(X_1, h_0)
 $$
-6. Use a projector matrix to map 
+6. Use a matrix to map 
 $$
 h
 $$
@@ -92,36 +92,51 @@ h_1
 $$ 
 and the last predicted word as input.
 
-Here is the complete flow of the RNN we used and will be explained seperately in later section.
 <div class="imgcap">
 <img src="/assets/rnn/cap12.png" style="border:none;;">
 </div>
 
 #### Capture image features
-We pass the image into a CNN and use one of the activation layer in the fully connected (FC) network to initialize the RNN. For example, in the picture below, we pick the output of the FC layer which has a shape of (512,).
+We pass the image into a CNN and use one of the activation layer in the fully connected (FC) network to initialize the RNN. For example, in the picture below, we pick the output of the first FC layer which has a shape of (512,) as the features used to create captions.
 
 <div class="imgcap">
 <img src="/assets/rnn/cnn.png" style="border:none;;">
 </div>
 
-We multiple the features with a matrix and use it for the initial state
+We multiple the CNN features with a matrix to compute
 $$
 h_0
 $$
-of the RNN.
+.
 
 <div class="imgcap">
-<img src="/assets/rnn/cap2.png" style="border:none;;">
+<img src="/assets/rnn/cap2.png" style="border:none;">
 </div>
+
+We will use 
+$$
+h_0
+$$
+for the RNN to compute
+$$
+h_1 = f(h_0, X_0)
+$$
 
 <div class="imgcap">
-<img src="/assets/rnn/cap8.png" style="border:none;;">
+<img src="/assets/rnn/cap8.png" style="border:none;width:80%;">
 </div>
 
+The shape of the CNN features (N, 512) and the h (N, 512) which N is the batch size.
 ```python
 input_dim   = 512   # CNN features dimension: 512  
 hidden_dim  = 512   # Hidden state dimension: 512
 ```
+
+Define the matrix to project the CNN features to 
+$$
+h_0
+$$
+.
 
 ```python
 # W_proj: (input_dim, hidden_dim)
@@ -130,17 +145,40 @@ W_proj /= np.sqrt(input_dim)
 b_proj  = np.zeros(hidden_dim)
 ```
 
+Compute
+$$
+h_0
+$$
+.
 ```python
 # Initialize CNN -> hidden state projection parameters
 # h0: (N, hidden_dim)
 h0 = features.dot(W_proj) + b_proj
 ```
 
-#### Map the captions to word vectors
-In our training data, it contains both the images and captions. It also have a dictionary which map a word to an integer.For example, the caption "A yellow school bus idles near a park" is stored as "1 5 3401 3461 78 5634 87 5 111 2" in the training dataset
-which 1 represents start of a string, 5 represents 'a', 3401 represents 'yellow' etc...
+#### Map words to or from RNN
+In our training data, it contains both the images and captions. It also have a dictionary which map a vocabulary word to an integer. Words are stored as a word index in the training dataset. For example, the caption "A yellow school bus idles near a park" may stored as "1 5 3401 3461 78 5634 87 5 111 2" which 1 represents start of a caption, 5 represents 'a', 3401 represents 'yellow' etc... 
+
+The RNN does not use the word index directly. Instead, through an word embedding lookup table, the word index is converted to a vector of wordvec_dim. The RNN will take this vector and 
+$$
+h_{t-1}
+$$ to compute
+$$
+h_t
+$$
+
+We mulitiply 
+$$
+h
+$$ 
+with another matrix to generate a score for each word in the vocabulary. This fit into a softmax function to calculate the loss in the training or to make prediction.
+
+<div class="imgcap">
+<img src="/assets/rnn/encode.png" style="border:none;;">
+</div>
 
 
+We will create a lookup table to
 <div class="imgcap">
 <img src="/assets/rnn/cap9.png" style="border:none;;">
 </div>
@@ -167,10 +205,6 @@ which 1 represents start of a string, 5 represents 'a', 3401 represents 'yellow'
 <img src="/assets/rnn/cap7.png" style="border:none;;">
 </div>
 
-
-<div class="imgcap">
-<img src="/assets/rnn/cap10.png" style="border:none;;">
-</div>
 
 <div class="imgcap">
 <img src="/assets/rnn/cap11.png" style="border:none;;">
