@@ -13,6 +13,7 @@ date: 2017-03-01 12:00:00
 If Convolution networks are deep networks for images, recurrent networks are the networks for the time sequence data, like speeh or natural language. For example, the more advanced LSTM and GRU networks are popular for the natural language processing (NLP). But before discussing LSTM or GRU, we will look into a simplier network called Recurrent neural netwok (RNN).
 
 In a fully connected network, we model h as 
+
 $$
 h = f(X_i)
 $$
@@ -25,7 +26,7 @@ h_t = f(x_t, h_{t-1})
 $$
 
 <div class="imgcap">
-<img src="/assets/rnn/rnn_b.png" style="border:none;width:45%;">
+<img src="/assets/rnn/rnn_b.png" style="border:none;width:50%;">
 </div>
 
 So at time step t, we take both the output at 
@@ -58,7 +59,7 @@ $$
 </div>
 
 #### Create image caption using RNN
-How to create captions for an image? For example, we may input a school bus image into the RNN and expect it to create a caption like:
+Let's use a real example for RNN. How to create captions for an image? For example, we take a school bus image into the RNN and output a caption like:
 <div class="imgcap">
 <img src="/assets/rnn/cap.png" style="border:none;">
 </div>
@@ -73,7 +74,7 @@ $$
 h_0
 $$
 to the RNN.
-4. Use a word vector to convert a word to a vector.
+4. Use a word embedding lookup table to convert a word to a vector. (a.k.a word2vec)
 5. Feed the word vector and
 $$
 h_0
@@ -85,12 +86,12 @@ $$
 $$
 h
 $$
-to the final predicted word.
+to the final predicted word say "A".
 7. Move to the next time step with 
 $$
 h_1
 $$ 
-and the last predicted word as input.
+and the last predicted word "A" as input.
 
 <div class="imgcap">
 <img src="/assets/rnn/cap12.png" style="border:none;;">
@@ -107,7 +108,7 @@ We multiple the CNN features with a matrix to compute
 $$
 h_0
 $$
-.
+for the first time step 1.
 
 <div class="imgcap">
 <img src="/assets/rnn/cap2.png" style="border:none;">
@@ -126,7 +127,7 @@ $$
 <img src="/assets/rnn/cap8.png" style="border:none;width:80%;">
 </div>
 
-The shape of CNN features (N, 512) and h (N, 512) which N is the batch size:
+Define the shape of CNN features (N, 512) and h (N, 512) which N is the batch size:
 ```python
 input_dim   = 512   # CNN features dimension: 512  
 hidden_dim  = 512   # Hidden state dimension: 512
@@ -157,13 +158,17 @@ h0 = features.dot(W_proj) + b_proj
 ```
 
 #### Map words to RNN
-In our training data, it contains both the images and captions. It also have a dictionary which map a vocabulary word to an integer. Words are stored as a word index in the training dataset. For example, the caption "A yellow school bus idles near a park" may stored as "1 5 3401 3461 78 5634 87 5 111 2" which 1 represents the "start" of a caption, 5 represents 'a', 3401 represents 'yellow' etc... 
+Our training data contains both the images and captions. It also have a dictionary which map a vocabulary word to an integer. Words in the dataset are stored as a word index in the training dataset. For example, the caption "A yellow school bus idles near a park" may stored as "1 5 3401 3461 78 5634 87 5 111 2" which 1 represents the "start" of a caption, 5 represents 'a', 3401 represents 'yellow' etc... 
 
 <div class="imgcap">
 <img src="/assets/rnn/encode.png" style="border:none;width:70%;">
 </div>
 
-The RNN does not use the word index directly. Instead, through an word embedding lookup table, the word index is converted to a vector of wordvec_dim. The RNN will take this vector and 
+The RNN does not use the word index directly. Instead, through a word embedding lookup table, the word index is converted to a vector with length wordvec_dim. The RNN will take this vector
+$$
+X_t
+$$ 
+and 
 $$
 h_{t-1}
 $$ to compute
