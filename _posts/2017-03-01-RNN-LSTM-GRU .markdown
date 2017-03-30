@@ -156,7 +156,7 @@ $$
 h0 = features.dot(W_proj) + b_proj
 ```
 
-#### Map words to or from RNN
+#### Map words to RNN
 In our training data, it contains both the images and captions. It also have a dictionary which map a vocabulary word to an integer. Words are stored as a word index in the training dataset. For example, the caption "A yellow school bus idles near a park" may stored as "1 5 3401 3461 78 5634 87 5 111 2" which 1 represents start of a caption, 5 represents 'a', 3401 represents 'yellow' etc... 
 
 The RNN does not use the word index directly. Instead, through an word embedding lookup table, the word index is converted to a vector of wordvec_dim. The RNN will take this vector and 
@@ -235,7 +235,7 @@ prev_word = captions[:, t].reshape(N, 1)
 ```
 	
 <div class="imgcap">
-<img src="/assets/rnn/cap11.png" style="border:none;;">
+<img src="/assets/rnn/cap7.png" style="border:none;;">
 </div>
 
 ```python
