@@ -10,22 +10,37 @@ date: 2017-03-01 12:00:00
 
 ### Recurrent Neural Network (RNN)
 
-If Convolution networks are deep networks exploring the spatial information, recurrent networks are the correspnding network for the time sequence data. This type of networks are popular with natural language processing (NLP).
+If Convolution networks are deep networks for images, recurrent networks are the networks for the time sequence data. LSTM and GRU networks are popular for the natural language processing (NLP). But before discussing those networks, we cover the basis a Recurrent neural network first.
+
+In a fully connected network, we model h as a function of X 
+$$
+f(X_i)
+$$
+
+For time sequence data, RNN has an extra parameter 
+$$
+h_{t-1}
+$$
+which is the output in the previous time step.
 
 <div class="imgcap">
 <img src="/assets/rnn/rnn_b.png" style="border:none;width:60%;">
 </div>
 
+So at time step t, we take the output at t-1 and input at t to compute on next prediction
+$$
+h(t)
+$$
+
 $$
 h_t = f(x_t, h_{t-1})
 $$
 
-At each time step t in a RNN:
 <div class="imgcap">
 <img src="/assets/rnn/rnn_b3.png" style="border:none;width:40%;">
 </div>
 
-For example, we unroll the RNN into 3 consecutive time steps (t-1, t & t+1):
+For example, we can unroll a RNN network from time step t-1 to t+1 below:
 <div class="imgcap">
 <img src="/assets/rnn/rnn_b2.png" style="border:none;width:40%;">
 </div>
