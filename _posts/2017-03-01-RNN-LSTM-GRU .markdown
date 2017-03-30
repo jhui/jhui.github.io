@@ -17,7 +17,7 @@ In a fully connected network, we model h as
 $$
 h = f(X_i)
 $$
-.
+
 
 For time sequence data, besides the current input, we remember the output from the last time step to make a prediction.
 
@@ -209,7 +209,7 @@ x, cache_embed = word_embedding_forward(captions_in, W_embed)
 
 #### RNN
 <div class="imgcap">
-<img src="/assets/rnn/score.png" style="border:none;width:70%;">
+<img src="/assets/rnn/score.png" style="border:none;width:50%;">
 </div>
 
 We pass the word vector
@@ -230,7 +230,7 @@ captions_out[0]
 $$.
 
 <div class="imgcap">
-<img src="/assets/rnn/score_1.png" style="border:none;width:70%;">
+<img src="/assets/rnn/score_1.png" style="border:none;">
 </div>
 
 The coding in computing the predicted caption and the softmax score.
