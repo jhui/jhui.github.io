@@ -85,50 +85,56 @@ Like deep learning, the depth of the network increases the complexity of a model
 <img src="/assets/cnn/convolution_b1.png" style="border:none;width:70%">
 </div>
 
-The CNN above composes of 3 convolution layer. We start with a 32x32 pixel image with 3 channels (RGB). We first apply a 3x4 filters and a 2x2 max pooling. The output of this layer will be a 16x16x4 feature maps.  Here are the output dimension of each convolution layer:
+The CNN above composes of 3 convolution layer. We start with a 32x32 pixel image with 3 channels (RGB). We first apply a 3x4 filters and a 2x2 max pooling. The output of this layer will be a 16x16x4 feature maps.  Here are the output dimension for each convolution layer:
 <div class="imgcap">
 <img src="/assets/cnn/cnn_chanl.png" style="border:none">
 </div>
 
 ### Fully connected layers
-
+After using convolution layers to extract the spatial features of an image, we apply fully connected layers for the final classification. First we flatten the output of the convolution layers. For example, if the final features maps have a dimension of 4x4x512, we will flaten it to an array of 4096 elements. We apply 2 more hidden layers here before we perform the final classification.
 
 <div class="imgcap">
 <img src="/assets/cnn/convolution_b2.png" style="border:none;">
 </div>
 
-#### Convolutional pyramid
+### Convolutional pyramid
 
+For each convolution layer, we reduce the spatial dimension while increase the depth of the feature maps. We call this convolutional pyramid 
 
 <div class="imgcap">
 <img src="/assets/cnn/cnn3d.png" style="border:none;">
 </div>
 
+Here, we reduce the spatial dimension of each convolution layer usually through pooling or with filter stride size greater that 1.
+<div class="imgcap">
+<img src="/assets/cnn/cnn3d4.png" style="border:none;width:50%">
+</div>
+
+While increase the depth of the feature map. The depth can be increased by the number of filters used.
 <div class="imgcap">
 <img src="/assets/cnn/cnn3d2.png" style="border:none;">
 </div>
 
-#### Filter
+#### Google inceptions
 
+In our previous discussion, the convolution filter in each layer is of the same size say 3x3. For GoogleNet, Google applies different size of filters to the input and concantente the feature maps together to increase the depth.
 
+Here we have a 3x3 and a 1x1 filter. The first way generate 8 fetures map while the second one generate 2. We can concantentate them to form maps of depth 10. The inception idea is to increase the depth of the feature map by concantentate feature maps using different size of convolution filters and pooling. 
+<div class="imgcap">
+<img src="/assets/cnn/inception.png" style="border:none;depth:50%">
+</div>
 
-#### Spatial dimension vs depth
+#### Non-linearity and optimization
+Inceptions can be consider as one way to introduce non-linearity into the system. In many CNN, we apply similar layers we learned from deep learning after the convolution filters. This includes batch normalization and/or ReLU.
+
+#### Fully connected network
+
+After exploring the spatial relationship, we flatten the convolution layer output and connect it to a fully connected network:
 
 <div class="imgcap">
-<img src="/assets/cnn/cnn3d3.png" style="border:none;">
+<img src="/assets/cnn/cnn3d5.png" style="border:none;width:50%">
 </div>
 
 <div class="imgcap">
-<img src="/assets/cnn/cnn3d4.png" style="border:none;">
-</div>
-
-### Fully connected network
-
-<div class="imgcap">
-<img src="/assets/cnn/cnn3d5.png" style="border:none;">
-</div>
-
-
-<div class="imgcap">
-<img src="/assets/cnn/cnn3d6.png" style="border:none;">
+<img src="/assets/cnn/cnn3d6.png" style="border:none;width:50%">
 </div>
