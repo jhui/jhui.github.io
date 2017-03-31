@@ -61,7 +61,7 @@ A convolution neural network composes of convolution layers, polling layers and 
 When we process the image, we apply many filters which each will geneate an output that we call **feature map**. If k features map are created, we call the feature maps have a depth of k.
 
 <div class="imgcap">
-<img src="/assets/cnn/conv_layer2.png" style="border:none;width:50%">
+<img src="/assets/cnn/filter_m.png" style="border:none;width:70%">
 </div>
 
 #### Pooling
@@ -71,24 +71,27 @@ To reduce the spatial dimension of a feature map, we apply maximum pool. A 2x2 m
 <img src="/assets/cnn/pooling.png" style="border:none;width:50%">
 </div>
 
-Pooling is often used with a convolution layer. Therefore, we often consider it as part of the convolution layer rather than a separate layer.
-
-#### Convolution layers
-
-#### Filters
-Apply k filters:
+Here, we construct a CNN using convolution and pooling:
 <div class="imgcap">
-<img src="/assets/cnn/filter_m.png" style="border:none;width:70%">
+<img src="/assets/cnn/conv_layer2.png" style="border:none;width:50%">
 </div>
 
+Pooling is often used with a convolution layer. Therefore, we often consider it as part of the convolution layer rather than a separate layer. Other pooling like average pooling can be applied. However, for image classification, maximum pooling is more common.
 
+### Multiple convolution layers
 
-
-
-
+Like deep learning, the depth of the network increases the complexity of a model. A CNN network usually composes of many convolution layers. 
 <div class="imgcap">
-<img src="/assets/cnn/convolution_b1.png" style="border:none;">
+<img src="/assets/cnn/convolution_b1.png" style="border:none;width:70%">
 </div>
+
+The CNN above composes of 3 convolution layer. We start with a 32x32 pixel image with 3 channels (RGB). We first apply a 3x4 filters and a 2x2 max pooling. The output of this layer will be a 16x16x4 feature maps.  Here are the output dimension of each convolution layer:
+<div class="imgcap">
+<img src="/assets/cnn/cnn_chanl.png" style="border:none">
+</div>
+
+### Fully connected layers
+
 
 <div class="imgcap">
 <img src="/assets/cnn/convolution_b2.png" style="border:none;">
