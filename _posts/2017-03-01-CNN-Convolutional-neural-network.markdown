@@ -29,27 +29,27 @@ For example, to blur an image, we can apply a 3x3 filter over every pixels in th
 <img src="/assets/cnn/filter_b.png" style="border:none;">
 </div>
 
-We move the fiter 1 pixel at a time from left to right and top to bottom until we re-computed every pixels.
+To apply the filter to an image, we move the fiter 1 pixel at a time from left to right and top to bottom until we process every pixels.
 <div class="imgcap">
 <img src="/assets/cnn/stride.png" style="border:none;width:50%">
 </div>
 
-However, we may encounter some problem on the edge. For a 3x3 filter, we may ignore the edge and geneate an image with width and height reduce by 2 pixels. Otherwise, we can pack extra 0 or replicate the edge of the origina image (blue square). All these settings are configurable as "padding" in a CNN. 
+#### Stride and padding
+However, we may encounter some problem on the edge. For example, on the top left corner, a filter may cover beyond the edge of an image. For a 3x3 filter, we may ignore the edge and geneate an output with width and height reduce by 2 pixels. Otherwise, we can pack extra 0 or replicate the edge of the origina image. All these settings are possible and configurable as "padding" in a CNN. 
 <div class="imgcap">
 <img src="/assets/cnn/padding.png" style="border:none;width:50%">
 </div>
 
-For a CNN, sometimes we do not move the filter only by 1 pixel. If move the filter 2 pixels to the right, we call the "X stride" equal to 2.
+For a CNN, sometimes we do not move the filter only by 1 pixel. If we move the filter 2 pixels to the right, we call the "X stride" equal to 2.
 <div class="imgcap">
 <img src="/assets/cnn/stride2.png" style="border:none;">
 </div>
 
-Hence both padding and stride changes the spatial dimension of the output. A stride of 2 in both X and Y direction will reduce the output by 4. Without padding, the output shrink by N pixels:
+Notice that both padding and stride may change the spatial dimension of the output. A stride of 2 in X direction will reduce X-dimension by 2. Without padding, the output shrink by N pixels which N is:
 
 $$
 N = \fract {\text{filter size} - 1} {2}
 $$
-
 
 ### Convolution neural network (CNN)
 A convolution neural network composes of convolution layers and fully connected layers. Filters are applied to the image followed by pooling to reduce the spatial dimension. After that, we apply fully connected layers.
