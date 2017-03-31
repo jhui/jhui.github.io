@@ -18,23 +18,47 @@ In a fully connected networks, all nodes in a layer is fully connected to all th
 For face detection, the area of interested are all localized. Convolution neural networks apply small size filter to explore the images.The number of trainable parameters are significantly smaller and therefore allow CNN to use many filters to extract interested features. 
 
 ### Filters
-Filters are frequent apply to images for different purposes. Our visual system applies filters like edge detection to recognize object.
+Filters, like blur, edge detection, are frequent apply to images for different purposes. Our visual system applies edge detection filters to recognize object.
 
 <div class="imgcap">
-<img src="/assets/cnn/blur.jpg" style="border:none;width:60%;">
+<img src="/assets/cnn/blur.jpg" style="border:none;">
 </div>
 
 <div class="imgcap">
-<img src="/assets/cnn/edge.png" style="border:none;width:60%">
+<img src="/assets/cnn/edge.png" style="border:none;">
 </div>
 
 For example, to blur an image, we can apply a 3x3 filter as follows:
 <div class="imgcap">
-<img src="/assets/cnn/filter_b.png" style="border:none;width:60%">
+<img src="/assets/cnn/filter_b.png" style="border:none;">
+</div>
+
+### Convolution neural network (CNN)
+A convolution neural network compose of convolution layers and fully connected layers.
+
+#### Convolution layers
+
+The convolution layer applies filters to the previous layer and then pooling for sub-sampling to reduce the spatial dimension. In the example below, we applies k filters to the original images and then reduce it spatial dimension by half using a 2x2 maximum pool.
+<div class="imgcap">
+<img src="/assets/cnn/conv_layer2.png" style="border:none;width:50%">
+</div>
+
+#### Filters
+
+Apply k filters:
+<div class="imgcap">
+<img src="/assets/cnn/filter_m.png" style="border:none;width:30%">
+</div>
+
+Apply maximum pool for sub-sampling:
+<div class="imgcap">
+<img src="/assets/cnn/pooling.png" style="border:none;">
 </div>
 
 
-### Convolution neural netword (CNN)
+
+
+
 <div class="imgcap">
 <img src="/assets/cnn/convolution_b1.png" style="border:none;">
 </div>
@@ -58,27 +82,17 @@ For example, to blur an image, we can apply a 3x3 filter as follows:
 </div>
 
 #### Filter
-<div class="imgcap">
-<img src="/assets/cnn/filter.png" style="border:none;">
-</div>
 
 <div class="imgcap">
 <img src="/assets/cnn/padding.png" style="border:none;">
 </div>
 
-<div class="imgcap">
-<img src="/assets/cnn/filter_m.png" style="border:none;">
-</div>
 
 <div class="imgcap">
 <img src="/assets/cnn/stride.png" style="border:none;">
 </div>
 
 
-#### Pooling
-<div class="imgcap">
-<img src="/assets/cnn/pooling.png" style="border:none;">
-</div>
 
 #### Spatial dimension vs depth
 
