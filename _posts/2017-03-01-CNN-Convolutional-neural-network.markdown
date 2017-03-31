@@ -9,3 +9,27 @@ date: 2017-03-01 12:00:00
 **This is work in progress... The content needs major editing.**
 
 
+<div class="imgcap">
+<img src="/assets/cnn/cnn3d.png" style="border:none;">
+</div>
+
+<div class="imgcap">
+<img src="/assets/cnn/cnn3d2.png" style="border:none;">
+</div>
+
+<div class="imgcap">
+<img src="/assets/cnn/cnn3d3.png" style="border:none;">
+</div>
+
+<div class="imgcap">
+<img src="/assets/cnn/cnn3d4.png" style="border:none;">
+</div>
+
+<div class="imgcap">
+<img src="/assets/cnn/cnn3d5.png" style="border:none;">
+</div>
+
+
+<div class="imgcap">
+<img src="/assets/cnn/cnn3d6.png" style="border:none;">
+</div>

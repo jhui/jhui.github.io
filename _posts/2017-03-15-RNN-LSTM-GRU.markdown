@@ -756,7 +756,7 @@ $$
 \tilde{h_{t}} = \tanh (W_{x} X_t + W_{h} \cdot (gate_r \cdot h_{t-1}) + b)
 $$
 
-In GRU, it combines both input gate and forget gate into one update gate and update $$ h_t $$ with the new gate:
+In GRU, it combines both input gate and forget gate into one update gate and update $$ h_t $$ with:
 
 $$
 gate_{update} = \sigma (W_{x} X_t + W_{h} h_{t-1} + b) 
