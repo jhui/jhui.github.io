@@ -2,11 +2,21 @@
 layout: post
 comments: true
 mathjax: true
-title: “CNN Convolution networks tutorial”
+title: “Convolution neural networks (CNN) tutorial”
 excerpt: “Convolutional networks explore features by discover its spatial information. This tutorial will build CNN networks for visual recognition.”
 date: 2017-03-01 12:00:00
 ---
 **This is work in progress... The content needs major editing.**
+
+### Overview
+In a fully connected networks, all nodes in a layer is fully connected to all the nodes in the previous layer. This produces a complex model to explore all possible connections among nodes. But the complexity pays a high price of how easy to train the network and how deep the network can be. For spatial data like image, this complexity provides no additional benefits since most features are localized.
+
+<div class="imgcap">
+<img src="/assets/cnn/ppl.png" style="border:none;">
+</div>
+
+
+
 
 
 ### Convolution neural netword (CNN)
