@@ -18,23 +18,47 @@ In a fully connected networks, all nodes in a layer is fully connected to all th
 For face detection, the area of interested are all localized. Convolution neural networks apply small size filter to explore the images.The number of trainable parameters are significantly smaller and therefore allow CNN to use many filters to extract interested features. 
 
 ### Filters
-Filters are frequently apply to images for different purposes. Our visual system applies edge detection filters to recognize object.
+Filters are frequently apply to images for different purposes. Human visual system applies edge detection filters to recognize object.
 
 <div class="imgcap">
 <img src="/assets/cnn/edge.png" style="border:none;">
 </div>
 
-For example, to blur an image, we can apply a 3x3 filter as follows:
+For example, to blur an image, we can apply a 3x3 filter over every pixels in the image:
 <div class="imgcap">
 <img src="/assets/cnn/filter_b.png" style="border:none;">
 </div>
 
+We start from the upper left corner of the image and apply the 3x3 filter to calculate the new value for the pixel. We move the filter 1 pixel to the right and repeat the process until we reach the edge. Then we go back to the left and move the filter one pixel down.  
+
+<div class="imgcap">
+<img src="/assets/cnn/stride.png" style="border:none;">
+</div>
+
+<div class="imgcap">
+<img src="/assets/cnn/stride2.png" style="border:none;">
+</div>
+
+<div class="imgcap">
+<img src="/assets/cnn/padding.png" style="border:none;">
+</div>
+
+
 ### Convolution neural network (CNN)
-A convolution neural network compose of convolution layers and fully connected layers.
+A convolution neural network composes of convolution layers and fully connected layers. Filters are applied to the image followed by pooling to reduce the spatial dimension. After that, we apply fully connected layers.
+
+<div class="imgcap">
+<img src="/assets/cnn/conv_layer.png" style="border:none;width:70%">
+</div>
 
 #### Convolution layers
+We can apply multiple convolution filters to an image and then reduce each output with a maxium pool.
 
-The convolution layer applies filters to the previous layer and sub-sampling the layer by maximum pool to reduce the spatial dimension. In the example below, we applies k filters to the original images and then reduce it spatial dimension by half using a 2x2 maximum pool.
+Apply maximum pool for sub-sampling:
+<div class="imgcap">
+<img src="/assets/cnn/pooling.png" style="border:none;">
+</div>
+
 <div class="imgcap">
 <img src="/assets/cnn/conv_layer2.png" style="border:none;width:50%">
 </div>
@@ -45,10 +69,6 @@ Apply k filters:
 <img src="/assets/cnn/filter_m.png" style="border:none;width:70%">
 </div>
 
-Apply maximum pool for sub-sampling:
-<div class="imgcap">
-<img src="/assets/cnn/pooling.png" style="border:none;">
-</div>
 
 
 
@@ -63,9 +83,6 @@ Apply maximum pool for sub-sampling:
 </div>
 
 #### Convolutional pyramid
-<div class="imgcap">
-<img src="/assets/cnn/conv_layer.png" style="border:none;">
-</div>
 
 
 <div class="imgcap">
@@ -78,18 +95,6 @@ Apply maximum pool for sub-sampling:
 
 #### Filter
 
-<div class="imgcap">
-<img src="/assets/cnn/padding.png" style="border:none;">
-</div>
-
-
-<div class="imgcap">
-<img src="/assets/cnn/stride.png" style="border:none;">
-</div>
-
-<div class="imgcap">
-<img src="/assets/cnn/stride2.png" style="border:none;">
-</div>
 
 
 #### Spatial dimension vs depth
