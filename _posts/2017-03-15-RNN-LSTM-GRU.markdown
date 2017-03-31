@@ -766,4 +766,5 @@ $$
 h_t = (1 - gate_{update}) \cdot h_{t-1} +  gate_{update} \cdot \tilde{h_{t}}
 $$
 
-
+### Credits
+For the RNN/LSTM demonstration, we use the same RNN and LSTM example used in the Stanford class "CS231n Convolutional Neural Networks for Visual Recognition". For the coding, we start with the corresponding assignment 3 and we fill with our RNN and LSTM code to complete the assignment.
