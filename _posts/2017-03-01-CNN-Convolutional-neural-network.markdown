@@ -42,21 +42,28 @@ However, we may encounter some problem on the edge. For example, on the top left
 
 For a CNN, sometimes we do not move the filter only by 1 pixel. If we move the filter 2 pixels to the right, we call the "X stride" equal to 2.
 <div class="imgcap">
-<img src="/assets/cnn/stride2.png" style="border:none;">
+<img src="/assets/cnn/stride2.png" style="border:none;width:50%">
 </div>
 
 Notice that both padding and stride may change the spatial dimension of the output. A stride of 2 in X direction will reduce X-dimension by 2. Without padding, the output shrink by N pixels which N is:
 
 $$
-N = \fract {\text{filter size} - 1} {2}
+N = \frac {\text{filter size} - 1} {2}
 $$
 
 ### Convolution neural network (CNN)
-A convolution neural network composes of convolution layers and fully connected layers. Filters are applied to the image followed by pooling to reduce the spatial dimension. After that, we apply fully connected layers.
+A convolution neural network composes of convolution layers, polling layers and fully connected layers(FC). 
 
 <div class="imgcap">
 <img src="/assets/cnn/conv_layer.png" style="border:none;width:70%">
 </div>
+
+When we process the image, we apply many filters which each will geneate an output that we call **feature map**. If k features map are created, we call the feature maps have a depth of k.
+
+<div class="imgcap">
+<img src="/assets/cnn/conv_layer2.png" style="border:none;width:50%">
+</div>
+
 
 #### Convolution layers
 We can apply multiple convolution filters to an image and then reduce each output with a maxium pool.
@@ -66,9 +73,6 @@ Apply maximum pool for sub-sampling:
 <img src="/assets/cnn/pooling.png" style="border:none;">
 </div>
 
-<div class="imgcap">
-<img src="/assets/cnn/conv_layer2.png" style="border:none;width:50%">
-</div>
 
 #### Filters
 Apply k filters:
