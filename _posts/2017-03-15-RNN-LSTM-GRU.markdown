@@ -10,16 +10,16 @@ date: 2017-03-15 12:00:00
 
 ### Recurrent Neural Network (RNN)
 
-If convolution networks are deep networks for images, recurrent networks are networks for the time sequence data, like speeh or natural language. For example, the more advanced LSTM and GRU networks are popular for the natural language processing (NLP). But to illustrate the core ideas, we will look into a simplier network called Recurrent neural netwok (RNN).
+If convolution networks are deep networks for images, recurrent networks are networks for the time sequence data, like speeh or natural language. For example, both LSTM and GRU networks based on the recurrent network are popular for the natural language processing (NLP). For both Google home and Amazon Alexa, recurrent networks are heavily applied. To illustrate the core ideas, we will look into the Recurrent neural netwok (RNN) before explaining LSTM & GRU.
 
-In a fully connected network, we model h as 
+In deep learning, we model h In a fully connected network as (where $$ X_i $$ is the input)
 
 $$
 h = f(X_i)
 $$
 
 
-For time sequence data, besides the input, we maintain a hidden state representing the features in the previous time sequence. Hence, to make prediction at time step t, we takes both input $$ X_t $$ and the hidden state from the previous time step $$ h_{t-1}$$ to compute:
+For time sequence data, we also maintain a hidden state representing the features (information) in the previous time sequence. Hence, to make a word prediction at time step t in speech recognition, we takes both input $$ X_t $$ and the hidden state from the previous time step $$ h_{t-1}$$ to compute $$ h_t $$:
 
 $$
 h_t = f(x_t, h_{t-1})
@@ -29,156 +29,68 @@ $$
 <img src="/assets/rnn/rnn_b.png" style="border:none;width:60%;">
 </div>
 
-The following unroll the time step 
-$$
-t
-$$
-which take the hidden state
-$$
-h_{t-1} 
-$$
-and input
-$$
-X_t
-$$ 
-to compute 
-$$
-h_t
-$$
+We can unroll the time step $$ t $$ which take the hidden state $$ h_{t-1} $$ and input $$ X_t $$  to compute $$ h_t $$.
+
 <div class="imgcap">
 <img src="/assets/rnn/rnn_b3.png" style="border:none;width:35%;">
 </div>
 
-Here we unroll a RNN from time step 
-$$
-t-1
-$$ 
- to 
-$$
-t+1
-$$
-:
+To give another perspective, we unroll a RNN from time step $$ t-1 $$ to $$ t+1 $$:
 <div class="imgcap">
 <img src="/assets/rnn/rnn_b2.png" style="border:none;width:60%;">
 </div>
 
-In a FC network, 
-$$
-h
-$$
-servers as the output of the network. In RNN, 
-$$
-h
-$$
-servers 2 purposes: the hidden state for the previous sequence data as well as producing a prediction. Here we map the hidden state 
-$$
-h_t
-$$
-to a final prediction. For example, multiply 
-$$
-h_t
-$$
-with the matrix
-$$
-W
-$$
-to produce the desired predictions
-$$
-Y
-$$.
+In a fully connected (FC) network, $$ h $$ servers as the output of the network. In RNN, $$ h $$ servers 2 purposes: the hidden state for the previous sequence data as well as making a prediction. In the following example, we multiply $$ h_t $$ with a matrix $$ W $$ to make a prediction for $$ Y $$. Through the multiplication with a matrix, $$ h_t $$ can make a prediction for the word that a user is pronouncing. 
  
 <div class="imgcap">
 <img src="/assets/rnn/cap14.png" style="border:none;width:30%;">
 </div>
 
 #### Create image caption using RNN
-We will study a real example in explaing the RNN. For example, we input a school bus image into the RNN and output a caption like "A yellow school bus idles near a park." Our RNN will read an image and create an image caption.
+Let's study a real example to study RNN in details. We want our system to automatica provide captions by simply reading an image.
+For example, we input a school bus image into a RNN and the RNN will produce a caption like "A yellow school bus idles near a park." 
 <div class="imgcap">
 <img src="/assets/rnn/cap.png" style="border:none;">
 </div>
 During the RNN training, we
 1. Use a CNN network to capture features of an image.
-2. Multiple the features with a trainable matrix to generate
-$$
-h_0
-$$
-3. Feed 
-$$ 
-h_0
-$$
-to the RNN.
-4. Use a word embedding lookup table to convert a word to a word vector 
-$$
-X_1
-$$
-. (a.k.a word2vec)
-5. Feed the word vector and
-$$
-h_0
-$$ to the RNN.
-$$
-h_1 = f(X_1, h_0)
-$$
-6. Use a trainable matrix to map 
-$$
-h
-$$
-to scores which predict the probabilities of
-$$
-word_i
-$$
-to be the next caption word.
-7. Move to the next time step with 
-$$
-h_1
-$$ 
-and the word "A" as input.
+2. Multiple the features with a trainable matrix to generate $$ h_0 $$.
+3. Feed $$ h_0 $$ to the RNN.
+4. Use a word embedding lookup table to convert a word to a word vector $$ X_1 $$. (a.k.a word2vec)
+5. Feed the word vector and $$ h_0 $$ to the RNN. $$ h_1 = f(X_1, h_0) $$
+6. Use a trainable matrix to map $$ h $$ to scores which predict the next word in our caption.
+7. Move to the next time step with $$ h_1 $$ and the word "A" as input.
 
 <div class="imgcap">
 <img src="/assets/rnn/cap12.png" style="border:none;;">
 </div>
 
 #### Capture image features
-We pass the image into a CNN and use one of the activation layer in the fully connected (FC) network to initialize the RNN. For example, in the picture below, we pick the input of the second FC layer which has a shape of (512,) as the features used to create captions.
-
+We pass the image into a CNN and use one of the activation layer in the fully connected (FC) network to initialize the RNN. For example, in the picture below, we pick the input of the second FC layer to compute the initial state of the RNN $$ h_0 $$.
 <div class="imgcap">
 <img src="/assets/rnn/cnn.png" style="border:none;;">
 </div>
 
-We multiple the CNN features with a trainable matrix to compute
-$$
-h_0
-$$
-for the first time step 1.
-
+We multipy the CNN image features with a trainable matrix to compute $$ h_0 $$ for the first time step 1.
 <div class="imgcap">
 <img src="/assets/rnn/cap2.png" style="border:none;">
 </div>
 
-We will use 
-$$
-h_0
-$$
-for the RNN to compute
-$$
-h_1 = f(h_0, X_1)
-$$
+With $$ h_0 $$, we  compute $$ h_1 = f(h_0, X_1) $$ for time step 1.
 
 <div class="imgcap">
 <img src="/assets/rnn/cap8.png" style="border:none;width:80%;">
 </div>
 
-Define the shape of CNN features (N, 512) and h (N, 512) which N is the batch size in training:
+#### Code in computing h0
+
+Define the shape of CNN image features (N, 512) and h (N, 512):
 ```python
 input_dim   = 512   # CNN features dimension: 512  
 hidden_dim  = 512   # Hidden state dimension: 512
 ```
 
-Define the matrix to project the CNN features to 
-$$
-h_0
-$$
-.
+Define a matrix to project the CNN image features to $$ h_0 $$.
 
 ```python
 # W_proj: (input_dim, hidden_dim)
