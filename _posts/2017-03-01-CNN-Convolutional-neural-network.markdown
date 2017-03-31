@@ -18,17 +18,21 @@ In a fully connected networks, all nodes in a layer is fully connected to all th
 For face detection, the area of interested are all localized. Convolution neural networks apply small size filter to explore the images.The number of trainable parameters are significantly smaller and therefore allow CNN to use many filters to extract interested features. 
 
 ### Filters
-Filters are frequent apply to images for different purpose. Our visual system also apply filters like edge detection to recognize object.
+Filters are frequent apply to images for different purposes. Our visual system applies filters like edge detection to recognize object.
 
 <div class="imgcap">
 <img src="/assets/cnn/blur.jpg" style="border:none;width:60%;">
 </div>
 
 <div class="imgcap">
-<img src="/assets/cnn/edge.jpg" style="border:none;width:60%">
+<img src="/assets/cnn/edge.png" style="border:none;width:60%">
 </div>
 
-For example, to blur an image.
+For example, to blur an image, we can apply a 3x3 filter as follows:
+<div class="imgcap">
+<img src="/assets/cnn/filter_b.png" style="border:none;width:60%">
+</div>
+
 
 ### Convolution neural netword (CNN)
 <div class="imgcap">
