@@ -18,11 +18,7 @@ In a fully connected networks, all nodes in a layer is fully connected to all th
 For face detection, the area of interested are all localized. Convolution neural networks apply small size filter to explore the images.The number of trainable parameters are significantly smaller and therefore allow CNN to use many filters to extract interested features. 
 
 ### Filters
-Filters, like blur, edge detection, are frequent apply to images for different purposes. Our visual system applies edge detection filters to recognize object.
-
-<div class="imgcap">
-<img src="/assets/cnn/blur.jpg" style="border:none;">
-</div>
+Filters are frequently apply to images for different purposes. Our visual system applies edge detection filters to recognize object.
 
 <div class="imgcap">
 <img src="/assets/cnn/edge.png" style="border:none;">
@@ -38,16 +34,15 @@ A convolution neural network compose of convolution layers and fully connected l
 
 #### Convolution layers
 
-The convolution layer applies filters to the previous layer and then pooling for sub-sampling to reduce the spatial dimension. In the example below, we applies k filters to the original images and then reduce it spatial dimension by half using a 2x2 maximum pool.
+The convolution layer applies filters to the previous layer and sub-sampling the layer by maximum pool to reduce the spatial dimension. In the example below, we applies k filters to the original images and then reduce it spatial dimension by half using a 2x2 maximum pool.
 <div class="imgcap">
 <img src="/assets/cnn/conv_layer2.png" style="border:none;width:50%">
 </div>
 
 #### Filters
-
 Apply k filters:
 <div class="imgcap">
-<img src="/assets/cnn/filter_m.png" style="border:none;width:30%">
+<img src="/assets/cnn/filter_m.png" style="border:none;width:70%">
 </div>
 
 Apply maximum pool for sub-sampling:
