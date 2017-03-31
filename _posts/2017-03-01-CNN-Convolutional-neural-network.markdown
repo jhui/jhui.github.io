@@ -29,19 +29,26 @@ For example, to blur an image, we can apply a 3x3 filter over every pixels in th
 <img src="/assets/cnn/filter_b.png" style="border:none;">
 </div>
 
-We start from the upper left corner of the image and apply the 3x3 filter to calculate the new value for the pixel. We move the filter 1 pixel to the right and repeat the process until we reach the edge. Then we go back to the left and move the filter one pixel down.  
-
+We move the fiter 1 pixel at a time from left to right and top to bottom until we re-computed every pixels.
 <div class="imgcap">
-<img src="/assets/cnn/stride.png" style="border:none;">
+<img src="/assets/cnn/stride.png" style="border:none;width:50%">
 </div>
 
+However, we may encounter some problem on the edge. For a 3x3 filter, we may ignore the edge and geneate an image with width and height reduce by 2 pixels. Otherwise, we can pack extra 0 or replicate the edge of the origina image (blue square). All these settings are configurable as "padding" in a CNN. 
+<div class="imgcap">
+<img src="/assets/cnn/padding.png" style="border:none;width:50%">
+</div>
+
+For a CNN, sometimes we do not move the filter only by 1 pixel. If move the filter 2 pixels to the right, we call the "X stride" equal to 2.
 <div class="imgcap">
 <img src="/assets/cnn/stride2.png" style="border:none;">
 </div>
 
-<div class="imgcap">
-<img src="/assets/cnn/padding.png" style="border:none;">
-</div>
+Hence both padding and stride changes the spatial dimension of the output. A stride of 2 in both X and Y direction will reduce the output by 4. Without padding, the output shrink by N pixels:
+
+$$
+N = \fract {\text{filter size} - 1} {2}
+$$
 
 
 ### Convolution neural network (CNN)
