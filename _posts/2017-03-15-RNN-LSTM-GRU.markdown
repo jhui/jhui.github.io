@@ -4,7 +4,7 @@ comments: true
 mathjax: true
 title: “RNN, LSTM and GRU tutorial”
 excerpt: “This tutorial covers the RNN, LSTM and GRU networks that are widely popular for deep learning in NLP.”
-date: 2017-03-01 12:00:00
+date: 2017-03-15 12:00:00
 ---
 **This is work in progress... The content needs major editing.**
 
@@ -580,7 +580,7 @@ $$ h_t $$ in RNN serves 2 purpose:
 * Make an output prediction, and
 * Be a hidden state representing the information in the sequence data process so far.
 
-This actually serve 2 different purposes and therefore LSTM breaks $$ h_t $$ into 2 according to the roles above. The hidden state of the LSTM cell will now be $$ C $$.
+This actually serve 2 different purposes and LSTM breaks $$ h_t $$ into 2 according to the roles above. The hidden state of the LSTM cell will now be $$ C $$.
 
 <div class="imgcap">
 <img src="/assets/rnn/lstm.png" style="border:none;width:50%;">
@@ -746,26 +746,24 @@ def lstm_step_forward(x, prev_h, prev_c, Wx, Wh, b):
 
 ### Gated Recurrent Units (GRU)
 
-For GRU, it does not maintain a $$ C $$ hidden state. In each time step, it does compute the new information by:
+For GRU, it does not maintain a $$ C $$ hidden state. In each time step, it compute the new information by:
 
 $$
 gate_r = \sigma (W_{x} X_t + W_{h} h_{t-1} + b) 
 $$ 
 
 $$
-\tilde{h_{t}} = \tanh ((W_{x} X_t + W_{h} \cdot (gate_r \cdot h_{t-1}) + b))
+\tilde{h_{t}} = \tanh (W_{x} X_t + W_{h} \cdot (gate_r \cdot h_{t-1}) + b)
 $$
 
-In GRU, it combines both input gate and forget gate into one update gate:
+In GRU, it combines both input gate and forget gate into one update gate and update $$ h_t $$ with the new gate:
 
 $$
 gate_{update} = \sigma (W_{x} X_t + W_{h} h_{t-1} + b) 
 $$ 
 
-Now update $$ h_t $$
-
 $$
-h_t = (1 - gate_{update}) \cdot h_{t_1} +  gate_{update} \cdot \tilde{h_{t}}
+h_t = (1 - gate_{update}) \cdot h_{t-1} +  gate_{update} \cdot \tilde{h_{t}}
 $$
 
 
