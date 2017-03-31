@@ -519,15 +519,21 @@ $$
  
 #### LSTM Equations
 
-It seems there are a lot of equations and indexing in LSTM. But actually, it is fairly simple. Whenever you need to compute a gate, or a new cell state, you multiple $$ X_t $$ and $$ h_{t-1} with the following formula. 
+It seems there are a lot of equations and indexing in LSTM. But actually, it is fairly simple. Whenever you need to compute a gate, or a new cell state, you multiple $$ X_t $$ and $$ h_{t-1} $$ with the following formula. 
  
 $$
 W_{x} X_t + W_{h} h_{t-1} + b
 $$
 
-If it is a gate, use the sigmoid function to turn it to a "on/off" gate. If it is a state, use $$ \tanh $$. We will produce a candidate state $$\tilde{C}$$, 2 gates to compute $$ C $$ and 1 gate for output using the mechanism above with their own set of W and b.
+If it is a gate, use the sigmoid function to turn it to a "on/off" gate. If it is a state, use $$ \tanh $$. 
 
-Finally we need to update the hidden state $$ C $$ and make a output $$ h_t $$.
+Through this mechanism:
+* We produce a candidate state $$\tilde{C}$$ for new information produced at time step t.
+* 2 gates to compute $$ C $$ and 
+* 1 gate for output.
+
+Finally we update the hidden state $$ C $$ and make a output $$ h_t $$.
+
 $$
 C_t = g_{forget} \cdot C_{t-1} + g_{input} \cdot \tilde{C}
 $$
@@ -608,6 +614,7 @@ gate_{update} = \sigma (W_{x} X_t + W_{h} h_{t-1} + b)
 $$ 
 
 Finally, to compute $$ h_t $$
+
 $$
 h_t = (1 - gate_{update}) \cdot h_{t-1} +  gate_{update} \cdot \tilde{h_{t}}
 $$

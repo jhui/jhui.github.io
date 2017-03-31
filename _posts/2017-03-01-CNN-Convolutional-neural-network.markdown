@@ -24,7 +24,7 @@ Filters are frequently apply to images for different purposes. Human visual syst
 <img src="/assets/cnn/edge.png" style="border:none;">
 </div>
 
-For example, to blur an image, we can apply a 3x3 filter over every pixels in the image:
+For example, to blur an image, we can apply a filter with patch size 3x3 over every pixels in the image:
 <div class="imgcap">
 <img src="/assets/cnn/filter_b.png" style="border:none;">
 </div>
@@ -35,7 +35,7 @@ To apply the filter to an image, we move the fiter 1 pixel at a time from left t
 </div>
 
 #### Stride and padding
-However, we may encounter some problem on the edge. For example, on the top left corner, a filter may cover beyond the edge of an image. For a 3x3 filter, we may ignore the edge and geneate an output with width and height reduce by 2 pixels. Otherwise, we can pack extra 0 or replicate the edge of the origina image. All these settings are possible and configurable as "padding" in a CNN. 
+However, we may encounter some problem on the edge. For example, on the top left corner, a filter may cover beyond the edge of an image. For a filter with patch size 3x3, we may ignore the edge and geneate an output with width and height reduce by 2 pixels. Otherwise, we can pack extra 0 or replicate the edge of the origina image. All these settings are possible and configurable as "padding" in a CNN. 
 <div class="imgcap">
 <img src="/assets/cnn/padding.png" style="border:none;width:50%">
 </div>
@@ -45,10 +45,10 @@ For a CNN, sometimes we do not move the filter only by 1 pixel. If we move the f
 <img src="/assets/cnn/stride2.png" style="border:none;width:50%">
 </div>
 
-Notice that both padding and stride may change the spatial dimension of the output. A stride of 2 in X direction will reduce X-dimension by 2. Without padding, the output shrink by N pixels which N is:
+Notice that both padding and stride may change the spatial dimension of the output. A stride of 2 in X direction will reduce X-dimension by 2. Without padding, the output shrink by N pixels:
 
 $$
-N = \frac {\text{filter size} - 1} {2}
+N = \frac {\text{filter patch fsize} - 1} {2}
 $$
 
 ### Convolution neural network (CNN)
@@ -58,7 +58,7 @@ A convolution neural network composes of convolution layers, polling layers and 
 <img src="/assets/cnn/conv_layer.png" style="border:none;width:70%">
 </div>
 
-When we process the image, we apply many filters which each will geneate an output that we call **feature map**. If k features map are created, we call the feature maps have a depth of k.
+When we process the image, we apply filters which each geneate an output that we call **feature map**. If k features map are created, we have feature maps with depth k.
 
 <div class="imgcap">
 <img src="/assets/cnn/filter_m.png" style="border:none;width:70%">
@@ -66,7 +66,7 @@ When we process the image, we apply many filters which each will geneate an outp
 
 #### Pooling
 
-To reduce the spatial dimension of a feature map, we apply maximum pool. A 2x2 maximum pool replace a 2x2 area by its maximum. After apply a 2x2 pool, we reduce the spatial dimension of a 4x4 input to a 2x2 output.
+To reduce the spatial dimension of a feature map, we apply maximum pool. A 2x2 maximum pool replace a 2x2 area by its maximum. After apply a 2x2 pool, we reduce the spatial dimension for the example below from 4x4 to 2x2.
 <div class="imgcap">
 <img src="/assets/cnn/pooling.png" style="border:none;width:50%">
 </div>
@@ -85,13 +85,13 @@ Like deep learning, the depth of the network increases the complexity of a model
 <img src="/assets/cnn/convolution_b1.png" style="border:none;width:70%">
 </div>
 
-The CNN above composes of 3 convolution layer. We start with a 32x32 pixel image with 3 channels (RGB). We first apply a 3x4 filters and a 2x2 max pooling. The output of this layer will be a 16x16x4 feature maps.  Here are the output dimension for each convolution layer:
+The CNN above composes of 3 convolution layer. We start with a 32x32 pixel image with 3 channels (RGB). We apply a 3x4 filters and a 2x2 max pooling which covert the image to 16x16x4 feature maps.  The following table walks through the filter and layer shape at each layer:
 <div class="imgcap">
 <img src="/assets/cnn/cnn_chanl.png" style="border:none">
 </div>
 
-### Fully connected layers
-After using convolution layers to extract the spatial features of an image, we apply fully connected layers for the final classification. First we flatten the output of the convolution layers. For example, if the final features maps have a dimension of 4x4x512, we will flaten it to an array of 4096 elements. We apply 2 more hidden layers here before we perform the final classification.
+### Fully connected (FC) layers
+After using convolution layers to extract the spatial features of an image, we apply fully connected layers for the final classification. First we flatten the output of the convolution layers. For example, if the final features maps have a dimension of 4x4x512, we will flaten it to an array of 4096 elements. We apply 2 more hidden layers here before we perform the final classification. The techniques needed are no difference from a FC network in deep learning.
 
 <div class="imgcap">
 <img src="/assets/cnn/convolution_b2.png" style="border:none;width:50%">
@@ -99,33 +99,35 @@ After using convolution layers to extract the spatial features of an image, we a
 
 ### Convolutional pyramid
 
-For each convolution layer, we reduce the spatial dimension while increase the depth of the feature maps. We call this convolutional pyramid.
+For each convolution layer, we reduce the spatial dimension while increase the depth of the feature maps. Because of the shape, we call this a convolutional pyramid.
 
 <div class="imgcap">
 <img src="/assets/cnn/cnn3d.png" style="border:none;">
 </div>
 
-Here, we reduce the spatial dimension of each convolution layer usually through pooling or for filter stride size > 1.
+Here, we reduce the spatial dimension of each convolution layer through pooling or soemtimes apply a filter stride size > 1.
 <div class="imgcap">
 <img src="/assets/cnn/cnn3d4.png" style="border:none;width:50%">
 </div>
 
-The depth is increased by the number of filters used.
+The depth of the feature map can be increased by applying more filters.
 <div class="imgcap">
 <img src="/assets/cnn/cnn3d2.png" style="border:none;">
 </div>
 
+The core thinking of CNN is to apply small filters to explore spatial feature. The spatial dimension will gradually decrease as we go deep into the network. On the other hand, the depth of the feature maps will increase. It will eventually reach a stage that spatial locality is less important and we can apply a FC network for final analysis.
+
 #### Google inceptions
 
-In our previous discussion, the convolution filter in each layer is of the same size say 3x3. For GoogleNet, Google applies different size of filters to the input and concantente the feature maps together to increase the depth.
+In our previous discussion, the convolution filter in each layer is of the same patch size say 3x3. To increase the depth of the feature maps, we can apply more filters of the same patch size. However, in GoogleNet, it applies a different approach to increase the depth. GoogleNet use different filter patch size with different pooling to create feature maps of the same spatial dimension. Because they are of the same spatial dimension, all the features maps from the same layer can concatentate together to form one single feature maps.
 
-Here we have a 3x3 and a 1x1 filter. The first way generate 8 fetures map while the second one generate 2. We can concantentate them to form maps of depth 10. The inception idea is to increase the depth of the feature map by concantentate feature maps using different size of convolution filters and pooling. 
+Here we have filters with patch size 3x3 and 1x1 . The first set of filters generate 8 features map while the second one generate 2. We can concantentate them to form maps of depth 10. The inception idea is to increase the depth of the feature map by concantentate feature maps using different patch size of convolution filters and pooling. 
 <div class="imgcap">
 <img src="/assets/cnn/inception.png" style="border:none;width:60%">
 </div>
 
 #### Non-linearity and optimization
-Inceptions can be consider as one way to introduce non-linearity into the system. In many CNN, we apply similar layers we learned from deep learning after the convolution filters. This includes batch normalization and/or ReLU before the pooling for each convolution layer.
+Inceptions can be consider as one way to introduce non-linearity into the system. In many CNN, we can apply similar layers we learned from deep learning after the convolution filters. This includes batch normalization and/or ReLU before the pooling for each convolution layer.
 
 #### Fully connected network
 
@@ -142,10 +144,10 @@ After exploring the spatial relationship, we flatten the convolution layer outpu
 ### Tensor code
 We will implement coding for a CNN to classify hand writing for digits (0 to 9).
 
-> We will use TensorFlow to implement a CNN. Nevertheless, the puropose for those curious about the details. Full understand of the coding is not needed or suggested even the code is pretty self explanable.
+> We will use TensorFlow to implement a CNN. Nevertheless, the puropose is for those curious audience that want details. Full understand of the coding is not needed or suggested even the code is pretty self explainable.
 
 #### Construct a CNN
-In the code below, we construct a CNN with 2 convolution layer followed by 2 FC layer and then 1 classifier.
+In the code below, we construct a CNN with 2 convolution layer followed by 2 FC layer and then 1 classifier. Here is where we construct our CNN network.
 ```python
 # Model.
 def model(data):
@@ -196,7 +198,7 @@ return tf.matmul(fc2, classifier_W) + classifier_b
 
 #### CNN configuration:
 
-Here is model configuration. We have 2 Convolution layers both using a filter with patch size 5x5 and generate feature maps with depth 16. The first FC output 256 values while the second output 64.
+Here is our model configuration. We have 2 Convolution layers both using a filter with patch size 5x5 and generate feature maps with depth 16. The first FC output 256 values while the second output 64.
 ```python
 batch_size = 16
 patch_size = 5
@@ -205,7 +207,7 @@ num_hidden1 = 256
 num_hidden2 = 64
 ```
 
-The trainable parameters for CNN layer 1 and 2. For example, the shape of the weight in cnn1 is 5x5x3x16. 5x5 filter patch for RGB channels outputing feature maps with depth 16.
+Here is where we define the trainable parameters for CNN layer 1 and 2. For example, the shape of the weight in cnn1 is 5x5x3x16. It applies 5x5 filter patch for RGB channels which output feature maps with depth 16.
 ```python
 # CNN layer 1 with filter (num_channels, depth) (3, 16)
 cnn1_W = tf.Variable(tf.truncated_normal([patch_size, patch_size, num_channels, depth], stddev=0.1))
