@@ -87,6 +87,9 @@ Apply maximum pool for sub-sampling:
 <img src="/assets/cnn/stride.png" style="border:none;">
 </div>
 
+<div class="imgcap">
+<img src="/assets/cnn/stride2.png" style="border:none;">
+</div>
 
 
 #### Spatial dimension vs depth
