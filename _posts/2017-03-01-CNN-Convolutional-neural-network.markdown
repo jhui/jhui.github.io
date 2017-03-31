@@ -64,15 +64,16 @@ When we process the image, we apply many filters which each will geneate an outp
 <img src="/assets/cnn/conv_layer2.png" style="border:none;width:50%">
 </div>
 
+#### Pooling
 
-#### Convolution layers
-We can apply multiple convolution filters to an image and then reduce each output with a maxium pool.
-
-Apply maximum pool for sub-sampling:
+To reduce the spatial dimension of a feature map, we apply maximum pool. A 2x2 maximum pool replace a 2x2 area by its maximum. After apply a 2x2 pool, we reduce the spatial dimension of a 4x4 input to a 2x2 output.
 <div class="imgcap">
-<img src="/assets/cnn/pooling.png" style="border:none;">
+<img src="/assets/cnn/pooling.png" style="border:none;width:50%">
 </div>
 
+Pooling is often used with a convolution layer. Therefore, we often consider it as part of the convolution layer rather than a separate layer.
+
+#### Convolution layers
 
 #### Filters
 Apply k filters:
