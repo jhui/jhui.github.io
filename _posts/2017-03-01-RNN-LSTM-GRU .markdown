@@ -679,6 +679,8 @@ $$
 g_u =  \sigma (Z_u) 
 $$
   
+Update $$ C $$ and make prediction $$ h_t $$  
+  
 $$
 \tilde{C} = \tanh (Z_{\tilde{C}})
 $$
@@ -742,8 +744,28 @@ def lstm_step_forward(x, prev_h, prev_c, Wx, Wh, b):
   return next_h, next_c, cache
 ```
 
-<div class="imgcap">
-<img src="/assets/rnn/cap6.png" style="border:none;;">
-</div>
-
 ### Gated Recurrent Units (GRU)
+
+For GRU, it does not maintain a $$ C $$ hidden state. In each time step, it does compute the new information by:
+
+$$
+gate_r = \sigma (W_{x} X_t + W_{h} h_{t-1} + b) 
+$$ 
+
+$$
+\tilde{h_{t}} = \tanh ((W_{x} X_t + W_{h} \cdot (gate_r \cdot h_{t-1}) + b))
+$$
+
+In GRU, it combines both input gate and forget gate into one update gate:
+
+$$
+gate_{update} = \sigma (W_{x} X_t + W_{h} h_{t-1} + b) 
+$$ 
+
+Now update $$ h_t $$
+
+$$
+h_t = (1 - gate_{update}) \cdot h_{t_1} +  gate_{update} \cdot \tilde{h_{t}}
+$$
+
+
