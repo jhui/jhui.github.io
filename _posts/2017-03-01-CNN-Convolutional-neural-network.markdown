@@ -14,6 +14,10 @@ date: 2017-03-01 12:00:00
 <img src="/assets/cnn/convolution_b1.png" style="border:none;">
 </div>
 
+<div class="imgcap">
+<img src="/assets/cnn/convolution_b2.png" style="border:none;">
+</div>
+
 #### Convolutional pyramid
 <div class="imgcap">
 <img src="/assets/cnn/conv_layer.png" style="border:none;">
