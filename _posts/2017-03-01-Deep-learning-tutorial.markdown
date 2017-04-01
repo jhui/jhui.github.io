@@ -312,7 +312,7 @@ Then we backprogragate the gradient from the right most layer to the left in one
 <img src="/assets/dl/bp.jpg" style="border:none;">
 </div>
 
-Compute the first paritial derivative $$ \frac{\partial J}{\partial \text{ out}_i} $$ from the right.
+Compute the first paritial derivative $$ \frac{\partial J}{\partial \text{ out}_i} $$ from the right most layer.
 
 $$
 J = \frac{1}{N} \sum_i (out_i - y_i)^2
@@ -323,7 +323,7 @@ J_i = \frac{1}{N} (out_i - y_i)^2
 $$
 
 $$
-\frac{\partial J}{\partial \text{ out}_i} = \frac{2}{N} (out_i - y_i)
+\frac{\partial f}{\partial \text{ out}_i} = \frac{2}{N} (out_i - y_i)
 $$
 
 We add a line of code in the mean square loss to compute $$ \frac{\partial J}{\partial \text{ out}_i} $$
@@ -336,17 +336,41 @@ def mean_square_loss(h, y):
     return loss, dout
 ```
 
-> A clean naming convention avoid problems. In the code, we name the $$ \frac{\partial J}{\partial \text{param}_i} $$ as $$ \text{ dparam} $$
+In DL programing, we often name our backpropagation derivative as:
+
+$$
+\frac{\partial J}{\partial \text{dout}} \text{ as dout}
+$$
+
+$$
+\frac{\partial \text{ f}}{\partial \text{ var}} \text{ as dvar}
+$$
 
 Now we have
 $$
 \frac{\partial J}{\partial out_i}
 $$ 
-. We apply the chain rule to compute the gradient at the second right layer.  (Backpropagate the gradient from right to left.)
+. We apply the chain rule to backpropagate the gradient one more layer to the left to compute $$ \frac{\partial J}{\partial W} = dW $$ and $$ \frac{\partial J}{\partial b} = db $$.
+
+<div class="imgcap">
+<img src="/assets/dl/bp3.jpg" style="border:none;width:60%">
+</div>
+
+<div class="imgcap">
+<img src="/assets/dl/bp2.jpg" style="border:none;width:60%">
+</div>
+
+Chain rule:
 
 $$
 \frac{\partial J}{\partial W} = \frac{\partial J}{\partial out} \frac{\partial out}{\partial W}  
 $$ 
+
+$$
+\frac{\partial J}{\partial b} = \frac{\partial J}{\partial out} \frac{\partial out}{\partial b}  
+$$ 
+
+We start from the equation to compute $$ out $$, we take the partial derivative
 
 $$
 out = W * X + b
@@ -355,6 +379,8 @@ $$
 $$
 \frac{\partial out}{\partial W}  = X
 $$ 
+
+Apply the chain rule:
 
 $$
 \frac{\partial out}{\partial b}  = 1
@@ -368,23 +394,6 @@ $$
 \frac{\partial J}{\partial b} = \frac{\partial J}{\partial out}
 $$ 
 
-<div class="imgcap">
-<img src="/assets/dl/bp3.jpg" style="border:none;">
-</div>
-
-<div class="imgcap">
-<img src="/assets/dl/bp2.jpg" style="border:none;">
-</div>
-
-In DL programing, we often name
-
-$$
-\frac{\partial J}{\partial \text{dout}} \text{ as dout}
-$$
-
-$$
-\frac{\partial \text{ next}}{\partial \text{ current}} \text{ as dcurrent}
-$$
 
 Here is the code computing
 $$
