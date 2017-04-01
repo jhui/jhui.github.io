@@ -312,7 +312,7 @@ Then we backprogragate the gradient from the right most layer to the left in one
 <img src="/assets/dl/bp.jpg" style="border:none;width:80%">
 </div>
 
-Compute the first paritial derivative $$ \frac{\partial J}{\partial \text{ out}_i} $$ from the right most layer.
+Compute the first paritial derivative $$ \frac{\partial J}{\partial out_i} $$ from the right most layer.
 
 $$
 J = \frac{1}{N} \sum_i (out_i - y_i)^2
@@ -323,10 +323,11 @@ J_i = \frac{1}{N} (out_i - y_i)^2
 $$
 
 $$
-\frac{\partial f}{\partial \text{ out}_i} = \frac{2}{N} (out_i - y_i)
+\frac{\partial f}{\partial out_i} = \frac{2}{N} (out_i - y_i)
 $$
 
-We add a line of code in the mean square loss to compute $$ \frac{\partial J}{\partial \text{ out}_i} $$
+We add a line of code in the mean square loss to compute $$ \frac{\partial J}{\partial out_{i}} $$
+
 ```python
 def mean_square_loss(h, y):
     # h: prediction (N,)
@@ -361,6 +362,10 @@ $$
 </div>
 
 Apply chain rule:
+
+$$
+J = \frac{1}{N} \sum_i (out_i - y_{i})^2
+$$
 
 $$
 \frac{\partial J}{\partial W} = \frac{\partial J}{\partial out} \frac{\partial out}{\partial W}  
@@ -399,6 +404,7 @@ Here is the code computing
 $$
 dW, db
 $$
+
 
 ```python
 def forward(x, W, b):
@@ -510,39 +516,40 @@ print(f"b = {b}")
 
 #### General principle in backpropagation
 
-Students in a DL class spend a lot of time in backprogation in their assignments. With vectorization and some ad hoc functions, the process is not difficult but error prone. Let's summaries the step above again with some tips.
+Machine learning library provides pre-built layer with feed forward and backpropagation. But many DL class assignment spend un-proportional amount of time in it. With vectorization and some ad hoc functions, the process is error prone but not necessary hard. Let's summaries the step above again with some tips.
 
 Draw the forward pass and backpropagation pass with clear notication of variables, functions and the shape.
 
 <div class="imgcap">
-<img src="/assets/dl/fp.jpg" style="border:none;width:50%">
+<img src="/assets/dl/fp.jpg" style="border:none;width:60%">
 </div>
 
 <div class="imgcap">
-<img src="/assets/dl/fp.jpg" style="border:none;width:50%">
+<img src="/assets/dl/bp.jpg" style="border:none;width:60%">
 </div>
 
-Perform a forwad pass for the output and the cost:
+Perform a forwad pass to calculate the output and the cost:
 
 $$
-out = W_1* X_1 + W_2*X_2 + b
+out = W_1 \cdot  X_{1}  + W_2 \cdot X_{2} + b
 $$
 
 $$
-J = \frac{1}{N} \sum_i (out - y_i)^2
+J = \frac{1}{N} \sum_i (out - y_{i})^2
 $$
 
 Find the partial derviative of the cost:
 
 $$
-J = \frac{1}{N} \sum_i (out_i - y_i)^2
+J = \frac{1}{N} \sum_i (out_i - y_{i})^2
 $$
 
 $$
-\frac{\partial J}{\partial \text{ out}} = \frac{2}{N} (out - y)
+\frac{\partial J}{\partial out} = \frac{2}{N} (out - y)
 $$
 
-Compute the derviate :
+
+For every layer, compute the derviate of the equation :
 
 $$
 out = W * X + b
@@ -556,13 +563,11 @@ $$
 \frac{\partial out}{\partial b}  = 1
 $$ 
 
-Find the total gradient with the chain rule:
+Find the total gradient with the chain rule from right to left:
 
 $$
-\frac{\partial J}{\partial \text{l}_{k-1}} = \frac{\partial J}{\partial \text{l}_{k}} \frac{\partial \text{l}_k}{\partial \text{l}_{k-1}}  
+\frac{\partial J}{\partial l_{k-1}} = \frac{\partial J}{\partial l_{k}} \frac{\partial l_k}{\partial l_{k-1}}  
 $$ 
-
-
 
 In backprogragation, we may backprogate multiple path back to the same node. To compute the gradient correctly, we need to add both path together:
 <div class="imgcap">
@@ -570,7 +575,7 @@ In backprogragation, we may backprogate multiple path back to the same node. To 
 </div>
 
 $$
-\frac{\partial J}{\partial o_3}  = \frac{\partial J}{\partial o_4} \frac{\partial f_4} {\partial o_3} *+ \frac{\partial J}{\partial o_5} \frac{\partial f_4} {\partial o_3} 
+\frac{\partial J}{\partial o_3}  = \frac{\partial J}{\partial o_4} \frac{\partial f_4} {\partial o_3} *+ \frac{\partial J}{\partial o_5} \frac{\partial f_4} {\partial o_{3}} 
 $$
 
 Backprogation is tedious and error prone. But most of the time, it is because we lost track of the notations and index.
@@ -581,7 +586,7 @@ Backprogation is tedious and error prone. But most of the time, it is because we
 </div>
 
 $$
-\frac{\partial J}{\partial \text{ out}_i} = \frac{2}{N} (out_i - y_i)
+\frac{\partial J}{\partial \text{ out}_i} = \frac{2}{N} (out_i - y_{i})
 $$
 
 ### Trouble shooting
