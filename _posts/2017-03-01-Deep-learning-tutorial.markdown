@@ -694,13 +694,13 @@ $$
 g(f(x)) = U(Wx+b) + c = Vx + d
 $$
 
-After some thoughts, we apply the following to Pieter's data.
+After some thoughts, we apply the following to the output of a computation node.
 
 $$
 f(x) = max(0, x)
 $$
 
-As shown below, we should be able to construct a non-linear function addressing Pieter's requirement.
+With this function, in theory, we can construct the non-linear relations that Pieter wants.
 <div class="imgcap">
 <img src="/assets/dl/l1.png" style="border:none;width:80%">
 </div>
@@ -709,18 +709,18 @@ Adding both output:
 <img src="/assets/dl/l2.png" style="border:none;width:80%">
 </div>
 
-Add a non-linear function after a linear equation can enrich the complexity of out model.  The common one are sigmoid, tanh and ReLU.
+Add a non-linear function after a linear equation can enrich the complexity of our model. These methods are usually call activation function. Common functions are sigmoid, tanh and ReLU.
  
 #### Sigmoid
-Sigmoid is one of the earliest function used in a deep network. Simoid is popular as an "on/off" gate.
-However, for other purpose, ReLU has mostly replaced the use of sigmoid. 
+Sigmoid is one of the earliest function used in deep networks. Neverthless, its importance is gradually replaced by other functions like ReLU. Currently, sigmoid function is more popular as a gating function in LSTM/GRU (an "on/off" gate) to selectively remember or forget information.  
 
 <div class="imgcap">
 <img src="/assets/dl/sigmoid.png" style="border:none;width:50%">
 </div>
 
 #### ReLU
-One of the popular non-linear function.
+ReLU is one of the most popular activation function. Its popularity arries because it works better with gradient descent. It takes less time to train with better accuracies than sigmoid.
+
 <div class="imgcap">
 <img src="/assets/dl/relu.png" style="border:none;width:50%">
 </div>
@@ -731,7 +731,7 @@ Popular for output prefer to be within [-1, 1]
 <img src="/assets/dl/tanh.png" style="border:none;width:50%">
 </div>
 
-Code implement those functions
+Implement these functions with python and numpy.
 ```python
 import numpy as np
 import matplotlib.pyplot as plt
@@ -764,7 +764,10 @@ plt.axhline(y=0, color="0.8")
 plt.show()
 
 ```
-The following is the code to perform forward feed and backpropagation for ReLU function.
+
+### Feed forward and backpropagation for sigmoid and ReLU
+
+The derivative for ReLU function:
 
 $$
 f(x)=\text{max}(0,x)
@@ -780,13 +783,13 @@ f'(x)=
 \end{equation}
 $$
 
-For sigmoid:
+The derivative for sigmoid:
 
 $$
 \sigma (x) = \frac{1}{1+e^{-x}}
 $$
 
-With some calculus, we can find the derviative of sigmoid as:
+With some calculus:
 
 $$
 \frac{d\sigma (x)}{d(x)} = \sigma (x)\cdot (1-\sigma(x))
@@ -819,7 +822,7 @@ Let's apply all our knowledge so far to build a fully connected network as follo
 <img src="/assets/dl/fc_net.png" style="border:none;">
 </div>
 
-With each nodes in the hidden layer (except the last one), we apply:
+For each nodes in the hidden layer (except the last layer), we apply:
 
 $$
 z_j = \sum_{i} W_{ij} x_{i} + b_{i}
@@ -829,9 +832,9 @@ $$
 h(z_j)=\text{max}(0,z_{j})
 $$
 
-But the one before the output, we apply the linear equation but not the ReLU equation.
+For the layer before the output, we apply the linear equation but not the ReLU equation.
 
-Here is the code performaing the forward pass
+Here is the code performaing the forward pass with 4 hidden layers:
 ```python
 z1, cache_z1 = affine_forward(X, W[0], b[0])
 h1, cache_relu1 = relu_forward(z1)
@@ -973,6 +976,7 @@ for i in range(iteration):
     if i%20000==0:
         print(f"iteration {i}: loss={loss:.4}")
 ```
+
 We also generate some testing data to measure how well our model can predict.
 ```python
 TN = 100
@@ -992,34 +996,30 @@ print(f"testing: loss (compare with Oracle)={loss_model:.6}")
 print(f"testing: loss (compare with sample)={loss_sample:.4}")
 ```
 
-We plot the result with our predicted value from our computed model vs the one from the true model. (The model from the Oracle.) In this first model, we have 2 hidden layers. We fix the number of years in education to 22 and plot how the number of dates varied with income.The orange line is what we may predicted from our model, the blue dot is from Oracle and orange dot is where we add some noise to the Oracle model when we create the training data. The data match pretty well with each other.
+We plot the result with our predicted value from our computed model vs the one from the true model. (The model from the Oracle.) In this first model, we have 2 hidden layers. When making prediction, we fix the number of years in education to 22, and plot how the number of dates varied with income.The orange line is what we may predicted from our model, the blue dot is from the Oracle, and orange dot is when we add some noise to the Oracle model for the training dataset. The data match pretty well with each other.
 <div class="imgcap">
-<img src="/assets/dl/fc_2l.png" style="border:none;">
+<img src="/assets/dl/fc_2l.png" style="border:none;width:60%">
 </div>
 
-Now we are increasing the hidden layer from 2 to 4. We find that our prediction slightly different from the true model. And it takes more time to train it and more tuning to make it correct. When we plot it in 3D with variable income and eduction, we realized some part of the 2D plain is bended instead of flat.
+Now we increase the hidden layer from 2 to 4. We find that our prediction accuracy drops. And it takes more time to train and more tuning. When we plot it in 3D with variable income and eduction, we realized some part of the 2D plain is bended instead of flat.
 <div class="imgcap">
-<img src="/assets/dl/fc_4l.png" style="border:none;">
+<img src="/assets/dl/fc_4l.png" style="border:none;width:60%">
 </div>
 
 <div class="imgcap">
-<img src="/assets/dl/fc_4l2.png" style="border:none;">
+<img src="/assets/dl/fc_4l2.png" style="border:none;width:60%">
 </div>
 
-If you run the program many times, we may find one that make relative bad prediction.
-<div class="imgcap">
-<img src="/assets/dl/fc_4l3.png" style="border:none;">
-</div>
+When we create the training dataset, we add some noise to our true value (# of dates). When we use a more complex model, it also increase its capability to model the noise signal. When we have a large dataset, the effect of noise should cancel out. However, if the training dataset is not big enough and the model is complex, the accuracies in making prediction actually suffer compare with a simplier model. In this exercise, when we increase the model complexity, the model get harder to train and optimize, and the accuracy drops. In genearl, we should always starts with some simple model and increase its complexity later. It is hard to tell whether we need more tuning/iterations or it simpliy not working if we jump into a complex model too soon.
 
-When we create sample data for our training, we add some noise to our true value (the dates). When we build a more complex model, it also increase its capability to model the noise signal. We hope that when we add more samples those noise can cancel each other. But this issue is much harder than we thought. But one thing for sure, when we apply a more complex model, it is much harder to train and far more easy to go wrong. This is why it is good to start with a simple model. This is pretty intutiive but a major source of mistake when we implement DL.
 ```python
 def sample(education, income, verbose=True):
     dates = true_y(education, income)
-    noise =  dates * 0.15 * np.random.randn(education.shape[0]) # Add some noise
+    noise =  dates * 0.15 * np.random.randn(education.shape[0]) # Add some noise to our true model.
     return dates + noise
 ```
 
-We also replace our ReLU function with sigmoid function, we find that it is hard to make it work with our original problem. It is more bended when we visualize it in 3D.
+We also replace our ReLU function with a sigmoid function, we find that it is hard to make it work with our original problem. It is more bended when we visualize it in 3D.
 <div class="imgcap">
 <img src="/assets/dl/fc_si1.png" style="border:none;">
 </div>
