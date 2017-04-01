@@ -1019,12 +1019,13 @@ def sample(education, income, verbose=True):
     return dates + noise
 ```
 
-We also replace our ReLU function with a sigmoid function, we find that it is hard to make it work with our original problem. It is more bended when we visualize it in 3D.
+We also replace our ReLU function with a sigmoid function and plot the same diagram:
+
 <div class="imgcap">
-<img src="/assets/dl/fc_si1.png" style="border:none;">
+<img src="/assets/dl/fc_si1.png" style="border:none;width:60%">
 </div>
 <div class="imgcap">
-<img src="/assets/dl/fc_si2.png" style="border:none;">
+<img src="/assets/dl/fc_si2.png" style="border:none;width:60%">
 </div>
 
 The following is one of the many possible models that we generate using our program with different seeds of W.
