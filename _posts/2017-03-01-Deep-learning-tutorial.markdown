@@ -565,7 +565,7 @@ $$
 Find the total gradient with the chain rule from right to left:
 
 <div class="imgcap">
-<img src="/assets/dl/chain.jpg" style="border:none;width:75%">
+<img src="/assets/dl/chain.png" style="border:none;width:75%">
 </div>
 
 $$
