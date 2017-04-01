@@ -270,7 +270,7 @@ To compute the partial derviatives, $$ \frac{\partial J}{\partial W_i} $$, we ca
 #### Forward pass
 First, we compute the cost in a forward pass:
 <div class="imgcap">
-<img src="/assets/dl/fp.jpg" style="border:none;">
+<img src="/assets/dl/fp.jpg" style="border:none;width:80%">
 </div>
 
 > Keep track of the naming of your input & output, its shape (dimension) and the equations. This is one great tip when you program DL. (N,) means a 1-D array with N elements. (N,1) means 2-D array with N rows each containing 1 element. (N, 3, 4) means a 3D array.
@@ -309,7 +309,7 @@ def mean_square_loss(h, y):
 #### Backpropagation pass
 Then we backprogragate the gradient from the right most layer to the left in one single pass.
 <div class="imgcap">
-<img src="/assets/dl/bp.jpg" style="border:none;">
+<img src="/assets/dl/bp.jpg" style="border:none;width:80%">
 </div>
 
 Compute the first paritial derivative $$ \frac{\partial J}{\partial \text{ out}_i} $$ from the right most layer.
@@ -339,7 +339,7 @@ def mean_square_loss(h, y):
 In DL programing, we often name our backpropagation derivative as:
 
 $$
-\frac{\partial J}{\partial \text{dout}} \text{ as dout}
+\frac{\partial \text{ J}}{\partial \text{ out}} \text{ as dout}
 $$
 
 $$
@@ -350,7 +350,7 @@ Now we have
 $$
 \frac{\partial J}{\partial out_i}
 $$ 
-. We apply the chain rule to backpropagate the gradient one more layer to the left to compute $$ \frac{\partial J}{\partial W} = dW $$ and $$ \frac{\partial J}{\partial b} = db $$.
+. We apply the chain rule to backpropagate the gradient one more layer to the left to compute $$ \frac{\partial J}{\partial W} \text{ as } dW $$ and $$ \frac{\partial J}{\partial b} \text{ as } db $$.
 
 <div class="imgcap">
 <img src="/assets/dl/bp3.jpg" style="border:none;width:60%">
@@ -360,7 +360,7 @@ $$
 <img src="/assets/dl/bp2.jpg" style="border:none;width:60%">
 </div>
 
-Chain rule:
+Apply chain rule:
 
 $$
 \frac{\partial J}{\partial W} = \frac{\partial J}{\partial out} \frac{\partial out}{\partial W}  
@@ -370,7 +370,7 @@ $$
 \frac{\partial J}{\partial b} = \frac{\partial J}{\partial out} \frac{\partial out}{\partial b}  
 $$ 
 
-We start from the equation to compute $$ out $$, we take the partial derivative
+With the equation $$ out $$, we take the partial derviative.
 
 $$
 out = W * X + b
@@ -380,11 +380,11 @@ $$
 \frac{\partial out}{\partial W}  = X
 $$ 
 
-Apply the chain rule:
-
 $$
 \frac{\partial out}{\partial b}  = 1
 $$ 
+
+Apply the chain rule:
 
 $$
 \frac{\partial J}{\partial W} = \frac{\partial J}{\partial out} X
@@ -424,7 +424,7 @@ def compute_loss(X, W, b, y=None):
     return loss, dW, db
 ```
 
-Here is the full listing of the code
+Here is the full listing of the code:
 ```python
 import numpy as np
 
