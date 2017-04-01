@@ -384,7 +384,7 @@ $$
 \frac{\partial out}{\partial b}  = 1
 $$ 
 
-Apply the chain rule:
+Compute the derivative with the chain rule:
 
 $$
 \frac{\partial J}{\partial W} = \frac{\partial J}{\partial out} X
@@ -510,34 +510,59 @@ print(f"b = {b}")
 
 #### General principle in backpropagation
 
-We can genealize the above method to multiple layers:
+Students in a DL class spend a lot of time in backprogation in their assignments. With vectorization and some ad hoc functions, the process is not difficult but error prone. Let's summaries the step above again with some tips.
+
+Draw the forward pass and backpropagation pass with clear notication of variables, functions and the shape.
+
 <div class="imgcap">
-<img src="/assets/dl/bp1.jpg" style="border:none;">
+<img src="/assets/dl/fp.jpg" style="border:none;width:50%">
 </div>
 
-Provide with a cost fumction like:
+<div class="imgcap">
+<img src="/assets/dl/fp.jpg" style="border:none;width:50%">
+</div>
+
+Perform a forwad pass for the output and the cost:
 
 $$
-J(out) = \frac{1}{N} \sum_i (out_i - y_i)^2
+out = W_1* X_1 + W_2*X_2 + b
 $$
 
-Compute the dervative:
+$$
+J = \frac{1}{N} \sum_i (out - y_i)^2
+$$
+
+Find the partial derviative of the cost:
+
+$$
+J = \frac{1}{N} \sum_i (out_i - y_i)^2
+$$
 
 $$
 \frac{\partial J}{\partial \text{ out}} = \frac{2}{N} (out - y)
 $$
 
-Progagate from the right layer to the left using the chain rule one layer at a time:
+Compute the derviate :
 
 $$
-\frac{\partial J}{\partial \text{out}_{k-1}} = \frac{\partial J}{\partial \text{out}_{k}} \frac{\partial \text{out}_k}{\partial \text{out}_{k-1}}  
+out = W * X + b
+$$
+
+$$
+\frac{\partial out}{\partial W}  = X
 $$ 
 
-and, compute
+$$
+\frac{\partial out}{\partial b}  = 1
+$$ 
+
+Find the total gradient with the chain rule:
 
 $$
-\frac{\partial \text{out}_k}{\partial \text{out}_{k-1}}  = \frac{\partial f_{k}}{\partial \text{out}_{k-1}} 
-$$
+\frac{\partial J}{\partial \text{l}_{k-1}} = \frac{\partial J}{\partial \text{l}_{k}} \frac{\partial \text{l}_k}{\partial \text{l}_{k-1}}  
+$$ 
+
+
 
 In backprogragation, we may backprogate multiple path back to the same node. To compute the gradient correctly, we need to add both path together:
 <div class="imgcap">
