@@ -9,24 +9,20 @@ date: 2017-03-01 14:00:00
 **This is work in progress... The content needs major editing.**
 
 ### What is deep learning (DL)?
-**Deep learing is about building a function estimator.** Historically, people describe deep learning (DL) using the neural network in our brain. Indeed, this is where deep learning gets its insight.  Nevertheless, deep learning has out grown this explaination. Once you realize building a deep learning network is about building a function estimator, you will unveil its real potential in AI.
+**Deep learing is about building a function estimator.** Historically, people explains deep learning (DL) using the neural network in our brain. Indeed, this is where deep learning gets its insight.  Nevertheless, deep learning has out grown this explaination. Once you realize building a deep learning network is about building a function estimator, you will unveil its real potential in AI.
  
-Let us build a new andriod named Pieter. Our first task is to teach Pieter how to recognize visual objects. Can the visual system in our brain be replaced by a big function estimator? Can we pass the pixel values of an image to a function and calculate the likeliness that it is a school bus, an airplane or a truck etc ...?
+Let us build a new andriod named Pieter. Our first task is to teach Pieter how to recognize visual objects. Can the visual system in our brain be replaced by a big function estimator? Can we pass the pixel values of an image to a function and calculate the likeliness of seeing a school bus, an airplane or a truck etc ...?
 
 <div class="imgcap">
-<img src="/assets/dl/deep_learner.jpg" style="border:none;">
+<img src="/assets/dl/deep_learner.jpg" style="border:none;width:70%;">
 </div>
 
-Indeed, in our later example of hand writing recognition, we will build a system very similar to the following:
+Indeed, in our later example of image recognition, we will build a system very similar to the following:
 <div class="imgcap">
-<img src="/assets/dl/fc.jpg" style="border:none;">
+<img src="/assets/dl/fc.jpg" style="border:none;width:80%;">
 </div>
 
-For every node, we compute
-$$
-f(x)
-$$ 
-:
+For every node, we compute:
 
 $$
 f(z_j) = \frac{1}{1 + e^{-z_j}}
@@ -38,12 +34,7 @@ $$
 z_j = \sum_{i} W_{ij} x_{i} + b_{i}
 $$
 
-which
-$$
-x_{i}
-$$ 
-represents the output from the previous layer or the pixel value i for the first hidden layer. 
-These equation looks intimidating. But let us go through one example to illustrate how simple it is. For example, with weight W  (0.3, 0.2, 0.4, 0.3), bias b (-0.8) and a grayscale image with just 4 pixels (0.1, 0.3, 0.2, 0.1), the output of the first node circled in red above will be:
+which $$ x_{i} $$ is the input to the node or simply the pixel value if this is the first layer. These equation looks intimidating. But let us go through one example to illustrate how simple it is. For example, with weight W  (0.3, 0.2, 0.4, 0.3), bias b (-0.8) and a grayscale image with just 4 pixels (0.1, 0.3, 0.2, 0.1), the output of the first node circled in red above will be:
 
 $$
 z_j =  0.3*0.1 + 0.2*0.3 + 0.4*0.2 + 0.3*0.1  - 0.8 = -0.6
@@ -56,11 +47,11 @@ $$
 Each node will have its own set of weight (W) and bias (b). From the left most layer, we compute the output of each node and we feed forward the output to the next layer. Eventually, the right most layer is the likeliness for each object classification (a school bus, an airplane or a truck). In this exercise, we supply all the weight and bias values to our android Pieter. But as the term "deep learning" may imply, by the end of this tutorial, Pieter will learn those parameters by himself. We still miss a few pieces for the puzzle. But the network diagram and the equations above already lay down the foundation of a deep learning network. In fact, this simple design can recognize the zip code written on a envelop with reasonable high accuracy.
 
 #### XOR
-For the skeptics, we will build an exclusive "or" (a xor b) using a similar approach:
+For the skeptics, we will build an exclusive "or" (a xor b) using a simple network like:
 <div class="imgcap">
-<img src="/assets/dl/xor.jpg" style="border:none;width:50%">
+<img src="/assets/dl/xor.jpg" style="border:none;width:40%">
 </div>
-with the same equations:
+For each node, we apply the same equations mentioned before:
 
 $$
 h_j = \sigma(z) = \frac{1}{1 + e^{-z_j}}
@@ -70,7 +61,10 @@ $$
 z_j =  \sum_{i} W_i * x_i + b_i
 $$
 
-The following is the code implementation. It is self-explainatory and a working implementation can help you to identify any mis-conceptions.
+The following is our code implementation. It is pretty self-explainatory. The core purpose is to demonstrate how we perform the weight multiplication and apply the sigmoid function.
+
+> We provide coding to help audience to understand the concept deeper and to verify their understanding. Nevertheless, a full understand of the code is not needed or suggested.
+
 ```python
 import numpy as np
 
@@ -112,13 +106,13 @@ And the XOR output matches with its expected logical value:
  1 ^ 1 = 0.00
 ```
 #### Delta function
-Back to the basic calculus, a function can be constructed with infinite narrow rectangles. Can we use the technique above to construct a narrow shaped rectangles. (a.k.a. delta function)
+Back to the basic calculus, a function can be constructed with infinite narrow rectangles (a.k.a. delta function). If we can construct such rectangles with a network, we can built on top of it to build any functions.
 
 <div class="imgcap">
 <img src="/assets/dl/delta.png" style="border:none;width:50%">
 </div>
 
-Here is the code using the same set of equations and network layout:
+Here is the code using the same set of equations and network layout before:
 ```python
 import numpy as np
 import matplotlib.pyplot as plt
@@ -146,10 +140,10 @@ plt.show()
 ```
 Which output something with shape like a delta function:
 <div class="imgcap">
-<img src="/assets/dl/delta_func.png" style="border:none;width:60%">
+<img src="/assets/dl/delta_func.png" style="border:none;width:50%">
 </div>
 
-Implement a XOR or a delta function is not important for deep learning (DL). Nevertheless, we demonstrate the possibilities of building a complex function estimator through a network of simple computation nodes. In both cases, we need a network with 2 layers. A network with 2 hidden layer can push the hand written recognition of numbers to an accuracy of 95+%. Naturally, a network with many layers (deeper) can reproduce a much complicated model. For example, Microsoft ResNet for image recognition has 100+ layers.
+Implement a XOR or a delta function is not important for deep learning (DL). Nevertheless, we demonstrate the possibilities of building a complex function estimator through a network of simple computation nodes. In both cases, we need a network with 2 layers. A network with 3 layers can push the hand written recognition of numbers to an accuracy of 95+%. Naturally, a deeper network produce much complicated model. For example, Microsoft ResNet for image recognition has 100+ layers.
 
 ### Build a Linear regression model
 Before teaching Pieter how to learn those parameters, we try to build a simple model first. For example, Pieter wants to expand on his horizon and try to start online dating. He wants to find out the relationship between the number of online dates with the number of years in eductaion and the monthly income.  Pieter starts with a simple linear model as follows:
