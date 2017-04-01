@@ -564,13 +564,13 @@ $$
 
 Find the total gradient with the chain rule from right to left:
 
-<div class="imgcap">
-<img src="/assets/dl/chain.png" style="border:none;width:75%">
-</div>
-
 $$
 \frac{\partial J}{\partial l_{k-1}} = \frac{\partial J}{\partial l_{k}} \frac{\partial l_k}{\partial l_{k-1}}  
 $$ 
+
+<div class="imgcap">
+<img src="/assets/dl/chain.png" style="border:none;width:75%">
+</div>
 
 $$
 \text{dl1} \equiv \frac{\partial J}{\partial l_{1}} = \frac{\partial J}{\partial out} \frac{\partial out}{\partial l_{1}}  = \frac{\partial J}{\partial out} \frac{\partial f_{2}}{\partial l_{1}}  
