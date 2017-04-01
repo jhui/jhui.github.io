@@ -236,7 +236,8 @@ We start with w = -6 (x-axis) at L1. If the gradient is huge, certain learning r
 
 > Sometimes, we need to be careful about the scale used in plotting the x-axis and y-axis. In the diagram shown above, the gradient does not seem large.  It is because we use a much smaller scale for y-axis than the x-axis (0 to 150 vs -10 to 10).
 
-Here is another illustration that happen in real problems.  When we gradudally descent, we may land in an area with steep gradient which the W bounce back to where it comes from. This type of shape will be very hard to reach the minima with a constant learning rate.
+Here is another illustration for some real problems.  When we gradudally descent, we may land in an area with steep gradient which the W will bounce back. This type of shape is very hard to reach the minima with a constant learning rate. Advance methods to address this problem will be discussed later.
+
 <div class="imgcap">
 <img src="/assets/dl/ping.jpg" style="border:none;">
 </div>
@@ -261,21 +262,20 @@ def gradient_check(f, x, h=0.00001):
 f = lambda x: x**2
 print(gradient_check(f, 4))
 ```
-We never call this method in the production code. But computing partial derviative can be tedious and error prone. We use this method to verify out partial derviative implementation during the development time.
+We never call this method in the production code. But computing partial derviative can be tedious and error prone. We use this method to verify a partial derviative implementation during the development time.
 
 ### Backpropagation
-To compute the partial derviatives, 
-$$
-\frac{\partial J}{\partial W_i}
-$$
-We can start from each node in the left most layer and compute the gradient using the naive gradient checking, and progagate the result until it reach the right most layer that computing the cost.  Then we move to the next layer and start the process again. For a deep network, this is very inefficient.
+To compute the partial derviatives, $$ \frac{\partial J}{\partial W_i} $$, we can start from each node in the left most layer and propagate the gradient until it reach the right most layer.  Then we move to the next layer and start the process again. For a deep network, this is very inefficient. To compute the partial gradient efficiently, we perform a foward pass and a backprogagation. 
 
-To compute the partial gradient efficiently, we perform a foward pass to compute the cost.
+#### Forward pass
+First, we compute the cost in a forward pass:
 <div class="imgcap">
 <img src="/assets/dl/fp.jpg" style="border:none;">
 </div>
 
-> Always keep track of the shape (dimension) of the data. This is one great tip when you program DL. (N,) means a 1-D array with N elements. (N,1) means 2-D array with N rows each containing 1 element. (N, 3, 4) means a 3D array.
+> Keep track of the naming of your input & output, its shape (dimension) and the equations. This is one great tip when you program DL. (N,) means a 1-D array with N elements. (N,1) means 2-D array with N rows each containing 1 element. (N, 3, 4) means a 3D array.
+
+The method "forward" computes the equation below:
 
 $$
 out = W_1* X_1 + W_2*X_2 + b
@@ -291,6 +291,8 @@ def forward(x, W, b):
     return out
 ```
 
+To compute the mean square loss:
+
 $$
 J = \frac{1}{N} \sum_i (out - y_i)^2
 $$
@@ -304,23 +306,27 @@ def mean_square_loss(h, y):
     return loss
 ```
 
+#### Backpropagation pass
 Then we backprogragate the gradient from the right most layer to the left in one single pass.
 <div class="imgcap">
 <img src="/assets/dl/bp.jpg" style="border:none;">
 </div>
 
+Compute the first paritial derivative $$ \frac{\partial J}{\partial \text{ out}_i} $$ from the right.
+
 $$
-J(out) = \frac{1}{N} \sum_i (out_i - y_i)^2
+J = \frac{1}{N} \sum_i (out_i - y_i)^2
 $$
 
 $$
-J(out_i) = \frac{1}{N} (out_i - y_i)^2
+J_i = \frac{1}{N} (out_i - y_i)^2
 $$
 
 $$
 \frac{\partial J}{\partial \text{ out}_i} = \frac{2}{N} (out_i - y_i)
 $$
 
+We add a line of code in the mean square loss to compute $$ \frac{\partial J}{\partial \text{ out}_i} $$
 ```python
 def mean_square_loss(h, y):
     # h: prediction (N,)
@@ -329,6 +335,8 @@ def mean_square_loss(h, y):
     dout = 2 * (h-y) / N                  # Compute the partial derviative of J relative to out
     return loss, dout
 ```
+
+> A clean naming convention avoid problems. In the code, we name the $$ \frac{\partial J}{\partial \text{param}_i} $$ as $$ \text{ dparam} $$
 
 Now we have
 $$
