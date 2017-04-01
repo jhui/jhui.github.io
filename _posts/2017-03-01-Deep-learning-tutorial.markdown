@@ -573,11 +573,11 @@ $$
 $$ 
 
 $$
-dl1 = \frac{\partial J}{\partial l_{1}} = \frac{\partial J}{\partial out} \frac{\partial out}{\partial l_{1}}  
+\text{dl1} \equiv \frac{\partial J}{\partial l_{1}} = \frac{\partial J}{\partial out} \frac{\partial out}{\partial l_{1}}  = \frac{\partial J}{\partial out} \frac{\partial f_{2}}{\partial l_{1}}  
 $$ 
 
 $$
-dl1 = dout \cdot \frac{\partial out}{\partial l_{1}}  
+\text{dl1} = \text{dout} \cdot \frac{\partial f_{2}}{\partial l_{1}}  
 $$ 
 
 
