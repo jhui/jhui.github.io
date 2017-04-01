@@ -521,11 +521,11 @@ Machine learning library provides pre-built layers with feed forward and backpro
 Draw the forward pass and backpropagation pass with clear notication of variables, functions and the shape.
 
 <div class="imgcap">
-<img src="/assets/dl/fp.jpg" style="border:none;width:80%">
+<img src="/assets/dl/fp.jpg" style="border:none;width:75%">
 </div>
 
 <div class="imgcap">
-<img src="/assets/dl/bp.jpg" style="border:none;width:80%">
+<img src="/assets/dl/bp.jpg" style="border:none;width:75%">
 </div>
 
 Perform a forwad pass to calculate the output and the cost:
@@ -578,6 +578,12 @@ $$
 
 $$
 \text{dl1} = \text{dout} \cdot \frac{\partial f_{2}}{\partial l_{1}}  
+$$ 
+
+Similary,
+
+$$
+\text{dW} = \text{dl1} \cdot \frac{\partial f_{1}}{\partial W}  
 $$ 
 
 
