@@ -514,18 +514,18 @@ print(f"W = {W}")
 print(f"b = {b}")
 ```
 
-#### General principle in backpropagation
+### General principle in backpropagation
 
-Machine learning library provides pre-built layer with feed forward and backpropagation. But many DL class assignment spend un-proportional amount of time in it. With vectorization and some ad hoc functions, the process is error prone but not necessary hard. Let's summaries the step above again with some tips.
+Machine learning library provides pre-built layers with feed forward and backpropagation. However many DL class assignments spend un-proportional amount of time in backpropagation. With vectorization and some ad hoc functions, the process is error prone but not necessary hard. Let's summaries the step above again with some tips.
 
 Draw the forward pass and backpropagation pass with clear notication of variables, functions and the shape.
 
 <div class="imgcap">
-<img src="/assets/dl/fp.jpg" style="border:none;width:60%">
+<img src="/assets/dl/fp.jpg" style="border:none;width:80%">
 </div>
 
 <div class="imgcap">
-<img src="/assets/dl/bp.jpg" style="border:none;width:60%">
+<img src="/assets/dl/bp.jpg" style="border:none;width:80%">
 </div>
 
 Perform a forwad pass to calculate the output and the cost:
@@ -548,7 +548,6 @@ $$
 \frac{\partial J}{\partial out} = \frac{2}{N} (out - y)
 $$
 
-
 For every layer, compute the derviate of the equation :
 
 $$
@@ -565,9 +564,22 @@ $$
 
 Find the total gradient with the chain rule from right to left:
 
+<div class="imgcap">
+<img src="/assets/dl/chain.jpg" style="border:none;width:75%">
+</div>
+
 $$
 \frac{\partial J}{\partial l_{k-1}} = \frac{\partial J}{\partial l_{k}} \frac{\partial l_k}{\partial l_{k-1}}  
 $$ 
+
+$$
+dl1 = \frac{\partial J}{\partial l_{1}} = \frac{\partial J}{\partial out} \frac{\partial out}{\partial l_{1}}  
+$$ 
+
+$$
+dl1 = dout \cdot \frac{\partial out}{\partial l_{1}}  
+$$ 
+
 
 In backprogragation, we may backprogate multiple path back to the same node. To compute the gradient correctly, we need to add both path together:
 <div class="imgcap">
