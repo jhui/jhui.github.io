@@ -518,7 +518,9 @@ print(f"b = {b}")
 
 Machine learning library provides pre-built layers with feed forward and backpropagation. However many DL class assignments spend un-proportional amount of time in backpropagation. With vectorization and some ad hoc functions, the process is error prone but not necessary hard. Let's summaries the step above again with some tips.
 
-Draw the forward pass and backpropagation pass with clear notication of variables, functions and the shape.
+> Draw the forward pass and backpropagation pass with clear notication of variables that we used in the program.
+
+> Add functions, derivatives and the shape for easy reference.
 
 <div class="imgcap">
 <img src="/assets/dl/fp.jpg" style="border:none;width:75%">
@@ -541,14 +543,10 @@ $$
 Find the partial derviative of the cost:
 
 $$
-J = \frac{1}{N} \sum_i (out_i - y_{i})^2
-$$
-
-$$
 \frac{\partial J}{\partial out} = \frac{2}{N} (out - y)
 $$
 
-For every layer, compute the derviate of the equation :
+For every layer, compute the function derviate:
 
 $$
 out = W * X + b
@@ -586,46 +584,28 @@ $$
 \text{dW} = \text{dl1} \cdot \frac{\partial f_{1}}{\partial W}  
 $$ 
 
+> Put the function derviative in the diagram make this step easy.
+
+> Expanding the equation with index sometimes will help to figure out the backpropagation step.
+
+#### More on backpropagation
 
 In backprogragation, we may backprogate multiple path back to the same node. To compute the gradient correctly, we need to add both path together:
 <div class="imgcap">
-<img src="/assets/dl/bp_m1.jpg" style="border:none;">
+<img src="/assets/dl/bp_m1.jpg" style="border:none;width:50%">
 </div>
 
 $$
-\frac{\partial J}{\partial o_3}  = \frac{\partial J}{\partial o_4} \frac{\partial f_4} {\partial o_3} *+ \frac{\partial J}{\partial o_5} \frac{\partial f_4} {\partial o_{3}} 
+\frac{\partial J}{\partial o_3}  = \frac{\partial J}{\partial o_4} \frac{\partial f_4} {\partial o_3} + \frac{\partial J}{\partial o_5} \frac{\partial f_4} {\partial o_{3}} 
 $$
 
-Backprogation is tedious and error prone. But most of the time, it is because we lost track of the notations and index.
-> For backprogation, try to draw a diagram with the shape information. Name your key variables consistently and put the derivative equation under each node. Expand equations with sub-index for analysis if needed.
-
-<div class="imgcap">
-<img src="/assets/dl/bp.jpg" style="border:none;width:80%">
-</div>
-
 $$
-\frac{\partial J}{\partial \text{ out}_i} = \frac{2}{N} (out_i - y_{i})
+\text{do3}  = \text{do4} \frac{\partial f_4} {\partial o_3} + \text{do5} \frac{\partial f_4} {\partial o_{3}} 
 $$
 
-### Trouble shooting
+### Testing the model
 
-Many places can go wrong when training a deep network. We will cover more technical topics on how to train a DL network. But here are some simple tips:
-* Unit test the forward pass, back propagation and code with a lot of math & vectorization.
-* Compare the back progataion result with the naive gradient check.
-* Create scenaiors to test the code easier. For example, remove the nose or assign W & b guess to be the same as the true model.
-* Create simple cases and verify whether the matrics collected are expected.
-* Don't be too aggressive in build up your model at the begining. Trouble shoot multiple issues at a time is particular hard in DL.
-* Instead, build up a simple but working model first. 
-* Start debugging with 1-2 sample data with a small number of iteration.
-* Don't waste time in large dataset and iterations at the beginning. Look for sign that your model beat the random odd of guessing.
-* At the early debugging, use non-random data for input and parameters.
-* Always keep track of the shape of the data and doucment it in the code.
-* Use consistence naming for variable in the forward pass and backpropagation.
-* Verify the sample data in your training.
-* Keep track of the loss, and when in debugging also the magnitude of the gradient.
-* Plot out the loss, accuracy or some runtime data after the training.
-
-I strongly recommend you to think about a linear regression model interested you and train a simple network now. A lot of issues happened in complex model will show up even in such a simple model. Through this process, you will learn trouble shooting techniques as well as how these training parameters changed during learning. Work with a simple model allows you to trace the data easier and learn better. Most tutorial have already pre-cooked parameters. So they teach you the easier part without letting you to complete the real tough part.
+I strongly recommend you to think about a linear regression problem that interested you, and train a simple network now. A lot of issues happened in a complex model will show up even in such a simple model. With a complex model, you treat it as a black box and many actions are purely random guesses. Work with a model designed by yourself, you can create better sceaniors to test your theories and develop a better insight on DL. Most tutorial have already pre-cooked parameters. So they teach you the easier part without having you to struggle on the hard part.
 
 So let Pieter train the system.
 ```
@@ -634,24 +614,26 @@ iteration 200: loss=3.899e+292 W1=-3.741e+140 dW1=4.458e+147 W2=-1.849e+143 dW2=
 iteration 400: loss=inf W1=-1.39e+284 dW1=1.656e+291 W2=-6.869e+286 dW2=8.184e+293 b= -1.04e+283 db = 1.24e+290
 iteration 600: loss=nan W1=nan dW1=nan W2=nan dW2=nan b= nan db = nan
 ```
-The application overflow within 600 iterations! Since the loss and the graident is so high, we can try out whether we have the learning rate too high. We decrease the learning rate and run just a short time to see if any changes.
-
-For learning rate of 1e-8, we do not have the overflow problem but the result is not good. We can try much smaller value and more iteration.
+The application overflow within 600 iterations! Since the loss and the graident is so high, we test out whether the learning rate is too high. We decrease the learning rate. With learning rate of 1e-8, we do not have the overflow problem but the loss is high.
 ```
 iteration 90000: loss=4.3e+01 W1= 0.23 dW1=-1.3e+02 W2=0.0044 dW2= 0.25 b= 0.0045 db = -4.633
 W = [ 0.2437896   0.00434705]
 b = 0.004981262980767952
 ```
 
-We are very reluctant to take action without information. But since the application run very fast, we can give a few simple guess. With10000000 iterations and a learning_rate of 1e-10. The application run for a few minutes but we are still not there. Running much longer may improve the result. But it will be better to trace the source of problem.
+We are very reluctant to take actions without information. But since the application runs very fast, we can give a few simple guess. With10,000,000 iterations and a learning_rate of 1e-10, the loss is still very high. It will be better to trace the source of problem now.
+
 ```
 iteration 9990000: loss=3.7e+01 W1= 0.22 dW1=-1.1e+02 W2=0.0043 dW2= 0.19 b= 0.0049 db = -4.593
 W = [ 0.22137005  0.00429005]
 b = 0.004940551119084607
 ```
-The loss in our first try have similar symptoms with bad learning rate. But it may not be the cause. After some tracing, we find the gradient is very high. Unlike many real DL problems, the model is not a black box to us, we can plot the cost function related with W.
 
-This is a U shape curve which is different from a bowl shape curve that we used for gradient descent explanation. 
+> Tracing gradient is another powerful tool in DL debugging.
+
+Even the loss in our first try shows similar symptom as a bad learning rate, we suspect this is not the root cause. After some tracing, we find the gradient is very high. We plot the cost function relative to W to illustrate the real issue.
+
+This is a U shape curve which is different from a bowl shape curve that we use in the gradient descent explanation. 
 <div class="imgcap">
 <img src="/assets/dl/ushape.png" style="border:none;width:50%">
 </div>
@@ -660,25 +642,19 @@ This is a U shape curve which is different from a bowl shape curve that we used 
 <img src="/assets/dl/solution.png" style="border:none;width:50%">
 </div>
 
-The y-axis is 
-$$
-W_2
-$$
-which the cost is much responsive to change comparing with the x-axis
-$$
-W_1
-$$
-. If we look at the linear model 
-$$
-X_1 
-$$ 
-represent the years of education which may range from 0 to 30. 
-$$
-X_2 
-$$
-is the monthly income from 0 to 10,000. 
+The Y-axis is $$ W_2 $$ (monthly income) and the X-axis is $$ W_1$$ (year of education). Cost response more aggressive with $$ W_2 $$ than $$ W_{1} $$. Monthly income ranges from 0 to 10,000 while year of education range from 0 to 30. Obviously, the different scale in these 2 features cause a major difference in its gradient. Because of the different scale, we cannot have a single learning rate than can work well for both of them. The solution is pretty simple with a couple line of code change. We re-scale the income value.
 
-Obviously, the different scale in these 2 features cause a major difference in its gradient. Simply say, we cannot find a single learning rate than can work well with both of them. The solution is pretty simple with a couple line of code change. We re-scale the income value. Here is the output which is close to our true model:
+```python
+def true_y(education, income):
+    dates = 0.8 * education + 0.3 * income + 2
+    return dates
+
+...
+
+income = np.random.randint(10, size=education.shape[0]) # (N,) Generate the corresponding income.
+```
+
+ Here is the output which is close to our true model:
 ```
 iteration 0: loss=518.7 W1=0.1624 dW1=-624.5 W2=0.3585 dW2=-2.585e+03 b= 0.004237 db = -42.37
 iteration 10000: loss=0.4414 W1=0.8392 dW1=0.0129 W2=0.3128 dW2=0.004501 b= 0.5781 db = -0.4719
@@ -693,6 +669,7 @@ iteration 90000: loss=0.09241 W1=0.8018 dW1=0.001018 W2=0.2997 dW2=0.0003553 b= 
 W = [ 0.80088848  0.29941657]
 b = 1.9795590414763997
 ```
+
 
 ### Non-linearity
 
@@ -849,7 +826,7 @@ z_j = \sum_{i} W_{ij} x_{i} + b_{i}
 $$
 
 $$
-h(z_j)=\text{max}(0,z_j)
+h(z_j)=\text{max}(0,z_{j})
 $$
 
 But the one before the output, we apply the linear equation but not the ReLU equation.
@@ -1248,7 +1225,6 @@ When we build our model, we first try out a polynomial model with order of 9. We
 
 ### Mini-batch gradient descent
 
-
 ### Regularization
 #### L0, L1, L2 regularization
 #### Gradient clipping
@@ -1260,6 +1236,27 @@ When we build our model, we first try out a polynomial model with order of 9. We
 #### Gradient checking
 #### Initial loss
 #### Without regularization and with small dataset
+
+### Trouble shooting
+
+Many places can go wrong when training a deep network. Here are some simple tips:
+* Unit test the forward pass and back propagation code.
+	* At the begining, test with non-random data.
+* Compare the back progataion result with the naive gradient check.
+* Always start with a simple network that works. 
+	* Push accuracy up should not be the first priority. 
+	* Handle multiple battle front in a complext network is not the way to go. Issues grow expotentially in DL.
+* Create simple sceairos to verify the network:
+	* Test with small training data with few iterations. Verify if we can beat a random guessing.
+	* Verify if loss drops and/or accuracies increase during training.
+	* Drop regularization - training accuracies should go up.	
+	* Validate with training data.
+* Keep track of the loss, and when in debugging also the magnitude of the gradient for each layer.
+* Do not waste time on large dataset with long iterations during early development.
+* Verify how trainable parameters are initialized.	
+* Always keep track of the shape of the data and doucment it in the code.
+* Display and verify some training samples and the predictions.
+* Plot out the loss, accuracy or some runtime data after the training.
 
 ### Trouble shooting
 #### Plotting loss
@@ -1297,6 +1294,7 @@ When we build our model, we first try out a polynomial model with order of 9. We
 ### Data argumentation
 
 ### Model ensembles
+
 
 
 
