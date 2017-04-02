@@ -1107,7 +1107,9 @@ $$
 
 In fact there are infinite answers using different polynomal orders $$ x^k \cdots $$
 
-Comparing with the linear model $$ y = x $$, we realize that the $$ \norm{ coefficient } $$ for Pieter equation is higher. If we have a model using high polynormal order, it will be much harder to train because we are dealing with a much bigger search space for the parameters. In additional, some of the search space will have very steep gradient.
+Comparing with the linear model $$ y = x $$, we realize that the 
+$$ || coefficient || $$ 
+for Pieter equation is higher. If we have a model using high polynormal order, it will be much harder to train because we are dealing with a much bigger search space for the parameters. In additional, some of the search space will have very steep gradient.
 
 
 Let us create a polynomal model with order 5 to fit our sample data, and see how the training model make prediction.
