@@ -1109,50 +1109,46 @@ In fact there are infinite answers using different polynomal orders $$ x^k \cdot
 
 Comparing with the linear model $$ y = x $$, we realize that the 
 $$ || coefficient || $$ 
-for Pieter equation is higher. If we have a model using high polynormal order, it will be much harder to train because we are dealing with a much bigger search space for the parameters. In additional, some of the search space will have very steep gradient.
+for Pieter equation is higher. If we have a model using high polynormal order, it will be much harder to train because we are dealing with a far bigger search space for the parameters. In additional, some of the search space will have very steep gradient.
 
+Let us create a polynomal model with order 5 to fit our sample data, and see how the training model make predictions.
 
-Let us create a polynomal model with order 5 to fit our sample data, and see how the training model make prediction.
 $$
 y = c_5 x^5 + c_4 x^4 + c_3 x^3 + c_2 x^2 + c_1 x + c_{0}
 $$
 
-The model is much harder to train compare with a model with order 3, and less accuate with the same number of iteration.
+We need far more iterations to train this model and result in less accuracy than a model with order 3.
 <div class="imgcap">
-<img src="/assets/dl/p1.png" style="border:none;">
+<img src="/assets/dl/p1.png" style="border:none;width:60%">
 </div>
 
-But why don't we focus on making the model with the right complexity. In real life problem, a complex model is the only way to push accuracy to an acceptable level. But yet overfitting in some region is un-avoidable. One solution is to add more sample data such that it is much harder to overfit. Here, we mange to have a better model when we double our sample data.
+But why don't we focus on making a model with the right complexity. In real life problems, a complex model is the only way to push accuracy to an acceptable level. But yet overfitting in some region is un-avoidable. One solution is to add more sample data such that it is much harder to overfit. Here, double the sample data produces a model closer to a straight line. 
 <div class="imgcap">
-<img src="/assets/dl/p2.png" style="border:none;">
+<img src="/assets/dl/p2.png" style="border:none;width:60%">
 </div>
 
-As we observe before, there are many solutions to the problem but in order to have a very close fit, the coefficient in our training parameters tends to have larger magnitude. 
+As we observe before, there are many solutions to the problem but in order to have a very close fit, the coefficient in our training parameters tends to have larger magnitude. For example, if we set $$ c_{2} $$ ... $$ c_{5} $$ to 0 or very close to 0, we have a very simple straight line model.
 
 $$
-||c|| = \sqrt{(c_5^2 + c_3^2 + c_3^2 + c_2^2 + c_1^2 + c_{0}^2 +)}
+||c|| = \sqrt{(c_5^2 + c_3^2 + c_3^2 + c_2^2 + c_1^2 + c_{0}^2)}
 $$
 
-To encourage our training not to be too agressive, we can add a penalty in our cost function to penalize large magnitude.
+To encourage our training not to be too agressive to overfit the training data, we add a penalty in our cost function to penalize large magnitude.
 
 $$
-J = \text{mean square error} + \lambda ||W||
+J = \text{mean square error} + \lambda \cdot ||W||
 $$
 
-which we introduce another hyper parameter called **regularization factor**
-$$
-\lambda
-$$
-In this example, we use L2 norm (the magnitude of the vector) as penality which is also known as **L2 regularization**
+Techniques to discourage overfitting is called regularization. Here we introduce another hyper parameter called **regularization factor** $$ \lambda $$ to penalize overfitting.
 
-After many try and error, we pick 
-$$
-\lambda
-$$
-to be1 and our model make prediction closer to the training data with the same number of iterations.
+In this example, we use a L2 norm (**L2 regularization**)
+$$ ||W|| $$
+(the magnitude of the vector) as the penality. 
+
+After many try and error, we pick $$ \lambda $$ to be 1. With the regularization, our model make prediction closer to the training data with the same number of iterations.
 
 <div class="imgcap">
-<img src="/assets/dl/p3.png" style="border:none;">
+<img src="/assets/dl/p3.png" style="border:none;width:60%">
 </div>
 
 Like other hyper parameter for training, the process is try and error. In fact we use a very high 
