@@ -1090,12 +1090,13 @@ Which model is correct? The answer is "don't know". Some people may think the fi
 Instead, we should ask whether our model is too "custom taylor" for the sample data so it makes bad prediction. The second curve fit the sample data100% but will make some bad predictions if the true model is a straight line.
 
 #### Validation
-**Machine learning is about making prediction.** A model that has 100% accuracy in training can be a bad model in making prediction. For that, we often split our testing data into 3 parts. Sometimes, we use 80% of samples to build a model, and use 10% as validation. During training, we build models with different network designs and hyper parameters like learning rate. We run those models with the validation dataset and pick the model with the highest accuracy. As a warning, we ran into a chance that we are hand pick a bad model if the validation data is not random enough or big enough. Hence, we have another 10% of testing for a final insanity check. This testing data is for one last checking but not for model selection. If your testing result is dramatically difference, we need to randomize the data more, or to collect more data.
+**Machine learning is about making prediction.** A model that has 100% accuracy in training can be a bad model in making prediction. For that, we often split our testing data into 3 parts: 80% for training, 10% for validation and 10% for testing. During training, we use the training dataset to build models with different network designs and hyper parameters like learning rate. We run those models with the validation dataset and pick the model with the highest accuracy. This strategy works if the validation dataset are close to what we want to predict. Otherwise, the picked model can make bad predictions. As the last safeguard, we use the 10% testing data for a final insanity check. This testing data is for one last verification but not for model selection. If your testing result is dramatically difference from the validaton result, we need to randomize the data more, or to collect more data.
 
 #### Visualization 
-We can train a model to create a boundary to separate the blue dots from the white dots below. In the circled area, if we miss the 2 left white dot samples in our training, a complex model may create un-necessary odd shape boundary which a simple model cannot.
+We can train a model to create a boundary to separate the blue dots from the white dots below. Complex model produces far more sophiscated boundary shape than a low complexity model. In the circled area, if we miss the 2 left white dot samples in our training, a complex model may create an odd shape boundary just to include this white dot. A low complexity model can only produce a smoothier surface which by chance may be more desireable. Complex model may also more vulernable to outliners which a simple model may just ignore like the white dot in the lower right.
+
 <div class="imgcap">
-<img src="/assets/dl/of.png" style="border:none;">
+<img src="/assets/dl/of.png" style="border:none;width:60%">
 </div>
 
 Recall from Pieter's equation, our sample data can be model nicely with the following equations:
@@ -1104,16 +1105,10 @@ $$
 y = 1.9  \cdot 10^{-7}  x^9 - 1.6 \cdot 10^{-5} x^8 + 5.6 \cdot 10^{-4} x^7 - 0.01 x^6  + 0.11 x^5 - 0.63 x^4 + 1.9  x^3 - 2.19  x^2 + 0.9 x - 0.0082
 $$
 
+In fact there are infinite answers using different polynomal orders $$ x^k \cdots $$
 
-In fact there are infinite answers to the problem with different order of the polynomal equations.
-$$
-x^k \cdots
-$$
+Comparing with the linear model $$ y = x $$, we realize that the $$ || coefficient || $$ for Pieter equation is higher. If we have a model using high polynormal order, it will be much harder to train because we are dealing with a much bigger search space for the parameters. In additional, some of the search space will have very steep gradient.
 
-But you may realize that the magnitude of the coefficent also grow. There are other issues:
-* The search space increases significantly, and
-* The high order also make certain region to have a steep gradient.
-Both of them making training much harder. 
 
 Let us create a polynomal model with order 5 to fit our sample data, and see how the training model make prediction.
 $$
