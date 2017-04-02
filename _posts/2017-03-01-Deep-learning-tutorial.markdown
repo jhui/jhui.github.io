@@ -1028,7 +1028,7 @@ We also replace our ReLU function with a sigmoid function and plot the same diag
 <img src="/assets/dl/fc_si2.png" style="border:none;width:60%">
 </div>
 
-The following is one of the many possible models that we generate using our program with different seeds of W.
+Below is one of the model generated. Because we start with random guess of $$ W $$, we end up with quite different models for each run.
 ```
 Layer 1:
       [[ 1.10727659,  0.22189273,  0.13302861,  0.2646622 ,  0.2835898 ],
@@ -1055,25 +1055,26 @@ Layer 4:
        [-0.03501616],
        [ 0.07363663]])]
 ```
-When we model a simple model with 4 layers of computation nodes. We can end up with many possible solutions. Should we prefer one solution over the other? Should we prefer a solution with smaller values over the other? If we look into the true model provided by the Oracle, we realize the true model is much simplier than above, i.e. a lot of nodes here are just cancelling the effects of others.
+
+When we model a simple model with 4 layers of computation nodes. We end up with many possible solutions with different $$ W $$. Should we prefer one solution over the other? Should we prefer a solution with smaller values in $$ W $$ over the other? Are part of the network just cancel out the effect of the other part?
 
 ### Overfit
-This lead us to a very important topic in DL.  We know that when we increase the complexity of our model, we risk the chance of modeling the noise into a model. If we do not have enough sample data to cancel out each other, we will make wrong predictions. But even with no noise in our data, a complex model can still make mistakes even when we train it well and long enough.
+This lead us to a very important topic in DL.  We know that when we increase the complexity of our model, we risk the chance of modeling the noise into a model. If we do not have enough sample data to cancel out each other, we make bad predictions. But even with no noise in our data, a complex model can still make mistakes even when we train it well and long enough.
 
-We start with the training samples with input values range from 0 to 20, how will you connect the dots or how you will create a equation to model the data below.
+Let's walk through another example. We start with training samples with input values range from 0 to 20, how will you connect the dots or how you will create a equation to model the data below.
 <div class="imgcap">
-<img src="/assets/dl/d1.png" style="border:none;">
+<img src="/assets/dl/d1.png" style="border:none;width:70%">
 </div>
 
 One possiblity is
 $$
 y = x
-$$ which is simple and just slightly miss 2 on the left and 2 on the right of the line.
+$$ which is simple and just miss 2 on the left and 2 on the right of the line.
 <div class="imgcap">
-<img src="/assets/dl/d2.png" style="border:none;">
+<img src="/assets/dl/d2.png" style="border:none;width:70%">
 </div>
 
-But when we show it to Pieter which has much higher computation capability than us, he model it as:
+But when we show it to Pieter which has much higher computation capability than us, he models it as:
 
 $$
 y = 1.9  \cdot 10^{-7}  x^9 - 1.6 \cdot 10^{-5} x^8 + 5.6 \cdot 10^{-4} x^7 - 0.01 x^6  + 0.11 x^5 - 0.63 x^4 + 1.9  x^3 - 2.19  x^2 + 0.9 x - 0.0082
@@ -1081,18 +1082,18 @@ $$
 
 Which does not miss a single point in the sample.
 <div class="imgcap">
-<img src="/assets/dl/d3.png" style="border:none;">
+<img src="/assets/dl/d3.png" style="border:none;width:70%">
 </div>
 
 Which model is correct? The answer is "don't know". Some people may think the first one is simplier and simple explanation deserves more credits. But if you show it to a stock broker, they will say the second curve is more real if it is the market closing price of a stock. 
 
-The question that interest us is whether our model is too "custom taylor" for the sample data that make bad prediction. The second curve fit the sample data100% but will make some wrong predictions if the true model is a straight line.
+Instead, we should ask whether our model is too "custom taylor" for the sample data so it makes bad prediction. The second curve fit the sample data100% but will make some bad predictions if the true model is a straight line.
 
 #### Validation
-**Machine learning is about making prediction.** A model that have 100% accuracy in training can be a bad model in making prediction. For that, we often split our testing data into 3 parts. Sometimes 80% for training to build models. Run 10% on a validation data set to pick which model has the best accuracy, or use this to find what set of hyper parameters, like learning rate, that yield to the best result. As a warning, you can always hand pick data to justify your theory. Hence, we have another 10% of testing for a final insanity check. Note that the testing data is for one last checking but not for model selection. If your testing result is dramatically difference, you may need to randomize your sample more or to collect more data. Sometime you may make mistakes during the validation.
+**Machine learning is about making prediction.** A model that has 100% accuracy in training can be a bad model in making prediction. For that, we often split our testing data into 3 parts. Sometimes, we use 80% of samples to build a model, and use 10% as validation. During training, we build models with different network designs and hyper parameters like learning rate. We run those models with the validation dataset and pick the model with the highest accuracy. As a warning, we ran into a chance that we are hand pick a bad model if the validation data is not random enough or big enough. Hence, we have another 10% of testing for a final insanity check. This testing data is for one last checking but not for model selection. If your testing result is dramatically difference, we need to randomize the data more, or to collect more data.
 
 #### Visualization 
-We can train a model to create a boundary to separate the blue dots from the white dots below. In the circled area, if we miss the 2 left white dots sample in our training, a complex model may create an un-necessary odd shape boundary. A less complex model may create a smoother boundary that include those 2 white dots that make better predictions.
+We can train a model to create a boundary to separate the blue dots from the white dots below. In the circled area, if we miss the 2 left white dot samples in our training, a complex model may create un-necessary odd shape boundary which a simple model cannot.
 <div class="imgcap">
 <img src="/assets/dl/of.png" style="border:none;">
 </div>
@@ -1103,10 +1104,12 @@ $$
 y = 1.9  \cdot 10^{-7}  x^9 - 1.6 \cdot 10^{-5} x^8 + 5.6 \cdot 10^{-4} x^7 - 0.01 x^6  + 0.11 x^5 - 0.63 x^4 + 1.9  x^3 - 2.19  x^2 + 0.9 x - 0.0082
 $$
 
+
 In fact there are infinite answers to the problem with different order of the polynomal equations.
 $$
 x^k \cdots
 $$
+
 But you may realize that the magnitude of the coefficent also grow. There are other issues:
 * The search space increases significantly, and
 * The high order also make certain region to have a steep gradient.
@@ -1114,7 +1117,7 @@ Both of them making training much harder.
 
 Let us create a polynomal model with order 5 to fit our sample data, and see how the training model make prediction.
 $$
-y = c_5 x^5 + c_4 x^4 + c_3 x^3 + c_2 x^2 + c_1 x + c_0
+y = c_5 x^5 + c_4 x^4 + c_3 x^3 + c_2 x^2 + c_1 x + c_{0}
 $$
 
 The model is much harder to train compare with a model with order 3, and less accuate with the same number of iteration.
@@ -1130,7 +1133,7 @@ But why don't we focus on making the model with the right complexity. In real li
 As we observe before, there are many solutions to the problem but in order to have a very close fit, the coefficient in our training parameters tends to have larger magnitude. 
 
 $$
-||c|| = \sqrt{(c_5^2 + c_3^2 + c_3^2 + c_2^2 + c_1^2 + c_0^2 +)}
+||c|| = \sqrt{(c_5^2 + c_3^2 + c_3^2 + c_2^2 + c_1^2 + c_{0}^2 +)}
 $$
 
 To encourage our training not to be too agressive, we can add a penalty in our cost function to penalize large magnitude.
