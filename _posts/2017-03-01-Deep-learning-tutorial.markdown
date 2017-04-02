@@ -1272,17 +1272,15 @@ $$
 \frac{\partial J}{\partial l_{1}} = \frac{\partial J}{\partial l_{10}} \frac{\partial l_{10}}{\partial l_{9}} \cdots  \frac{\partial l_{2}}{\partial l_{1}} 
 $$ 
 
-As indicated, the gradient descent is not only depend on the loss but also on the gradients
-$$ \frac{\partial l_{k+1}}{\partial l_{k} $$ 
-. Let look at a sigmod activation function below, if $$ x $$ is higher than 5 or smaller than -5, the gradient is closer to 0. Hence, in certain region, the node learns slowly with gradient descent regardless of the loss.
+As indicated, the gradient descent is not only depend on the loss $$ \frac{\partial J}{\partial l} $$ but also on the gradients $$ \frac{\partial l_{k+1}}{\partial l_{k}} $$. Let's look at a sigmod activation function below. If $$ x $$ is higher than 5 or smaller than -5, the gradient is close to 0. Hence, in those region, the node learns slowly with gradient descent regardless of the loss.
 
 <div class="imgcap">
 <img src="/assets/dl/sigmoid2.png" style="border:none;width:60%">
 </div>
 
-We can visualize the sigmoid function behaves like a gate to the loss signal. If the input is > 5 or <-5, it block most of the loss to propagate backward. So nodes on its left sides learn less. 
+We can visualize the sigmoid function behaves like a gate to the loss signal. If the input is > 5 or <-5, it blocks most of the loss signal to propagage backward. So nodes on its left sides learn less. 
 
-In additon, the chain rule in the gradient descent has a multiplication effect. If we multiple numbers smaller than one, it diminish quickly. On the contrary, if we multiple numbers greater than one, it explodes. 
+In additon, the chain rule in the gradient descent has a multiplication effect. If we multiple numbers smaller than one, it diminishes quickly. On the contrary, if we multiple numbers greater than one, it explodes. 
 
 $$ 
 0.1 \cdot 0.1 \cdot 0.1 \cdot 0.1 \cdot 0.1 = 0.00001 
@@ -1292,26 +1290,24 @@ $$
 5 \cdot 5 \cdot 5 \cdot 5 \cdot 5 = 3125
 $$
 
-So if the network design and the initial parameters process some symmetry, the nodes may behave in the same direction together in which the gradient may diminish quickly or explode. However, we cannot say it with certainity on when and how it may happen because we still lack full understanding between the maths of gradient descent and a complex model. Nevertheless, emperical data for deep network indicates it can be a problem.
+So if the network design and the initial parameters have some symmetry that make the nodes behave similarly,  the gradient may diminish quickly or explode. However, we cannot say with certainity on when and how it may happen because we still lack full understanding between the maths of gradient descent and a complex model. Nevertheless, emperical data for deep network indicates it can be a problem.
 
-Microsoft Resnet (2015) has 152 layers. A lot of natural language process (NLP) problems are vulnerable to diminishing and exploding gradients. How can they address the issue?
-
-This is the network design for Resnet. Instead of 1 long chain of nodes, a bypass mechanism is build to allow left most layer to learn faster. (Source Kaiming He, Xiangyu Zhang ... etc)
+Microsoft Resnet (2015) has 152 layers. A lot of natural language process (NLP) problems are vulnerable to diminishing and exploding gradients. How can they address the issue? This is the network design for Resnet. Instead of one long chain of nodes, a mechanism is build to bypass a layer to make learning faster. (Source Kaiming He, Xiangyu Zhang ... etc)
 <div class="imgcap">
-<img src="/assets/dl/resnet.png" style="border:none;width:60%">
+<img src="/assets/dl/resnet.png" style="border:none;width:40%">
 </div>
 
 <div class="imgcap">
-<img src="/assets/dl/resnet2.png" style="border:none;width:60%">
+<img src="/assets/dl/resnet2.png" style="border:none;width:40%">
 </div>
 
-As always in DL, an idea is much simplier than the diagram or the equation itself. In LSTM, the state of a cell is updated by
+As always in DL, an idea often looks complicated in the diagram or the equation. In LSTM, the state of a cell is updated by
 
 $$
 C_t = gate_{forget} \cdot C_{t-1} + gate_{input} \cdot \tilde{C}
 $$
 
-Bypass a layer means the output of a layer is the same as the input. For $$ C_t $$ to be the same as $$ C_{t-1} $$, $$ gate_ {forget} $$ should be 1 while $$ gate_{input} $$ is 0. So one way to addressing the diminishing gradient problem is to have a different function for the node.
+Bypassing a layer can visualize as feeding the input to the output directly. For $$ C_t $$ to be the same as $$ C_{t-1} $$, we can have $$ gate_ {forget} $$ to be 1 while $$ gate_{input} $$ to be 0. So one way to addressing the diminishing gradient problem is to have a different function for the node.
 
 ### Classifier
 
