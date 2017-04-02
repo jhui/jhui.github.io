@@ -1307,7 +1307,7 @@ $$
 C_t = gate_{forget} \cdot C_{t-1} + gate_{input} \cdot \tilde{C}
 $$
 
-Bypassing a layer can visualize as feeding the input to the output directly. For $$ C_t $$ to be the same as $$ C_{t-1} $$, we can have $$ gate_ {forget} $$ to be 1 while $$ gate_{input} $$ to be 0. So one way to addressing the diminishing gradient problem is to have a different function for the node.
+Bypassing a layer can visualize as feeding the input to the output directly. For $$ C_t $$ to be the same as $$ C_{t-1} $$, we can have $$ gate_ {forget} $$ to be 1 while $$ gate_{input} $$ to be 0. So one way to addressing the diminishing gradient problem is to design a different function for the node.
 
 ### Classifier
 
