@@ -58,7 +58,7 @@ h_j = \sigma(z) = \frac{1}{1 + e^{-z_j}}
 $$
 
 $$
-z_j =  \sum_{i} W_i * x_i + b_i
+z_j =  \sum_{i} W_i * x_i + b_{i}
 $$
 
 The following is our code implementation. It is pretty self-explainatory. The core purpose is to demonstrate how we perform the weight multiplication and apply the sigmoid function.
@@ -278,7 +278,7 @@ First, we compute the cost in a forward pass:
 The method "forward" computes the equation below:
 
 $$
-out = W_1* X_1 + W_2*X_2 + b
+out = W_1* X_1 + W_2*X_{2} + b
 $$
 
 ```python
@@ -294,7 +294,7 @@ def forward(x, W, b):
 To compute the mean square loss:
 
 $$
-J = \frac{1}{N} \sum_i (out - y_i)^2
+J = \frac{1}{N} \sum_i (out - y_{i})^2
 $$
 
 ```python
@@ -1127,37 +1127,34 @@ But why don't we focus on making a model with the right complexity. In real life
 <img src="/assets/dl/p2.png" style="border:none;width:60%">
 </div>
 
-As we observe before, there are many solutions to the problem but in order to have a very close fit, the coefficient in our training parameters tends to have larger magnitude. For example, if we set $$ c_{2} $$ ... $$ c_{5} $$ to 0 or very close to 0, we have a very simple straight line model.
+As we observe before, there are many solutions to the problem but in order to have a very close fit, the coefficient in our training parameters tends to have larger magnitude. 
 
 $$
 ||c|| = \sqrt{(c_5^2 + c_3^2 + c_3^2 + c_2^2 + c_1^2 + c_{0}^2)}
 $$
 
-To encourage our training not to be too agressive to overfit the training data, we add a penalty in our cost function to penalize large magnitude.
+For example, if we set $$ c_{2} $$ ... $$ c_{5} $$ to 0 or very close to 0, we have a very simple straight line model. To encourage our training not to be too agressive to overfit the training data, we add a penalty in our cost function to penalize large magnitude.
 
 $$
 J = \text{mean square error} + \lambda \cdot ||W||
 $$
 
-Techniques to discourage overfitting is called regularization. Here we introduce another hyper parameter called **regularization factor** $$ \lambda $$ to penalize overfitting.
+Techniques to discourage overfitting is called **regularization**. Here we introduce another hyper parameter called regularization factor $$ \lambda $$ to penalize overfitting.
 
 In this example, we use a L2 norm (**L2 regularization**)
 $$ ||W|| $$
-(the magnitude of the vector) as the penality. 
+ as the penality. 
 
-After many try and error, we pick $$ \lambda $$ to be 1. With the regularization, our model make prediction closer to the training data with the same number of iterations.
+After many try and error, we pick $$ \lambda $$ to be 1. With the regularization, our model make better prediction with the same number of iterations and data point as in our first try.
 
 <div class="imgcap">
 <img src="/assets/dl/p3.png" style="border:none;width:60%">
 </div>
 
-Like other hyper parameter for training, the process is try and error. In fact we use a very high 
-$$
-\lambda
-$$
-in this problem because there are not too many trainable parameters in our model, and we do know that the model is overfit when we visualize the data. But in real life, the value is lower and needs a lot of try and error similar to tuning other hyper parameters.
+Like other hyper parameter for training, the process is try and error. In fact we use a relative high $$ \lambda $$
+in this problem because there are not too many trainable parameters in our model. In most real life problems, $$ \lambda $$ is lower because we are dealing with much higher number of trainable parameters.
 
-There are another interesting point we notice in the loss value during training. The loss may suddenly go up sharply and drop to previous valye after a few thousand iterations. 
+There is another interesting observation during training. The loss may jump up sharply and drop to previous value after a few thousand iterations. 
 ```
 Iteration 87000 [2.5431744485195127]
 Iteration 88000 [2.525734745522529]
@@ -1166,17 +1163,16 @@ Iteration 90000 [195.08231216279583]
 Iteration 91000 [3.0582387198108449]
 Iteration 92000 [2.4587727305339286]
 ```
+
 If we look into the equation, we realize the gradient
 
 $$
 \frac{\partial y}{\partial c_i}   = i  x^{i-1}
 $$
 
-can be very steep which can suffer the learning rate problem discussed before. The cost can escalate which takes many more iterations to undo. For example, from iteration 10,000 to 11,000, the relative small change for the coefficient
-$$
-x^5
-$$
-from -0.000038 to -0.000021 has a big jump of cost for the sample data.
+can be very steep which can suffer from the learning rate problem discussed before. The cost here escalate very high which takes many more iterations to undo. For example, from iteration 10,000 to 11,000, the coefficient for $$ x^5 $$
+only change from -0.000038 to -0.000021 but the cost jump from 82 to 34,312.
+
 ```
 Iteration 10000 [82.128486144319155, 
  array([[  1.66841311e+00],
@@ -1194,10 +1190,87 @@ Iteration11000 [34312.355686493174,
        [ -2.05131433e-04]])]
 ```
 
-When we build our model, we first try out a polynomial model with order of 9. We find it impossible to train with our sample data so we decide to start with an order of 3. When reach the order of 7, we already find the model is so hard to train.
+When we build our model, we try out a polynomial model with order of 9. Even after a long training, the model still make very poor prediction. We decide to start with an order of 3 and increase it gradually. Another example to demonstrate why we need to start with simple model first. At 7, we find the model is so hard to train to produce good quality model.
 <div class="imgcap">
-<img src="/assets/dl/p4.png" style="border:none;">
+<img src="/assets/dl/p4.png" style="border:none;width:60%">
 </div>
+
+### Diminishing and exploding gradient
+
+From our previous example, we demonstrate how important to trace the gradient at different layer to trouble shoot problem. When we come back to our online dating model, we log $$ || gradient || $$ for each layer when our model have 4 layers.
+
+```python
+iteration 0: loss=45.6
+layer 0: gradient = 226.1446016395799
+layer 1: gradient = 566.6340440894377
+layer 2: gradient = 371.4818585197662
+layer 3: gradient = 371.7283667292019
+iteration 10000: loss=12.28
+layer 0: gradient = 39.087735791986816
+layer 1: gradient = 70.66776450168192
+layer 2: gradient = 40.95339598248693
+layer 3: gradient = 49.27868977928858
+...
+iteration 90000: loss=11.78
+layer 0: gradient = 8.695315741501654
+layer 1: gradient = 13.149909360278247
+layer 2: gradient = 9.97983678446837
+layer 3: gradient = 7.053793667949491
+```
+
+There are a couple things that we need to monitor. Are the magnitude too hight or too small? If the magnitude is too high at later stage, the gradient descent is having problem to find the minima. For example, when we have the scaling problem with our features (year of education and monthly income), the gradient is so huge that the model learns nothing.
+```
+iteration 0: ... dW1=1.183e+04 dW2=5.929e+06 ...
+iteration 200: ... dW1=4.458e+147 dW2=2.203e+150 ...
+iteration 400: ... dW1=1.656e+291 dW2=8.184e+293 ...
+iteration 600: ... dW1=nan dW2=nan ...
+```
+
+ If the gradient is too small, it means those layers have little impact in reducing the cost. If the loss is high but the gradient is low, we said those layers are bearly learning anything since we do not know how to change the parameter in those layer to have an impact on the cost. The following log shows another pattern that is common in DL. The gradient is diminishing from the right layer (layer 6) to the left layer (layer 0). This pattern indicates the left layers are learning slowly.
+```
+iteration 0: loss=553.5
+layer 0: gradient = 2.337481559834108e-05
+layer 1: gradient = 0.00010808796151264163
+layer 2: gradient = 0.0012733936924033608
+layer 3: gradient = 0.01758514040640722
+layer 4: gradient = 0.20165907211476816
+layer 5: gradient = 3.3937365923146308
+layer 6: gradient = 49.335409914253
+iteration 1000: loss=170.4
+layer 0: gradient = 0.0005143399278199742
+layer 1: gradient = 0.0031069449720360883
+layer 2: gradient = 0.03744160389724748
+layer 3: gradient = 0.7458109132993136
+layer 4: gradient = 5.552521662655173
+layer 5: gradient = 16.857110777922465
+layer 6: gradient = 37.77102597043024
+iteration 2000: loss=75.93
+layer 0: gradient = 4.881626633589997e-05
+layer 1: gradient = 0.0015526594728625706
+layer 2: gradient = 0.01648262093048127
+layer 3: gradient = 0.35776408953278077
+layer 4: gradient = 1.6930852548061421
+layer 5: gradient = 4.064949014764085
+layer 6: gradient = 12.7578637206897
+```
+
+We need to come back to backpropagation to understand why this happens?
+
+<div class="imgcap">
+<img src="/assets/dl/chain.png" style="border:none;width:60%">
+</div>
+
+For a very deep network:
+
+$$
+\frac{\partial J}{\partial l_{1}} = \frac{\partial J}{\partial l_{2}} \frac{\partial l_{2}}{\partial l_{1}}  = \frac{\partial J}{\partial l_{3}} \frac{\partial l_{3}}{\partial l_{2}}  \frac{\partial l_{2}}{\partial l_{1}} 
+$$ 
+
+$$
+\frac{\partial J}{\partial l_{1}} = \frac{\partial J}{\partial l_{10}} \frac{\partial l_{10}}{\partial l_{9}} \cdots  \frac{\partial l_{2}}{\partial l_{1}} 
+$$ 
+
+
 
 ### Classifier
 
