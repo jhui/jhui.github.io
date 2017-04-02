@@ -1190,14 +1190,16 @@ Iteration11000 [34312.355686493174,
        [ -2.05131433e-04]])]
 ```
 
-When we build our model, we try out a polynomial model with order of 9. Even after a long training, the model still make very poor prediction. We decide to start with an order of 3 and increase it gradually. Another example to demonstrate why we need to start with simple model first. At 7, we find the model is so hard to train to produce good quality model.
+When we build our model, we try out a polynomial model with order of 9. Even after a long training, the model still makes very poor prediction. We decide to start with an order of 3 and increase it gradually. Another example to demonstrate why we should start with simple model first. At 7, we find the model is so hard to train to produce good quality model. The following is what a 7-layer model predicts:
 <div class="imgcap">
 <img src="/assets/dl/p4.png" style="border:none;width:60%">
 </div>
 
 ### Diminishing and exploding gradient
 
-From our previous example, we demonstrate how important to trace the gradient at different layer to trouble shoot problem. When we come back to our online dating model, we log $$ || gradient || $$ for each layer when our model have 4 layers.
+From our previous example, we demonstrate how important to trace the gradient at different layer to trouble shoot problem. In our online dating model, we log 
+$$ || gradient || $$ 
+for each layers.
 
 ```python
 iteration 0: loss=45.6
@@ -1218,7 +1220,7 @@ layer 2: gradient = 9.97983678446837
 layer 3: gradient = 7.053793667949491
 ```
 
-There are a couple things that we need to monitor. Are the magnitude too hight or too small? If the magnitude is too high at later stage, the gradient descent is having problem to find the minima. For example, when we have the scaling problem with our features (year of education and monthly income), the gradient is so huge that the model learns nothing.
+There are a couple things that we need to monitor. Are the magnitude too hight or too small? If the magnitude is too high at later stage, the gradient descent is having problem to find the minima. For example, when we have the scaling problem with the features (year of education and monthly income), the gradient is so huge that the model learns nothing.
 ```
 iteration 0: ... dW1=1.183e+04 dW2=5.929e+06 ...
 iteration 200: ... dW1=4.458e+147 dW2=2.203e+150 ...
@@ -1226,7 +1228,7 @@ iteration 400: ... dW1=1.656e+291 dW2=8.184e+293 ...
 iteration 600: ... dW1=nan dW2=nan ...
 ```
 
- If the gradient is too small, it means those layers have little impact in reducing the cost. If the loss is high but the gradient is low, we said those layers are bearly learning anything since we do not know how to change the parameter in those layer to have an impact on the cost. The following log shows another pattern that is common in DL. The gradient is diminishing from the right layer (layer 6) to the left layer (layer 0). This pattern indicates the left layers are learning slowly.
+ If the gradient is too small, it means those layers have little impact in reducing the cost. If the loss is high but the gradient is low, we said those layers are bearly learning anything since we do not know how to change the parameter in those layer to reduce cost. The following log shows another pattern that is common in DL. The gradient is diminishing from the right layer (layer 6) to the left layer (layer 0). This pattern indicates the left layers are learning slowly.
 ```
 iteration 0: loss=553.5
 layer 0: gradient = 2.337481559834108e-05
