@@ -1302,7 +1302,7 @@ This is the network design for Resnet. Instead of 1 long chain of nodes, a bypas
 </div>
 
 <div class="imgcap">
-<img src="/assets/dl/resnet.png" style="border:none;width:60%">
+<img src="/assets/dl/resnet2.png" style="border:none;width:60%">
 </div>
 
 As always in DL, an idea is much simplier than the diagram or the equation itself. In LSTM, the state of a cell is updated by
