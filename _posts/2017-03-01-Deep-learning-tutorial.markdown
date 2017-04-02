@@ -1093,7 +1093,7 @@ Instead, we should ask whether our model is too "custom taylor" for the sample d
 **Machine learning is about making prediction.** A model that has 100% accuracy in training can be a bad model in making prediction. For that, we often split our testing data into 3 parts: 80% for training, 10% for validation and 10% for testing. During training, we use the training dataset to build models with different network designs and hyper parameters like learning rate. We run those models with the validation dataset and pick the model with the highest accuracy. This strategy works if the validation dataset are close to what we want to predict. Otherwise, the picked model can make bad predictions. As the last safeguard, we use the 10% testing data for a final insanity check. This testing data is for one last verification but not for model selection. If your testing result is dramatically difference from the validaton result, we need to randomize the data more, or to collect more data.
 
 #### Visualization 
-We can train a model to create a boundary to separate the blue dots from the white dots below. Complex model produces far more sophiscated boundary shape than a low complexity model. In the circled area, if we miss the 2 left white dot samples in our training, a complex model may create an odd shape boundary just to include this white dot. A low complexity model can only produce a smoothier surface which by chance may be more desireable. Complex model may also more vulernable to outliners which a simple model may just ignore like the white dot in the lower right.
+We can train a model to create a boundary to separate the blue dots from the white dots below. Complex model produces far more sophiscated boundary shape than a low complexity model. In the circled area, if we miss the 2 left white dot samples in our training, a complex model may create an odd shape boundary just to include this white dot. A low complexity model can only produce a smoothier surface which by chance may be more desireable. Complex model may also more vulernable to outliners which a simple model may just ignore like the white dot in the green circle.
 
 <div class="imgcap">
 <img src="/assets/dl/of.png" style="border:none;width:60%">
@@ -1275,10 +1275,10 @@ $$
 As indicated, the gradient descent is not only depend on the loss $$ \frac{\partial J}{\partial l} $$ but also on the gradients $$ \frac{\partial l_{k+1}}{\partial l_{k}} $$. Let's look at a sigmod activation function below. If $$ x $$ is higher than 5 or smaller than -5, the gradient is close to 0. Hence, in those region, the node learns slowly with gradient descent regardless of the loss.
 
 <div class="imgcap">
-<img src="/assets/dl/sigmoid2.png" style="border:none;width:60%">
+<img src="/assets/dl/sigmoid2.png" style="border:none;width:80%">
 </div>
 
-We can visualize the sigmoid function behaves like a gate to the loss signal. If the input is > 5 or <-5, it blocks most of the loss signal to propagage backward. So nodes on its left sides learn less. 
+We can visualize the derivative of the sigmoid function behaves like a gate to the loss signal. If the input is > 5 or <-5, the derviative is small and it blocks most of the loss signal to propagage backward. So nodes on its left sides learn less. 
 
 In additon, the chain rule in the gradient descent has a multiplication effect. If we multiple numbers smaller than one, it diminishes quickly. On the contrary, if we multiple numbers greater than one, it explodes. 
 
@@ -1290,7 +1290,7 @@ $$
 5 \cdot 5 \cdot 5 \cdot 5 \cdot 5 = 3125
 $$
 
-So if the network design and the initial parameters have some symmetry that make the nodes behave similarly,  the gradient may diminish quickly or explode. However, we cannot say with certainity on when and how it may happen because we still lack full understanding between the maths of gradient descent and a complex model. Nevertheless, emperical data for deep network indicates it can be a problem.
+So if the network design and the initial parameters have some symmetry that make the nodes behave similarly,  the gradient may diminish quickly or explode. However, we cannot say with certainity on when and how it may happen because we still lack full understanding between the maths of gradient descent and a complex model. Nevertheless, emperical data for deep network indicates it is a problem for deep network.
 
 Microsoft Resnet (2015) has 152 layers. A lot of natural language process (NLP) problems are vulnerable to diminishing and exploding gradients. How can they address the issue? This is the network design for Resnet. Instead of one long chain of nodes, a mechanism is build to bypass a layer to make learning faster. (Source Kaiming He, Xiangyu Zhang ... etc)
 <div class="imgcap">
@@ -1301,7 +1301,7 @@ Microsoft Resnet (2015) has 152 layers. A lot of natural language process (NLP) 
 <img src="/assets/dl/resnet2.png" style="border:none;width:40%">
 </div>
 
-As always in DL, an idea often looks complicated in the diagram or the equation. In LSTM, the state of a cell is updated by
+As always in DL, an idea often looks complicated in a diagram or a equation. In LSTM, the state of a cell is updated by
 
 $$
 C_t = gate_{forget} \cdot C_{t-1} + gate_{input} \cdot \tilde{C}
