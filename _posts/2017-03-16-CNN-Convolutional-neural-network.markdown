@@ -40,6 +40,8 @@ However, we may encounter some problem on the edge. For example, on the top left
 <img src="/assets/cnn/padding.png" style="border:none;width:50%">
 </div>
 
+> Padding with extra 0 is more popular because it maintain spatial dimensions and better preseve information on the edge.
+
 For a CNN, sometimes we do not move the filter only by 1 pixel. If we move the filter 2 pixels to the right, we call the "X stride" equal to 2.
 <div class="imgcap">
 <img src="/assets/cnn/stride2.png" style="border:none;width:50%">
@@ -64,9 +66,25 @@ When we process the image, we apply filters which each geneate an output that we
 <img src="/assets/cnn/filter_m.png" style="border:none;width:70%">
 </div>
 
+#### Visualization
+CNN uses filters to extract features of an image. It would be interested to see what kind of filters that a CNN eventually trained. This gives us some insight understanding what the CNN trying to learn. 
+
+Here is the 96 filters learned in the first convolution layer in AlexNet. A lot of these filters turns out to be edge detection filters common to human visual systems. (Source from Krizhevsky et al.)
+<div class="imgcap">
+<img src="/assets/cnn/cnnfilter.png" style="border:none;width:50%">
+</div>
+
+The right side is the image in the dataset that highly activate some neuron in the feature maps in layer 4. Then the image is reconstruct based on the activations in the feautre maps for those images. This gives up some understanding of what the neuoon is looking for.
+(Source from Matthew D Zeiler et al.)
+<div class="imgcap">
+<img src="/assets/cnn/cnnlayer_4.png" style="border:none;width:70%">
+</div>
+
+> If the visualization of the filters seem lossy, it may indicates we need more training iterations or we are overfitting.
+
 #### Pooling
 
-To reduce the spatial dimension of a feature map, we apply maximum pool. A 2x2 maximum pool replace a 2x2 area by its maximum. After apply a 2x2 pool, we reduce the spatial dimension for the example below from 4x4 to 2x2.
+To reduce the spatial dimension of a feature map, we apply maximum pool. A 2x2 maximum pool replace a 2x2 area by its maximum. After apply a 2x2 pool, we reduce the spatial dimension for the example below from 4x4 to 2x2. (Filter size=2, Stride = 2)
 <div class="imgcap">
 <img src="/assets/cnn/pooling.png" style="border:none;width:50%">
 </div>
@@ -76,7 +94,7 @@ Here, we construct a CNN using convolution and pooling:
 <img src="/assets/cnn/conv_layer2.png" style="border:none;width:50%">
 </div>
 
-Pooling is often used with a convolution layer. Therefore, we often consider it as part of the convolution layer rather than a separate layer. Other pooling like average pooling can be applied. However, for image classification, maximum pooling is more common.
+Pooling is often used with a convolution layer. Therefore, we often consider it as part of the convolution layer rather than a separate layer. The most common configuration is the maximum pool with filter size 2 and stride size 2. Filter size of 3 and stride size 2 is less common. Other pooling like average pooling has been used but fall out of favor lately. As a side note, some researcher may prefer using striding in a convolution filter to reduce dimension rather than pooling.
 
 ### Multiple convolution layers
 
@@ -96,6 +114,21 @@ After using convolution layers to extract the spatial features of an image, we a
 <div class="imgcap">
 <img src="/assets/cnn/convolution_b2.png" style="border:none;width:50%">
 </div>
+
+### Tips
+
+Here are some of the tips to construct a CNN:
+* Use smaller filters like 3x3 or 5x5 with more convolution layer. 
+* Convolution filter with small stride works better.
+* If GPU memory is not large enough, scarifice the first layer with larger filter like 7x7 with stride 2.
+* Use padding fill with 0.
+* Use filter size 2 stride size 2 for max pooling if used.
+
+For the network design:
+1. Start with 2-3 convolution layers with small fiters 3x3 or 5x5 and no pooling. 
+2. Add a 2x2 maximum pool to reduce the spatial dimension.  
+3. Repeat 1-2 until a desired spatial dimension is reached for the fully connected layer. This can be a try and error process.
+4. Use 2-3 hidden layers for the fully connection layers.
 
 ### Convolutional pyramid
 
@@ -119,9 +152,7 @@ The core thinking of CNN is to apply small filters to explore spatial feature. T
 
 #### Google inceptions
 
-In our previous discussion, the convolution filter in each layer is of the same patch size say 3x3. To increase the depth of the feature maps, we can apply more filters of the same patch size. However, in GoogleNet, it applies a different approach to increase the depth. GoogleNet use different filter patch size with different pooling to create feature maps of the same spatial dimension. Because they are of the same spatial dimension, all the features maps from the same layer can concatentate together to form one single feature maps.
-
-Here we have filters with patch size 3x3 and 1x1 . The first set of filters generate 8 features map while the second one generate 2. We can concantentate them to form maps of depth 10. The inception idea is to increase the depth of the feature map by concantentate feature maps using different patch size of convolution filters and pooling. 
+In our previous discussion, the convolution filter in each layer is of the same patch size say 3x3. To increase the depth of the feature maps, we can apply more filters using the same patch size. However, in GoogleNet, it applies a different approach to increase the depth. GoogleNet use different filter patch size for the same layer. Here we can have filters with patch size 3x3 and 1x1. Don't mistaken that a 1x1 filter is doing nothing. It does not explore the spatial dimension but it explores the depth of the feature maps. For example, in the 1x1 filter below, we convert the RGB channels (depth 3) into 2 feature maps output.The first set of filters generate 8 features map while the second one generate 2. We can concantentate them to form maps of depth 10. The inception idea is to increase the depth of the feature map by concantentate feature maps using different patch size of convolution filters and pooling. 
 <div class="imgcap">
 <img src="/assets/cnn/inception.png" style="border:none;width:60%">
 </div>
@@ -396,6 +427,16 @@ with tf.Session(graph=graph) as session:
 
   # Test accuracy: 95.2%
 ```
+
+### Transfer learning
+
+Training a network can take a long time and a large dataset. Transfer learning is about using other people models to solve your problems. For example, can we use a pre-built natual language processing network in English for Spanish? Can we use a CNN network to predict different kind of classes. In practice, there are more commons than we think. The features extracted at earlier layers may be similar for many problem domains. For example, we can reuse a mature CNN model pre-trained with huge dataset, and replace a few right most FC layers. In the network below, we replace the red layer and the ones on its right. We can add or remove nodes and layers. We initialize the new layers and train with our smaller dataset. There are 2 options in the training. Allow the whole system to be trained or just perform gradient descent on the changed layers.
+
+<div class="imgcap">
+<img src="/assets/cnn/cnn.png" style="border:none;width:50%">
+</div>
+
+In addition, we can feed the activation output at certain layer to a different network to solve a different problem. For example,we want to create caption for images automatically. First, we can process images by a CNN and use the features in the FC layer as input to a recurrent network to generate caption.
 
 ### Credits
 For the TensorFlow coding, we start with the CNN class assignment 4 from the Google deep learning class on Udacity. We implement a CNN design with additional code to complete the assignment.

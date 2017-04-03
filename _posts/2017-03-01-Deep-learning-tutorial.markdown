@@ -11,7 +11,7 @@ date: 2017-03-01 14:00:00
 ### What is deep learning (DL)?
 **Deep learing is about building a function estimator.** Historically, people explains deep learning (DL) using the neural network in our brain. Indeed, this is where deep learning gets its insight.  Nevertheless, deep learning has out grown this explaination. Once you realize building a deep learning network is about building a function estimator, you will unveil its real potential in AI.
  
-Let us build a new andriod named Pieter. Our first task is to teach Pieter how to recognize visual objects. Can the visual system in our brain be replaced by a big function estimator? Can we pass the pixel values of an image to a function and calculate the likeliness of seeing a school bus, an airplane or a truck etc ...?
+Let us build a new andriod named Pieter. Our first task is to teach Pieter how to recognize visual objects. Can the visual system in our brain be replaced by a big function estimator? Can we pass the pixel values of an image to a function and calculate the probability of seeing a school bus, an airplane or a truck etc ...?
 
 <div class="imgcap">
 <img src="/assets/dl/deep_learner.jpg" style="border:none;width:70%;">
@@ -44,7 +44,7 @@ $$
 f(z) =  \frac{1}{1 + e^{-(-0.6)}} = 0.3543
 $$
 
-Each node will have its own set of weight (W) and bias (b). From the left most layer, we compute the output of each node and we feed forward the output to the next layer. Eventually, the right most layer is the likeliness for each object classification (a school bus, an airplane or a truck). In this exercise, we supply all the weight and bias values to our android Pieter. But as the term "deep learning" may imply, by the end of this tutorial, Pieter will learn those parameters by himself. We still miss a few pieces for the puzzle. But the network diagram and the equations above already lay down the foundation of a deep learning network. In fact, this simple design can recognize the zip code written on a envelop with reasonable high accuracy.
+Each node will have its own set of weight (W) and bias (b). From the left most layer, we compute the output of each node and we feed forward the output to the next layer. Eventually, the right most layer is the probability for each object classification (a school bus, an airplane or a truck). In this exercise, we supply all the weight and bias values to our android Pieter. But as the term "deep learning" may imply, by the end of this tutorial, Pieter will learn those parameters by himself. We still miss a few pieces for the puzzle. But the network diagram and the equations above already lay down the foundation of a deep learning network. In fact, this simple design can recognize the zip code written on a envelop with reasonable high accuracy.
 
 #### XOR
 For the skeptics, we will build an exclusive "or" (a xor b) using a simple network like:
@@ -143,7 +143,13 @@ Which output something with shape like a delta function:
 <img src="/assets/dl/delta_func.png" style="border:none;width:50%">
 </div>
 
-Implement a XOR or a delta function is not important for deep learning (DL). Nevertheless, we demonstrate the possibilities of building a complex function estimator through a network of simple computation nodes. A network with 3 layers can implement a hand written recognition system for numbers with an accuracy of 95+%. The deeper a network the more complex model that we can build. For example, Microsoft ResNet for image recognition has 100+ layers. For many AI problems, the model needed to solve the problem is too complex. In automous driving, we can model a policy (turn, accelerate or brake) to approximate what a human will do for what they see in front of them. This policy is too hard to model it analytically. Alterantive, with enough training data, we may train a deep learning network with high enough accuracies as a regular driver.
+Implement a XOR or a delta function is not important for deep learning (DL). Nevertheless, we demonstrate the possibilities of building a complex function estimator through a network of simple computation nodes. A network with 3 layers can implement a hand written recognition system for numbers with an accuracy of 95+%. The deeper a network the more complex model that we can build. For example, Microsoft ResNet (2015) for image recognition has 151 layers. For many AI problems, the model needed to solve the problem is very complex. In automous driving, we can model a policy (turn, accelerate or brake) to approximate what a human will do for what they see in front of them. This policy is too hard to model it analytically. Alterantive, with enough training data, we may train a deep learning network with high enough accuracies as a regular driver.
+
+<div class="imgcap">
+<img src="/assets/dl/drive.jpg" style="border:none;width:50%">
+</div>
+
+> Autonomus driving involves many aspect of AI. DL provides a model estimator that cannot be done analytically.
 
 ### Build a Linear regression model
 We will build a model to demonstrate how Pieter can learn the parameters of a model by processing training data. For example, Pieter wants to expand on his horizon and start online dating. He wants to find out the relationship between the number of online dates with the number of years of eductaion and the monthly income.  Pieter starts with a simple linear model as follows:
@@ -832,7 +838,7 @@ $$
 h(z_j)=\text{max}(0,z_{j})
 $$
 
-For the layer before the output, we apply the linear equation but not the ReLU equation.
+For the layer before the output, we apply only the linear equation but not the ReLU equation.
 
 Here is the code performaing the forward pass with 4 hidden layers:
 ```python
@@ -1000,6 +1006,12 @@ We plot the result with our predicted value from our computed model vs the one f
 <div class="imgcap">
 <img src="/assets/dl/fc_2l.png" style="border:none;width:60%">
 </div>
+
+> Congratulations! We just solve a problem using deep learning!
+
+In real life, instead of 2 inputs (length of education and monthly income) to the network, there may be a couple dozens **features** (input). For more complex problems, we add more layers to the fully connected network (FC) to enrich the model. For object recognition in small image (about a thousand pixels), we convert each pixel into a feature and feed it to a FC. Nevertheless, if we want to push the accuracy up for larger image or more complex visual problems, we add convolution layers in front of the FC. Nevertheless, learning the FC covers the critical tecniques that is common to other type of networks.
+
+> In machine learning, we call the input "feature". In visual problems, we may visualize what activates a node. We call it what feature a network is extracting.
 
 Now we increase the hidden layer from 2 to 4. We find that our prediction accuracy drops. And it takes more time to train and more tuning. When we plot it in 3D with variable income and eduction, we realized some part of the 2D plain is bended instead of flat.
 <div class="imgcap">
@@ -1272,7 +1284,7 @@ $$
 \frac{\partial J}{\partial l_{1}} = \frac{\partial J}{\partial l_{10}} \frac{\partial l_{10}}{\partial l_{9}} \cdots  \frac{\partial l_{2}}{\partial l_{1}} 
 $$ 
 
-As indicated, the gradient descent is not only depend on the loss $$ \frac{\partial J}{\partial l} $$ but also on the gradients $$ \frac{\partial l_{k+1}}{\partial l_{k}} $$. Let's look at a sigmod activation function below. If $$ x $$ is higher than 5 or smaller than -5, the gradient is close to 0. Hence, in those region, the node learns slowly with gradient descent regardless of the loss.
+As indicated, the gradient descent is not only depend on the loss $$ \frac{\partial J}{\partial l} $$ but also on the gradients $$ \frac{\partial l_{k+1}}{\partial l_{k}} $$. Let's look at a sigmoid activation function below. If $$ x $$ is higher than 5 or smaller than -5, the gradient is close to 0. Hence, in those region, the node learns slowly with gradient descent regardless of the loss.
 
 <div class="imgcap">
 <img src="/assets/dl/sigmoid2.png" style="border:none;width:80%">
@@ -1311,16 +1323,42 @@ Bypassing a layer can visualize as feeding the input to the output directly. For
 
 ### Classifier
 
+Linear regression produces a value. A very important part of deep learning is classification. We have mentioned face detection and object recognition before. These are all classification problems asking the question: what is this? For example, for Pieter to safely walk in the street, he needs to learn what is a traffic light, is the pedestrian faceing him or not. Other examples can be non-visual, like how can we classify an email as a spam or not.
+
+<div class="imgcap">
+<img src="/assets/dl/resnet2.png" style="border:none;width:40%">
+</div>
+
+Like solving linear regression problem using DL, we use a deep network to compute a value. In classification, we call this value: a score. We apply a classifier to convert this score to the chance of whether this is a spam email, a cat or a face.
 
 #### Logistic regression (Sigmoid)
 
+We can use a sigmoid function (discussed before) as a classifier, and this is called logistic regression.
+ (logistic regression) sInce it can map our score to a probability between 0 and 1.
+
+<div class="imgcap">
+<img src="/assets/dl/sigmoid.png" style="border:none;width:40%">
+</div>
+
+In many classification problem, we do not generate 1 score. For example, we want to classify a image into 100 possible classes. In our network, we genearte 100 scores each one measure whether it is a school bus, a airplane or a truck.
+
+<div class="imgcap">
+<img src="/assets/dl/deep_learner.jpg" style="border:none;width:70%;">
+</div>
+
+#### Mean square error
+
+$$
+MSE = \frac{1}{N} \sum (h_i -y_i)^2
+$$
+
+which $$ h_i $$ is the prediction of 
+
 ### Deep learing network (Fully-connected layers)
 
-#### Sigmoid classifier
 
-#### Mean square error 
+####  
 
-### Exploding and vanishing gradient
 
 ### Cross entropy cost function
 
