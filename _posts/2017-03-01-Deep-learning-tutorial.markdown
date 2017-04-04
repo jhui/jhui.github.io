@@ -1565,11 +1565,12 @@ which $$k$$ is a small constant.
 
 #### Whitening
 
-In machine learning, we prefer features to be un-related. For example, in a dating application, a person may prefer a tall person but not a thin person.  However, weight and heigth is often co-related. A taller person is heavier than a shorter person. Re-scaling these features can only tell whether a person is taller than average or thiner than average but not whether the person is thinner than the corresponding height group. A network learns faster if features are un-related.
-
+In machine learning, we prefer features to be un-related. For example, in a dating application, a person may prefer a tall person but not a thin person. However, weight and heigth is co-related. A taller person is heavier than a shorter person in average. Re-scaling these features independently can only tell whether a person is thinner than average in the population, but not whether the person is thin. A taller person is thinner if both have the same weight. Weigth increases with height:
 <div class="imgcap">
 <img src="/assets/dl/gauss2.png" style="border:none;">
 </div>
+
+A network learns faster if features are un-related. We express the co-relations between a feature $$x_i$$ and $$ x_{j} ## in terms of a covariance matrix below:
 
 $$
 \sum = \begin{bmatrix}
@@ -1579,6 +1580,22 @@ $$
     E[(x_{n} - \mu_{n})(x_{1} - \mu_{1})] & E[(x_{n} - \mu_{n})(x_{2} - \mu_{2})] & \dots  & E[(x_{n} - \mu_{n})(x_{n} - \mu_{n})]
 \end{bmatrix}
 $$
+
+Which $$ E $$ is the expected value.
+
+Consider 2 data samples : (10, 20) and (32, 52). 
+The mean of $$ x_1 $$ will be $$ \mu_1 = \frac {10+32}{2} = 21 $$ and $$ \mu_2 = 36 $$
+
+The expected value of the first element in the second row will be:
+$$
+E[(x_{2} - \mu_{2})(x_{1} - \mu_{1})] = \frac {(20 - 36)(10 - 21) + (52 - 36)(32 - 21)} {2}
+$$
+
+From the covariance matrix $$ \sum $$, we can find a matrix $$W$$ to convert the input $$ X $$ to $$ Y = W X $$. (We will skip the description in finding $$ W $$.) So the distribtion wil change from the left to the right one.
+
+<div class="imgcap">
+<img src="/assets/dl/gaussf.png" style="border:none;">
+</div>
 
 
 ### Batch normalization
