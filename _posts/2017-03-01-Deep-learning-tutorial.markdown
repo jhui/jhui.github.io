@@ -1508,8 +1508,21 @@ $$
 \text{nnl} = \sum\limits_{i} \log (1 + e^{- y_i W^T x_{i}}) 
 $$
 
+#### Mean square error (MSE)
 
-#### MSE
+$$
+\text{mean square error} = J(h, y, W, b) = \frac{1}{N} \sum_i (h_i - y_i)^2
+$$
+
+We demonstrate the use of MSE on regression problems. We can use this in classification. But we use cross entropy loss. Classification problem use a classifier to squash values to a probability between 0 and 1. The mapping is not linear. For a sigmod classfier, a large range of value (less than -5 or greater than 5) is squeezed to 0 or 1. As shown before, those areas have close to 0 partial derviative. Based on the chain rule in the back propagation 
+
+$$
+\frac{\partial J}{\partial score} = \frac{\partial J}{\partial out}} \frac{\partial out}{\partial score}
+$$
+
+The loss signal is hard to propage backward if the score is in those region regardless of loss. However, there is a way to solve this issue. The partial derviative of the sigmod function on that score can be small but we can make $$ frac{\partial J}{\partial out}} $$ very large if that prediction is bad. The sigmod function squashes values by expontential function. We need a cost function that punish bad prediction in the same scale to counter that. Squaring the error does not make it. Cross entropy works on logarithmic scale which punish bad prediction expotentially. That is why cross entropy cost function works better than MSE on the classification problems.
+
+
 #### Cross entropy, Negative likelihood
 #### Margin loss/hinge loss/SVM
 #### L2 Loss vs softmax
@@ -1531,7 +1544,7 @@ We apply regularization to overcome overfit. The idea is to train a model that c
 
 #### L0, L1, L2 regularization
 
-L2 regularization add the norm to the regularization cost of a cost function.
+Large W tends to overfit, and large W seems just to cancel the effect of each other. L2 regularization add the norm to the regularization cost of a cost function.
 
 $$
 J = \text{data cost} + \lambda \cdot ||W||
