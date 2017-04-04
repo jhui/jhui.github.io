@@ -1325,20 +1325,20 @@ Bypassing a layer can visualize as feeding the input to the output directly. For
 
 ### Classification
 
-A very important part of deep learning is classification. We have mentioned face detection and object recognition before. These are classification problems asking the question: what is this? For example, for Pieter to safely walk in the street, he needs to learn what is a traffic light, is the pedestrian faceing him or not. There are non-visual problems like how can we classify an email as a spam or not.
+A very important part of deep learning is classification. We have mentioned face detection and object recognition before. These are classification problems asking the question: what is this? For example, for Pieter to safely walk in the street, he needs to learn what is a traffic light, is the pedestrian faceing him or not. Other non-visual problems include how can we classify an email as a spam or not, approve or disapprove a loan etc...
 
 <div class="imgcap">
-<img src="/assets/dl/street2.png" style="border:none;width:40%">
+<img src="/assets/dl/street2.jpg" style="border:none;width:40%">
 </div>
 
-Like solving regression problem using DL, we use a deep network to compute a value. In classification, we call this value **a score**. We apply a classifier to convert this score to a probability. For example, the probability that this email is an spam, the image is a school bus or this is a face. To train the network, the training dataset will provide the answers to the classification (school bus, truck, airplane) which we call **true label**.
+Like solving regression problem using DL, we use a deep network to compute a value. In classification, we call this value **a score**. We apply a classifier to convert this score to a probability. To train the network, the training dataset will provide the answers to the classification (school bus, truck, airplane) which we call **true label**.
 
 #### Logistic function (sigmoid function)
 
 A score compute by a network can have any value. We need a classifier to squash it to a probabilty value between 0 and 1. For a "yes" or "no" type of prediction (the email is/is not a spamm, the drug test is positive or negative), we can apply a logistic function (sigmoid function) to the score value. If the output probability is lower than 0.5, we predict "no", otherwise we predict "yes".
 
 $$
-p = \sigma(score) = \frac{1}{1 + e^{-\text{score}}}
+p = \sigma(score) = \frac{1}{1 + e^{-score}}
 $$
 
 <div class="imgcap">
@@ -1351,23 +1351,23 @@ $$
 For many classification problem, we categorize an input to one of the many classes. For example, we can classify an image to one of the 100 possbile image classes, like school bus, airplance, truck, ... etc.
 
 <div class="imgcap">
-<img src="/assets/dl/deep_learner.jpg" style="border:none;width:70%;">
+<img src="/assets/dl/deep_learner2.jpg" style="border:none;width:70%;">
 </div>
 
 For a network predicting K classes, the network generates K scores (one for each class.) The probability for class $$ i $$ will be.
 
 $$
-p_i =  \frac{e^{z_i}}{\sum_{c} e^{z_c}} 
+p_i =  \frac{e^{z_i}}{\sum e^{z_c}} 
 $$
 
 For example, the school bus image above may have a score of (3.2, 0.8, 0) for the class school bus, truck and airplane. The probability for the correponding class is
 
 $$
-p_{\text{bus}} =  \frac{e^3.2}{ e^{3.2} + e^{0.8} + e^0} = 0.88
+p_{\text{bus}} =  \frac{e^{3.2}}{ e^{3.2} + e^{0.8} + e^0} = 0.88
 $$
 
 $$
-p_{\text{truck}} =  \frac{e^0.2}{ e^{3.2} + e^{0.8} + e^0} = 0.08
+p_{\text{truck}} =  \frac{e^{0.2}}{ e^{3.2} + e^{0.8} + e^0} = 0.08
 $$
 
 $$
@@ -1382,24 +1382,79 @@ a = np.array([3.2, 0.8, 0])   # [ 0.88379809  0.08017635  0.03602556]
 print(softmax(a))
 ```
 
-
 ### Entropy
 
-When we develop a classification model, we compute a score for the input and use a classifier to make a probabilistic predictions. We optimize the model by training the parameters to get closer and closer to the ground truth probabilities (say 1.0 for school bus and 0 for trucks and airplace for Image 1.)
+With a probablistic model, we want a cost function that works with probability predictions. We need to take a break to the information theory on entropy. Since entropy is heavily used in machine learning, we decide to spend some time.
 
+Say we have a string "abcc". "a" and "b" occurs 25% of time and "c" with 50%. Entropy define the minimum amount of bits to represent the string. For most frequent character, we use less bits to represent it.
+
+Entropy:
 
 $$
-H(y) = \sum_i y_i \log \frac{1}{y_i} = -\sum_i y_i \log y_i
+H(y) = \sum_i y_i \log \frac{1}{y_i} = -\sum_i y_i \log y_{i}
 $$
 
-Cross entropy
+The string needs 1.5 bit per character. 0 represents 'c', 01 for 'a' and 10 for 'b' and the average bit to represent the string is $$ 0.25 x 2 x 2 + 1 x 0.5 = 1.5 $$.
+```python
+b = -( 0.25 * math.log2(0.25) + 0.25 * math.log2(0.25) + 0.5 * math.log2(0.5) )   # 1.5 bit
+```
+
+Entropy is also a measure of randomness. A fair dice has the most randomness with even distribution of outcomes. A biased dice is more predictable and therefore less entropy. In entropy, randomness needs more bits to represent the information and consider process more information.
+
+```python
+b = -(1.0 * math.log2(1.0))                           # 0
+b = -(0.5 * math.log2(0.5) + 0.5 * math.log2(0.5)  )  # 1 bit: 0 for head 1 for tail.
+```
+
+#### Cross entropy
+
 $$
 H(y, \hat{y}) = \sum_i y_i \log \frac{1}{\hat{y}_i} = -\sum_i y_i \log \hat{y}_i
 $$
 
-KL Divergence
+Cross entropy is the amount of bits to encode y but use the $$ \hat{y} $$ distribution to compute the encode scheme. If both distribution is not the same, the cross entropy is always higher since you are not using the most optimized method to encode the information.
+
+#### KL Divergence:
+
 $$
 \mbox{KL}(y~||~\hat{y}) = \sum_i y_i \log \frac{1}{\hat{y}_i} - \sum_i y_i \log \frac{1}{y_i} = \sum_i y_i \log \frac{y_i}{\hat{y}_i}
+$$
+
+KL divergence is simply cross entropy - entropy. The extra bits need to encode the information if $$ \hat{y} $$ is used for the encoding scheme.
+
+
+Our objective is to tune our trainable parameters so that the likelihood of our data under the model is maximized. Likelihood measures the probability of making a prediction the same as the true label given the input and $$ \theta $$.
+
+### Maximum likelihood estimation
+
+$$
+p(y | x, W) =  \prod_n p(y^{i} |  x^{i}, W)
+$$
+
+$$
+p(y^{i} |  x^{i}, W) = \hat{y_i}
+$$
+
+$$
+\log {p(y^{i} |  x^{i}, W)} = \log{ \hat{y_i}}
+$$
+
+#### Neagtive log-likelihood 
+
+$$
+- \log {(p(y | W, x)} = - \sum_n \log {p(y^{i} | W, x^{i})}
+$$
+
+$$
+- \log {(p(y | W, x)} = - \sum_n \log {\hat{y^{i}}}
+$$
+
+$$
+- \log {(p(y | W, x)} = - \sum_n \sum_i y^{i} \log {\hat{y^{i}}} 
+$$
+
+$$
+\text{negative log likelihood} = \text{cross entropy}
 $$
 
 ### Cost function
