@@ -825,7 +825,7 @@ def sigmoid_backward(dout, cache):
 
 Let's apply all our knowledge so far to build a fully connected network as follows:
 <div class="imgcap">
-<img src="/assets/dl/fc_net.png" style="border:none;">
+<img src="/assets/dl/fc_net.png" style="border:none;width:40%">
 </div>
 
 For each nodes in the hidden layer (except the last layer), we apply:
@@ -1535,7 +1535,7 @@ Many places can go wrong when training a deep network. Here are some simple tips
 As we found out before, we want the feature input to the network to be scaled correctly (normalized). If the features do not have the proper scale, it will be much harder for the gradient descent to work. The training parameters may oscaillate.
 
 <div class="imgcap">
-<img src="/assets/dl/gauss_s.jpg" style="border:none;width:60%">
+<img src="/assets/dl/gauss_s.jpg" style="border:none;width:50%">
 </div>
 
 For example, with 2 input features, we want the shape to be as close to a circle as possible.
@@ -1543,13 +1543,13 @@ For example, with 2 input features, we want the shape to be as close to a circle
 <img src="/assets/dl/gauss_shape.jpg" style="border:none;">
 </div>
 
+We normalize the features in the dataset to have zero mean and unit variance. 
+
 $$
 z = \frac{x - \mu}{\sigma}
 $$
 
-Normalize the features in the dataset to have zero mean and unit variance. 
-
-We normalize every pixels in an image independently.  We compute the mean and variance at each pixel location for the whole training dataset. Therefore, for an image with NxN pixels, we compute NxN means and variances.
+For image, we normalize every pixels independently. We compute a mean and variance at each pixel location for the whole training dataset. Therefore, for an image with NxN pixels, we use NxN means and variances to normalize the image.
 
 $$
 z_{ij} = \frac{x_{ij} - \mu_{ij}}{\sigma{ij}}
@@ -1565,12 +1565,14 @@ which $$k$$ is a small constant.
 
 #### Whitening
 
+> This is an advance topic. We will cover the topic briefly only.
+
 In machine learning, we prefer features to be un-related. For example, in a dating application, a person may prefer a tall person but not a thin person. However, weight and heigth is co-related. A taller person is heavier than a shorter person in average. Re-scaling these features independently can only tell whether a person is thinner than average in the population, but not whether the person is thin. A taller person is thinner if both have the same weight. Weigth increases with height:
 <div class="imgcap">
 <img src="/assets/dl/gauss.jpg" style="border:none;">
 </div>
 
-A network learns faster if features are un-related. We express the co-relations between a feature $$x_i$$ and $$ x_{j} ## in terms of a covariance matrix below:
+A network learns faster if features are un-related. We express the co-relations between a feature $$x_i$$ and $$ x_{j} $$ in terms of a covariance matrix below:
 
 $$
 \sum = \begin{bmatrix}
@@ -1587,11 +1589,12 @@ Consider 2 data samples : (10, 20) and (32, 52).
 The mean of $$ x_1 $$ will be $$ \mu_1 = \frac {10+32}{2} = 21 $$ and $$ \mu_2 = 36 $$
 
 The expected value of the first element in the second row will be:
+
 $$
 E[(x_{2} - \mu_{2})(x_{1} - \mu_{1})] = \frac {(20 - 36)(10 - 21) + (52 - 36)(32 - 21)} {2}
 $$
 
-From the covariance matrix $$ \sum $$, we can find a matrix $$W$$ to convert the input $$ X $$ to $$ Y = W X $$. (We will skip the description in finding $$ W $$.) So the distribtion wil change from the left to the right one.
+From the covariance matrix $$ \sum $$, we can a matrix $$W$$ to convert the input $$ X $$ to $$ Y = W X $$. (We will skip how to find $$ W $$ here.) The purpose of whitening is to change the feature distribtion from the left to the right one.
 
 <div class="imgcap">
 <img src="/assets/dl/gaussf.jpg" style="border:none;">
