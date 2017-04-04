@@ -1426,82 +1426,86 @@ KL divergence is simply cross entropy - entropy. The extra bits need to encode t
 
 What is our objective in training a model? Our objective is to tune our trainable parameters so that the likelihood of our model is maximized. Likelihood measures the probability of making a prediction the same as the true label given the input $$ x $$ and $$ W $$. In plain terms, we want to train the parameters $$ W $$ such that its prediction for the training data is as close to the labels.
 
-The likelihood is the define as the probabilty of making a prediction to be the same as the true label give the input $$X$$ and $$W$$. If we can find the $$ W $$ to maximize the likelihood, we find our model. In probabity, we write it as
+The likelihood is define as the probabilty of making a prediction to be the same as the true labels give the input $$X$$ and $$W$$. If we can find the $$ W $$ to maximize the likelihood for all training data, we find our model. In probability, we write it as
 
 $$
-p(y | x, W) =  \prod_n p(y^{i} |  x^{i}, W)
+p(y | x, W) =  \prod_i p(y_{i} |  x_{i}, W)
 $$
 
-For each sample i,
+For each sample $$i$$,
 
 $$
-p(y^{i} |  x^{i}, W) = \hat{y_i}
+p(y_{i} |  x_{i}, W) = \hat{y_i}
 $$
 
-which $$ y^{1} = (1, 0, 0) $$ 100% for school bus and 0% chance otherwise and $$ \hat{y_{1}} $$ be (0.88, 0.08, 0.04).
+which $$ y_{1} = (1, 0, 0) $$ (100% for school bus and 0% chance otherwise), and $$ \hat{y_{1}} $$ be (0.88, 0.08, 0.04).
 
-Log is a monotonic increase function, and therefore,
+#### Neagtive log-likelihood (NLL)
 
-$$
-\text{Finding } x \text{ to maximize } f(x) \text{ is the same as finding } x \text{ to maximum } \log(f(x))
-$$
+We want to take the log of the MLE because we can treat the product terms as additions which is easier to handle. Log is a monotonic increase function, and therefore, Finding $$ x $$ to maximize $$ f(x) $$ is the same as find $$x$$ to maximize $$ \log(f(x))$$.
 
 Since probability is between 0 and 1 and its log is negative, we take a negative sign. 
 
 $$
-- \log {p(y^{i} |  x^{i}, W)} = - \log{ \hat{y_{i}}}
+- \log {p(y_{i} |  x_{i}, W)} = - \log{ \hat{y_{i}}} = nll
 $$
 
-> Maximize the maximum likelihood estimation is the same as minimizing the negative log-likelihood. To train a network, we find $$W $$ to minimizing the negative log-likelihood.
+We call the terms above the negative log-likihood. Hence maximize the "maximum likelihood estimation" (MLE) is the same as minimizing the negative log-likihood.
 
-#### Neagtive log-likelihood (NLL)
-
-$$
-p(y | x, W) =  \prod_n p(y^{i} |  x^{i}, W)
-$$
-
-$$
-nll = - \log {(p(y | W, x)} = - \sum_n \log {p(y^{i} | W, x^{i})}
-$$
-
-$$
-nll =  - \sum_n \log {\hat{y^{i}}}
-$$
-
-$$
-nll = - \sum_n \sum_i y^{i} \log {\hat{y^{i}}} 
-$$
-
-Put back $$ y^{1} = (1, 0, 0) $$
-
-$$
-\text{negative log likelihood} = \text{cross entropy} 
-$$
-
-So maximizing the MLE is the same as the negative log-likelihood.
+> To train a network, we find $$W $$ to minimizing the negative log-likelihood.
 
 ### Cost function
 
+#### Cross entropy cost function
+
+Now apply NLL to find the cost function for a classification problem:
+
+$$
+p(y | x, W) =  \prod_n p(y_{i} |  x__{i}, W)
+$$
+
+$$
+\text{nll} = - \log {(p(y | W, x)} = - \sum_n \log {p(y_{i} | W, x_{i})}
+$$
+
+$$
+\text{nll} =  - \sum_n \log {\hat{y_{i}}}
+$$
+
+We can put back $$ y_{i} $$ For example, you can verify this with $$ y^{1} = (1, 0, 0) $$
+
+$$
+\text{nll} = - \sum_n \sum_i y_{i} \log {\hat{y_{i}}} 
+$$
+
+We can use the cross entropy cost function for probablistic model like classification.
+
+$$
+\text{negative log likelihood} = \text{cross entropy cost function} 
+$$
 
 #### Logistic loss
 
 In logistic regression, we compute the probability by
 
 $$
-{p(y^{i} |  x^{i}, W)} = \sigma(z) = \frac{1}{1 + e^{-z_j}}
+{p(y_{i} |  x_{i}, W)} = \sigma(z) = \frac{1}{1 + e^{-z_i}}
 $$
 
 Apply NLL,
+
 $$
 \text{nnl} = - \log {p(y_{i} |  x_{i}, W)} = - \log{ \frac{1}{1 + e^{-z_j}} } = - \log{1} + \log (1 + e^{-z_j}) 
 $$
 
-That is the logistic loss:
+This becomes the logistic loss:
+
 $$
-\text{nnl} = \sum_i  \log (1 + e^{- z}) 
+\text{nnl} = \sum\limits_{i}    \log (1 + e^{- z}) 
 $$
+
 $$
-\text{nnl} = \sum_i  \log (1 + e^{- y_i W^T x_i}) 
+\text{nnl} = \sum\limits_{i} \log (1 + e^{- y_i W^T x_{i}}) 
 $$
 
 
