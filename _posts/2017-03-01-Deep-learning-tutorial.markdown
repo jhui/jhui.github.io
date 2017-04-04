@@ -171,7 +171,7 @@ This is the high level steps for Pieter to train a model.
 
 We can build a model with different W & b for each community, and use these models to predict how well Pieter may do in each community.
 
-> In our model, we predict the number of dates for people with certain income and year of education. The corresponding values (the number of dates) that we found for each sample in the dataset are called the true values.
+> In our model, we predict the number of dates for people with certain income and year of education. The corresponding values (the number of dates) that we found for each sample in the dataset are called the **true values**.
 
 ### Gradient descent
 **Deep learing is about learning how much it cost.** Step 2-5 is called the gradient descent in DL. First we define a function to measure our errors between our model and the true values. In DL, we call this error function **cost function** or **loss function**. Mean square error (MSE) is one obvious candidate for our model.
@@ -1139,6 +1139,8 @@ But why don't we focus on making a model with the right complexity. In real life
 <img src="/assets/dl/p2.png" style="border:none;width:60%">
 </div>
 
+### Regularization
+
 As we observe before, there are many solutions to the problem but in order to have a very close fit, the coefficient in our training parameters tends to have larger magnitude. 
 
 $$
@@ -1321,43 +1323,94 @@ $$
 
 Bypassing a layer can visualize as feeding the input to the output directly. For $$ C_t $$ to be the same as $$ C_{t-1} $$, we can have $$ gate_ {forget} $$ to be 1 while $$ gate_{input} $$ to be 0. So one way to addressing the diminishing gradient problem is to design a different function for the node.
 
-### Classifier
+### Classification
 
-Linear regression produces a value. A very important part of deep learning is classification. We have mentioned face detection and object recognition before. These are all classification problems asking the question: what is this? For example, for Pieter to safely walk in the street, he needs to learn what is a traffic light, is the pedestrian faceing him or not. Other examples can be non-visual, like how can we classify an email as a spam or not.
+A very important part of deep learning is classification. We have mentioned face detection and object recognition before. These are classification problems asking the question: what is this? For example, for Pieter to safely walk in the street, he needs to learn what is a traffic light, is the pedestrian faceing him or not. There are non-visual problems like how can we classify an email as a spam or not.
 
 <div class="imgcap">
-<img src="/assets/dl/resnet2.png" style="border:none;width:40%">
+<img src="/assets/dl/street2.png" style="border:none;width:40%">
 </div>
 
-Like solving linear regression problem using DL, we use a deep network to compute a value. In classification, we call this value: a score. We apply a classifier to convert this score to the chance of whether this is a spam email, a cat or a face.
+Like solving regression problem using DL, we use a deep network to compute a value. In classification, we call this value **a score**. We apply a classifier to convert this score to a probability. For example, the probability that this email is an spam, the image is a school bus or this is a face. To train the network, the training dataset will provide the answers to the classification (school bus, truck, airplane) which we call **true label**.
 
-#### Logistic regression (Sigmoid)
+#### Logistic function (sigmoid function)
 
-We can use a sigmoid function (discussed before) as a classifier, and this is called logistic regression.
- (logistic regression) sInce it can map our score to a probability between 0 and 1.
+A score compute by a network can have any value. We need a classifier to squash it to a probabilty value between 0 and 1. For a "yes" or "no" type of prediction (the email is/is not a spamm, the drug test is positive or negative), we can apply a logistic function (sigmoid function) to the score value. If the output probability is lower than 0.5, we predict "no", otherwise we predict "yes".
+
+$$
+p = \sigma(score) = \frac{1}{1 + e^{-\text{score}}}
+$$
 
 <div class="imgcap">
 <img src="/assets/dl/sigmoid.png" style="border:none;width:40%">
 </div>
 
-In many classification problem, we do not generate 1 score. For example, we want to classify a image into 100 possible classes. In our network, we genearte 100 scores each one measure whether it is a school bus, a airplane or a truck.
+
+#### Softmax classifier
+
+For many classification problem, we categorize an input to one of the many classes. For example, we can classify an image to one of the 100 possbile image classes, like school bus, airplance, truck, ... etc.
 
 <div class="imgcap">
 <img src="/assets/dl/deep_learner.jpg" style="border:none;width:70%;">
 </div>
 
-#### Mean square error
+For a network predicting K classes, the network generates K scores (one for each class.) The probability for class $$ i $$ will be.
 
 $$
-MSE = \frac{1}{N} \sum (h_i -y_i)^2
+p_i =  \frac{e^{z_i}}{\sum_{c} e^{z_c}} 
 $$
 
-which $$ h_i $$ is the prediction of 
+For example, the school bus image above may have a score of (3.2, 0.8, 0) for the class school bus, truck and airplane. The probability for the correponding class is
+
+$$
+p_{\text{bus}} =  \frac{e^3.2}{ e^{3.2} + e^{0.8} + e^0} = 0.88
+$$
+
+$$
+p_{\text{truck}} =  \frac{e^0.2}{ e^{3.2} + e^{0.8} + e^0} = 0.08
+$$
+
+$$
+p_{\text{airplane}} =  \frac{e^0}{ e^{3.2} + e^{0.8} + e^0} = 0.04
+$$
+
+```python
+def softmax(z):
+    return np.exp(z) / np.sum(np.exp(z))
+
+a = np.array([3.2, 0.8, 0])   # [ 0.88379809  0.08017635  0.03602556]
+print(softmax(a))
+```
+
+
+### Entropy
+
+When we develop a classification model, we compute a score for the input and use a classifier to make a probabilistic predictions. We optimize the model by training the parameters to get closer and closer to the ground truth probabilities (say 1.0 for school bus and 0 for trucks and airplace for Image 1.)
+
+
+$$
+H(y) = \sum_i y_i \log \frac{1}{y_i} = -\sum_i y_i \log y_i
+$$
+
+Cross entropy
+$$
+H(y, \hat{y}) = \sum_i y_i \log \frac{1}{\hat{y}_i} = -\sum_i y_i \log \hat{y}_i
+$$
+
+KL Divergence
+$$
+\mbox{KL}(y~||~\hat{y}) = \sum_i y_i \log \frac{1}{\hat{y}_i} - \sum_i y_i \log \frac{1}{y_i} = \sum_i y_i \log \frac{y_i}{\hat{y}_i}
+$$
+
+### Cost function
+
+#### Maximum likelihood estimation (MLE)
+MLE allows us to define a cost function using probability predicted by the network and the true label.
+
+
 
 ### Deep learing network (Fully-connected layers)
 
-
-####  
 
 
 ### Cross entropy cost function
