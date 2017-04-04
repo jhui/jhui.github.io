@@ -1532,15 +1532,15 @@ Many places can go wrong when training a deep network. Here are some simple tips
 
 ### Feature Scaling (normalization)
 
-As we found out before, we want the feature input to the network to be scaled correctly (normalized). If the features do not have the proper scale, it will be much harder for the gradient descent to work. The training parameters will just oscaillate.
+As we found out before, we want the feature input to the network to be scaled correctly (normalized). If the features do not have the proper scale, it will be much harder for the gradient descent to work. The training parameters may oscaillate.
 
 <div class="imgcap">
-<img src="/assets/dl/gauss_s.jpg" style="border:none;">
+<img src="/assets/dl/gauss_s.jpg" style="border:none;width:60%">
 </div>
 
 For example, with 2 input features, we want the shape to be as close to a circle as possible.
 <div class="imgcap">
-<img src="/assets/dl/gauss.jpg" style="border:none;">
+<img src="/assets/dl/gauss_shape.jpg" style="border:none;">
 </div>
 
 $$
