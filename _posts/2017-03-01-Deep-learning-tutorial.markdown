@@ -1530,9 +1530,56 @@ Many places can go wrong when training a deep network. Here are some simple tips
 #### Adam
 #### Rate decay
 
-### Data preprocessing
-#### Scaling (Mean/normalization)
-#### Whitening 
+### Feature Scaling (normalization)
+
+As we found out before, we want the feature input to the network to be scaled correctly (normalized). If the features do not have the proper scale, it will be much harder for the gradient descent to work. The training parameters will just oscaillate.
+
+<div class="imgcap">
+<img src="/assets/dl/gauss_s.png" style="border:none;">
+</div>
+
+For example, with 2 input features, we want the shape to be as close to a circle as possible.
+<div class="imgcap">
+<img src="/assets/dl/gauss.png" style="border:none;">
+</div>
+
+$$
+z = \frac{x - \mu}{\sigma}
+$$
+
+Normalize the features in the dataset to have zero mean and unit variance. 
+
+We normalize every pixels in an image independently.  We compute the mean and variance at each pixel location for the whole training dataset. Therefore, for an image with NxN pixels, we compute NxN means and variances.
+
+$$
+z_{ij} = \frac{x_{ij} - \mu_{ij}}{\sigma{ij}}
+$$
+
+In practice, we do not read all the trainning data at once to compute the mean or variance. For example, we compute a running mean during the training. Here is the formula for the running mean:
+
+$$
+\mu_{n} = \mu_{n-1}  + k \cdot (x_{i}-\mu_{n-1})
+$$
+
+which $$k$$ is a small constant.
+
+#### Whitening
+
+In machine learning, we prefer features to be un-related. For example, in a dating application, a person may prefer a tall person but not a thin person.  However, weight and heigth is often co-related. A taller person is heavier than a shorter person. Re-scaling these features can only tell whether a person is taller than average or thiner than average but not whether the person is thinner than the corresponding height group. A network learns faster if features are un-related.
+
+<div class="imgcap">
+<img src="/assets/dl/gauss2.png" style="border:none;">
+</div>
+
+$$
+\sum = \begin{bmatrix}
+    E[(x_{1} - \mu_{1})(x_{1} - \mu_{1})] & E[(x_{1} - \mu_{1})(x_{2} - \mu_{2})] & \dots  & E[(x_{1} - \mu_{1})(x_{n} - \mu_{n})] \\
+    E[(x_{2} - \mu_{2})(x_{1} - \mu_{1})] & E[(x_{2} - \mu_{2})(x_{2} - \mu_{2})] & \dots  & E[(x_{2} - \mu_{2})(x_{n} - \mu_{n})] \\
+    \vdots & \vdots & \ddots & \vdots \\
+    E[(x_{n} - \mu_{n})(x_{1} - \mu_{1})] & E[(x_{n} - \mu_{n})(x_{2} - \mu_{2})] & \dots  & E[(x_{n} - \mu_{n})(x_{n} - \mu_{n})]
+\end{bmatrix}
+$$
+
 
 ### Batch normalization
 
