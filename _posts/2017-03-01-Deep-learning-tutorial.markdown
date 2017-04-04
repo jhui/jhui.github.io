@@ -1535,12 +1535,12 @@ Many places can go wrong when training a deep network. Here are some simple tips
 As we found out before, we want the feature input to the network to be scaled correctly (normalized). If the features do not have the proper scale, it will be much harder for the gradient descent to work. The training parameters will just oscaillate.
 
 <div class="imgcap">
-<img src="/assets/dl/gauss_s.png" style="border:none;">
+<img src="/assets/dl/gauss_s.jpg" style="border:none;">
 </div>
 
 For example, with 2 input features, we want the shape to be as close to a circle as possible.
 <div class="imgcap">
-<img src="/assets/dl/gauss.png" style="border:none;">
+<img src="/assets/dl/gauss.jpg" style="border:none;">
 </div>
 
 $$
@@ -1567,7 +1567,7 @@ which $$k$$ is a small constant.
 
 In machine learning, we prefer features to be un-related. For example, in a dating application, a person may prefer a tall person but not a thin person. However, weight and heigth is co-related. A taller person is heavier than a shorter person in average. Re-scaling these features independently can only tell whether a person is thinner than average in the population, but not whether the person is thin. A taller person is thinner if both have the same weight. Weigth increases with height:
 <div class="imgcap">
-<img src="/assets/dl/gauss2.png" style="border:none;">
+<img src="/assets/dl/gauss.jpg" style="border:none;">
 </div>
 
 A network learns faster if features are un-related. We express the co-relations between a feature $$x_i$$ and $$ x_{j} ## in terms of a covariance matrix below:
@@ -1594,7 +1594,7 @@ $$
 From the covariance matrix $$ \sum $$, we can find a matrix $$W$$ to convert the input $$ X $$ to $$ Y = W X $$. (We will skip the description in finding $$ W $$.) So the distribtion wil change from the left to the right one.
 
 <div class="imgcap">
-<img src="/assets/dl/gaussf.png" style="border:none;">
+<img src="/assets/dl/gaussf.jpg" style="border:none;">
 </div>
 
 
