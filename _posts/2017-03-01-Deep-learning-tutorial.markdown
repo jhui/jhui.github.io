@@ -1384,9 +1384,9 @@ print(softmax(a))
 
 ### Entropy
 
-With a probablistic model, we want a cost function that works with probability predictions. We need to take a break to the information theory on entropy. Since entropy is heavily used in machine learning, we decide to spend some time.
+With a probablistic model, we want a cost function that works with probability predictions. We need to take a break to the information theory on entropy first. Since entropy is heavily used in machine learning, it may worth the time.
 
-Say we have a string "abcc". "a" and "b" occurs 25% of time and "c" with 50%. Entropy define the minimum amount of bits to represent the string. For most frequent character, we use less bits to represent it.
+Say we have a string "abcc", "a" and "b" occurs 25% of time and "c" with 50%. Entropy defines the minimum amount of bits to represent the string. For most frequent character, we use fewer bits to represent it.
 
 Entropy:
 
@@ -1394,25 +1394,25 @@ $$
 H(y) = \sum_i y_i \log \frac{1}{y_i} = -\sum_i y_i \log y_{i}
 $$
 
-The string needs 1.5 bit per character. 0 represents 'c', 01 for 'a' and 10 for 'b' and the average bit to represent the string is $$ 0.25 x 2 x 2 + 1 x 0.5 = 1.5 $$.
+The string "abcc" needs 1.5 bit per character. Here is our encoding scheme: 0 represents 'c', 01 for 'a' and 10 for 'b' and the average bit to represent the string is $$ 0.25 \cdot 2 \cdot 2 + 1 \cdot 0.5 = 1.5 $$.
 ```python
 b = -( 0.25 * math.log2(0.25) + 0.25 * math.log2(0.25) + 0.5 * math.log2(0.5) )   # 1.5 bit
 ```
 
-Entropy is also a measure of randomness. A fair dice has the most randomness with even distribution of outcomes. A biased dice is more predictable and therefore less entropy. In entropy, randomness needs more bits to represent the information and consider process more information.
+Entropy is also a measure of randomness (disorder). A fair dice, comparing with a biased dice, has more randomness with even distribution of outcomes. A biased dice is more predictable and therefore less entropy. In entropy, randomness means more information since it requires more bits to represent the information. It needs more time to descibe the details inside a messy room.
 
 ```python
 b = -(1.0 * math.log2(1.0))                           # 0
 b = -(0.5 * math.log2(0.5) + 0.5 * math.log2(0.5)  )  # 1 bit: 0 for head 1 for tail.
 ```
 
-#### Cross entropy
+#### Cross entropy cost function
 
 $$
 H(y, \hat{y}) = \sum_i y_i \log \frac{1}{\hat{y}_i} = -\sum_i y_i \log \hat{y}_i
 $$
 
-Cross entropy is the amount of bits to encode y but use the $$ \hat{y} $$ distribution to compute the encode scheme. If both distribution is not the same, the cross entropy is always higher since you are not using the most optimized method to encode the information.
+Cross entropy is the amount of bits to encode y but use the $$ \hat{y} $$ distribution to compute the encode scheme.The cross entropy is always higher than entropy until both are the same. You need more bits to encode the information if you use a less optimized scheme. In a probabilitic model, we make predictions with probabilities. This acts as a distribution of what we may predict $$ hat{y} $$. (88% chance a school bus, 8% chance a truck and 4% chance an airplane.) 
 
 #### KL Divergence:
 
@@ -1420,57 +1420,91 @@ $$
 \mbox{KL}(y~||~\hat{y}) = \sum_i y_i \log \frac{1}{\hat{y}_i} - \sum_i y_i \log \frac{1}{y_i} = \sum_i y_i \log \frac{y_i}{\hat{y}_i}
 $$
 
-KL divergence is simply cross entropy - entropy. The extra bits need to encode the information if $$ \hat{y} $$ is used for the encoding scheme.
+KL divergence is simply cross entropy - entropy. The extra bits need to encode the information. In machine learning, KL Divergenence estimates the difference between 2 distributions. Since $$ y $$ is the true labels and the labels does not change, we can consider it as a constant. Therefore finding a model to minimze KL divergence is the same as minimze the cross entropy. We therefore due with Cross entropy most of the time in this discussion.
 
+### Maximum likelihood estimation (MLE)
 
-Our objective is to tune our trainable parameters so that the likelihood of our data under the model is maximized. Likelihood measures the probability of making a prediction the same as the true label given the input and $$ \theta $$.
+What is our objective in training a model? Our objective is to tune our trainable parameters so that the likelihood of our model is maximized. Likelihood measures the probability of making a prediction the same as the true label given the input $$ x $$ and $$ W $$. In plain terms, we want to train the parameters $$ W $$ such that its prediction for the training data is as close to the labels.
 
-### Maximum likelihood estimation
+The likelihood is the define as the probabilty of making a prediction to be the same as the true label give the input $$X$$ and $$W$$. If we can find the $$ W $$ to maximize the likelihood, we find our model. In probabity, we write it as
+
+$$
+p(y | x, W) =  \prod_n p(y^{i} |  x^{i}, W)
+$$
+
+For each sample i,
+
+$$
+p(y^{i} |  x^{i}, W) = \hat{y_i}
+$$
+
+which $$ y^{1} = (1, 0, 0) $$ 100% for school bus and 0% chance otherwise and $$ \hat{y_{1}} $$ be (0.88, 0.08, 0.04).
+
+Find the value $$ W $$ to minimize a function or the log of the function are the same since log is a monotoinic increasing function. We therefore take the log of the cost function because addition is easier to manipluate than multiplication. Since probability is between 0 and 1 and its log is negative, we take a negative sign to make the cost function to be positive.
+
+$$
+- \log {p(y^{i} |  x^{i}, W)} = - \log{ \hat{y_{i}}}
+$$
+
+So maximizing the MLE is the same as the negative log-likelihood.
+
+### Cost function
+
+#### Neagtive log-likelihood (NLL)
 
 $$
 p(y | x, W) =  \prod_n p(y^{i} |  x^{i}, W)
 $$
 
 $$
-p(y^{i} |  x^{i}, W) = \hat{y_i}
+nll = - \log {(p(y | W, x)} = - \sum_n \log {p(y^{i} | W, x^{i})}
 $$
 
 $$
-\log {p(y^{i} |  x^{i}, W)} = \log{ \hat{y_i}}
-$$
-
-#### Neagtive log-likelihood 
-
-$$
-- \log {(p(y | W, x)} = - \sum_n \log {p(y^{i} | W, x^{i})}
+nll =  - \sum_n \log {\hat{y^{i}}}
 $$
 
 $$
-- \log {(p(y | W, x)} = - \sum_n \log {\hat{y^{i}}}
+nll = - \sum_n \sum_i y^{i} \log {\hat{y^{i}}} 
 $$
 
-$$
-- \log {(p(y | W, x)} = - \sum_n \sum_i y^{i} \log {\hat{y^{i}}} 
-$$
+Put back $$ y^{1} = (1, 0, 0) $$
 
 $$
-\text{negative log likelihood} = \text{cross entropy}
+\text{negative log likelihood} = \text{cross entropy} 
 $$
 
-### Cost function
+#### Logistic loss
 
-#### Maximum likelihood estimation (MLE)
-MLE allows us to define a cost function using probability predicted by the network and the true label.
+In logistic regression, we compute the probability by
 
+$$
+{p(y^{i} |  x^{i}, W)} = \sigma(z) = \frac{1}{1 + e^{-z_j}}
+$$
+
+Apply NLL,
+$$
+\text{nnl} = - \log {p(y_{i} |  x_{i}, W)} = - \log{ \frac{1}{1 + e^{-z_j}} } = - \log{1} + \log (1 + e^{-z_j}) 
+$$
+
+That is the logistic loss:
+$$
+\text{nnl} = \sum_i  \log (1 + e^{- z}) 
+$$
+$$
+\text{nnl} = \sum_i  \log (1 + e^{- y_i W^T x_i}) 
+$$
+
+
+#### MSE
+#### Cross entropy, Negative likelihood
+#### Margin loss/hinge loss/SVM
+#### L2 Loss vs softmax
 
 
 ### Deep learing network (Fully-connected layers)
 
 
-
-### Cross entropy cost function
-
-### Softmax classifier
 
 ### Log likelihood
 
@@ -1479,7 +1513,39 @@ MLE allows us to define a cost function using probability predicted by the netwo
 ### Mini-batch gradient descent
 
 ### Regularization
+
+We apply regularization to overcome overfit. The idea is to train a model that can make generalized predictions. Force the model not to memorize the small bits of an individual sample that is not part of the genearlized features. Part of the overfit problem is that the model is too powerful. We can reduce the complexity of the model by reducing the number of features: remove features that can be direct or indirect derived by others. Reduce the layers of the network or switch to another design that explore better on the locality of the information. For example, CNN for images to explore spatial locality and LSTM for NPL. Overfit can also be overcomed by adding more training data.
+
 #### L0, L1, L2 regularization
+
+L2 regularization add the norm to the regularization cost of a cost function.
+
+$$
+J = \text{data cost} + \lambda \cdot ||W||
+$$
+
+$$
+||W||_2 = \sum \sqrt{(W_{11}^2 +W_{12}^2 + \cdots + W_{nn}^2)}
+$$
+
+
+There are different function to compute the regularization cost of tunable parameters:
+
+L0 regularization
+
+$$
+|| W ||_0 = \sum \begin{cases} 1, & \mbox{if } w \neq 0 \\ 0, & \mbox{\text{otherwise}} \end{cases}
+$$
+
+L1 regularization
+
+$$
+|| W ||_1 = \sum |w|
+$$
+
+L0, L1 and L2 regularization penalize on $$ W $$ but on different extends. L2 put the highest attentions (or penalty) on the large parameter and L0 pay attention on non-zero prameter.  L0 penalizes non-zero parameter which force more parameters to be 0, i.e. increase the sparsity of the parameters. L2 focuses on large parameter and therefore have more non-zero parameters. L1 regularization also rewards sparsity. Sparsity of parameters effectively reduces the features in making prediction. Sometimes it is used as feature selections. L2 is more popular but some problem domain could prefer higher sparsity.
+
+
 #### Gradient clipping
 #### Dropout
 
@@ -1518,11 +1584,6 @@ Many places can go wrong when training a deep network. Here are some simple tips
 #### Activation per layer
 #### First layer visualization
 
-### Cost function
-#### MSE
-#### Cross entropy, Negative likelihood
-#### Margin loss/hinge loss/SVM
-#### L2 Loss vs softmax
 
 ### Training parameters
 #### Momentum update
@@ -1535,7 +1596,7 @@ Many places can go wrong when training a deep network. Here are some simple tips
 As we found out before, we want the feature input to the network to be scaled correctly (normalized). If the features do not have the proper scale, it will be much harder for the gradient descent to work. The training parameters may oscaillate.
 
 <div class="imgcap">
-<img src="/assets/dl/gauss_s.jpg" style="border:none;width:50%">
+<img src="/assets/dl/gauss_s.jpg" style="border:none;width:40%">
 </div>
 
 For example, with 2 input features, we want the shape to be as close to a circle as possible.
@@ -1597,9 +1658,8 @@ $$
 From the covariance matrix $$ \sum $$, we can a matrix $$W$$ to convert the input $$ X $$ to $$ Y = W X $$. (We will skip how to find $$ W $$ here.) The purpose of whitening is to change the feature distribtion from the left to the right one.
 
 <div class="imgcap">
-<img src="/assets/dl/gaussf.jpg" style="border:none;">
+<img src="/assets/dl/gaussf.jpg" style="border:none;width:50%">
 </div>
-
 
 ### Batch normalization
 
