@@ -1440,15 +1440,19 @@ $$
 
 which $$ y^{1} = (1, 0, 0) $$ 100% for school bus and 0% chance otherwise and $$ \hat{y_{1}} $$ be (0.88, 0.08, 0.04).
 
-Find the value $$ W $$ to minimize a function or the log of the function are the same since log is a monotoinic increasing function. We therefore take the log of the cost function because addition is easier to manipluate than multiplication. Since probability is between 0 and 1 and its log is negative, we take a negative sign to make the cost function to be positive.
+Log is a monotonic increase function, and therefore,
+
+$$
+\text{Finding } x \text{ to maximize } f(x) \text{ is the same as finding } x \text{ to maximum } \log(f(x))
+$$
+
+Since probability is between 0 and 1 and its log is negative, we take a negative sign. 
 
 $$
 - \log {p(y^{i} |  x^{i}, W)} = - \log{ \hat{y_{i}}}
 $$
 
-So maximizing the MLE is the same as the negative log-likelihood.
-
-### Cost function
+> Maximize the maximum likelihood estimation is the same as minimizing the negative log-likelihood. To train a network, we find $$W $$ to minimizing the negative log-likelihood.
 
 #### Neagtive log-likelihood (NLL)
 
@@ -1473,6 +1477,11 @@ Put back $$ y^{1} = (1, 0, 0) $$
 $$
 \text{negative log likelihood} = \text{cross entropy} 
 $$
+
+So maximizing the MLE is the same as the negative log-likelihood.
+
+### Cost function
+
 
 #### Logistic loss
 
