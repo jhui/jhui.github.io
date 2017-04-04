@@ -1461,7 +1461,7 @@ We call the terms above the negative log-likihood. Hence maximize the "maximum l
 Now apply NLL to find the cost function for a classification problem:
 
 $$
-p(y | x, W) =  \prod_n p(y_{i} |  x__{i}, W)
+p(y | x, W) =  \prod_n p(y_{i} |  x{i}, W)
 $$
 
 $$
