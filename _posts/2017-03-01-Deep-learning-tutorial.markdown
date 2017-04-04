@@ -1406,7 +1406,7 @@ b = -(1.0 * math.log2(1.0))                           # 0
 b = -(0.5 * math.log2(0.5) + 0.5 * math.log2(0.5)  )  # 1 bit: 0 for head 1 for tail.
 ```
 
-#### Cross entropy cost function
+#### Cross entropy
 
 $$
 H(y, \hat{y}) = \sum_i y_i \log \frac{1}{\hat{y}_i} = -\sum_i y_i \log \hat{y}_i
@@ -1438,7 +1438,7 @@ $$
 p(y_{i} |  x_{i}, W) = \hat{y_i}
 $$
 
-which $$ y_{1} = (1, 0, 0) $$ (100% for school bus and 0% chance otherwise), and $$ \hat{y_{1}} $$ be (0.88, 0.08, 0.04).
+which $$ y_{1} = (1, 0, 0) $$ in our example (100% for school bus and 0% chance otherwise), and $$ \hat{y_{1}} $$ = $$ (0.88, 0.08, 0.04)$$.
 
 #### Neagtive log-likelihood (NLL)
 
@@ -1450,41 +1450,11 @@ $$
 - \log {p(y_{i} |  x_{i}, W)} = - \log{ \hat{y_{i}}} = nll
 $$
 
-We call the terms above the negative log-likihood. Hence maximize the "maximum likelihood estimation" (MLE) is the same as minimizing the negative log-likihood.
-
-> To train a network, we find $$W $$ to minimizing the negative log-likelihood.
-
-### Cost function
-
-#### Cross entropy cost function
-
-Now apply NLL to find the cost function for a classification problem:
-
-$$
-p(y | x, W) =  \prod_n p(y_{i} |  x{i}, W)
-$$
-
-$$
-\text{nll} = - \log {(p(y | W, x)} = - \sum_n \log {p(y_{i} | W, x_{i})}
-$$
-
-$$
-\text{nll} =  - \sum_n \log {\hat{y_{i}}}
-$$
-
-We can put back $$ y_{i} $$ For example, you can verify this with $$ y^{1} = (1, 0, 0) $$
-
-$$
-\text{nll} = - \sum_n \sum_i y_{i} \log {\hat{y_{i}}} 
-$$
-
-We can use the cross entropy cost function for probablistic model like classification.
-
-$$
-\text{negative log likelihood} = \text{cross entropy cost function} 
-$$
+We call the terms above the negative log-likihood. Hence maximize the "maximum likelihood estimation" (MLE) is the same as minimizing the negative log-likihood. **To train a network, we find $$W $$ to minimizing the negative log-likelihood**.
 
 #### Logistic loss
+
+As an exercise to demonstrate NLL, we can dervive the logistic loss (or even the mean square error) from NLL.
 
 In logistic regression, we compute the probability by
 
@@ -1508,24 +1478,68 @@ $$
 \text{nnl} = \sum\limits_{i} \log (1 + e^{- y_i W^T x_{i}}) 
 $$
 
+### Cost function
+
+#### Cross entropy cost function
+
+Cross entropy measure the difference between 2 distribution. (aka probability distribution.) Is that appropriate as a cost function for a network predicts a probability value.
+
+$$
+H(y, \hat{y}) = \sum_i y_i \log \frac{1}{\hat{y}_i} = -\sum_i y_i \log \hat{y}_i
+$$
+
+Apply NLL to find the cost function for a classification problem:
+
+$$
+p(y | x, W) =  \prod_n p(y_{i} |  x{i}, W)
+$$
+
+$$
+\text{nll} = - \log {(p(y | W, x)} = - \sum_n \log {p(y_{i} | W, x_{i})}
+$$
+
+$$
+\text{nll} =  - \sum_n \log {\hat{y_{i}}}
+$$
+
+Since $$ y^{i} = (0, \cdots,1, \dots, 0, 0) $$ We can put back $$ y_{i}. $$. in that is the cross entropy.
+
+$$
+\text{nll} = - \sum_n \sum_i y_{i} \log {\hat{y_{i}}} 
+$$
+
+$$
+\text{negative log likelihood} for probabilitic models = \text{cross entropy} 
+$$
+
+Because $$ y^{i} = (0, \cdots,1, \dots, 0, 0) $$, we can see the entropy cost
+
+$$
+H(y, \hat{y}) = \sum_i y_i \log \frac{1}{\hat{y}_i} = -\sum_i y_i \log \hat{y}_i
+$$
+
+to simplify as (in classification):
+
+$$
+\text{nll} =  - \sum_n \log {\hat{y_{i}}}
+$$
+
 #### Mean square error (MSE)
 
 $$
-\text{mean square error} = J(h, y, W, b) = \frac{1}{N} \sum_i (h_i - y_i)^2
+\text{mean square error} = \frac{1}{N} \sum_i (h_i - y_i)^2
 $$
 
-We demonstrate the use of MSE on regression problems. We can use this in classification. But we use cross entropy loss. Classification problem use a classifier to squash values to a probability between 0 and 1. The mapping is not linear. For a sigmod classfier, a large range of value (less than -5 or greater than 5) is squeezed to 0 or 1. As shown before, those areas have close to 0 partial derviative. Based on the chain rule in the back propagation 
+We demonstrate the use of MSE on regression problems. We can use this in classification. But instead, we use cross entropy loss. Classification problem use a classifier to squash values to a probability between 0 and 1. The mapping is not linear. For a sigmod classfier, a large range of value (less than -5 or greater than 5) is squeezed to 0 or 1. As shown before, those areas have close to 0 partial derviative. Based on the chain rule in the back propagation 
 
 $$
-\frac{\partial J}{\partial score} = \frac{\partial J}{\partial out}} \frac{\partial out}{\partial score}
+\frac{\partial J}{\partial score} = \frac{\partial J}{\partial out} \frac{\partial out}{\partial score}
 $$
 
-The loss signal is hard to propage backward if the score is in those region regardless of loss. However, there is a way to solve this issue. The partial derviative of the sigmod function on that score can be small but we can make $$ frac{\partial J}{\partial out}} $$ very large if that prediction is bad. The sigmod function squashes values by expontential function. We need a cost function that punish bad prediction in the same scale to counter that. Squaring the error does not make it. Cross entropy works on logarithmic scale which punish bad prediction expotentially. That is why cross entropy cost function works better than MSE on the classification problems.
+The loss signal is hard to propage backward if the score is in those region regardless of loss. However, there is a way to solve this issue. The partial derviative of the sigmod function on that score can be small but we can make $$ frac{\partial J}{\partial out} $$ very large if that prediction is bad. The sigmod function squashes values by expontential function. We need a cost function that punish bad prediction in the same scale to counter that. Squaring the error does not make it. Cross entropy works on logarithmic scale which punish bad prediction expotentially. That is why cross entropy cost function trains better than MSE on the classification problems.
 
-
-#### Cross entropy, Negative likelihood
 #### Margin loss/hinge loss/SVM
-#### L2 Loss vs softmax
+
 
 
 ### Deep learing network (Fully-connected layers)
