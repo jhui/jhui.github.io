@@ -2162,6 +2162,18 @@ with tf.Session(graph=graph) as session:
             [optimizer], feed_dict=feed_dict)
 ```
 
+#### Visualization
+
+Here is some animations produced by Alec Radford in demonstrating how the gradient descent behaves for different algorithm. Regular gradient desent (red) learns the slowest and how each algorighm behave when they get closer to the minima.
+
+<div class="imgcap">
+<img src="/assets/dl/a1.png" style="border:none;width:40%">
+</div>
+
+<div class="imgcap">
+<img src="/assets/dl/z2.png" style="border:none;width:40%">
+</div>
+
 ### Feature Scaling (normalization)
 
 As we found out before, we want the feature input to the network to be scaled correctly (normalized). If the features do not have the proper scale, it will be much harder for the gradient descent to work. The training parameters may oscaillate.
@@ -2326,7 +2338,7 @@ Many places can go wrong when training a deep network. Here are some simple tips
 * Display and verify some training samples and the predictions.
 * Monitor or plot out the loss closely to see its trend.
 * Plot out accuracy between validation and training to identify overfit issues.
-* Keep track of the norm of  W and gradient (or ratios) perferable in key layers. Looks for gradient vanishing/exploding problems.
+* Keep track of the norm of W and gradient (or ratios) perferable in key layers. Looks for gradient vanishing/exploding problems.
 * Plot activation/gradient histograms for all layers. If initialization is not done correctly, there should be a lot of dead/saturated nodes.
 * For visualization problem, try to display the filter in early layer and the activations.
 
