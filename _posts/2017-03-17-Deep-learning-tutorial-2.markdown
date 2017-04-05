@@ -69,13 +69,13 @@ Which does not miss a single point in the sample.
 
 Which model is correct? The answer is "don't know". Some people may think the first one is simplier and simple explanation deserves more credits. But if you show it to a stock broker, they will say the second curve is more real if it is the market closing price of a stock. 
 
-Instead, we should ask whether our model is too "custom taylor" for the sample data so it makes bad prediction. The second curve fit the sample data100% but will make some bad predictions if the true model is a straight line.
+Instead, we should ask whether our model is too "custom tailor" for the sample data so it makes bad predictions. The second curve fits the sample data100% but will make some bad predictions if the true model is a straight line.
 
 #### Validation
-**Machine learning is about making prediction.** A model that has 100% accuracy in training can be a bad model in making prediction. For that, we often split our testing data into 3 parts: 80% for training, 10% for validation and 10% for testing. During training, we use the training dataset to build models with different network designs and hyper parameters like learning rate. We run those models with the validation dataset and pick the model with the highest accuracy. This strategy works if the validation dataset are close to what we want to predict. Otherwise, the picked model can make bad predictions. As the last safeguard, we use the 10% testing data for a final insanity check. This testing data is for one last verification but not for model selection. If your testing result is dramatically difference from the validaton result, we need to randomize the data more, or to collect more data.
+**Machine learning is about making prediction.** A model that has 100% accuracy in training can be a bad model for making predictions. For that, we often split our testing data into 3 parts: 80% for training, 10% for validation and 10% for testing. During training, we use the training dataset to build models with different network designs and hyperparameters like learning rate. We run those models with the validation dataset and pick the model with the highest accuracy. This strategy works if the validation dataset is close to what we want to predict. Otherwise, the picked model can make bad predictions. As the last safeguard, we use the 10% testing data for a final insanity check. This testing data is for one last verification but not for model selection. If your testing result is dramatically differenced from the validation result, we need to randomize the data more, or to collect more data.
 
 #### Visualization 
-We can train a model to create a boundary to separate the blue dots from the white dots below. Complex model produces far more sophiscated boundary shape than a low complexity model. In the circled area, if we miss the 2 left white dot samples in our training, a complex model may create an odd shape boundary just to include this white dot. A low complexity model can only produce a smoothier surface which by chance may be more desireable. Complex model may also more vulernable to outliners which a simple model may just ignore like the white dot in the green circle.
+We can train a model to create a boundary to separate the blue dots from the white dots below. A complex model produces far more sophisticated boundary shape than a low complexity model. In the circled area, if we miss the 2 left white dot samples in our training, a complex model may create an odd shape boundary just to include this white dot. A low complexity model can only produce a smoother surface which by chance may be more desirable. A complex model may also more vulnerable to outliers which a simple model may just ignore like the white dot in the green circle.
 
 <div class="imgcap">
 <img src="/assets/dl/of.png" style="border:none;width:60%">
@@ -87,11 +87,11 @@ $$
 y = 1.9  \cdot 10^{-7}  x^9 - 1.6 \cdot 10^{-5} x^8 + 5.6 \cdot 10^{-4} x^7 - 0.01 x^6  + 0.11 x^5 - 0.63 x^4 + 1.9  x^3 - 2.19  x^2 + 0.9 x - 0.0082
 $$
 
-In fact there are infinite answers using different polynomal orders $$ x^k \cdots $$
+In fact, there are infinite answers using different polynomial orders $$ x^k \cdots $$
 
 Comparing with the linear model $$ y = x $$, we realize that the 
 $$ || coefficient || $$ 
-for Pieter equation is higher. If we have a model using high polynormal order, it will be much harder to train because we are dealing with a far bigger search space for the parameters. In additional, some of the search space will have very steep gradient.
+for Pieter equation is higher. If we have a model using high polynomial order, it will be much harder to train because we are dealing with a far bigger search space for the parameters. In additional, some of the search space will have a very steep gradient.
 
 Let us create a polynomal model with order 5 to fit our sample data, and see how the training model make predictions.
 
@@ -264,7 +264,7 @@ As indicated, the gradient descent is not only depend on the loss $$ \frac{\part
 
 We can visualize the derivative of the sigmoid function behaves like a gate to the loss signal. If the input is > 5 or <-5, the derviative is small and it blocks most of the loss signal to propagage backward. So nodes on its left sides learn less. 
 
-In additon, the chain rule in the gradient descent has a multiplication effect. If we multiple numbers smaller than one, it diminishes quickly. On the contrary, if we multiple numbers greater than one, it explodes. 
+In addition, the chain rule in the gradient descent has a multiplication effect. If we multiple numbers smaller than one, it diminishes quickly. On the contrary, if we multiple numbers greater than one, it explodes. 
 
 $$ 
 0.1 \cdot 0.1 \cdot 0.1 \cdot 0.1 \cdot 0.1 = 0.00001 
@@ -274,7 +274,7 @@ $$
 5 \cdot 5 \cdot 5 \cdot 5 \cdot 5 = 3125
 $$
 
-So if the network design and the initial parameters have some symmetry that make the nodes behave similarly,  the gradient may diminish quickly or explode. However, we cannot say with certainity on when and how it may happen because we still lack full understanding between the maths of gradient descent and a complex model. Nevertheless, emperical data for deep network indicates it is a problem for deep network.
+So if the network design and the initial parameters have some symmetry that makes the nodes behave similarly,  the gradient may diminish quickly or explode. However, we cannot say with certainty on when and how it may happen because we lack a full understanding between the maths of gradient descent and a complex model. Nevertheless, the empirical data for deep network indicates it is a problem for a deep network.
 
 Microsoft Resnet (2015) has 152 layers. A lot of natural language process (NLP) problems are vulnerable to diminishing and exploding gradients. How can they address the issue? This is the network design for Resnet. Instead of one long chain of nodes, a mechanism is build to bypass a layer to make learning faster. (Source Kaiming He, Xiangyu Zhang ... etc)
 <div class="imgcap">
@@ -296,7 +296,7 @@ Bypassing a layer can visualize as feeding the input to the output directly. For
 #### Gradient clipping
 To avoid gradient explosion, we apply gradient clipping to restrict values of the gradient.
 
-Here, we will use TensorFlow with Python. TensorFlow is an open source machine learning software from Google. In real life problem, Numpy is important in data preparation but people will use software package like TensorFlow to implement a deep network.
+Here, we will use TensorFlow with Python. TensorFlow is an open source machine learning software from Google. In real life problem, Numpy is important in data preparation but people will use a software package like TensorFlow to implement a deep network.
 
 Here we set the maxium clip norm to be 5.0.
 ```python
@@ -414,7 +414,7 @@ $$
 
 With a probablistic model, we want a cost function that works with probability predictions. We need to take a break to the information theory on entropy first. Since entropy is heavily used in machine learning, it may worth the time.
 
-Say we have a string "abcc", "a" and "b" occurs 25% of time and "c" with 50%. Entropy defines the minimum amount of bits to represent the string. For most frequent character, we use fewer bits to represent it.
+Say we have a string "abcc", "a" and "b" occurs 25% of the time and "c" with 50%. Entropy defines the minimum amount of bits to represent the string. For the most frequent character, we use fewer bits to represent it.
 
 Entropy:
 
@@ -958,7 +958,7 @@ L0, L1 and L2 regularization penalize on $$ W $$ but on different extends. L2 pu
 
 
 #### Dropout
-A non-intutive regularization method is dropout. L2 regularization discourages weigth with large values. To avoid overfit, we may not want some weight to be too dominating. By randomy dropping some connection from one layer to the other layer, we may force the network not to depend too much on a single node and try to learn from different ways. This could have an effect similar to forcing the weight smaller.
+An non-intuitive regularization method is called dropout. L2 regularization discourages weight with large values. To avoid overfit, we may not want some weight to be too dominating. By randomly dropping some connection from one layer to the other layer, we may force the network not to depend too much on a single node and try to learn from different ways. This could have an effect similar to forcing the weight smaller.
 
 In the following diagram, for each iteration, we may randomly drop off the connection during training.
 <div class="imgcap">
@@ -1001,7 +1001,7 @@ def dropout_backward(dout, cache):
 
 ### Weight initialization
 
-Weight initialization is one important area in implementing a network. If you start the parameters incorrectly, you may not even beat the random odd of guessing after long iterations. The initial input to the activation function (or non-linear function) should not falls into the low partial derviative areas. Otherwise, the network will have issues to learn regardless of the loss. Sometimes those parameters may accidentially initialize with all 0s. This is close to turn every neurons dead, and not able to backpropgage the loss correctly. In fact you do not want the output values to the next layer to look the same. Some non-symertry is preferable, otherwise the loss will evenly distributed back to previous layers. To intrdoduce such non-symmetry, we initialize those parameters with gaussian distribution with mean = 0. 
+Weight initialization is one important area in implementing a network. If you start the parameters incorrectly, you may not even beat the random odd of guessing after long iterations. The initial input to the activation function (or non-linear function) should not fall into the low partial derivative areas. Otherwise, the network will have issues to learn regardless of the loss. Sometimes those parameters may accidentally initialize with all 0s. This is close to turning every neuron dead, and not able to backpropagate the loss correctly. In fact, you do not want the output values to the next layer to look the same. Some non-symmetry is preferable, otherwise, the loss will evenly distribute back to previous layers. To introduce such non-symmetry, we initialize those parameters with gaussian distribution with mean = 0. 
 
 We generate 20,000 value of $$ W $$ with mean = 0 and $$\sigma = 1 $$. Then we plot the distribution of W and re-calculate the variance again.
 
@@ -1011,7 +1011,7 @@ $$ \sigma = 0.998 $$
 <img src="/assets/dl/var1.png" style="border:none;width:40%">
 </div>
 
-We generate 20,000 value of $$ y $$ using our familar formula with 1000 of input $$x$$ which half of them is 1 and another hald 0:
+We generate 20,000 value of $$ y $$ using our familiar formula with 1000 of input $$x$$ which half of them are 1 and another half are 0:
 
 $$
 y = Wx + b
@@ -1025,13 +1025,13 @@ $$ \sigma = 497.6 $$
 <img src="/assets/dl/var2.png" style="border:none;width:40%">
 </div>
 
-The plot have different scale for the x and y dimension. If we decrese the scale in y-direction a little bit, you will realize it is close to flat.
+The plot has different scale for the x and y-dimension. If we decrease the scale in y-direction a little bit, you will realize it is close to flat.
 
 <div class="imgcap">
 <img src="/assets/dl/var3.png" style="border:none;width:40%">
 </div>
 
-The graph is smoother and the variance is much higher than 1. i.e. it is more uniform. Therefore to generate an input to the activation function with gaussian distribution of mean = 0 and $$\sigma = 1$$, we need to take into the account of the number of inputs to the node. Hence we use the following formula for the variance:
+The graph is smoother and the variance is much higher than 1. i.e. it is more uniform. Therefore to generate an input to the activation function with a gaussian distribution of mean = 0 and $$\sigma = 1$$, we need to take into the account of the number of inputs to the node. Hence we use the following formula for the variance:
 
 $$
 \frac {2}{\sqrt{\text{number of input}}}
@@ -1041,10 +1041,10 @@ Note: Some research paper indicates using 2 as numerator has better performance 
 
 ### Training parameters
 
-In previosu sections, we discussed many problems in training a network, and how bad learning rate produces bad predictons. We now come back to the gradient descent and discuss different methods in updating the trainable parameters. This is not an easy topics because the shape of the cost function can be very different in different problem domains or the way we compute cost. Fortunately, most DL software libraries provide many different optimization methods. We will cover a couple core concepts here.
+In previous sections, we discussed many problems in training a network, and how bad learning rate produces bad predictions. We now come back to the gradient descent and discuss different methods for updating the trainable parameters. This is not an easy topic because the shape of the cost function can be very different in different problem domains or the way we compute cost. Fortunately, most DL software libraries provide many different optimization methods. We will cover a couple core concepts here.
 
 #### Rate decay
-To maintain a constant learning rate may not be a good idea. It is like using a saw to finish the last part of making a table. One common way to do it is after some initial phase, we start decay the learning rate for every N iterations. For example, after 10,000 iterations, the learing rate will be decay by the formula below for every 20,000 iterations:
+To maintain a constant learning rate may not be a good idea. It is like using a saw to finish the last part of making a table. One common way to do it is after some initial phase, we start to decay the learning rate for every N iterations. For example, after 10,000 iterations, the learning rate will be decay by the formula below for every 20,000 iterations:
 
 $$
 learning_rate = learning_rate \cdot decay_factor
@@ -1053,10 +1053,10 @@ $$
 which decay_factor is another hyperparameter say 0.95.
 
 #### Momentum update
-We mentioned before gradient descent is like droping a ball in a bowl and let it slide down. But our previous gradient descent adjusts the parameters by the gradient of the current location of $$ W $$ only. In the physical world, the movement of the ball depends on the location but also the velocity of the ball. We could adjust $$ W $$ by the gradient and its path history rather than throwing all the path information away from previous iterations. If we recall the schostic gradient descent, it follows a zipzap pattern rather than a smooth curve. With this history information, we can make stochistac gradient or mini-batch gradient to behave more smoothly.
+We mentioned before gradient descent is like dropping a ball in a bowl and let it slide down. But our previous gradient descent adjusts the parameters by the gradient of the current location of $$ W $$ only. In the physical world, the movement of the ball depends on the location but also the velocity of the ball. We could adjust $$ W $$ by the gradient and its path history rather than throw all the path information away from previous iterations. If we recall the stochastic gradient descent, it follows a zip zap pattern rather than a smooth curve. With this history information, we can make stochastic gradient or mini-batch gradient to behave more smoothly.
 
-Here we introduce a variable $$v$$ which behaves like the velocity (momentum) in the physical word. In each iteration, we update $$ v $$ by keeping a portion of v minus the change casued by the gradient at that location. $$ mu $$ controls how much history information to keep, and this will be another hyperparameter. Reseachers may describe $$ mu_ $$ 
-as fraction. If you recall the parameter oscallation problem before, this actually becomes a damper to stop the oscallations. Momentum based gradient descent often have a smoothier path and settle to a minima closer and faster.
+Here we introduce a variable $$v$$ which behaves like the velocity (momentum) in the physical word. In each iteration, we update $$ v $$ by keeping a portion of v minus the change caused by the gradient at that location. $$ mu $$ controls how much history information to keep, and this will be another hyperparameter. Researchers may describe $$ mu_ $$ 
+as a fraction. If you recall the parameter oscillation problem before, this actually becomes a damper to stop the oscillations. Momentum based gradient descent often have a smoother path and settle to a minima closer and faster.
 
 ```python
 v = mu * v - learning_rate * dw
@@ -1064,7 +1064,7 @@ w += v
 ```
 
 #### Adagrad
- If the input features are not scale correctly, we find it impossible to find the right learning rate that works for both features. This indicates the learning rate needs to self adopt for each tunable parameters. One way to do it is to remember how much change has made to a specific $$ W_i $$. We will drop the parameter change if that parameter has been changed frequently. This will absolutely help the oscillation problem because it acts like a damper again. In Adagrad, it was done slightly difference by allowing the rate change to drop inversely by the L2 norm of all the previous gradients $$ dw_i $$.
+ If the input features are not scaled correctly, we find it impossible to find the right learning rate that works for both features. This indicates the learning rate needs to self-adopt for each tunable parameters. One way to do it is to remember how much change has made to a specific $$ W_i $$. We will drop the parameter change if that parameter has been changed frequently. This will absolutely help the oscillation problem because it acts like a damper again. In Adagrad, it was done slightly difference by allowing the rate change to drop inversely by the L2 norm of all the previous gradients $$ dw_i $$.
  
 ```python
 cache += dw**2
@@ -1183,7 +1183,7 @@ $$
 E[(x_{2} - \mu_{2})(x_{1} - \mu_{1})] = \frac {(20 - 36)(10 - 21) + (52 - 36)(32 - 21)} {2}
 $$
 
-From the covariance matrix $$ \sum $$, we find a matrix $$W$$ by $$ \sum $$ to convert the input $$ X $$ to $$ Y = W X $$. The purpose of whitening is to change the feature distribtion from the left to the right one.
+From the covariance matrix $$ \sum $$, we find a matrix $$W$$ by $$ \sum $$ to convert the input $$ X $$ to $$ Y = W X $$. The purpose of whitening is to change the feature distribution from the left to the right one.
 
 <div class="imgcap">
 <img src="/assets/dl/gaussf.jpg" style="border:none;width:50%">
@@ -1203,9 +1203,9 @@ Xwhite = Xdecorelate / np.sqrt(S + 1e-5)
 
 ### Batch normalization
 
-We have emphsised so many times the benefits of having features with mean = 0 and $$ \sigma=1 $$ 
+We have emphasized so many times the benefits of having features with mean = 0 and $$ \sigma=1 $$ 
 
-But why we only stop in the input layer only. Batch normalation re-normalize a layer output. For example,  we re-normalize the output of the linear layer before feeding it into the ReLU.
+But why we only stop in the input layer only. Batch normalization re-normalize a layer output. For example,  we re-normalize the output of the linear layer before feeding it into the ReLU.
 ```python
 def affine_batchnorm_relu_forward(x, w, b, gamma, beta, bn_param):
   h, h_cache = affine_forward(x, w, b)
@@ -1221,7 +1221,7 @@ $$
 z = \frac{x - \mu}{\sigma}
 $$
 
-which during the training, we use the mean and varianace computed from the current mini-batch samples. We then feed the output to a linear equation with the trainable scalar values $$ \gamma $$ and $$ \beta$$ (1 pair for each normalized layer). 
+which during the training, we use the mean and variance computed from the current mini-batch samples. We then feed the output to a linear equation with the trainable scalar values $$ \gamma $$ and $$ \beta$$ (1 pair for each normalized layer). 
 
 $$
 out = \gamma z + \beta
@@ -1241,7 +1241,7 @@ def batchnorm_forward(x, gamma, beta, bn_param):
     out = gamma * xhat + beta
 ```
 
-In the training, we use the mean and variance of the current training sample. But for testing, we do not use the mean/variance of the testing data. Instead, we record a runing mean & variance during training and apply it.
+In the training, we use the mean and variance of the current training sample. But for testing, we do not use the mean/variance of the testing data. Instead, we record a running mean & variance during training and apply it.
 ```python
     running_mean = momentum * running_mean + (1 - momentum) * sample_mean
     running_var = momentum * running_var + (1 - momentum) * sample_var
@@ -1255,55 +1255,55 @@ Normalize the input during testing with the running mean/variance in the trainin
 
 ### Hyperparameter tuning
 
-Because the model is such a black box to us in real life problems. the hyper parameter tuning is usually a try and error. Some parameters are dependent of each other and cannot tune separately. Sometime the relationship is subtle. For example, the regularization rate changes the shape of the cost function and therefore impact how we should tune the learning rate. We can create a mesh of values to be used for tuning. For example, with learning rates of (1e-1, 1e-2, ... 1e-8) and regularization of (1e-3, 1e-4, .. 1e-6), we have a potential of 8x4 combinations to test ( (1e-1, 1e-3), (1e-1, 1e-3), ..., (1e-8, 1e-5), (1e-8, 1e-6) ). We may not want to use an exactly rectangular shape of mesh. For example, we may want to slighlt deviate at each mesh point with the hope that some irregularity may help us to explore more information.
+Because the model is such a black box to us in real life problems. the hyperparameter tuning is usually a try and error. Some parameters are dependent on each other and cannot tune separately. Sometimes the relationship is subtle. For example, the regularization rate changes the shape of the cost function and therefore impact how we should tune the learning rate. We can create a mesh of values to be used for tuning. For example, with learning rates of (1e-1, 1e-2, ... 1e-8) and regularization of (1e-3, 1e-4, .. 1e-6), we have a potential of 8x4 combinations to test ( (1e-1, 1e-3), (1e-1, 1e-3), ..., (1e-8, 1e-5), (1e-8, 1e-6) ). We may not want to use an exactly rectangular shape of a mesh. For example, we may want to slightly deviate at each mesh point with the hope that some irregularity may help us to explore more information.
 
 <div class="imgcap">
 <img src="/assets/dl/mesh.png" style="border:none;width:40%">
 </div>
 
-> Start tune parameters from corase grain with fewer iterations before fine tuning.
+> Start tune parameters from coarse grain with fewer iterations before fine tuning.
 
-### Trouble shooting
+### Troubleshooting
 
 Many places can go wrong when training a deep network. Here are some simple tips:
 * Unit test the forward pass and back propagation code.
-	* At the begining, test with non-random data.
-* Compare the back progataion result with the naive gradient check.
+	* At the beginning, test with non-random data.
+* Compare the backpropagation result with the naive gradient check.
 * Always start with a simple network that works. 
 	* Push accuracy up should not be the first priority.
-	* Handle multiple battle front in a complext network is not the way to go. Issues grow expotentially in DL.
-* Create simple sceairos to verify the network:
-	* Train with small dataset with few iterations.
+	* Handle multiple battle front in a complex network is not the way to go. Issues grow exponentially in DL.
+* Create simple scenarios to verify the network:
+	* Train with a small dataset with few iterations.
 	* Compare the loss/accuracy value with the corresponding value of a random guess. 
 	* Verify if loss drops and/or accuracies increase during training.
 	* Drop regularization - training accuracies should go up.	
-	* Overfit with small dataset to see if loss is small.
+	* Overfit with a small dataset to see if the loss is small.
 * Keep track of the loss, and when in debugging also the magnitude of the gradient for each layer.
-* Do not waste time on large dataset with long iterations during early development.
+* Do not waste time on a large dataset with long iterations during early development.
 * Verify how trainable parameters are initialized.	
-* Always keep track of the shape of the data and doucment it in the code.
+* Always keep track of the shape of the data and document it in the code.
 * Display and verify some training samples and the predictions.
 * Monitor or plot out the loss closely to see its trend.
 * Plot out accuracy between validation and training to identify overfit issues.
-* Keep track of the norm of W and gradient (or ratios) perferable in key layers. Looks for gradient vanishing/exploding problems.
+* Keep track of the norm of W and gradient (or ratios) preferable in key layers. Looks for gradient vanishing/exploding problems.
 * Plot activation/gradient histograms for all layers. If initialization is not done correctly, there should be a lot of dead/saturated nodes.
-* For visualization problem, try to display the filter in early layer and the activations.
+* For visualization problem, try to display the filter in an early layer and the activations.
 
 ### CNN & LSTM
-FC network is rarely used alone. Exploring all possible connections among nodes in previous layer provide a over complex model that is wasteful with small returns. A lot of information are localized. For an image, we want to extract features from neighboring pixels. CNN applies filter to explore localized features and then apply FC to make predictions. LSTM apply time feedback loop to extract time sequence information. CNN & LSTM make changes to the design of a computation node and how it is connected. The core part of DL remains the same and learning CNN after FC is easy since the fundatations is the same. Nevertheless, you will go nowhere in learning DL without CNN and/or LSTM. Hence, we have provided a seperate discussion on both CNN and LSTM.
+FC network is rarely used alone. Exploring all possible connections among nodes in the previous layer provide a over complex model that is wasteful with small returns. A lot of information are localized. For an image, we want to extract features from neighboring pixels. CNN applies filter to explore localized features and then apply FC to make predictions. LSTM apply time feedback loop to extract time sequence information. CNN & LSTM make changes to the design of a computation node and how it is connected. The core part of DL remains the same and learning CNN after FC is easy since the fundatation is the same. Nevertheless, you will go nowhere in learning DL without CNN and/or LSTM. Hence, we have provided a separate discussion on both CNN and LSTM.
 
 ### Data argumentation
 
-We have focus on the mechanics of the DL. One significant improvement for network training is to have more data. This helps overfiting and have better coverage of your feature spaces. However, getting labeled samples can be expansive. One alternative is data argumentation. For example, for visual recognition, we can flip the image, slightly rotate or skew the images with software libraies. This help us to avoid overfitting and produce generalized predictions invariant of the spatial location of the objects. Some research may even expand further by allowing some testing data to be used as training data if they produce a very high score.
+We have focused on the mechanics of the DL. One significant improvement for network training is to have more data. This avoids overfiting and has better coverage of your feature spaces. However, getting labeled samples can be expensive. One alternative is data argumentation. For example, for visual recognition, we can flip the image, slightly rotate or skew the images with software libraries. This helps us to avoid overfitting and produce generalized predictions invariant of the spatial location of the objects. Some research may even expand further by allowing some testing data to be used as training data if they produce a very high score.
 
-> Very simple effort to arugment you data can have significant impact on the training. 
+> Very simple effort to argument your data can have a significant impact on the training.
 
 ### Model ensembles
 
-So far, we try to find the best models. In machine learning, we take vote from different decision tree to make the final prediction. This based on the assumption that mistakes can be localized. There are smaller chance for 2 different models to make the same mistake. In DL, each training starts with random guesses and therefore the models usually are not unique.  We can pick the best models after training the networks multiple times. We can vote from different models to make the final predictions. This reqiuires to run the program multiple times and can be prohibitive expanisve. Alternative, we can run the training once and pick the best models during the latter phase of the training. We can have one vote per model, taking an average or use weights based on the confidence level of each prediction.
+So far, we try to find the best models. In machine learning, we take a vote from different decision tree to make the final prediction. This based on the assumption that mistakes can be localized. There is a smaller chance for 2 different models to make the same mistake. In DL, each training starts with random guesses and therefore the models usually are not unique.  We can pick the best models after training the networks multiple times. We can vote from different models to make the final predictions. This requires to run the program multiple times and can be prohibitively expensive. The alternative, we can run the training once and pick the best models during the latter phase of the training. We can have one vote per model, taking an average or use weights based on the confidence level of each prediction.
 
 ### Credits
-For the CIFRA 10 example, we start with assignment 2 in the Stanford class "CS231n Convolutional Neural Networks for Visual Recognition". We start with the skeleton codes provided by the assignement and put into our code to complete the assignment.
+For the CIFRA 10 example, we start with assignment 2 in the Stanford class "CS231n Convolutional Neural Networks for Visual Recognition". We start with some skeleton codes provided by the assignment and put into our code to complete the assignment.
 
 
 
