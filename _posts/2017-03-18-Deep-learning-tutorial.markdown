@@ -1092,7 +1092,7 @@ Layer 4:
 ```
 
 
-[Part 2 of deep learning is here](https://jhui.github.io/2017/03/17/Deep-learning-tutorial-2/)
+[Part 2 of the deep learning is here](https://jhui.github.io/2017/03/17/Deep-learning-tutorial-2/)
 
 
 

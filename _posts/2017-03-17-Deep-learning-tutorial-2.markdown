@@ -8,7 +8,7 @@ date: 2017-03-17 14:00:00
 ---
 **This is work in progress... The content needs major editing.**
 
-[Part 1 of deep learning is here](https://jhui.github.io/2017/03/18/Deep-learning-tutorial/)
+[Part 1 of the deep learning can be found here](https://jhui.github.io/2017/03/18/Deep-learning-tutorial/)
 
 ### Overfit
 
