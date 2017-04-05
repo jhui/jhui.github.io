@@ -2167,11 +2167,11 @@ with tf.Session(graph=graph) as session:
 Here is some animations produced by Alec Radford in demonstrating how the gradient descent behaves for different algorithm. Regular gradient desent (red) learns the slowest and how each algorighm behave when they get closer to the minima.
 
 <div class="imgcap">
-<img src="/assets/dl/a1.png" style="border:none;width:40%">
+<img src="/assets/dl/a1.gif" style="border:none;width:70%">
 </div>
 
 <div class="imgcap">
-<img src="/assets/dl/z2.png" style="border:none;width:40%">
+<img src="/assets/dl/a2.gif" style="border:none;width:70%">
 </div>
 
 ### Feature Scaling (normalization)
