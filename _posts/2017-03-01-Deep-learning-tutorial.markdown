@@ -2326,7 +2326,7 @@ Many places can go wrong when training a deep network. Here are some simple tips
 * Display and verify some training samples and the predictions.
 * Monitor or plot out the loss closely to see its trend.
 * Plot out accuracy between validation and training to identify overfit issues.
-* Keep track of the norm of  $$ || W || $$ and gradient (or ratios) perferable in key layers. Looks for gradient vanishing/exploding problems.
+* Keep track of the norm of  W and gradient (or ratios) perferable in key layers. Looks for gradient vanishing/exploding problems.
 * Plot activation/gradient histograms for all layers. If initialization is not done correctly, there should be a lot of dead/saturated nodes.
 * For visualization problem, try to display the filter in early layer and the activations.
 
