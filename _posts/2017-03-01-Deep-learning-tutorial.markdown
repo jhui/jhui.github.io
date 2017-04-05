@@ -270,6 +270,14 @@ print(gradient_check(f, 4))
 ```
 We never call this method in the production code. But computing partial derviative can be tedious and error prone. We use this method to verify a partial derviative implementation during the development time.
 
+#### Mini-batch gradient descent
+
+When computing the cost function, we add all the errors for the processed training data. We can process all the training data at once but this can take too much time for just one update. On the contrray, we can perform stochastic gradient descent which make one W update per training sample. Nevertheless, the gradient descent will follow a zigzag pattern rather than following the contour of the cost function. For steep gradient area, this can be a problem. Also it may takes longer to reach the minima. A good compromise is to process a batch of N samples at a time. This can be a tunable hyper-parameter but usually not very critical and may start with 64 subject to the memory consumptions.
+
+$$
+J = \frac{1}{N} \sum_i (W_1*x_i - y_i)^2
+$$
+
 ### Backpropagation
 To compute the partial derviatives, $$ \frac{\partial J}{\partial W_i} $$, we can start from each node in the left most layer and propagate the gradient until it reach the right most layer.  Then we move to the next layer and start the process again. For a deep network, this is very inefficient. To compute the partial gradient efficiently, we perform a foward pass and a backprogagation. 
 
@@ -715,10 +723,10 @@ Adding both output:
 <img src="/assets/dl/l2.png" style="border:none;width:80%">
 </div>
 
-Add a non-linear function after a linear equation can enrich the complexity of our model. These methods are usually call activation function. Common functions are sigmoid, tanh and ReLU.
+Add a non-linear function after a linear equation can enrich the complexity of our model. These methods are usually call **activation function**. Common functions are sigmoid, tanh and ReLU.
  
 #### Sigmoid
-Sigmoid is one of the earliest function used in deep networks. Neverthless, its importance is gradually replaced by other functions like ReLU. Currently, sigmoid function is more popular as a gating function in LSTM/GRU (an "on/off" gate) to selectively remember or forget information.  
+Sigmoid is one of the earliest function used in deep networks. Neverthless, as an activation function, its importance is gradually replaced by other functions like ReLU. Currently, sigmoid function is more popular as a gating function in LSTM/GRU (an "on/off" gate) to selectively remember or forget information.  
 
 <div class="imgcap">
 <img src="/assets/dl/sigmoid.png" style="border:none;width:50%">
@@ -1348,7 +1356,7 @@ $$
 
 #### Softmax classifier
 
-For many classification problem, we categorize an input to one of the many classes. For example, we can classify an image to one of the 100 possbile image classes, like school bus, airplance, truck, ... etc.
+For many classification problem, we categorize an input to one of the many classes. For example, we can classify an image to one of the 100 possbile image classes, like school bus, airplance, truck, ... etc. We use softmax classifier to compute K probabilites, one per class for an input image. (The combined probabilities remains 1.)
 
 <div class="imgcap">
 <img src="/assets/dl/deep_learner2.jpg" style="border:none;width:70%;">
@@ -1376,11 +1384,48 @@ $$
 
 ```python
 def softmax(z):
+	z -= np.max(z)
     return np.exp(z) / np.sum(np.exp(z))
 
 a = np.array([3.2, 0.8, 0])   # [ 0.88379809  0.08017635  0.03602556]
 print(softmax(a))
 ```
+
+To avoid adding large expotential value that cause numerical stability problem, we subract the the inputs by its max. Adding or subtract a number from the input produce the same probabilities in softmax. 
+
+$$
+softmax(z) = \frac{e^{z_i -C}}{\sum e^{z_c  - C}} =  \frac{e^{-C} e^{z_i}}{e^{-C} \sum e^{z_c}} = \frac{e^{z_i}}{\sum e^{z_c}}
+$$
+
+```python
+z -= np.max(z)
+```
+
+We apply softmax on a score to compute the probabilities.
+
+$$
+p = softmax(score) = \frac{e^{z_i}}{\sum e^{z_c}}
+$$
+
+**logits** are defined as (to measure odd.)
+
+$$
+logits = \log(\frac{p}{1-p})
+$$
+
+Combine the definition of the softmax and logits, it is easier to see the score is the logit. That is why many literature or API use the term logit for score when softmax is used. However, there are more than 1 function that map scores to probabiities and meet the definition of logits. Sigmoid function is one of them.
+
+#### SVM classifier
+
+Linear SVM classifer applies a linear classifier to map input to K scores, one per class. The class having the highest score will be the class prediction. To train the network, SVM loss is used. We will discuss the SVM in the cost function section. Its main purpose is to create a boundary to separate class with the largest possible margin.
+
+$$
+\hat{y} = W x + b
+$$
+
+<div class="imgcap">
+<img src="/assets/dl/SVM.png" style="border:none;width:40%">
+</div>
 
 ### Entropy
 
@@ -1502,27 +1547,49 @@ $$
 \text{nll} =  - \sum_n \log {\hat{y_{i}}}
 $$
 
-Since $$ y^{i} = (0, \cdots,1, \dots, 0, 0) $$ We can put back $$ y_{i}. $$. in that is the cross entropy.
+Since $$ y_{i} = (0, \cdots,1, \dots, 0, 0) $$ We can put back $$ y_{i} $$ which becomes the cross entropy.
 
 $$
 \text{nll} = - \sum_n \sum_i y_{i} \log {\hat{y_{i}}} 
 $$
 
 $$
-\text{negative log likelihood} for probabilitic models = \text{cross entropy} 
+\text{negative log likelihood for probabilitic models} = \text{cross entropy} 
 $$
 
-Because $$ y^{i} = (0, \cdots,1, \dots, 0, 0) $$, we can see the entropy cost
+Because $$ y^{i} = (0, \cdots,1, \cdots, 0) $$, we can see the cross entropy cost
 
 $$
 H(y, \hat{y}) = \sum_i y_i \log \frac{1}{\hat{y}_i} = -\sum_i y_i \log \hat{y}_i
 $$
 
-to simplify as (in classification):
+is usually written as (in classification):
 
 $$
 \text{nll} =  - \sum_n \log {\hat{y_{i}}}
 $$
+
+#### SVM loss (also called Hinge loss or Max margin loss)
+
+$$
+J = \sum_{j\neq y_i} \max(0, score_j - score_{y_i} + 1)
+$$
+
+If the margin between the score of a class and that of the true label is greater than -1, we add that to the cost.  For example, a score of (8, 14, 9.5, 10) with the last entry being the true label.
+
+$$
+J = max(0, 8 - 10 + 1) + max(0, 14 - 10 + 1) + max(0, 9.5 - 10 + 1)
+$$
+
+$$
+J = 0 + 5 + 0.5 = 5.5
+$$
+
+For SVM, the cost function creates a boundary with the maximum margin to separate classes.
+
+<div class="imgcap">
+<img src="/assets/dl/SVM.png" style="border:none;width:40%">
+</div>
 
 #### Mean square error (MSE)
 
@@ -1536,21 +1603,20 @@ $$
 \frac{\partial J}{\partial score} = \frac{\partial J}{\partial out} \frac{\partial out}{\partial score}
 $$
 
-The loss signal is hard to propage backward if the score is in those region regardless of loss. However, there is a way to solve this issue. The partial derviative of the sigmod function on that score can be small but we can make $$ frac{\partial J}{\partial out} $$ very large if that prediction is bad. The sigmod function squashes values by expontential function. We need a cost function that punish bad prediction in the same scale to counter that. Squaring the error does not make it. Cross entropy works on logarithmic scale which punish bad prediction expotentially. That is why cross entropy cost function trains better than MSE on the classification problems.
-
-#### Margin loss/hinge loss/SVM
-
+The loss signal is hard to propage backward in those region regardless of loss. However, there is a way to solve this issue. The partial derviative of the sigmod function on that score can be small but we can make 
+$$ 
+\frac{\partial J}{\partial out} 
+$$ 
+very large if the prediction is bad. The sigmod function squashes values by expontentially. We need a cost function that punish bad prediction in the same scale to counter that. Squaring the error does not make it. Cross entropy works on logarithmic scale which punish bad prediction expotentially. That is why cross entropy cost function trains better than MSE on the classification problems.
 
 
 ### Deep learing network (Fully-connected layers)
 
 
 
-### Log likelihood
 
 ### Network layers
 
-### Mini-batch gradient descent
 
 ### Regularization
 
@@ -1567,7 +1633,6 @@ $$
 $$
 ||W||_2 = \sum \sqrt{(W_{11}^2 +W_{12}^2 + \cdots + W_{nn}^2)}
 $$
-
 
 There are different function to compute the regularization cost of tunable parameters:
 
