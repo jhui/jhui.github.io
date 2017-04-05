@@ -272,7 +272,7 @@ We never call this method in the production code. But computing partial derviati
 
 #### Mini-batch gradient descent
 
-When computing the cost function, we add all the errors for the processed training data. We can process all the training data at once but this can take too much time for just one update. On the contrray, we can perform stochastic gradient descent which make one W update per training sample. Nevertheless, the gradient descent will follow a zigzag pattern rather than following the contour of the cost function. For steep gradient area, this can be a problem. Also it may takes longer to reach the minima. A good compromise is to process a batch of N samples at a time. This can be a tunable hyper-parameter but usually not very critical and may start with 64 subject to the memory consumptions.
+When computing the cost function, we add all the errors for the processed training data. We can process all the training data at once but this can take too much time for just one update. On the contrray, we can perform stochastic gradient descent which make one W update per training sample. Nevertheless, the gradient descent will follow a zipzap pattern rather than following the curve of the cost function. This can be a problem if you land in steep gradient area which the parameters may bounce to area with high cost. Also it may takes longer or harder to reach the minima subject to the shape of the cost function. A good compromise is to process a batch of N samples at a time. This can be a tunable hyper-parameter but usually not very critical and may start with 64 subject to the memory consumptions.
 
 $$
 J = \frac{1}{N} \sum_i (W_1*x_i - y_i)^2
@@ -744,6 +744,14 @@ Popular for output prefer to be within [-1, 1]
 <div class="imgcap">
 <img src="/assets/dl/tanh.png" style="border:none;width:50%">
 </div>
+
+As mentioned before, your want the gradient descent to follow the curve of the cost function but not in some crazy zipzap pattern. For sigmoid function, the output is always positive.  According to the formular below, the backprogate gradient for W will be subject to the sign of $$  \frac {\partial J}{\partial l_{k+1}} $$ since $$X$$ is always positive after the sigmoid layer. In practice, it forces all $$ W $$ in this layer to move in the same direction and therefore the gradient descent will follow a zipzap pattern. 
+
+$$
+\frac {\partial l_{k}}{\partial W} = X \cdot \frac {\partial J}{\partial l_{k+1}} 
+$$
+
+SInce tanh has positive and negative output and therefore prefered over sigmoid.
 
 Implement these functions with python and numpy.
 ```python
@@ -1655,6 +1663,8 @@ L0, L1 and L2 regularization penalize on $$ W $$ but on different extends. L2 pu
 #### Dropout
 
 ### Weight initialization
+
+Weight initialization is one important area in implementing a network. You may have random guess level accuracy if you start the parameters incorrectly even after long iterations. You do not want the input to the activation function (or non-linear function) falls into those low partial derviative areas at the start of the training. The network will have a very slow start regardless of the loss. You may accidentially initialize the parameters with all 0s. This is close to turn every neurons dead and there is no way to backpropgage the loss correctly. In fact you do not want the output values to the next layer to look the same. Some non-symertry is preferable otherwise the loss will blindly distributed back to previous layers. 
 
 ### Insanity check
 #### Gradient checking
