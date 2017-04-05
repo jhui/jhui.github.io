@@ -185,7 +185,7 @@ where $$ h_i $$ is the model prediction and $$ y_i $$ is the true value. We sum 
 We can visualize the cost below with x-axis being $$ W_1 $$ and y-axis being $$ W_2 $$ and z being the cost J(x, y). The solution of our model is to find $$ W_1 $$ and $$ W_2 $$ where the cost is lowest. Visualize dropping a marble at a random point $$ (W_1, W_2) $$ and let the gravity to do its work. 
 
 <div class="imgcap">
-<img src="/assets/dl/solution.png" style="border:none;">
+<img src="/assets/dl/solution2.png" style="border:none;">
 </div>
 
 ### Learning rate
@@ -273,7 +273,13 @@ We never call this method in the production code. But computing partial derviati
 
 #### Mini-batch gradient descent
 
-When computing the cost function, we add all the errors for the processed training data. We can process all the training data at once but this can take too much time for just one update. On the contrray, we can perform stochastic gradient descent which make one W update per training sample. Nevertheless, the gradient descent will follow a zipzap pattern rather than following the curve of the cost function. This can be a problem if you land in a steep gradient area which the parameters may bounce to area with high cost. The training takes longer, and it might zipzag around the minima rather down converge to the minima. A good compromise is to process a batch of N samples at a time. This can be a tunable hyper-parameter but usually not very critical and may start with 64 subject to the memory consumptions.
+When computing the cost function, we add all the errors for the processed training data. We can process all the training data at once but this can take too much time for just one update. On the contrray, we can perform stochastic gradient descent which make one W update per training sample. Nevertheless, the gradient descent will follow a zipzap pattern rather than following the curve of the cost function. This can be a problem if you land in a steep gradient area which the parameters may bounce to area with high cost. The training takes longer, and it might zipzag around the minima rather down converge to the minima. 
+
+<div class="imgcap">
+<img src="/assets/dl/solution3.png" style="border:none;">
+</div>
+
+A good compromise is to process a batch of N samples at a time. This can be a tunable hyper-parameter but usually not very critical and may start with 64 subject to the memory consumptions.
 
 $$
 J = \frac{1}{N} \sum_i (W_1*x_i - y_i)^2
@@ -1598,6 +1604,8 @@ $$
 \text{nll} =  - \sum_n \log {\hat{y_{i}}}
 $$
 
+> Cross entroy with softmax classifier is one of the most popular combination for classification.
+
 #### SVM loss (also called Hinge loss or Max margin loss)
 
 $$
@@ -1758,13 +1766,73 @@ Note: Some research paper indicates using 2 as numerator has better performance 
 
 ### Training parameters
 
-In previosu sections, we discussed many problems in training a network, and how bad learning rate produces bad predictons. We now come back to the gradient descent and discuss different methods in updating the trainable parameters. This is not a easy topics because the shape of the cost function can be very different in different problem domains or the way we compute cost.
+In previosu sections, we discussed many problems in training a network, and how bad learning rate produces bad predictons. We now come back to the gradient descent and discuss different methods in updating the trainable parameters. This is not an easy topics because the shape of the cost function can be very different in different problem domains or the way we compute cost. Fortunately, most DL software libraries provide many different optimization methods. We will cover a couple core concepts here.
+
+#### Rate decay
+To maintain a constant learning rate may not be a good idea. It is like using a saw to finish the last part of making a table. One common way to do it is after some initial phase, we start decay the learning rate for every N iterations. For example, after 10,000 iterations, the learing rate will be decay by the formula below for every 20,000 iterations:
+
+$$
+learning_rate = learning_rate \cdot decay_factor
+$$
+
+which decay_factor is another hyperparameter say 0.95.
 
 #### Momentum update
+We mentioned before gradient descent is like droping a ball in a bowl and let it slide down. But our previous gradient descent adjusts the parameters by the gradient of the current location of $$ W $$ only. In the physical world, the movement of the ball depends on the location but also the velocity of the ball. We could adjust $$ W $$ by the gradient and its path history rather than throwing all the path information away from previous iterations. If we recall the schostic gradient descent, it follows a zipzap pattern rather than a smooth curve. With this history information, we can make stochistac gradient or mini-batch gradient to behave more smoothly.
+
+Here we introduce a variable $$v$$ which behaves like the velocity (momentum) in the physical word. In each iteration, we update $$ v $$ by keeping a portion of v minus the change casued by the gradient at that location. $$ mu $$ controls how much history information to keep, and this will be another hyperparameter. Reseachers may describe $$ mu_ $$ 
+as fraction. If you recall the parameter oscallation problem before, this actually becomes a damper to stop the oscallations. Momentum based gradient descent often have a smoothier path and settle to a minima closer and faster.
+
+```python
+v = mu * v - learning_rate * dw
+w += v
+```
 
 #### Adagrad
+ If the input features are not scale correctly, we find it impossible to find the right learning rate that works for both features. This indicates the learning rate needs to self adopt for each tunable parameters. One way to do it is to remember how much change has made to a specific $$ W_i $$. We will drop the parameter change if that parameter has been changed frequently. This will absolutely help the oscillation problem because it acts like a damper again. In Adagrad, it was done slightly difference by allowing the rate change to drop inversely by the L2 norm of all the previous gradients $$ dw_i $$.
+ 
+```python
+cache += dw**2
+w += - learning_rate * dw / (np.sqrt(cache) + 1e-7) # add a tiny value to avoid division by 0.
+```
+
+#### RMSprop
+
+RMSprop uses a similar concepts with the following formula with the hyper parameter decay_rate to control how much the previous history will keep.
+```python
+cache = decay_rate * cache + (1 - decay_rate) * dw**2
+w += - learning_rate * dx / (np.sqrt(cache) + 1e-7)
+```
+
 #### Adam
-#### Rate decay
+
+Adam combines the concepts of momentum with RMSprop:
+```python
+m = beta1*m + (1-beta1)*dw
+v = beta2*v + (1-beta2)*(dw**2)
+w += - learning_rate * m / (np.sqrt(v) + 1e-7)
+```
+
+> Adam is the most often used method now.
+
+Here is an example of using Adam Optimizer in TensorFlow
+```python
+loss = tf.reduce_mean(
+        tf.nn.softmax_cross_entropy_with_logits(labels=tf_train_labels, logits=logits)) \
+           + lmbda * tf.nn.l2_loss(weights1) + lmbda * tf.nn.l2_loss(weights2) \
+           + lmbda * tf.nn.l2_loss(weights3) + lmbda * tf.nn.l2_loss(weights4)
+
+optimizer = tf.train.AdamOptimizer(0.0005).minimize(loss)
+
+...
+
+with tf.Session(graph=graph) as session:
+    ...
+    for step in range(num_steps):
+        ...
+        _, l, predictions = session.run(
+            [optimizer], feed_dict=feed_dict)
+```
 
 ### Feature Scaling (normalization)
 
@@ -1848,9 +1916,65 @@ Xwhite = Xdecorelate / np.sqrt(S + 1e-5)
 
 ### Batch normalization
 
+We have emphsised so many times the benefits of having features with mean = 0 and $$ \sigma=1 $$ 
+
+But why we only stop in the input layer only. Batch normalation re-normalize a layer output. For example,  we re-normalize the output of the linear layer before feeding it into the ReLU.
+```python
+def affine_batchnorm_relu_forward(x, w, b, gamma, beta, bn_param):
+  h, h_cache = affine_forward(x, w, b)
+  norm, norm_cache = batchnorm_forward(h, gamma, beta, bn_param)
+  relu, relu_cache = relu_forward(norm)
+  cache = (h_cache, norm_cache, relu_cache)
+  return relu, cache
+```
+
+We apply the normalization using the formula before:
+
+$$
+z = \frac{x - \mu}{\sigma}
+$$
+
+which during the training, we use the mean and varianace computed from the current mini-batch samples. We then feed the output to a linear equation with the trainable scalar values $$ \gamma $$ and $$ \beta$$ (1 pair for each normalized layer). 
+
+$$
+out = \gamma z + \beta
+$$
+
+If $$ gamma = \sigma $$ and $$ \beta = \mu $$, we can see the normalization can be undo if the normalization is not needed.
+
+```python
+def batchnorm_forward(x, gamma, beta, bn_param):
+    sample_mean = np.mean(x, axis=0)
+    sample_var = np.var(x, axis=0)
+
+    sqrt_var = np.sqrt(sample_var + eps)
+    xmu = (x - sample_mean)
+    xhat = xmu / sqrt_var
+
+    out = gamma * xhat + beta
+```
+
+In the training, we use the mean and variance of the current training sample. But for testing, we do not use the mean/variance of the testing data. Instead, we record a runing mean & variance during training and apply it.
+```python
+    running_mean = momentum * running_mean + (1 - momentum) * sample_mean
+    running_var = momentum * running_var + (1 - momentum) * sample_var
+```
+
+Normalize the input during testing with the running mean/variance in the training.
+```python
+    xhat = (x - running_mean) / np.sqrt(running_var + eps)
+    out = gamma * xhat + beta
+```
+
 ### Hyperparameter tuning
 
-#### Random search
+Because the model is such a black box to us in real life problems. the hyper parameter tuning is usually a try and error. Some parameters are dependent of each other and cannot tune separately. Sometime the relationship is subtle. For example, the regularization rate changes the shape of the cost function and therefore impact how we should tune the learning rate. We can create a mesh of values to be used for tuning. For example, with learning rates of (1e-1, 1e-2, ... 1e-8) and regularization of (1e-3, 1e-4, .. 1e-6), we have a potential of 8x4 combinations to test ( (1e-1, 1e-3), (1e-1, 1e-3), ..., (1e-8, 1e-5), (1e-8, 1e-6) ). We may not want to use an exactly rectangular shape of mesh. For example, we may want to slighlt deviate at each mesh point with the hope that some irregularity may help us to explore more information.
+
+<div class="imgcap">
+<img src="/assets/dl/mesh.jpg" style="border:none;width:40%">
+</div>
+
+> Start tune parameters from corase grain with fewer iterations before fine tuning.
 
 ### Trouble shooting
 
@@ -1878,15 +2002,18 @@ Many places can go wrong when training a deep network. Here are some simple tips
 * Plot activation/gradient histograms for all layers. If initialization is not done correctly, there should be a lot of dead/saturated nodes.
 * For visualization problem, try to display the filter in early layer and the activations.
 
-
-### CNN
-
-### LSTM
+### CNN & LSTM
+FC network is rarely used alone. Exploring all possible connections among nodes in previous layer provide a over complex model that is wasteful with small returns. A lot of information are localized. For an image, we want to extract features from neighboring pixels. CNN applies filter to explore localized features and then apply FC to make predictions. LSTM apply time feedback loop to extract time sequence information. CNN & LSTM make changes to the design of a computation node and how it is connected. The core part of DL remains the same and learning CNN after FC is easy since the fundatations is the same. Nevertheless, you will go nowhere in learning DL without CNN and/or LSTM. Hence, we have provided a seperate discussion on both CNN and LSTM.
 
 ### Data argumentation
 
+We have focus on the mechanics of the DL. One significant improvement for network training is to have more data. This helps overfiting and have better coverage of your feature spaces. However, getting labeled samples can be expansive. One alternative is data argumentation. For example, for visual recognition, we can flip the image, slightly rotate or skew the images with software libraies. This help us to avoid overfitting and produce generalized predictions invariant of the spatial location of the objects. Some research may even expand further by allowing some testing data to be used as training data if they produce a very high score.
+
+> Very simple effort to arugment you data can have significant impact on the training. 
+
 ### Model ensembles
 
+So far, we try to find the best models. In machine learning, we take vote from different decision tree to make the final prediction. This based on the assumption that mistakes can be localized. There are smaller chance for 2 different models to make the same mistake. In DL, each training starts with random guesses and therefore the models usually are not unique.  We can pick the best models after training the networks multiple times. We can vote from different models to make the final predictions. This reqiuires to run the program multiple times and can be prohibitive expanisve. Alternative, we can run the training once and pick the best models during the latter phase of the training. We can have one vote per model, taking an average or use weights based on the confidence level of each prediction.
 
 
 
