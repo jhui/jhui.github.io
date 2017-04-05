@@ -4,7 +4,7 @@ comments: true
 mathjax: true
 title: “Deep learning without going down the rabbit holes.”
 excerpt: “How to learn deep learning from easy concept to complex idea? How to build insight along the way?”
-date: 2017-03-01 14:00:00
+date: 2017-03-18 14:00:00
 ---
 **This is work in progress... The content needs major editing.**
 
@@ -1091,7 +1091,7 @@ Layer 4:
        [ 0.07363663]])]
 ```
 
-When we model a simple model with 4 layers of computation nodes. We end up with many possible solutions with different $$ W $$. Should we prefer one solution over the other? Should we prefer a solution with smaller values in $$ W $$ over the other? Are part of the network just cancel out the effect of the other part?
+
 
 ### Overfit
 This lead us to a very important topic in DL.  We know that when we increase the complexity of our model, we risk the chance of modeling the noise into a model. If we do not have enough sample data to cancel out each other, we make bad predictions. But even with no noise in our data, a complex model can still make mistakes even when we train it well and long enough.
@@ -2355,7 +2355,8 @@ We have focus on the mechanics of the DL. One significant improvement for networ
 
 So far, we try to find the best models. In machine learning, we take vote from different decision tree to make the final prediction. This based on the assumption that mistakes can be localized. There are smaller chance for 2 different models to make the same mistake. In DL, each training starts with random guesses and therefore the models usually are not unique.  We can pick the best models after training the networks multiple times. We can vote from different models to make the final predictions. This reqiuires to run the program multiple times and can be prohibitive expanisve. Alternative, we can run the training once and pick the best models during the latter phase of the training. We can have one vote per model, taking an average or use weights based on the confidence level of each prediction.
 
-
+### Credits
+For the CIFRA 10 example, we start with assignment 2 in the Stanford class "CS231n Convolutional Neural Networks for Visual Recognition". We start with the skeleton codes provided by the assignement and put into our code to complete the assignment.
 
 
 
