@@ -65,6 +65,7 @@ The following is our code implementation. It is pretty self-explainatory. The co
 
 > We provide coding to help audience to understand the concept deeper and to verify their understanding. Nevertheless, a full understand of the code is not needed or suggested.
 
+In this program, we use Numpy which is a package for scientific computing with Python. It prvoides many mathematic operations and array manipulation that we need.
 ```python
 import numpy as np
 
@@ -143,7 +144,7 @@ Which output something with shape like a delta function:
 <img src="/assets/dl/delta_func.png" style="border:none;width:50%">
 </div>
 
-Implement a XOR or a delta function is not important for deep learning (DL). Nevertheless, we demonstrate the possibilities of building a complex function estimator through a network of simple computation nodes. A network with 3 layers can implement a hand written recognition system for numbers with an accuracy of 95+%. The deeper a network the more complex model that we can build. For example, Microsoft ResNet (2015) for image recognition has 151 layers. For many AI problems, the model needed to solve the problem is very complex. In automous driving, we can model a policy (turn, accelerate or brake) to approximate what a human will do for what they see in front of them. This policy is too hard to model it analytically. Alterantive, with enough training data, we may train a deep learning network with high enough accuracies as a regular driver.
+Implement a XOR or a delta function is not important for deep learning (DL). Nevertheless, we demonstrate the possibilities of building a complex function estimator through a network of simple computation nodes. A network with 3 layers can implement a hand written recognition system for numbers with an accuracy of 95+%. The deeper a network the more complex model that we can build. For example, Microsoft ResNet (2015) for image recognition has 151 layers. In many modern models, there will be 10 millions of tunable parameters. For many AI problems, the model needed to solve the problem is very complex. In automous driving, we can model a policy (turn, accelerate or brake) to approximate what a human will do for what they see in front of them. This policy is too hard to model it analytically. Alterantive, with enough training data, we may train a deep learning network with high enough accuracies as a regular driver.
 
 <div class="imgcap">
 <img src="/assets/dl/drive.jpg" style="border:none;width:50%">
@@ -272,7 +273,7 @@ We never call this method in the production code. But computing partial derviati
 
 #### Mini-batch gradient descent
 
-When computing the cost function, we add all the errors for the processed training data. We can process all the training data at once but this can take too much time for just one update. On the contrray, we can perform stochastic gradient descent which make one W update per training sample. Nevertheless, the gradient descent will follow a zipzap pattern rather than following the curve of the cost function. This can be a problem if you land in steep gradient area which the parameters may bounce to area with high cost. Also it may takes longer or harder to reach the minima subject to the shape of the cost function. A good compromise is to process a batch of N samples at a time. This can be a tunable hyper-parameter but usually not very critical and may start with 64 subject to the memory consumptions.
+When computing the cost function, we add all the errors for the processed training data. We can process all the training data at once but this can take too much time for just one update. On the contrray, we can perform stochastic gradient descent which make one W update per training sample. Nevertheless, the gradient descent will follow a zipzap pattern rather than following the curve of the cost function. This can be a problem if you land in a steep gradient area which the parameters may bounce to area with high cost. The training takes longer, and it might zipzag around the minima rather down converge to the minima. A good compromise is to process a batch of N samples at a time. This can be a tunable hyper-parameter but usually not very critical and may start with 64 subject to the memory consumptions.
 
 $$
 J = \frac{1}{N} \sum_i (W_1*x_i - y_i)^2
@@ -723,17 +724,17 @@ Adding both output:
 <img src="/assets/dl/l2.png" style="border:none;width:80%">
 </div>
 
-Add a non-linear function after a linear equation can enrich the complexity of our model. These methods are usually call **activation function**. Common functions are sigmoid, tanh and ReLU.
+Add a non-linear function after a linear equation can enrich the complexity of our model. These methods are usually call **activation function**. Common functions are tanh and ReLU.
  
 #### Sigmoid
-Sigmoid is one of the earliest function used in deep networks. Neverthless, as an activation function, its importance is gradually replaced by other functions like ReLU. Currently, sigmoid function is more popular as a gating function in LSTM/GRU (an "on/off" gate) to selectively remember or forget information.  
+Sigmoid is one of the earliest function used in deep networks. Neverthless, as an activation function, its importance is gradually replaced by other functions like ReLU. Currently, sigmoid function is more popular as a gating function in LSTM/GRU (an "on/off" gate) to selectively remember or forget information. Discssion of sigmoid function as an activation function is more of a showcase of explaining why network can be hard to train.
 
 <div class="imgcap">
 <img src="/assets/dl/sigmoid.png" style="border:none;width:50%">
 </div>
 
 #### ReLU
-ReLU is one of the most popular activation function. Its popularity arries because it works better with gradient descent. It takes less time to train with better accuracies than sigmoid.
+ReLU is one of the most popular activation function. Its popularity arries because it works better with gradient descent. It performs better than the sigmoid function because the sigmoid node is saturated easier and work less efficient with gradient descent in the saturated area.
 
 <div class="imgcap">
 <img src="/assets/dl/relu.png" style="border:none;width:50%">
@@ -1150,7 +1151,7 @@ We need far more iterations to train this model and result in less accuracy than
 <img src="/assets/dl/p1.png" style="border:none;width:60%">
 </div>
 
-But why don't we focus on making a model with the right complexity. In real life problems, a complex model is the only way to push accuracy to an acceptable level. But yet overfitting in some region is un-avoidable. One solution is to add more sample data such that it is much harder to overfit. Here, double the sample data produces a model closer to a straight line. 
+But why don't we focus on making a model with the right complexity. In real life problems, a complex model is the only way to push accuracy to an acceptable level. But yet overfitting is un-avoidable. The better solution is to introduce methods to reduce overfitting rather than make the model simpiler. One solution is to add more sample data such that it is much harder to overfit. Here, double the sample data produces a model closer to a straight line. 
 <div class="imgcap">
 <img src="/assets/dl/p2.png" style="border:none;width:60%">
 </div>
@@ -1338,6 +1339,27 @@ C_t = gate_{forget} \cdot C_{t-1} + gate_{input} \cdot \tilde{C}
 $$
 
 Bypassing a layer can visualize as feeding the input to the output directly. For $$ C_t $$ to be the same as $$ C_{t-1} $$, we can have $$ gate_ {forget} $$ to be 1 while $$ gate_{input} $$ to be 0. So one way to addressing the diminishing gradient problem is to design a different function for the node.
+
+#### Gradient clipping
+To avoid gradient explosion, we apply gradient clipping to restrict values of the gradient.
+
+Here, we will use TensorFlow with Python. TensorFlow is an open source machine learning software from Google. In real life problem, Numpy is important in data preparation but people will use software package like TensorFlow to implement a deep network.
+
+Here we set the maxium clip norm to be 5.0.
+```python
+params = tf.trainable_variables()
+opt = tf.train.GradientDescentOptimizer(learning_rate)
+for b in xrange(time_steps):
+    gradients = tf.gradients(losses[b], params)
+    clipped_gradients, norm = tf.clip_by_global_norm(gradients, 5.0)
+```
+
+If the gradient reach above 5.0, the gradient will rescale according to the ratio $$ \frac{5}{\text{norm of the gradient}} $$. (L2 norm is the length of the vector.)
+```
+global_norm = sqrt(sum([l2norm(t)**2 for t in t_list]))
+
+t_list[i] * clip_norm / max(global_norm, clip_norm)
+````
 
 ### Classification
 
@@ -1532,11 +1554,10 @@ $$
 $$
 
 ### Cost function
+Deep learning is based on knowing your cost. But how you define your cost? San Francisco is about 400 miles from Los Angels. It cost about $50 for the gas. When you order food from a restaurant, they do not deliver to home more than a few miles away. From their prespective, the cost to them grow expotentially. So there are many definitions of cost. In DL, our objective is not knowing the value of the cost, but find a set of $$W$$ to make cost the lowest. Therefore, we do have many flexibility for the cost function as long as we can find the right $$W$$. There are objectives to punish heavily on outliners or to rewards more on have more 0s. But there are other important consideration include how easy and how fast to optimize the cost function. Does the cost function help to solve the gradient diminishing problem?
 
 #### Cross entropy cost function
-
-Cross entropy measure the difference between 2 distribution. (aka probability distribution.) Is that appropriate as a cost function for a network predicts a probability value.
-
+Cross entropy measure the difference between 2 distribution. (aka probability distribution.) Is that appropriate as a cost function for a network predicts a probability value. 
 $$
 H(y, \hat{y}) = \sum_i y_i \log \frac{1}{\hat{y}_i} = -\sum_i y_i \log \hat{y}_i
 $$
@@ -1623,7 +1644,9 @@ very large if the prediction is bad. The sigmod function squashes values by expo
 
 
 
-### Network layers
+
+
+
 
 
 ### Regularization
@@ -1659,49 +1682,86 @@ $$
 L0, L1 and L2 regularization penalize on $$ W $$ but on different extends. L2 put the highest attentions (or penalty) on the large parameter and L0 pay attention on non-zero prameter.  L0 penalizes non-zero parameter which force more parameters to be 0, i.e. increase the sparsity of the parameters. L2 focuses on large parameter and therefore have more non-zero parameters. L1 regularization also rewards sparsity. Sparsity of parameters effectively reduces the features in making prediction. Sometimes it is used as feature selections. L2 is more popular but some problem domain could prefer higher sparsity.
 
 
-#### Gradient clipping
 #### Dropout
+A non-intutive regularization method is dropout. L2 regularization discourages weigth with large values. To avoid overfit, we may not want some weight to be too dominating. By randomy dropping some connection from one layer to the other layer, we may force the network not to depend too much on a single node and try to learn from different ways. This could have an effect similar to forcing the weight smaller.
+
+In the following diagram, for each iteration, we may randomly drop off the connection during training.
+<div class="imgcap">
+<img src="/assets/dl/drop.png" style="border:none;width:40%">
+</div>
+
+Here is the code to implement the dropout for the forward feed and backpropagation. In the forward feed, it takes a parameter on the percentage of nodes to be dropout. Notice that, dropout applies to training only.
+```python
+def dropout_forward(x, dropout_param):
+  p, mode = dropout_param['p'], dropout_param['mode']
+  if 'seed' in dropout_param:
+    np.random.seed(dropout_param['seed'])
+
+  mask = None
+  out = None
+
+  if mode == 'train':
+    drop = 1 - p
+    mask = (np.random.rand(*x.shape) < drop) / drop
+    out = x * mask
+  elif mode == 'test':
+    out = x
+
+  cache = (dropout_param, mask)
+  out = out.astype(x.dtype, copy=False)
+
+  return out, cache
+
+def dropout_backward(dout, cache):
+  dropout_param, mask = cache
+  mode = dropout_param['mode']
+  
+  if mode == 'train':
+    dx = dout * mask
+  elif mode == 'test':
+    dx = dout
+  return dx
+```
+
 
 ### Weight initialization
 
-Weight initialization is one important area in implementing a network. You may have random guess level accuracy if you start the parameters incorrectly even after long iterations. You do not want the input to the activation function (or non-linear function) falls into those low partial derviative areas at the start of the training. The network will have a very slow start regardless of the loss. You may accidentially initialize the parameters with all 0s. This is close to turn every neurons dead and there is no way to backpropgage the loss correctly. In fact you do not want the output values to the next layer to look the same. Some non-symertry is preferable otherwise the loss will blindly distributed back to previous layers. 
+Weight initialization is one important area in implementing a network. If you start the parameters incorrectly, you may not even beat the random odd of guessing after long iterations. The initial input to the activation function (or non-linear function) should not falls into the low partial derviative areas. Otherwise, the network will have issues to learn regardless of the loss. Sometimes those parameters may accidentially initialize with all 0s. This is close to turn every neurons dead, and not able to backpropgage the loss correctly. In fact you do not want the output values to the next layer to look the same. Some non-symertry is preferable, otherwise the loss will evenly distributed back to previous layers. To intrdoduce such non-symmetry, we initialize those parameters with gaussian distribution with mean = 0. 
 
-### Insanity check
-#### Gradient checking
-#### Initial loss
-#### Without regularization and with small dataset
+We generate 20,000 value of $$ W $$ with mean = 0 and $$\sigma = 1 $$. Then we plot the distribution of W and re-calculate the variance again.
 
-### Trouble shooting
+$$ \sigma = 0.998 $$
+<div class="imgcap">
+<img src="/assets/dl/var1.png" style="border:none;width:40%">
+</div>
 
-Many places can go wrong when training a deep network. Here are some simple tips:
-* Unit test the forward pass and back propagation code.
-	* At the begining, test with non-random data.
-* Compare the back progataion result with the naive gradient check.
-* Always start with a simple network that works. 
-	* Push accuracy up should not be the first priority. 
-	* Handle multiple battle front in a complext network is not the way to go. Issues grow expotentially in DL.
-* Create simple sceairos to verify the network:
-	* Test with small training data with few iterations. Verify if we can beat a random guessing.
-	* Verify if loss drops and/or accuracies increase during training.
-	* Drop regularization - training accuracies should go up.	
-	* Validate with training data.
-* Keep track of the loss, and when in debugging also the magnitude of the gradient for each layer.
-* Do not waste time on large dataset with long iterations during early development.
-* Verify how trainable parameters are initialized.	
-* Always keep track of the shape of the data and doucment it in the code.
-* Display and verify some training samples and the predictions.
-* Plot out the loss, accuracy or some runtime data after the training.
+We generate 20,000 value of $$ y $$ using our familar formula with 1000 of input $$x$$ which half of them is 1 and another hald 0:
 
-### Trouble shooting
-#### Plotting loss
-#### Train/validation accuracy
-#### Ratio of weight updates
-#### Activation per layer
-#### First layer visualization
+$$
+y = Wx + b
+$$
 
+We plot the distribution of $$ y $$.
+
+$$ \sigma = 497.6 $$
+<div class="imgcap">
+<img src="/assets/dl/var2.png" style="border:none;width:40%">
+</div>
+
+The graph is smoother and the variance is much higher than 1. i.e. it is more uniform. Therefore to generate an input to the activation function with gaussian distribution of mean = 0 and $$\sigma = 1$$, we need to take into the account of the number of inputs to the node. Hence we use the following formula for the variance:
+
+$$
+\frac {2}{\sqrt{\text{number of input}}}
+$$
+
+Note: Some research paper indicates using 2 as numerator has better performance than 1.
 
 ### Training parameters
+
+In previosu sections, we discussed many problems in training a network, and how bad learning rate produces bad predictons. We now come back to the gradient descent and discuss different methods in updating the trainable parameters. This is not a easy topics because the shape of the cost function can be very different in different problem domains or the way we compute cost.
+
 #### Momentum update
+
 #### Adagrad
 #### Adam
 #### Rate decay
@@ -1741,8 +1801,6 @@ which $$k$$ is a small constant.
 
 #### Whitening
 
-> This is an advance topic. We will cover the topic briefly only.
-
 In machine learning, we prefer features to be un-related. For example, in a dating application, a person may prefer a tall person but not a thin person. However, weight and heigth is co-related. A taller person is heavier than a shorter person in average. Re-scaling these features independently can only tell whether a person is thinner than average in the population, but not whether the person is thin. A taller person is thinner if both have the same weight. Weigth increases with height:
 <div class="imgcap">
 <img src="/assets/dl/gauss.jpg" style="border:none;">
@@ -1770,17 +1828,56 @@ $$
 E[(x_{2} - \mu_{2})(x_{1} - \mu_{1})] = \frac {(20 - 36)(10 - 21) + (52 - 36)(32 - 21)} {2}
 $$
 
-From the covariance matrix $$ \sum $$, we can a matrix $$W$$ to convert the input $$ X $$ to $$ Y = W X $$. (We will skip how to find $$ W $$ here.) The purpose of whitening is to change the feature distribtion from the left to the right one.
+From the covariance matrix $$ \sum $$, we find a matrix $$W$$ by $$ \sum $$ to convert the input $$ X $$ to $$ Y = W X $$. The purpose of whitening is to change the feature distribtion from the left to the right one.
 
 <div class="imgcap">
 <img src="/assets/dl/gaussf.jpg" style="border:none;width:50%">
 </div>
+
+This sounds complicated but can be done by numpy linear algebra library
+```python
+X -= np.mean(X, axis = 0)    
+cov = np.dot(X.T, X) / X.shape[0]
+
+U,S,V = np.linalg.svd(cov)
+Xdecorelate = np.dot(X, U)
+Xwhite = Xdecorelate / np.sqrt(S + 1e-5)
+```
+
+> Image data usually require 0 centered but does not require whitening.
 
 ### Batch normalization
 
 ### Hyperparameter tuning
 
 #### Random search
+
+### Trouble shooting
+
+Many places can go wrong when training a deep network. Here are some simple tips:
+* Unit test the forward pass and back propagation code.
+	* At the begining, test with non-random data.
+* Compare the back progataion result with the naive gradient check.
+* Always start with a simple network that works. 
+	* Push accuracy up should not be the first priority.
+	* Handle multiple battle front in a complext network is not the way to go. Issues grow expotentially in DL.
+* Create simple sceairos to verify the network:
+	* Train with small dataset with few iterations.
+	* Compare the loss/accuracy value with the corresponding value of a random guess. 
+	* Verify if loss drops and/or accuracies increase during training.
+	* Drop regularization - training accuracies should go up.	
+	* Overfit with small dataset to see if loss is small.
+* Keep track of the loss, and when in debugging also the magnitude of the gradient for each layer.
+* Do not waste time on large dataset with long iterations during early development.
+* Verify how trainable parameters are initialized.	
+* Always keep track of the shape of the data and doucment it in the code.
+* Display and verify some training samples and the predictions.
+* Monitor or plot out the loss closely to see its trend.
+* Plot out accuracy between validation and training to identify overfit issues.
+* Keep track of the norm of || W || and gradient (or ratios) perferable in key layers. Looks for gradient vanishing/exploding problems.
+* Plot activation/gradient histograms for all layers. If initialization is not done correctly, there should be a lot of dead/saturated nodes.
+* For visualization problem, try to display the filter in early layer and the activations.
+
 
 ### CNN
 
