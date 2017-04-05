@@ -2059,6 +2059,7 @@ Weight initialization is one important area in implementing a network. If you st
 We generate 20,000 value of $$ W $$ with mean = 0 and $$\sigma = 1 $$. Then we plot the distribution of W and re-calculate the variance again.
 
 $$ \sigma = 0.998 $$
+
 <div class="imgcap">
 <img src="/assets/dl/var1.png" style="border:none;width:40%">
 </div>
@@ -2072,8 +2073,15 @@ $$
 We plot the distribution of $$ y $$.
 
 $$ \sigma = 497.6 $$
+
 <div class="imgcap">
 <img src="/assets/dl/var2.png" style="border:none;width:40%">
+</div>
+
+The plot have different scale for the x and y dimension. If we decrese the scale in y-direction a little bit, you will realize it is close to flat.
+
+<div class="imgcap">
+<img src="/assets/dl/var3.png" style="border:none;width:40%">
 </div>
 
 The graph is smoother and the variance is much higher than 1. i.e. it is more uniform. Therefore to generate an input to the activation function with gaussian distribution of mean = 0 and $$\sigma = 1$$, we need to take into the account of the number of inputs to the node. Hence we use the following formula for the variance:
@@ -2291,7 +2299,7 @@ Normalize the input during testing with the running mean/variance in the trainin
 Because the model is such a black box to us in real life problems. the hyper parameter tuning is usually a try and error. Some parameters are dependent of each other and cannot tune separately. Sometime the relationship is subtle. For example, the regularization rate changes the shape of the cost function and therefore impact how we should tune the learning rate. We can create a mesh of values to be used for tuning. For example, with learning rates of (1e-1, 1e-2, ... 1e-8) and regularization of (1e-3, 1e-4, .. 1e-6), we have a potential of 8x4 combinations to test ( (1e-1, 1e-3), (1e-1, 1e-3), ..., (1e-8, 1e-5), (1e-8, 1e-6) ). We may not want to use an exactly rectangular shape of mesh. For example, we may want to slighlt deviate at each mesh point with the hope that some irregularity may help us to explore more information.
 
 <div class="imgcap">
-<img src="/assets/dl/mesh.jpg" style="border:none;width:40%">
+<img src="/assets/dl/mesh.png" style="border:none;width:40%">
 </div>
 
 > Start tune parameters from corase grain with fewer iterations before fine tuning.
@@ -2318,7 +2326,7 @@ Many places can go wrong when training a deep network. Here are some simple tips
 * Display and verify some training samples and the predictions.
 * Monitor or plot out the loss closely to see its trend.
 * Plot out accuracy between validation and training to identify overfit issues.
-* Keep track of the norm of || W || and gradient (or ratios) perferable in key layers. Looks for gradient vanishing/exploding problems.
+* Keep track of the norm of  $$ || W || $$ and gradient (or ratios) perferable in key layers. Looks for gradient vanishing/exploding problems.
 * Plot activation/gradient histograms for all layers. If initialization is not done correctly, there should be a lot of dead/saturated nodes.
 * For visualization problem, try to display the filter in early layer and the activations.
 
