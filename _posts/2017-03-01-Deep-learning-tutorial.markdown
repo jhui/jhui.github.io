@@ -1631,7 +1631,7 @@ For SVM, the cost function creates a boundary with the maximum margin to separat
 #### Mean square error (MSE)
 
 $$
-\text{mean square error} = \frac{1}{N} \sum_i (h_i - y_i)^2
+\text{mean square error} = \frac{1}{N} \sum_i (h_i - y_{i})^2
 $$
 
 We demonstrate the use of MSE on regression problems. We can use this in classification. But instead, we use cross entropy loss. Classification problem use a classifier to squash values to a probability between 0 and 1. The mapping is not linear. For a sigmod classfier, a large range of value (less than -5 or greater than 5) is squeezed to 0 or 1. As shown before, those areas have close to 0 partial derviative. Based on the chain rule in the back propagation 
@@ -1646,16 +1646,336 @@ $$
 $$ 
 very large if the prediction is bad. The sigmod function squashes values by expontentially. We need a cost function that punish bad prediction in the same scale to counter that. Squaring the error does not make it. Cross entropy works on logarithmic scale which punish bad prediction expotentially. That is why cross entropy cost function trains better than MSE on the classification problems.
 
+### Deep learing network (Fully-connected layers) CIFAR-10
 
-### Deep learing network (Fully-connected layers)
+Let's put together everything to solve the CIFRA-10. CIFAR-10 is a computer vision dataset for object classification. It has 60,000 32x32 color images containing one of 10 object classes, with 6000 images per class.
+
+(Source Alex Krizhevsky)
+<div class="imgcap">
+<img src="/assets/dl/cifra.png" style="border:none;width:40%">
+</div>
+
+We are going to implement a fully connected network similar to the following to classify the CIFRA images to the corresponding classes. In our implmentation, we allow user to control how many hidden layers to create and the number of nodes per layer.
+<div class="imgcap">
+<img src="/assets/dl/fc_net.png" style="border:none;width:40%">
+</div>
+
+Let's have some bolier plate code that we have already done. Here we have the forward feed and backpropagation code for 
+$$
+y = Wx + b
+$$
+and the ReLU
+```python
+def affine_forward(x, w, b):
+    out = x.reshape(x.shape[0], -1).dot(w) + b
+    cache = (x, w, b)
+    return out, cache
+
+def affine_backward(dout, cache):
+    x, w, b = cache
+    dx = dout.dot(w.T).reshape(x.shape)
+    dw = x.reshape(x.shape[0], -1).T.dot(dout)
+    db = np.sum(dout, axis=0)
+    return dx, dw, db
+
+def relu_forward(x):
+    out = np.maximum(0, x)
+    cache = x
+    return out, cache
+
+def relu_backward(dout, cache):
+    dx, x = None, cache
+    dx = dout
+    dx[x < 0] = 0
+    return dx
+
+```
+
+We combine it to utility functions for an "affine relu" layer.
+```python
+def affine_relu_forward(x, w, b):
+    a, fc_cache = affine_forward(x, w, b)
+    out, relu_cache = relu_forward(a)
+    cache = (fc_cache, relu_cache)
+    return out, cache
 
 
+def affine_relu_backward(dout, cache):
+    fc_cache, relu_cache = cache
+    da = relu_backward(dout, relu_cache)
+    dx, dw, db = affine_backward(da, fc_cache)
+    return dx, dw, db
+
+```
+
+Our softmax function
+```python
+def softmax_loss(x, y):
+  probs = np.exp(x - np.max(x, axis=1, keepdims=True))
+  probs /= np.sum(probs, axis=1, keepdims=True)
+  N = x.shape[0]
+  loss = -np.sum(np.log(probs[np.arange(N), y])) / N
+  dx = probs.copy()
+  dx[np.arange(N), y] -= 1
+  dx /= N
+  return loss, dx
+```
+
+We are creating a FullyConnectedNet network with 3 layers with (100, 50, 25) nodes respectively.
+```python
+class FullyConnectedNet(object):
+
+    def __init__(self, hidden_dims, input_dim=3 * 32 * 32, num_classes=10, reg=0.0,
+                 weight_scale=1e-2, dtype=np.float32):
+        self.reg = reg
+        self.num_layers = 1 + len(hidden_dims)
+        self.dtype = dtype
+        self.params = {}
+
+        layers = [input_dim] + hidden_dims + [num_classes]
+        # Initialize the W & b for each layers 
+        for i in range(self.num_layers):
+            self.params['W%d' % (i + 1)] = np.random.randn(layers[i], layers[i + 1]) * weight_scale
+            self.params['b%d' % (i + 1)] = np.zeros(layers[i + 1])
+
+        # Cast all parameters to the correct datatype
+        for k, v in self.params.iteritems():
+            self.params[k] = v.astype(dtype)
+			
+			
+model = FullyConnectedNet([100, 50, 25],
+              weight_scale=5e-2, dtype=np.float64)			
+```
+
+Here is the key part in computing the loss which we do a feed forward, use softmax to compute the lost and compute all the gradients for the backpropagation. The comment should be self-explanable.
+```python
+def loss(self, X, y=None):
+    X = X.astype(self.dtype)
+    # We reuse the same method for prediction. So we have the train mode and the test mode (make prediction.)
+    mode = 'test' if y is None else 'train'
+
+    layer = [None] * (1 + self.num_layers)
+    cache_layer = [None] * (1 + self.num_layers)
+
+    layer[0] = X
+
+    # Feed forward for each layer define in FullyConnectedNet([100, 50, 25], ...)
+    for i in range(1, self.num_layers):
+        # Retrieve the W & b
+        W = self.params['W%d' % i]
+        b = self.params['b%d' % i]
+        # Feed forward for one affine relu layer
+        layer[i], cache_layer[i] = affine_relu_forward(layer[i - 1], W, b)
+
+    last_W_name = 'W%d' % self.num_layers
+    last_b_name = 'b%d' % self.num_layers
+	# From the last hidden layer to the output layer, we do not perform ReLU
+    scores, cache_scores = affine_forward(layer[self.num_layers - 1],
+                                          self.params[last_W_name],
+                                          self.params[last_b_name])
+
+    # If just making prediction, we return the scores										  
+    if mode == 'test':
+        return scores
+
+    loss, grads = 0.0, {}
+    # Compute the loss
+    loss, dscores = softmax_loss(scores, y)
+
+    # For each layer, add the regularization loss
+    for i in range(self.num_layers):
+        loss += 0.5 * self.reg * np.sum(self.params['W%d' % (i + 1)] ** 2)
+
+    # Back progagation the output to the last hidden layer
+    dx = [None] * (1 + self.num_layers)
+    dx[self.num_layers], grads[last_W_name], grads[last_b_name] = affine_backward(dscores, cache_scores)
+    grads[last_W_name] += self.reg * self.params[last_W_name]
+
+    # Back progagation from the last hidden layer to the first hidden layer
+    for i in reversed(range(1, self.num_layers)):
+        dx[i], grads['W%d' % i], grads['b%d' % i] = affine_relu_backward(dx[i + 1], cache_layer[i])
+        grads['W%d' % i] += self.reg * self.params['W%d' % i]
+
+    return loss, grads
+```
+
+Here is the code of training the model:
+```python
+model = FullyConnectedNet([100, 50, 25],
+              weight_scale=weight_scale, dtype=np.float64)
+solver = Solver(model, data,
+                print_every=100, num_epochs=10, batch_size=200,
+                update_rule='adam',
+                optim_config={
+                  'learning_rate': learning_rate,
+                }
+         )
+solver.train()
+```
+
+And the code of making prediction:
+```python
+X_test, y_test, X_val, y_val = data['X_test'], data['y_test'], data['X_val'], data['y_val']
+
+y_test_pred = np.argmax(model.loss(X_test), axis=1)
+y_val_pred = np.argmax(model.loss(X_val), axis=1)
+print('Validation set accuracy: ', (y_val_pred == y_val).mean())
+print('Test set accuracy: ', (y_test_pred == y_test).mean())
+```
+
+We will not show the code of preparing the data and the code to do the optimization (finding the W & b). For the optimization, people call a library which will be shown next. But we have demonstrated a problem that otherwise hard to solve. Instead of coding all the rules which are impossible for the CIFRA problem, we create a FC network to learn the model from data. **Deep learning is about create a model by learning from data**
+
+The accuracy of our model will be reasonable using the FC layer but easily beat by add convolution layers. Hence, we will not spend more effort now.
+
+### MNist
+One of the first deep learning dataset that most people use for their first DL program is the MNist. It is a dataset for handwritten numbers from 0 to 9.
+
+<div class="imgcap">
+<img src="/assets/dl/mnist.gif" style="border:none;width:40%">
+</div>
+
+We will show the TensorFlow code to solve the problem with 98%+ accuracy.
+
+Unlike the code with numpy, Tensorfow requires us to construct a graph describing the network first. Here we declare a placeholder for our input features (the pixel values of the image) and the ture labels which will be provided later in the training. 
+```python
+x = tf.placeholder(tf.float32, [None, 784])
+labels = tf.placeholder(tf.float32, [None, 10])  # True label.
+
+```
+
+We declare $$ W $$ and $$ b $$ as variables and provide methods on how to initiate it later.  
+```python
+W1 = tf.Variable(tf.truncated_normal([784, 256], stddev=np.sqrt(2.0 / 784)))
+b1 = tf.Variable(tf.zeros([256]))
+W2 = tf.Variable(tf.truncated_normal([256, 100], stddev=np.sqrt(2.0 / 256)))
+b2 = tf.Variable(tf.zeros([100]))
+W3 = tf.Variable(tf.truncated_normal([100, 10], stddev=np.sqrt(2.0 / 100)))
+b3 = tf.Variable(tf.zeros([10]))
+```
+
+We define 2 hidden layers. Each have a matrix multiplication operation follow by ReLU. Then another operation multiple it with a matrix. Note, so far we are just making declaration, no variables are initialized and no matrix multiplication is done.
+```python
+### Building a model
+# Create a fully connected network with 2 hidden layers
+# 2 hidden layers using relu (z = max(0, x)) as an activation function.
+h1 = tf.nn.relu(tf.matmul(x, W1) + b1)
+h2 = tf.nn.relu(tf.matmul(h1, W2) + b2)
+y = tf.matmul(h2, W3) + b3
+```
+
+Now we define our loss function including a cross entropy and the regularization penalty for our $$ W $$. We use Adam as an optimizer for gradient descent.  We also have a placeholder for $$ \lambda $$ so user can supply later to control the regularization.
+```
+  # Cost function & optimizer
+  # Use a cross entropy cost fuction with a L2 regularization.
+  lmbda = tf.placeholder(tf.float32)
+  cross_entropy = tf.reduce_mean(
+      tf.nn.softmax_cross_entropy_with_logits(labels=labels, logits=y) +
+         lmbda * (tf.nn.l2_loss(W1) + tf.nn.l2_loss(W2) + tf.nn.l2_loss(W3)))
+  train_step = tf.train.AdamOptimizer(learning_rate=0.001).minimize(cross_entropy)
+```
+
+Now we are going to create a session to execute the graph. We train the network for 10,000 iteratons. We get the next batch of sample data and run the operation "train_step" (the Adam optimizer). TensorFlow run the operation as well as all operations that it depends on. 
+```python
+# Create an operation to initialize the variable
+init = tf.global_variables_initializer()
+# Now we create a session to execute the operations.
+with tf.Session() as sess:
+    sess.run(init)
+    # Train
+    for _ in range(10000):
+      batch_xs, batch_ys = mnist.train.next_batch(100)
+      sess.run(train_step, feed_dict={x: batch_xs, labels: batch_ys, lmbda:5e-5})
+```
+
+Once the training is complete (finish 10,000 iterations), we create 2 more operation, the correct_prediction compare the predictions with the true lables and find how many of them are matched. "accuracy" find how many of the predictions are correct.
+```python
+with tf.Session() as sess:
+    ...
+	
+    # Test trained model
+    correct_prediction = tf.equal(tf.argmax(y, 1), tf.argmax(labels, 1))
+    accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
+```
+
+We run the accuracy operation with our testing dataset and print out the result.
+```python
+with tf.Session() as sess:
+    ...
+	
+    print(sess.run(accuracy, feed_dict={x: mnist.test.images,
+                                          labels: mnist.test.labels}))
+```
+
+For completness, here is the code listing. This file depends on "tensorflow.examples.tutorials.mnist" which are used to read the MNist data.
+```python
+import argparse
+import sys
+
+from tensorflow.examples.tutorials.mnist import input_data
+
+import tensorflow as tf
+import numpy as np
+
+FLAGS = None
 
 
+def main(_):
+  # Import data
+  mnist = input_data.read_data_sets(FLAGS.data_dir, one_hot=True)
+
+  ### Building a model
+  # Create a fully connected network with 2 hidden layers
+  # Initialize the weight with a normal distribution.
+  x = tf.placeholder(tf.float32, [None, 784])
+  labels = tf.placeholder(tf.float32, [None, 10])  # True label.
+  
+  W1 = tf.Variable(tf.truncated_normal([784, 256], stddev=np.sqrt(2.0 / 784)))
+  b1 = tf.Variable(tf.zeros([256]))
+  W2 = tf.Variable(tf.truncated_normal([256, 100], stddev=np.sqrt(2.0 / 256)))
+  b2 = tf.Variable(tf.zeros([100]))
+  W3 = tf.Variable(tf.truncated_normal([100, 10], stddev=np.sqrt(2.0 / 100)))
+  b3 = tf.Variable(tf.zeros([10]))
 
 
+  # 2 hidden layers using relu (z = max(0, x)) as an activation function.
+  h1 = tf.nn.relu(tf.matmul(x, W1) + b1)
+  h2 = tf.nn.relu(tf.matmul(h1, W2) + b2)
+  y = tf.matmul(h2, W3) + b3
 
+  # Cost function & optimizer
+  # Use a cross entropy cost fuction with a L2 regularization.
+  lmbda = tf.placeholder(tf.float32)
+  cross_entropy = tf.reduce_mean(
+      tf.nn.softmax_cross_entropy_with_logits(labels=labels, logits=y) +
+         lmbda * (tf.nn.l2_loss(W1) + tf.nn.l2_loss(W2) + tf.nn.l2_loss(W3)))
+  train_step = tf.train.AdamOptimizer(learning_rate=0.001).minimize(cross_entropy)
 
+  init = tf.global_variables_initializer()
+  with tf.Session() as sess:
+      sess.run(init)
+      # Train
+      for _ in range(10000):
+        batch_xs, batch_ys = mnist.train.next_batch(100)
+        sess.run(train_step, feed_dict={x: batch_xs, labels: batch_ys, lmbda:5e-5})
+
+      # Test trained model
+      correct_prediction = tf.equal(tf.argmax(y, 1), tf.argmax(labels, 1))
+      accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
+      print(sess.run(accuracy, feed_dict={x: mnist.test.images,
+                                          labels: mnist.test.labels}))
+
+if __name__ == '__main__':
+  parser = argparse.ArgumentParser()
+  parser.add_argument('--data_dir', type=str, default='/tmp/tensorflow/mnist/input_data',
+                      help='Directory for storing input data')
+  FLAGS, unparsed = parser.parse_known_args()
+  tf.app.run(main=main, argv=[sys.argv[0]] + unparsed)
+
+# 0.9816
+
+```
+
+The code demonstrate how powerful to solve a complex visual problem with so few lines of DL code. With 10,000 iterations, we should achieve an accuracy above 98%.
 
 ### Regularization
 
