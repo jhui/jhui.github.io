@@ -9,7 +9,7 @@ date: 2017-03-18 14:00:00
 **This is work in progress... The content needs major editing.**
 
 ### What is deep learning (DL)?
-**Deep learing is about building a function estimator.** Historically, people explains deep learning (DL) using the neural network in our brain. Indeed, this is where deep learning gets its insight.  Nevertheless, deep learning has out grown this explaination. Once you realize building a deep learning network is about building a function estimator, you will unveil its real potential in AI.
+**Deep learning is about building a function estimator.** Historically, people explains deep learning (DL) using the neural network in our brain. Indeed, this is where deep learning gets its insight.  Nevertheless, deep learning has outgrown this explanation. Once you realize building a deep learning network is about building a function estimator, you will unveil its real potential in AI.
  
 Let us build a new andriod named Pieter. Our first task is to teach Pieter how to recognize visual objects. Can the visual system in our brain be replaced by a big function estimator? Can we pass the pixel values of an image to a function and calculate the probability of seeing a school bus, an airplane or a truck etc ...?
 
@@ -161,8 +161,8 @@ $$
 
 He asks 1000 people in each community and collects the information on their income, education and the corresponding number of online dates.  Pieter is interested in knowing how each community values the intellectual vs his humble post-doc salary.  So even this model looks overwhemly simple, it serves its purpose. So the task for Pieter is to find the parameter values for W and b in this model with training data collected by him.
 
-This is the high level steps for Pieter to train a model.
-1. Take a first guess on W and b.
+This is the high-level steps for Pieter to train a model.
+1. Take the first guess on W and b.
 2. Use the model above to compute the number of dates for each sample in the training dataset.
 3. Compute the mean square error between the computed value and the true value in the dataset.
 4. Compute how much the error may change when we change W and b.
@@ -175,7 +175,7 @@ We can build a model with different W & b for each community, and use these mode
 > In our model, we predict the number of dates for people with certain income and year of education. The corresponding values (the number of dates) that we found for each sample in the dataset are called the **true values**.
 
 ### Gradient descent
-**Deep learing is about learning how much it cost.** Step 2-5 is called the gradient descent in DL. First we define a function to measure our errors between our model and the true values. In DL, we call this error function **cost function** or **loss function**. Mean square error (MSE) is one obvious candidate for our model.
+**Deep learning is about learning how much it cost.** Step 2-5 is called the gradient descent in DL. First, we define a function to measure our errors between our model and the true values. In DL, we call this error function **cost function** or **loss function**. Mean square error (MSE) is one obvious candidate for our model.
 
 $$
 \text{mean square error} = J(h, y, W, b) = \frac{1}{N} \sum_i (h_i - y_i)^2
@@ -208,7 +208,7 @@ J(W, b, h, y) = \frac{1}{N} \sum_i (W_1*x_i - y_i)^2
 $$
 
 
-Since the gradient at L1 is negative (as shown), we move $$ W_1 $$ to the right to find the lowest point. But by how much? Let's compare the gradient for L1 and L2. We realize L2 has a smaller gradient. i.e. the change of $$ W2 $$ has a smaller impact to the change of cost compare to L1. Obviosuly, we want to change parameter proportional to how fast it can drop the cost. Therefore, the amount of adjustment for the parameters $$ (W_1, W_2) $$ should be proportional to its partial gradient at that point. i.e.
+Since the gradient at L1 is negative (as shown), we move $$ W_1 $$ to the right to find the lowest point. But by how much? Let's compare the gradient for L1 and L2. We realize L2 has a smaller gradient. i.e. the change of $$ W2 $$ has a smaller impact on the change of cost compare to L1. Obviously, we want to change parameter proportional to how fast it can drop the cost. Therefore, the amount of adjustment for the parameters $$ (W_1, W_2) $$ should be proportional to its partial gradient at that point. i.e.
 
 $$
 \Delta W_i \propto \frac{\partial J}{\partial W_i} 
@@ -228,14 +228,14 @@ $$
 W_i = W_i - \Delta W_i
 $$
 
-In DL, the varaible $$ \alpha $$ is called the **learning rate**.  Small learning rate will take a longer time (more iteration) to find the minima. However, as we learn from calculus, the larger the step, the bigger the error in our calculation. In DL, finding the right value of learning rate is sometimes a try and error exercise.  Sometimes we will try values ranging from 1e-7 to 1 in logarithmic scale (1e-7, 5e-7, 1e-6, 5e-6, 1e-5 ...). 
+In DL, the variable $$ \alpha $$ is called the **learning rate**.  Small learning rate will take a longer time (more iteration) to find the minima. However, as we learn from calculus, the larger the step, the bigger the error in our calculation. In DL, finding the right value of learning rate is sometimes a try and error exercise.  Sometimes we will try values ranging from 1e-7 to 1 in logarithmic scale (1e-7, 5e-7, 1e-6, 5e-6, 1e-5 ...). 
 
 Large learning step may have other serious problem. It costs w to oscillate with increasing cost:
 <div class="imgcap">
 <img src="/assets/dl/learning_rate.jpg" style="border:none;">
 </div>
 
-We start with w = -6 (x-axis) at L1. If the gradient is huge, certain learning rate larger than some value will swing w too far to the other side (say L2) with even a larger gradient. Eventually, rather than drop down slowly to a minima, w keeps oscalliate and the cost keep sincreasing. When loss starts going upward during training, we need to reduce the learning rate. The follow demonstrates how a learning rate of 0.8 with a steep gradient may swing the cost upward instead of downward. The table traces how the oscillation of W causes the cost go upwards from L1 to L2 and then L3.
+We start with w = -6 (x-axis) at L1. If the gradient is huge, certain learning rate larger than some value will swing w too far to the other side (say L2) with even a larger gradient. Eventually, rather than drop down slowly to a minima, w keeps oscillate and the cost keeps increasing. When loss starts going upward during training, we need to reduce the learning rate. The follow demonstrates how a learning rate of 0.8 with a steep gradient may swing the cost upward instead of downward. The table traces how the oscillation of W causes the cost go upwards from L1 to L2 and then L3.
 
 <div class="imgcap">
 <img src="/assets/dl/lr_flow.png" style="border:none;">
@@ -1032,7 +1032,7 @@ We plot the result with our predicted value from our computed model vs the one f
 
 > Congratulations! We just solve a problem using deep learning!
 
-In real life, instead of 2 inputs (length of education and monthly income) to the network, there may be a couple dozens **features** (input). For more complex problems, we add more layers to the fully connected network (FC) to enrich the model. For object recognition in small image (about a thousand pixels), we convert each pixel into a feature and feed it to a FC. Nevertheless, if we want to push the accuracy up for larger image or more complex visual problems, we add convolution layers in front of the FC. Nevertheless, learning the FC covers the critical tecniques that is common to other type of networks.
+In real life, instead of 2 inputs (length of education and monthly income) to the network, there may be a couple dozens **features** (input). For more complex problems, we add more layers to the fully connected network (FC) to enrich the model. For object recognition in a small image (about a thousand pixels), we convert each pixel into a feature and feed it to a FC. Nevertheless, if we want to push the accuracy up for larger image or more complex visual problems, we add convolution layers in front of the FC. Nevertheless, learning the FC covers the critical techniques that are common to other types of networks.
 
 > In machine learning, we call the input "feature". In visual problems, we may visualize what activates a node. We call it what feature a network is extracting.
 
