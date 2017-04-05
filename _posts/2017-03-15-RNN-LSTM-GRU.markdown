@@ -10,7 +10,7 @@ date: 2017-03-15 12:00:00
 
 ### Recurrent Neural Network (RNN)
 
-If convolution networks are deep networks for images, recurrent networks are networks for the time sequence data, like speeh or natural language. For example, both LSTM and GRU networks based on the recurrent network are popular for the natural language processing (NLP). For both Google home and Amazon Alexa, recurrent networks are heavily applied. To illustrate the core ideas, we will look into the Recurrent neural netwok (RNN) before explaining LSTM & GRU.
+If convolution networks are deep networks for images, recurrent networks are networks for the time sequence data, like speech or natural language. For example, both LSTM and GRU networks based on the recurrent network are popular for the natural language processing (NLP). For both Google home and Amazon Alexa, recurrent networks are heavily applied. To illustrate the core ideas, we will look into the Recurrent neural network (RNN) before explaining LSTM & GRU.
 
 In deep learning, we model h in a fully connected network as (where $$ X_i $$ is the input)
 
@@ -111,13 +111,13 @@ Our training data contains both the images and captions. It also have a dictiona
 
 > In this tutorial, we called the captions provided in the training dataset: true caption.
 
-However, the RNN does not use the word index directly. The word index does not contain information about the semantic relationship between words. We need to map a word to a high dimensional space such that we can encode semantic relationship between words. For example, if we encode the word "father" as (0.2, 0.3, 0.1, ...) we should expect the word "mother" to be close by say (0.3, 0.3, 0.1, ...). Or the vector distance between the word "Paris" and "France" should be the similar to the one between "Seoul" and "Korea". word2vec provides a mechanism to convert a word to a higher dimensionl space which is trainable. We use a word embedding lookup table $$ W_{embed} $$ to convert a word index to a vector with length wordvec_dim. The RNN will take this vector $$ X_t $$ and $$ h_{t-1} $$ to compute $$ h_t $$
+However, the RNN does not use the word index directly. The word index does not contain information about the semantic relationship between words. We need to map a word to a high dimensional space such that we can encode semantic relationship between words. For example, if we encode the word "father" as (0.2, 0.3, 0.1, ...) we should expect the word "mother" to be close by say (0.3, 0.3, 0.1, ...). Or the vector distance between the word "Paris" and "France" should be similar to the one between "Seoul" and "Korea". word2vec provides a mechanism to convert a word to a higher dimensional space which is trainable. We use a word embedding lookup table $$ W_{embed} $$ to convert a word index to a vector with length wordvec_dim. The RNN will take this vector $$ X_t $$ and $$ h_{t-1} $$ to compute $$ h_t $$
 
 <div class="imgcap">
 <img src="/assets/rnn/cap9.png" style="border:none;width:45%;">
 </div>
 
->  The W for word2vec works more like a 1D lookup table than a matrix we use in deep network.
+>  The W for word2vec works more like a 1D lookup table than a matrix we use in a deep network.
 
 When we create the training data, we convert words to the corresponding word index using a vocabulary dictionary. In runtime, we map the word index to a word vector.
 <div class="imgcap">
