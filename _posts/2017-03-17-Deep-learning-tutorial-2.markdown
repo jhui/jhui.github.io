@@ -8,6 +8,8 @@ date: 2017-03-17 14:00:00
 ---
 **This is work in progress... The content needs major editing.**
 
+[Part 1 of deep learning is here](https://jhui.github.io/2017/03/18/Deep-learning-tutorial/)
+
 ### Overfit
 
 In part 1, when we model a simple model with 4 layers of computation nodes. We end up with many possible solutions with different $$ W $$. Should we prefer one solution over the other? Should we prefer a solution with smaller values in $$ W $$ over the other? Are part of the network just cancel out the effect of the other part?
