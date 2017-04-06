@@ -6,7 +6,7 @@ title: “Deep learning without going down the rabbit holes.”
 excerpt: “How to learn deep learning from easy concept to complex idea? How to build insight along the way?”
 date: 2017-03-18 14:00:00
 ---
-**This is work in progress... The content needs major editing.**
+**This is work in progress...**
 
 ### What is deep learning (DL)?
 **Deep learning is about building a function estimator.** Historically, people explains deep learning (DL) using the neural network. This is where deep learning gets its insight.  Nevertheless, deep learning has outgrown this explanation. Once you realize building a deep learning network is about building a function estimator, you will unveil its real potential in AI.
@@ -176,24 +176,24 @@ We build a model for each community, and use these models to predict how well Pi
 > In our model, we predict the number of dates for people with certain income and years of education. The corresponding values (the number of dates) in the training dataset are called the **true values or true labels**.
 
 ### Gradient descent
-**Deep learning is about learning how much it cost.** Step 2-5 is called the gradient descent in DL. First, we define a function to measure our errors between our model and the true values. In DL, we call this error function **cost function** or **loss function**. Mean square error (MSE) is one obvious candidate for our model.
+**Deep learning is about learning how much it cost.** Step 2-5 is called the gradient descent in DL. We define a function to measure our errors between our model and the true values. In DL, this error function is called **cost function** or **loss function**. Mean square error (MSE) is one obvious candidate.
 
 $$
 \text{mean square error} = J(h, y, W, b) = \frac{1}{N} \sum_i (h_i - y_i)^2
 $$
 
-where $$ h_i $$ is the model prediction and $$ y_i $$ is the true value. We sum over all the samples and take the average.
-We can visualize the cost below with x-axis being $$ W_1 $$ and y-axis being $$ W_2 $$ and z being the cost J(x, y). The solution of our model is to find $$ W_1 $$ and $$ W_2 $$ where the cost is lowest. Visualize dropping a marble at a random point $$ (W_1, W_2) $$ and let the gravity to do its work. 
+where $$ h_i $$ is the model prediction and $$ y_i $$ is the true value for sample $$ i $$. We sum over all the samples and take the average.
+We can visualize the cost below with x-axis being $$ W_1 $$ and y-axis being $$ W_2 $$ and z-axis being the cost J. The solution of our model is to find $$ W_1 $$ and $$ W_2 $$ where the cost is lowest. We can visualize this as dropping a marble at a random point $$ (W_1, W_2) $$ and let the gravity to do its work. 
 
 <div class="imgcap">
 <img src="/assets/dl/solution2.png" style="border:none;">
 </div>
 
+> Optimize a deep network means find all the $$ W $$, $$ b $$ and other tunable parameters to minimize cost.
+
 ### Learning rate
 
-Thinking in 3D or high dimensions are hard to impossible. Try to think DL problems in 2D first.
-
-Consider a point at (L1, L2), we cut through the diagram alone the red and orange and plot those curve in a 2D diagram:
+Thinking in 3D or high dimensions is hard to impossible. Try to think DL problems in 2D first. Consider a point at (L1, L2), we cut through the diagram alone the blue and orange line, and plot those curves in a 2D diagram:
 <div class="imgcap">
 <img src="/assets/dl/solution_2d.jpg" style="border:none;">
 </div>
@@ -202,14 +202,14 @@ Consider a point at (L1, L2), we cut through the diagram alone the red and orang
 <img src="/assets/dl/gd.jpg" style="border:none;">
 </div>
 
-The X-axis is the value of $$ W $$ and the Y-axis is its corresponding average cost. (Since we are holding the other input as constant, we will ignore it for now.)
+The x-axis is $$ W $$ and the y-axis is the cost. Since we are holding $$ W_{2} $$ as a constant, we can ignore it in the equation below to simplify the discussion.
 
 $$
 J(W, b, h, y) = \frac{1}{N} \sum_i (W_1*x_i - y_i)^2
 $$
 
 
-Since the gradient at L1 is negative (as shown), we move $$ W_1 $$ to the right to find the lowest point. But by how much? Let's compare the gradient for L1 and L2. We realize L2 has a smaller gradient. i.e. the change of $$ W2 $$ has a smaller impact on the change of cost compare to L1. Obviously, we want to change parameter proportional to how fast it can drop the cost. Therefore, the amount of adjustment for the parameters $$ (W_1, W_2) $$ should be proportional to its partial gradient at that point. i.e.
+Since the gradient at L1 is negative, we move $$ W_1 $$ to the right to find the lowest point. But by how much? L2 has a smaller gradient than L1. i.e. changing $$ W2 $$ has a smaller impact on cost compare to L1. Obviously, we update a parameter proportional to its impact. Therefore, adjustment for $$ (W_1, W_2) $$ is proportional to its partial gradient at that point. i.e.
 
 $$
 \Delta W_i \propto \frac{\partial J}{\partial W_i} 
@@ -219,7 +219,7 @@ $$
 \text{ i.e. } \Delta W_1 \propto \frac{\partial J}{\partial W_1} \text{ and } \Delta W_2 \propto \frac{\partial J}{\partial W_2}
 $$
 
-So the adjustments we want to make are:
+Add a ratio value, the adjustments to $$W$$ are:
 
 $$
 \Delta W_i = \alpha \frac{\partial J}{\partial W_i}
@@ -229,26 +229,28 @@ $$
 W_i = W_i - \Delta W_i
 $$
 
-In DL, the variable $$ \alpha $$ is called the **learning rate**.  Small learning rate will take a longer time (more iteration) to find the minima. However, as we learn from calculus, the larger the step, the bigger the error in our calculation. In DL, finding the right value of learning rate is sometimes a try and error exercise.  Sometimes we will try values ranging from 1e-7 to 1 in logarithmic scale (1e-7, 5e-7, 1e-6, 5e-6, 1e-5 ...). 
+The variable $$ \alpha $$ is called the **learning rate**.  Small learning rate takes a longer time (more iteration) to locate the minima. However, as we learn in calculus, a larger step results in a larger error in the calculation. In DL, finding the right value for the learning rate is a try and error exercise.  We usually try values ranging from 1e-7 to 1 in logarithmic scale (1e-7, 5e-7, 1e-6, 5e-6, 1e-5 ...) but this depends on the problem you are solving. 
 
-Large learning step may have other serious problem. It costs w to oscillate with increasing cost:
+A large learning step may have other serious problems. It costs $$w$$ to oscillate with increasing cost:
 <div class="imgcap">
 <img src="/assets/dl/learning_rate.jpg" style="border:none;">
 </div>
 
-We start with w = -6 (x-axis) at L1. If the gradient is huge, certain learning rate larger than some value will swing w too far to the other side (say L2) with even a larger gradient. Eventually, rather than drop down slowly to a minima, w keeps oscillate and the cost keeps increasing. When loss starts going upward during training, we need to reduce the learning rate. The follow demonstrates how a learning rate of 0.8 with a steep gradient may swing the cost upward instead of downward. The table traces how the oscillation of W causes the cost go upwards from L1 to L2 and then L3.
+We start with w = -6 (x-axis) at L1. If the gradient is huge, a learning rate larger than certain value will swing $$w$$ too far to the other side (say L2) with even a larger gradient. Eventually, rather than dropping down slowly to a minima, $$w$$ oscillates and the cost increases. When loss keeps going upward, we need to reduce the learning rate. The follow demonstrates how a learning rate of 0.8 with a steep gradient swings the cost upward instead of downward. The table traces how the oscillation of W causes the cost go upwards from L1 to L2 and then L3.
 
 <div class="imgcap">
 <img src="/assets/dl/lr_flow.png" style="border:none;">
 </div>
 
-> Sometimes, we need to be careful about the scale used in plotting the x-axis and y-axis. In the diagram shown above, the gradient does not seem large.  It is because we use a much smaller scale for y-axis than the x-axis (0 to 150 vs -10 to 10).
+> We need to be careful about the scale used for the x-axis and y-axis. In the diagram above, the gradient does not look steep.  It is because we have a much smaller scale for y-axis than the x-axis (0 to 150 vs -10 to 10).
 
-Here is another illustration for some real problems.  When we gradudally descent, we may land in an area with steep gradient which the W will bounce back. This type of shape is very hard to reach the minima with a constant learning rate. Advance methods to address this problem will be discussed later.
+Here is another illustration of some real problems.  When we gradudally descent, we may land in an area with steep gradient which the $$W$$ will bounce back. This type of shape is very hard to find the minima with a constant learning rate. Advance methods to address this problem will be discussed later.
 
 <div class="imgcap">
 <img src="/assets/dl/ping.jpg" style="border:none;">
 </div>
+
+This example is real but dramatical. But in a lesser extend, instead of settle down at the bottom, || W || oscillates around the minima slightly. If we drop a ball in Grand Canyon, we expect it to land in the bottom. In DL, this is harder.
 
 #### Naive gradient checking
 There are many ways to compute a paritial derviative. One naive but important method is using the simple partial derviative definition.

@@ -1118,7 +1118,7 @@ with tf.Session(graph=graph) as session:
 
 #### Visualization
 
-Here is some animations produced by Alec Radford in demonstrating how the gradient descent behaves for different algorithms. Regular gradient desent (red) learns the slowest and it shows how each algorighm behaves when it gets closer to the minima.
+Here is some animations produced by Alec Radford in demonstrating how the gradient descent behaves for different algorithms. Regular gradient desent (red) learns the slowest and different algorithms have different descending patterns and speed. One more interesting point is how some algorithms overshoot the minima or oscailate around it.
 
 <div class="imgcap">
 <img src="/assets/dl/a1.gif" style="border:none;width:70%">
