@@ -519,7 +519,7 @@ $$
  
 #### LSTM Equations
 
-It seems there are a lot of equations and indexing in LSTM. But actually, it is fairly simple. Whenever you need to compute a gate, or a new cell state, you multiple $$ X_t $$ and $$ h_{t-1} $$ with the following formula. 
+It seems there are a lot of equations and indexing in LSTM. But actually, it is fairly simple. Whenever you need to compute a gate or a new cell state, you multiple $$ X_t $$ and $$ h_{t-1} $$ with the following formula. 
  
 $$
 W_{x} X_t + W_{h} h_{t-1} + b

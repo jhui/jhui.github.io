@@ -122,7 +122,7 @@ Here are some of the tips to construct a CNN:
 * Convolution filter with small stride works better.
 * If GPU memory is not large enough, scarifice the first layer with larger filter like 7x7 with stride 2.
 * Use padding fill with 0.
-* Use filter size 2 stride size 2 for max pooling if used.
+* Use filter size 2, stride size 2 for max pooling if needed.
 
 For the network design:
 1. Start with 2-3 convolution layers with small fiters 3x3 or 5x5 and no pooling. 
