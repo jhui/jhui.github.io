@@ -9,15 +9,15 @@ date: 2017-03-18 14:00:00
 **This is work in progress... The content needs major editing.**
 
 ### What is deep learning (DL)?
-**Deep learning is about building a function estimator.** Historically, people explains deep learning (DL) using the neural network in our brain. Indeed, this is where deep learning gets its insight.  Nevertheless, deep learning has outgrown this explanation. Once you realize building a deep learning network is about building a function estimator, you will unveil its real potential in AI.
+**Deep learning is about building a function estimator.** Historically, people explains deep learning (DL) using the neural network. This is where deep learning gets its insight.  Nevertheless, deep learning has outgrown this explanation. Once you realize building a deep learning network is about building a function estimator, you will unveil its real potential in AI.
  
-Let us build a new andriod named Pieter. Our first task is to teach Pieter how to recognize visual objects. Can the visual system in our brain be replaced by a big function estimator? Can we pass the pixel values of an image to a function and calculate the probability of seeing a school bus, an airplane or a truck etc ...?
+Let us build a new andriod named Pieter. Our first task is to teach Pieter how to recognize visual objects. Can the human visual system be replaced by a big function estimator? Can we pass the pixel values to a function and classify it as a school bus, an airplane or a truck?
 
 <div class="imgcap">
 <img src="/assets/dl/deep_learner.jpg" style="border:none;width:70%;">
 </div>
 
-Indeed, in our later example of image recognition, we will build a system very similar to the following:
+Indeed, in our later example of visual recognition, we will build a system very similar to the following:
 <div class="imgcap">
 <img src="/assets/dl/fc.jpg" style="border:none;width:80%;">
 </div>
@@ -25,16 +25,18 @@ Indeed, in our later example of image recognition, we will build a system very s
 For every node, we compute:
 
 $$
-f(z_j) = \frac{1}{1 + e^{-z_j}}
-$$
-
-with, 
-
-$$
 z_j = \sum_{i} W_{ij} x_{i} + b_{i}
 $$
 
-which $$ x_{i} $$ is the input to the node or simply the pixel value if this is the first layer. These equation looks intimidating. But let us go through one example to illustrate how simple it is. For example, with weight W  (0.3, 0.2, 0.4, 0.3), bias b (-0.8) and a grayscale image with just 4 pixels (0.1, 0.3, 0.2, 0.1), the output of the first node circled in red above will be:
+$$
+f(z_j) = \frac{1}{1 + e^{-z_j}}
+$$
+
+which $$ x_{i} $$ is the input to the node or the pixel values if this is the first layer. 
+
+> Deep learning has many scary looking equations. We will walk through examples to show how it works. Most of them are pretty simple.
+
+For example, with weight W  (0.3, 0.2, 0.4, 0.3), bias b (-0.8) and a grayscale image with just 4 pixels (0.1, 0.3, 0.2, 0.1), the output of the first node circled in red above will be:
 
 $$
 z_j =  0.3*0.1 + 0.2*0.3 + 0.4*0.2 + 0.3*0.1  - 0.8 = -0.6
@@ -44,7 +46,7 @@ $$
 f(z) =  \frac{1}{1 + e^{-(-0.6)}} = 0.3543
 $$
 
-Each node will have its own set of weight (W) and bias (b). From the left most layer, we compute the output of each node and we feed forward the output to the next layer. Eventually, the right most layer is the probability for each object classification (a school bus, an airplane or a truck). In this exercise, we supply all the weight and bias values to our android Pieter. But as the term "deep learning" may imply, by the end of this tutorial, Pieter will learn those parameters by himself. We still miss a few pieces for the puzzle. But the network diagram and the equations above already lay down the foundation of a deep learning network. In fact, this simple design can recognize the zip code written on a envelop with reasonable high accuracy.
+Each node has its own weight (W) and bias (b). From the left most layer, we compute the output of each node, and feed it to the next layer. Eventually, the right most layer is the probability for each object classification (a school bus 0.88, an airplane 0.08 or a truck 0.04). In this exercise, we supply all the weight and bias values to our android Pieter. But as the term "deep learning" implies, by the end of this tutorial, Pieter will learn those parameters by himself. We still miss a few pieces for the puzzle. But the network diagram and the equations above lay down the foundation of a deep learning network. In fact, this simple design can recognize the zip code written on a envelop with very high accuracy.
 
 #### XOR
 For the skeptics, we will build an exclusive "or" (a xor b) using a simple network like:
@@ -54,18 +56,17 @@ For the skeptics, we will build an exclusive "or" (a xor b) using a simple netwo
 For each node, we apply the same equations mentioned before:
 
 $$
-h_j = \sigma(z) = \frac{1}{1 + e^{-z_j}}
-$$
-
-$$
 z_j =  \sum_{i} W_i * x_i + b_{i}
 $$
 
-The following is our code implementation. It is pretty self-explainatory. The core purpose is to demonstrate how we perform the weight multiplication and apply the sigmoid function.
+$$
+h_j = \sigma(z) = \frac{1}{1 + e^{-z_j}}
+$$
 
-> We provide coding to help audience to understand the concept deeper and to verify their understanding. Nevertheless, a full understand of the code is not needed or suggested.
+The following is our code implementation which is pretty self-explainatory. The purpose is to demonstrate exactly how we do the weight multiplication and apply the sigmoid function. In this program, we use Numpy which is a package for scientific computing with Python. It provides many mathematic operations and array manipulations that we need.
 
-In this program, we use Numpy which is a package for scientific computing with Python. It prvoides many mathematic operations and array manipulation that we need.
+> We provide coding to help audience to verify their understanding. Nevertheless, a full understand of the code is not needed or suggested.
+
 ```python
 import numpy as np
 
@@ -99,7 +100,7 @@ print(" 0 ^ 1 = %.2f" % xor(0, 1))   # 1.00
 print(" 1 ^ 0 = %.2f" % xor(1, 0))   # 1.00
 print(" 1 ^ 1 = %.2f" % xor(1, 1))   # 0.00
 ```
-And the XOR output matches with its expected logical value:
+And the XOR output matches with its expected logical values:
 ```
  0 ^ 0 = 0.00
  0 ^ 1 = 1.00
@@ -144,35 +145,35 @@ Which output something with shape like a delta function:
 <img src="/assets/dl/delta_func.png" style="border:none;width:50%">
 </div>
 
-Implement a XOR or a delta function is not important for deep learning (DL). Nevertheless, we demonstrate the possibilities of building a complex function estimator through a network of simple computation nodes. A network with 3 layers can implement a hand written recognition system for numbers with an accuracy of 95+%. The deeper a network the more complex model that we can build. For example, Microsoft ResNet (2015) for image recognition has 151 layers. In many modern models, there will be 10 millions of tunable parameters. For many AI problems, the model needed to solve the problem is very complex. In automous driving, we can model a policy (turn, accelerate or brake) to approximate what a human will do for what they see in front of them. This policy is too hard to model it analytically. Alterantive, with enough training data, we may train a deep learning network with high enough accuracies as a regular driver.
+Implement a XOR or a delta function is not important for deep learning (DL). Nevertheless, we demonstrate the possibilities of building a complex function estimator through a network of simple computation nodes. A 3-layer network can implement a hand written recognition system for numbers with an accuracy of 95+%. The deeper a network the more complex model that we can build. For example, Microsoft ResNet (2015) for visual recognition has 151 layers. In many modern models, there are 10 million tunable parameters. For many AI problems, the model needed to solve the problem is very complex. In automous driving, we can model a policy (turn, accelerate or brake) to approximate what a human will do for what they see in front of them. This policy is too hard to model it analytically. Alterantive, with enough training data, we train a deep learning network with accuracy of a regular driver.
 
 <div class="imgcap">
-<img src="/assets/dl/drive.jpg" style="border:none;width:50%">
+<img src="/assets/dl/drive.jpg" style="border:none;width:80%">
 </div>
 
-> Autonomus driving involves many aspect of AI. DL provides a model estimator that cannot be done analytically.
+> Autonomus driving involves many aspects of AI. DL provides a model estimator that cannot be done analytically.
 
 ### Build a Linear regression model
-We will build a model to demonstrate how Pieter can learn the parameters of a model by processing training data. For example, Pieter wants to expand on his horizon and start online dating. He wants to find out the relationship between the number of online dates with the number of years of eductaion and the monthly income.  Pieter starts with a simple linear model as follows:
+**DL solves problem by learning from data.** We will demonstrate how Pieter learns the model parameters $$W$$ by processing training data. For example, Pieter wants to expand on his horizon and start online dating. He wants to find out the relationship between the number of online dates with the years of eductaion and the monthly income.  Pieter starts with a simple linear model as follows:
 
 $$
 \text {number of dates} = W_1* \text{years in school} + W_2*\text{monthly income} + bias
 $$
 
-He asks 1000 people in each community and collects the information on their income, education and the corresponding number of online dates.  Pieter is interested in knowing how each community values the intellectual vs his humble post-doc salary.  So even this model looks overwhemly simple, it serves its purpose. So the task for Pieter is to find the parameter values for W and b in this model with training data collected by him.
+He asks 1000 people in different communities and collects the information on their income, education and the corresponding number of online dates.  Pieter interests in knowing how each community values the intellectual vs his humble post-doc salary.  So even this model looks overwhemly simple, it serves its purpose. So the task for Pieter is to find the parameter values W and b in this model with training data collected by him.
 
-This is the high-level steps for Pieter to train a model.
+This is the high-level steps:
 1. Take the first guess on W and b.
-2. Use the model above to compute the number of dates for each sample in the training dataset.
+2. Use the model to predict the number of dates for each sample in the training dataset.
 3. Compute the mean square error between the computed value and the true value in the dataset.
-4. Compute how much the error may change when we change W and b.
+4. Compute how much the error will change when we change W and b.
 5. Re-adjust W & b according to this error rate change. (**Gradient descent**)
-6. Repeat step 2 for N iterations.
+6. Back to step 2 for N iterations.
 7. Use the last value of W & b for our model.
 
-We can build a model with different W & b for each community, and use these models to predict how well Pieter may do in each community.
+We build a model for each community, and use these models to predict how well Pieter may do in each community.
 
-> In our model, we predict the number of dates for people with certain income and year of education. The corresponding values (the number of dates) that we found for each sample in the dataset are called the **true values**.
+> In our model, we predict the number of dates for people with certain income and years of education. The corresponding values (the number of dates) in the training dataset are called the **true values or true labels**.
 
 ### Gradient descent
 **Deep learning is about learning how much it cost.** Step 2-5 is called the gradient descent in DL. First, we define a function to measure our errors between our model and the true values. In DL, we call this error function **cost function** or **loss function**. Mean square error (MSE) is one obvious candidate for our model.
