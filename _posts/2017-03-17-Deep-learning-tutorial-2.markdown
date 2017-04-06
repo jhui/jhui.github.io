@@ -100,7 +100,7 @@ We need more iterations to train this model and result is less accurate than a m
 <img src="/assets/dl/p1.png" style="border:none;width:60%">
 </div>
 
-So why don't we focus on making a model with the right complexity. In real life problems, a complex model is the only way to push accuracy to an acceptable level, and overfitting is un-avoidable. A better solution is to introduce methods to reduce overfitting rather than make the model simpiler. One simple solution is to add more sample data such that it is much harder to overfit. Here, double the sample data produces a model closer to a straight line. Unfortunately, labeling large training dataset in real problems can be expensive.
+So why don't we focus on making a model with the right complexity. In real life problems, a complex model is the only way to push accuracy to an acceptable level, and overfitting is un-avoidable. You may even find it harder to train a model if the model is over simplified. A better solution is to introduce methods to reduce overfitting rather than make the model simpiler. One simple solution is to add more sample data such that it is much harder to overfit. Here, double the sample data produces a model closer to a straight line. Unfortunately, labeling large training dataset in real problems can be expensive.
 <div class="imgcap">
 <img src="/assets/dl/p2.png" style="border:none;width:60%">
 </div>

@@ -229,7 +229,7 @@ $$
 W_i = W_i - \Delta W_i
 $$
 
-The variable $$ \alpha $$ is called the **learning rate**.  Small learning rate takes a longer time (more iteration) to locate the minima. However, as we learn in calculus, a larger step results in a larger error in the calculation. In DL, finding the right value for the learning rate is a try and error exercise.  We usually try values ranging from 1e-7 to 1 in logarithmic scale (1e-7, 5e-7, 1e-6, 5e-6, 1e-5 ...) but this depends on the problem you are solving. 
+The variable $$ \alpha $$ is called the **learning rate**.  Small learning rate takes a longer time (more iteration) to locate the minima. However, as we learn in calculus, a larger step results in a larger error in the calculation. In DL, finding the right value for the learning rate is a try and error exercise.  We usually try values ranging from 1e-7 to 1 in logarithmic scale (1e-7, 5e-7, 1e-6, 5e-6, 1e-5 ...) but this depends on the problem you are solving. There are other parameters like learning rate that we need to tune. We call all these parameter **"hyperparameters"**.
 
 A large learning step may have other serious problems. It costs $$w$$ to oscillate with increasing cost:
 <div class="imgcap">
@@ -252,14 +252,16 @@ Here is another illustration of some real problems.  When we gradudally descent,
 
 This example is real but dramatical. But in a lesser extend, instead of settle down at the bottom, || W || oscillates around the minima slightly. If we drop a ball in Grand Canyon, we expect it to land in the bottom. In DL, this is harder.
 
+> Adjusting learning rate with better optimization techniques is heavily study and still in active research for very complex problems.
+
 #### Naive gradient checking
 There are many ways to compute a paritial derviative. One naive but important method is using the simple partial derviative definition.
 
 $$
-\frac{\partial f}{\partial x} = \frac{f(x+\Delta x_i) - f(x-\Delta x_i) } { 2 \Delta x_i} 
+\frac{\partial f}{\partial x} = \frac{f(x+\Delta x_i) - f(x-\Delta x_i) } { 2 \Delta x_{i}} 
 $$
 
-Here is a simple code demonstration of finding the derivative of 
+Here is a simple code demonstrating the derivative of 
 $$
 x^2 \text{ at } x = 4
 $$
@@ -272,24 +274,26 @@ def gradient_check(f, x, h=0.00001):
 f = lambda x: x**2
 print(gradient_check(f, 4))
 ```
-We never call this method in the production code. But computing partial derviative can be tedious and error prone. We use this method to verify a partial derviative implementation during the development time.
+We never use this method in production. But computing partial derviative is tedious and error prone. We use the naive method to verify a partial derviative implementation during development.
 
 #### Mini-batch gradient descent
 
-When computing the cost function, we add all the errors for the processed training data. We can process all the training data at once but this can take too much time for just one update. On the contrray, we can perform stochastic gradient descent which make one W update per training sample. Nevertheless, the gradient descent will follow a zipzap pattern rather than following the curve of the cost function. This can be a problem if you land in a steep gradient area which the parameters may bounce to area with high cost. The training takes longer, and it might zipzag around the minima rather down converge to the minima. 
+When computing the cost function, we can add all the errors for the whole training dataset. But this takes too much time for just one update in one iteration. On the contrray, we can perform stochastic gradient descent which make one $$W$$ update per training sample. Nevertheless, the gradient descent will follow a zip zap pattern rather than following the curve of the cost function. This can be a problem if you land in a steep gradient area which the parameters may bounce to area with high cost. The training takes longer, and it might zip zag around the minima rather than converge to it. 
 
 <div class="imgcap">
 <img src="/assets/dl/solution3.png" style="border:none;">
 </div>
 
-A good compromise is to process a batch of N samples at a time. This can be a tunable hyper-parameter but usually not very critical and may start with 64 subject to the memory consumptions.
+A good compromise is to process a batch of N samples at a time. N is a tunable hyperparameter but usually not very critical. We can start with 64 which is subject to the memory consumptions.
 
 $$
 J = \frac{1}{N} \sum_i (W_1*x_i - y_i)^2
 $$
 
+If the cost is very small, we may use the total cost rather than the average cost to make a better precision in the floating point math for the derivative.
+
 ### Backpropagation
-To compute the partial derviatives, $$ \frac{\partial J}{\partial W_i} $$, we can start from each node in the left most layer and propagate the gradient until it reach the right most layer.  Then we move to the next layer and start the process again. For a deep network, this is very inefficient. To compute the partial gradient efficiently, we perform a foward pass and a backprogagation. 
+To compute the partial derviatives, $$ \frac{\partial J}{\partial W_i} $$, we can start from each node in the left most layer, and propagate the gradient until it reaches the right most layer.  Then we move to the next layer and start the process again. For a deep network, this is very inefficient. To compute the partial gradient efficiently, we perform a foward pass and a backprogagation. 
 
 #### Forward pass
 First, we compute the cost in a forward pass:
@@ -297,7 +301,7 @@ First, we compute the cost in a forward pass:
 <img src="/assets/dl/fp.jpg" style="border:none;width:80%">
 </div>
 
-> Keep track of the naming of your input & output, its shape (dimension) and the equations. This is one great tip when you program DL. (N,) means a 1-D array with N elements. (N,1) means 2-D array with N rows each containing 1 element. (N, 3, 4) means a 3D array.
+> Keep track of the naming of your input & output, its shape (dimension) and the equations. This is one great tip when you program DL. (N,) means a 1-D array with N elements. (N,1) means a 2-D array with N rows each containing 1 element. (N, 3, 4) means a 3-D array.
 
 The method "forward" computes the equation below:
 
@@ -350,7 +354,7 @@ $$
 \frac{\partial f}{\partial out_i} = \frac{2}{N} (out_i - y_i)
 $$
 
-We add a line of code in the mean square loss to compute $$ \frac{\partial J}{\partial out_{i}} $$
+We add a line of code below in the mean square loss to compute $$ \frac{\partial J}{\partial out_{i}} $$
 
 ```python
 def mean_square_loss(h, y):
@@ -375,7 +379,7 @@ Now we have
 $$
 \frac{\partial J}{\partial out_i}
 $$ 
-. We apply the chain rule to backpropagate the gradient one more layer to the left to compute $$ \frac{\partial J}{\partial W} \text{ as } dW $$ and $$ \frac{\partial J}{\partial b} \text{ as } db $$.
+. We apply the simple chain rule in calculus to backpropagate the gradient one more layer to the left. We follow our naming convention to name $$ \frac{\partial J}{\partial W} \text{ as } dW $$ and $$ \frac{\partial J}{\partial b} \text{ as } db $$.
 
 <div class="imgcap">
 <img src="/assets/dl/bp3.jpg" style="border:none;width:60%">
@@ -413,10 +417,10 @@ $$
 \frac{\partial out}{\partial b}  = 1
 $$ 
 
-Compute the derivative with the chain rule:
+Apply the derivative to the chain rule:
 
 $$
-\frac{\partial J}{\partial W} = \frac{\partial J}{\partial out} X
+\frac{\partial J}{\partial W} = \frac{\partial J}{\partial out} \frac{\partial out}{\partial W}  = \frac{\partial J}{\partial out} X
 $$ 
 
 $$
@@ -424,12 +428,7 @@ $$
 $$ 
 
 
-Here is the code computing
-$$
-dW, db
-$$
-
-
+A lot of mathematical notation but the code for $$ dW, db $$ is pretty simple.
 ```python
 def forward(x, W, b):
     out = x.dot(W) + b
@@ -540,11 +539,9 @@ print(f"b = {b}")
 
 ### General principle in backpropagation
 
-Machine learning library provides pre-built layers with feed forward and backpropagation. However many DL class assignments spend un-proportional amount of time in backpropagation. With vectorization and some ad hoc functions, the process is error prone but not necessary hard. Let's summaries the step above again with some tips.
+Machine learning library provides pre-built layers with feed forward and backpropagation. Many DL class assignments spend a large amount of time in backpropagation. With vectorization and some ad hoc functions, the process is error prone but not necessary hard. Let's summaries the step above again with some good tips.
 
-> Draw the forward pass and backpropagation pass with clear notication of variables that we used in the program.
-
-> Add functions, derivatives and the shape for easy reference.
+> Draw the forward pass and backpropagation pass with clear notication of variables that we used in the program. Add functions, derivatives and the shape for easy reference.
 
 <div class="imgcap">
 <img src="/assets/dl/fp.jpg" style="border:none;width:75%">
@@ -570,7 +567,7 @@ $$
 \frac{\partial J}{\partial out} = \frac{2}{N} (out - y)
 $$
 
-For every layer, compute the function derviate:
+For every node, find the derviate of the function:
 
 $$
 out = W * X + b
@@ -608,13 +605,11 @@ $$
 \text{dW} = \text{dl1} \cdot \frac{\partial f_{1}}{\partial W}  
 $$ 
 
-> Put the function derviative in the diagram make this step easy.
-
-> Expanding the equation with index sometimes will help to figure out the backpropagation step.
+Put the function derviative in the diagram. Always make the shape (dimension) of the variables clear in the diagram and in the code. Use this information to build and to verify your math operations. For example, multiply a (N, C, D) matrix with a (D, K) matrix should produce a (N, C, K) matrix. Vectorization may confuse you. Expand the equation with sub-indexes with only a couple weights and features to work through the math.
 
 #### More on backpropagation
 
-In backprogragation, we may backprogate multiple path back to the same node. To compute the gradient correctly, we need to add both path together:
+In backprogragation, we may backprogate multiple pathes back to the same node. To compute the gradient correctly, we need to add both pathes together:
 <div class="imgcap">
 <img src="/assets/dl/bp_m1.jpg" style="border:none;width:50%">
 </div>
@@ -629,7 +624,7 @@ $$
 
 ### Testing the model
 
-I strongly recommend you to think about a linear regression problem that interested you, and train a simple network now. A lot of issues happened in a complex model will show up even in such a simple model. With a complex model, you treat it as a black box and many actions are purely random guesses. Work with a model designed by yourself, you can create better sceaniors to test your theories and develop a better insight on DL. Most tutorial have already pre-cooked parameters. So they teach you the easier part without having you to struggle on the hard part.
+I strongly recommend you to think about a linear regression problem that interested you, and train a simple model now. A lot of issues happened in a complex model will show up in such a simple model. With a complex model, you treat it as a black box , and many actions are purely random guesses. Working with a model designed by yourself, you create better sceaniors to test your theories, and develop a better insight in DL. Most tutorials have pre-cooked parameters. They teach you the easier part without having you to struggle on the hard part.
 
 So let Pieter train the system.
 ```
@@ -638,14 +633,14 @@ iteration 200: loss=3.899e+292 W1=-3.741e+140 dW1=4.458e+147 W2=-1.849e+143 dW2=
 iteration 400: loss=inf W1=-1.39e+284 dW1=1.656e+291 W2=-6.869e+286 dW2=8.184e+293 b= -1.04e+283 db = 1.24e+290
 iteration 600: loss=nan W1=nan dW1=nan W2=nan dW2=nan b= nan db = nan
 ```
-The application overflow within 600 iterations! Since the loss and the graident is so high, we test out whether the learning rate is too high. We decrease the learning rate. With learning rate of 1e-8, we do not have the overflow problem but the loss is high.
+The application overflows within 600 iterations! Since the loss and the graident are so high, we test whether the learning rate is too high. We decrease the learning rate to 1e-8, and we do not have the overflow problem but the loss remains high.
 ```
 iteration 90000: loss=4.3e+01 W1= 0.23 dW1=-1.3e+02 W2=0.0044 dW2= 0.25 b= 0.0045 db = -4.633
 W = [ 0.2437896   0.00434705]
 b = 0.004981262980767952
 ```
 
-We are very reluctant to take actions without information. But since the application runs very fast, we can give a few simple guess. With10,000,000 iterations and a learning_rate of 1e-10, the loss is still very high. It will be better to trace the source of problem now.
+We are reluctant to take actions without information. But since the application runs fast, we give it one more try . With 10,000,000 iterations and a learning_rate of 1e-10, the loss remains very high. It will be better to trace the source of problem now.
 
 ```
 iteration 9990000: loss=3.7e+01 W1= 0.22 dW1=-1.1e+02 W2=0.0043 dW2= 0.19 b= 0.0049 db = -4.593
@@ -653,9 +648,9 @@ W = [ 0.22137005  0.00429005]
 b = 0.004940551119084607
 ```
 
-> Tracing gradient is another powerful tool in DL debugging.
+> Tracing gradient is a powerful tool in DL debugging.
 
-Even the loss in our first try shows similar symptom as a bad learning rate, we suspect this is not the root cause. After some tracing, we find the gradient is very high. We plot the cost function relative to W to illustrate the real issue.
+Even the loss shows similar symptom as a bad learning rate, we suspect this is not the root cause. After some tracing, we realize the gradient is very high. We plot the cost function relative to $$W$$ to illustrate the real issue.
 
 This is a U shape curve which is different from a bowl shape curve that we use in the gradient descent explanation. 
 <div class="imgcap">
@@ -666,7 +661,7 @@ This is a U shape curve which is different from a bowl shape curve that we use i
 <img src="/assets/dl/solution.png" style="border:none;width:50%">
 </div>
 
-The Y-axis is $$ W_2 $$ (monthly income) and the X-axis is $$ W_1$$ (year of education). Cost response more aggressive with $$ W_2 $$ than $$ W_{1} $$. Monthly income ranges from 0 to 10,000 while year of education range from 0 to 30. Obviously, the different scale in these 2 features cause a major difference in its gradient. Because of the different scale, we cannot have a single learning rate than can work well for both of them. The solution is pretty simple with a couple line of code change. We re-scale the income value.
+The y-axis is $$ W_2 $$ (monthly income) and the x-axis is $$ W_1$$ (years of education). Cost responses more aggressive with $$ W_2 $$ than $$ W_{1} $$. Monthly income ranges from 0 to 10,000 and years of education range from 0 to 30. Obviously, the different scale in these 2 features causes a major difference in its gradient. Because of the different scale, we cannot have a single learning rate than works well for both of them. The solution is pretty simple with a couple line of code change. We re-scale the income value.
 
 ```python
 def true_y(education, income):
@@ -697,7 +692,7 @@ b = 1.9795590414763997
 
 ### Non-linearity
 
-Pieter come back and realize our linear model is not adequate. Pieter claims the relationship between years of education and dates are not exactly linear. We should give more rewards for people holding advance degree.
+Pieter comes back and complains our linear model is not adequate. Pieter claims the relationship between the years of education and the number of dates are not exactly linear. We should give more rewards for people holding advance degrees.
 <div class="imgcap">
 <img src="/assets/dl/educ.png" style="border:none;width:50%">
 </div>
@@ -726,44 +721,50 @@ $$
 
 With this function, in theory, we can construct the non-linear relations that Pieter wants.
 <div class="imgcap">
-<img src="/assets/dl/l1.png" style="border:none;width:80%">
+<img src="/assets/dl/l1.png" style="border:none;width:60%">
 </div>
 Adding both output:
 <div class="imgcap">
-<img src="/assets/dl/l2.png" style="border:none;width:80%">
+<img src="/assets/dl/l2.png" style="border:none;width:60%">
 </div>
 
-Add a non-linear function after a linear equation can enrich the complexity of our model. These methods are usually call **activation function**. Common functions are tanh and ReLU.
+Adding a non-linear function after a linear equation enriches the complexity of our model. These methods are called **activation function**. Common functions are tanh and ReLU.
  
 #### Sigmoid
-Sigmoid is one of the earliest function used in deep networks. Neverthless, as an activation function, its importance is gradually replaced by other functions like ReLU. Currently, sigmoid function is more popular as a gating function in LSTM/GRU (an "on/off" gate) to selectively remember or forget information. Discssion of sigmoid function as an activation function is more of a showcase of explaining why network can be hard to train.
+Sigmoid is one of the earliest function used in deep networks. Neverthless, as an activation function, its importance is gradually replaced by other functions like ReLU. Currently, sigmoid function is more popular as a gating function in LSTM/GRU (an "on/off" gate) to selectively remember or forget information. The discussion of a sigmoid function 
+often acts as a showcase of explaining issues with deep networks.
 
 <div class="imgcap">
 <img src="/assets/dl/sigmoid.png" style="border:none;width:50%">
 </div>
 
 #### ReLU
-ReLU is one of the most popular activation function. Its popularity arries because it works better with gradient descent. It performs better than the sigmoid function because the sigmoid node is saturated easier and work less efficient with gradient descent in the saturated area.
+ReLU is one of the most popular activation function. Its popularity arries because it works better with gradient descent. It performs better than the sigmoid function because the sigmoid node saturates easily and works less efficient with gradient descent. (The reasons why some functions work better in gradient descent will explain later.)
+
+$$
+y = max(0, x)
+$$
 
 <div class="imgcap">
 <img src="/assets/dl/relu.png" style="border:none;width:50%">
 </div>
 
 #### tanh
-Popular for output prefer to be within [-1, 1]
+tanh is similar to sigmoid but the output is within [-1, 1] instead of [0, 1]. 
+
 <div class="imgcap">
 <img src="/assets/dl/tanh.png" style="border:none;width:50%">
 </div>
 
-As mentioned before, your want the gradient descent to follow the curve of the cost function but not in some crazy zipzap pattern. For sigmoid function, the output is always positive.  According to the formular below, the backprogate gradient for W will be subject to the sign of $$  \frac {\partial J}{\partial l_{k+1}} $$ since $$X$$ is always positive after the sigmoid layer. In practice, it forces all $$ W $$ in this layer to move in the same direction and therefore the gradient descent will follow a zipzap pattern. 
+As mention before, we want the gradient descent to follow the curve of the cost function but not in some zip zap pattern. For sigmoid function, the output value is always positive (between 0 and 1).  According to the formular below, the sign for the gradient for $$W$$ subjects to the sign of $$  \frac {\partial J}{\partial l_{k+1}} $$ because $$X$$ is always positive in a sigmoid layer output. So the derivatives for this layer is either all positive or all negative. Instead of following the curve, all $$ W $$ in this layer move in the same direction in a zip zap pattern. 
 
 $$
 \frac {\partial l_{k}}{\partial W} = X \cdot \frac {\partial J}{\partial l_{k+1}} 
 $$
 
-SInce tanh has positive and negative output and therefore prefered over sigmoid.
+SInce tanh has both positive and negative outputs, tanh does not have this problem as sigmoid.
 
-Implement these functions with python and numpy.
+Numpy provides all API to implement these functions.
 ```python
 import numpy as np
 import matplotlib.pyplot as plt
@@ -797,7 +798,7 @@ plt.show()
 
 ```
 
-### Feed forward and backpropagation for sigmoid and ReLU
+### Feed forward and backpropagation with sigmoid or ReLU
 
 The derivative for ReLU function:
 
@@ -824,7 +825,15 @@ $$
 With some calculus:
 
 $$
-\frac{d\sigma (x)}{d(x)} = \sigma (x)\cdot (1-\sigma(x))
+\frac{\partial \sigma(x)}{\partial x} = \frac{1}{(1+e^{-x})^2} \cdot e^{-x} = \frac{1}{(1+e^{x})} \cdot \frac{1}{ (1+e^{-x})} 
+$$
+
+$$
+\frac{\partial \sigma(x)}{\partial x} = (1 - \frac{1}{1+e^{-x}}) \cdot \frac{1}{ (1+e^{-x})} 
+$$
+
+$$
+\frac{\partial \sigma(x)}{\partial x} = \sigma (x)\cdot (1-\sigma(x))
 $$
 
 ```python
@@ -849,7 +858,7 @@ def sigmoid_backward(dout, cache):
 ```
 ### Fully connected network
 
-Let's apply all our knowledge so far to build a fully connected network as follows:
+Let's apply all our knowledge to build a fully connected network:
 <div class="imgcap">
 <img src="/assets/dl/fc_net.png" style="border:none;width:40%">
 </div>
@@ -864,9 +873,9 @@ $$
 h(z_j)=\text{max}(0,z_{j})
 $$
 
-For the layer before the output, we apply only the linear equation but not the ReLU equation.
+For the layer before the output, we apply only the linear equation but not the ReLU.
 
-Here is the code performaing the forward pass with 4 hidden layers:
+Most of the code is already done in previous examples. We add the forward pass code for 4 hidden layers.
 ```python
 z1, cache_z1 = affine_forward(X, W[0], b[0])
 h1, cache_relu1 = relu_forward(z1)
@@ -880,7 +889,7 @@ h3, cache_relu3 = relu_forward(z3)
 z4, cache_z4 = affine_forward(h3, W[3], b[3])
 ```
 
-Here is the backpropagation:
+Here is the corresponding backpropagation:
 ```python
 dz4, dW[3], db[3] = affine_backward(dout, cache_z4)
 
@@ -894,7 +903,7 @@ dh1 = relu_backward(dz2, cache_relu1)
 _, dW[0], db[0] = affine_backward(dh1, cache_z1)
 ```
 
-For those interested in details, we list some of the code we change/add:
+For those interested in details, we relist some of the code.
 ```python
 iteration = 100000
 learning_rate = 1e-4
@@ -1009,7 +1018,7 @@ for i in range(iteration):
         print(f"iteration {i}: loss={loss:.4}")
 ```
 
-We also generate some testing data to measure how well our model can predict.
+We also generate some testing data to measure how well our model predicts.
 ```python
 TN = 100
 test_education = np.full(TN, 22)
@@ -1028,18 +1037,18 @@ print(f"testing: loss (compare with Oracle)={loss_model:.6}")
 print(f"testing: loss (compare with sample)={loss_sample:.4}")
 ```
 
-We plot the result with our predicted value from our computed model vs the one from the true model. (The model from the Oracle.) In this first model, we have 2 hidden layers. When making prediction, we fix the number of years in education to 22, and plot how the number of dates varied with income.The orange line is what we may predicted from our model, the blue dot is from the Oracle, and orange dot is when we add some noise to the Oracle model for the training dataset. The data match pretty well with each other.
+We plot the predicted values with the true values. (The values from our Oracle model.) For the first plot, we temporarily downsize the network to 2 hidden layers. In the plot, we fix the years of education to 22, and plot how the number of dates varied with income. The orange dots are our predictions, the blue dots are from the Oracle model adding some noise. The data match pretty well with each other.
 <div class="imgcap">
 <img src="/assets/dl/fc_2l.png" style="border:none;width:60%">
 </div>
 
 > Congratulations! We just solve a problem using deep learning!
 
-In real life, instead of 2 inputs (length of education and monthly income) to the network, there may be a couple dozens **features** (input). For more complex problems, we add more layers to the fully connected network (FC) to enrich the model. For object recognition in a small image (about a thousand pixels), we convert each pixel into a feature and feed it to a FC. Nevertheless, if we want to push the accuracy up for larger image or more complex visual problems, we add convolution layers in front of the FC. Nevertheless, learning the FC covers the critical techniques that are common to other types of networks.
+The code looks simple and easy. Later, we will solve some visual recognition problems. You will realize the code and methods are almost the same. We prefer to keep things simple now so we can play with it with different ideas. In real life, instead of 2 input (the years of education and the monthly income), there may be a couple dozens **features** (input). For complex problems, we add more fully connected layers (FC) to enrich the model. For visual recognition, we convert the 2-D image into a 1-D array and feed it to a FC. Nevertheless, if we want to push the accuracy up for more complex visual problems, we add convolution layers in front of the FC. Nevertheless, learning the FC covers the critical techniques that needed for CNN.
 
-> In machine learning, we call the input "feature". In visual problems, we may visualize what activates a node. We call it what feature a network is extracting.
+> In machine learning, we call the input "features". In visual problems, we may visualize what activates a node. We want to realize what features a node are extracting.
 
-Now we increase the hidden layer from 2 to 4. We find that our prediction accuracy drops. And it takes more time to train and more tuning. When we plot it in 3D with variable income and eduction, we realized some part of the 2D plain is bended instead of flat.
+Now we increase the number of hidden layers back from 2 to 4. Our prediction accuracy drops, and it takes more training time and tuning. When we plot it in 3D with variable income and eduction, some part of the 2D plain is bended instead of flat.
 <div class="imgcap">
 <img src="/assets/dl/fc_4l.png" style="border:none;width:60%">
 </div>
@@ -1048,7 +1057,7 @@ Now we increase the hidden layer from 2 to 4. We find that our prediction accura
 <img src="/assets/dl/fc_4l2.png" style="border:none;width:60%">
 </div>
 
-When we create the training dataset, we add some noise to our true value (# of dates). When we use a more complex model, it also increase its capability to model the noise signal. When we have a large dataset, the effect of noise should cancel out. However, if the training dataset is not big enough and the model is complex, the accuracies in making prediction actually suffer compare with a simplier model. In this exercise, when we increase the model complexity, the model get harder to train and optimize, and the accuracy drops. In genearl, we should always starts with some simple model and increase its complexity later. It is hard to tell whether we need more tuning/iterations or it simpliy not working if we jump into a complex model too soon.
+When we create the training dataset, we add some noise to our true value (# of dates). When we have a complex model, it increases its capability to model the noise also. If we have a large dataset, the effect of noise should cancel out. However, if the training dataset is not big enough and the model is complex, the accuracy suffer compare with a simplier model. In this exercise, when we increase the model complexity, it gets harder to train and optimize, and the accuracy drops. In general, we start with a simple model and increase its complexity later. It is hard to tell whether we need more tuning/iterations, or it simpliy not working if we jump into a complex model too soon.
 
 ```python
 def sample(education, income, verbose=True):
@@ -1057,7 +1066,7 @@ def sample(education, income, verbose=True):
     return dates + noise
 ```
 
-We also replace our ReLU function with a sigmoid function and plot the same diagram:
+For completness, we replace our ReLU function with a sigmoid function and plot the same diagram:
 
 <div class="imgcap">
 <img src="/assets/dl/fc_si1.png" style="border:none;width:60%">
@@ -1066,7 +1075,7 @@ We also replace our ReLU function with a sigmoid function and plot the same diag
 <img src="/assets/dl/fc_si2.png" style="border:none;width:60%">
 </div>
 
-Below is one of the model generated. Because we start with random guess of $$ W $$, we end up with quite different models for each run.
+Below is one of the model generated. Because we start with random guess of $$ W $$, we end up with models with different ||W|| for each run.
 ```
 Layer 1:
       [[ 1.10727659,  0.22189273,  0.13302861,  0.2646622 ,  0.2835898 ],
@@ -1094,8 +1103,9 @@ Layer 4:
        [ 0.07363663]])]
 ```
 
+In the first part of the tutorial, we finish a FC network. It is a very simple problem. But making it simple allows us to play with it, and learns better insight. Almost the same code and techniques applies to a real problem so it does not hurt either. Nevertheless, making a deep network work is not that easy. In the second part of the tutorial, we cover the critical DL issues and its resolution. We will also put things toegether with 2 visual recognition problems.
 
-[Part 2 of the deep learning is here](https://jhui.github.io/2017/03/17/Deep-learning-tutorial-2/)
+[Part 2 of the deep learning can be found here.](https://jhui.github.io/2017/03/17/Deep-learning-tutorial-2/)
 
 
 
