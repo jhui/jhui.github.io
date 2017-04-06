@@ -11,7 +11,7 @@ date: 2017-03-17 14:00:00
 [Part 1 of the deep learning can be found here](https://jhui.github.io/2017/03/18/Deep-learning-tutorial/)
 ### Overfit
 
-In part 1, we prepare a simple model with 4 layers of computation nodes. The solutions for $$ W $$ are not unique. Should we prefer one solution over the other, or should we prefer smaller values for $$ W $$? Are part of the network cancel out each other?
+In part 1, we prepare a simple model with 4 layers of computation nodes. The solutions for $$ W $$ are not unique. Should we prefer one solution over the other, or should we select smaller values for $$ W $$? Are part of the network cancel out each other?
 
 ```
 Layer 1:
@@ -40,9 +40,7 @@ Layer 4:
        [ 0.07363663]])]
 ```
 
-This lead us to a very important topic.  When we increase the complexity of our model, we risk the chance of modeling the noise into the model. If we do not have enough sample data to cancel out the noise, we make bad predictions. But even without the noise, we can still have a bad model.
-
-Let's walk through an example. We start with training samples with input values and labels range from 0 to 20. How will you create an equation to link the data points below.
+This lead us to a very important topic.  When we increase the complexity of our model, we risk the chance of modeling the noise into the model. If we do not have enough sample data to cancel out the noise, we make bad predictions. But even without the noise, we can still have a bad model. Let's walk through an example. We start with training samples with input values and output range from 0 to 20. How will you create an equation to link the data points below.
 <div class="imgcap">
 <img src="/assets/dl/d1.png" style="border:none;width:70%">
 </div>
@@ -61,20 +59,19 @@ $$
 y = 1.9  \cdot 10^{-7}  x^9 - 1.6 \cdot 10^{-5} x^8 + 5.6 \cdot 10^{-4} x^7 - 0.01 x^6  + 0.11 x^5 - 0.63 x^4 + 1.9  x^3 - 2.19  x^2 + 0.9 x - 0.0082
 $$
 
-which does not miss a single point in the sample.
 <div class="imgcap">
 <img src="/assets/dl/d3.png" style="border:none;width:70%">
 </div>
 
 Which model is correct? The answer is "don't know". Someone thinks the first one is simplier, and simple explanation deserves more credits. But if you show it to a stock broker, they may say the second curve looks closer to the market closing price of a stock. 
 
-Instead, we should ask whether our model is too "custom tailor" for the training data, and fails to make generalized predictions. The second curve fits the sample data 100% but will make poor predictions if the true model is a straight line indeed.
+Instead, we should ask whether our model is too "custom tailor" for the training data, and fails to make generalized predictions. The second curve fits the sample data 100% but will make poor predictions if the true model is a straight line.
 
 #### Validation
-**Machine learning is about making predictions.** A model that has 100% accuracy in training can be a bad model for making predictions. For that, we often split our testing data into 3 parts: 80% for training, 10% for validation and 10% for testing. During training, we use the training dataset to build models with different network designs and hyperparameters like learning rate. We run those models with the validation dataset and pick the model with the highest accuracy. This strategy works if the validation dataset is close to what we want to predict. Otherwise, the picked model can make bad predictions. As the last safeguard, we use the 10% testing data for a final insanity check. This testing data is for one last verification but not for model selection. If your testing result is dramatically differenced from the validation result, we need to randomize the data more, or to collect more data.
+**Machine learning is about making predictions.** A model that has 100% accuracy in training can be a bad model. For that, we split our testing data into 3 parts: say 80% for training, 10% for validation and 10% for testing. During training, we use the training dataset to build models with different hyperparameters. We run those models with the validation dataset and pick the one with the highest accuracy. This strategy works if the validation dataset is similar to what we want to predict. But as a last safeguard, we use the 10% testing data for a final insanity check. This testing data is for one last verification but not for model selection. If your testing result is dramatically different from the validation result, we need to randomize the data more, or to collect more data.
 
 #### Visualization 
-We can train a model to create a boundary to separate the blue dots from the white dots below. A complex model produces far more sophisticated boundary shape than a low complexity model. In the circled area, if we miss the 2 left white dot samples in our training, a complex model may create an odd shape boundary just to include this white dot. A low complexity model can only produce a smoother surface which by chance may be more desirable. A complex model may also more vulnerable to outliers which a simple model may just ignore like the white dot in the green circle.
+We can train a model to create a boundary to separate the blue dots from the white dots below. A complex model can produce sophisticated boundaries comparing to a low complexity model. In the yellow circled area, if we miss the 2 left white dot samples in our training, a complex model may create an odd shape boundary just to include this white dot. A low complexity model may produce a smoother surface which by chance may include those 2 white dots. A complex model may mishandle outliers. For example, a complex model should ignore the white dot in the green circle like a simple model does.
 
 <div class="imgcap">
 <img src="/assets/dl/of.png" style="border:none;width:60%">
@@ -86,58 +83,58 @@ $$
 y = 1.9  \cdot 10^{-7}  x^9 - 1.6 \cdot 10^{-5} x^8 + 5.6 \cdot 10^{-4} x^7 - 0.01 x^6  + 0.11 x^5 - 0.63 x^4 + 1.9  x^3 - 2.19  x^2 + 0.9 x - 0.0082
 $$
 
-In fact, there are infinite answers using different polynomial orders $$ x^k \cdots $$
+In fact, there are infinite answers using as many polynomial orders $$ x^k \dots $$
 
-Comparing with the linear model $$ y = x $$, we realize that the 
+Comparing with the linear model $$ y = x $$, we realize that the
 $$ || coefficient || $$ 
-for Pieter equation is higher. If we have a model using high polynomial order, it will be much harder to train because we are dealing with a far bigger search space for the parameters. In additional, some of the search space will have a very steep gradient.
+in Pieter equation is higher. In additional, the higher the order, it will be harder to train the model because we have a bigger search space for the parameters. In additional, some areas of the search space have a very steep gradient.
 
-Let us create a polynomal model with order 5 to fit our sample data, and see how the training model make predictions.
+Let us create a polynomal model with order 5 to fit our sample data.
 
 $$
 y = c_5 x^5 + c_4 x^4 + c_3 x^3 + c_2 x^2 + c_1 x + c_{0}
 $$
 
-We need far more iterations to train this model and result in less accuracy than a model with order 3.
+We need more iterations to train this model and result is less accurate than a model with order 3.
 <div class="imgcap">
 <img src="/assets/dl/p1.png" style="border:none;width:60%">
 </div>
 
-But why don't we focus on making a model with the right complexity. In real life problems, a complex model is the only way to push accuracy to an acceptable level. But yet overfitting is un-avoidable. The better solution is to introduce methods to reduce overfitting rather than make the model simpiler. One solution is to add more sample data such that it is much harder to overfit. Here, double the sample data produces a model closer to a straight line. 
+So why don't we focus on making a model with the right complexity. In real life problems, a complex model is the only way to push accuracy to an acceptable level, and overfitting is un-avoidable. A better solution is to introduce methods to reduce overfitting rather than make the model simpiler. One simple solution is to add more sample data such that it is much harder to overfit. Here, double the sample data produces a model closer to a straight line. Unfortunately, labeling large training dataset in real problems can be expensive.
 <div class="imgcap">
 <img src="/assets/dl/p2.png" style="border:none;width:60%">
 </div>
 
 ### Regularization
 
-As we observe before, there are many solutions to the problem but in order to have a very close fit, the coefficient in our training parameters tends to have larger magnitude. 
+As we observe before, there are many solutions to a DL problem but in order to have a close fit, the coefficient of our training parameters will have larger magnitude. 
 
 $$
 ||c|| = \sqrt{(c_5^2 + c_3^2 + c_3^2 + c_2^2 + c_1^2 + c_{0}^2)}
 $$
 
-For example, if we set $$ c_{2} $$ ... $$ c_{5} $$ to 0 or very close to 0, we have a very simple straight line model. To encourage our training not to be too agressive to overfit the training data, we add a penalty in our cost function to penalize large magnitude.
+For example, if we set $$ c_{2}, c_{3}, c_{4} \text{ and } c_{5} $$  to 0, we get a simple straight line model. To have our training not to overfit the training data, we add a penalty in the cost function to penalize large magnitude.
 
 $$
 J = \text{mean square error} + \lambda \cdot ||W||
 $$
 
-Techniques to discourage overfitting is called **regularization**. Here we introduce another hyper parameter called regularization factor $$ \lambda $$ to penalize overfitting.
+This is called **regularization**. Here we introduce another hyperparameter called regularization factor $$ \lambda $$ to penalize overfitting.
 
 In this example, we use a L2 norm (**L2 regularization**)
 $$ ||W|| $$
  as the penality. 
 
-After many try and error, we pick $$ \lambda $$ to be 1. With the regularization, our model make better prediction with the same number of iterations and data point as in our first try.
+After many try and error, we pick $$ \lambda $$ to be 1. With the regularization, our model makes better predictions.
 
 <div class="imgcap">
 <img src="/assets/dl/p3.png" style="border:none;width:60%">
 </div>
 
-Like other hyper parameter for training, the process is try and error. In fact we use a relative high $$ \lambda $$
-in this problem because there are not too many trainable parameters in our model. In most real life problems, $$ \lambda $$ is lower because we are dealing with much higher number of trainable parameters.
+Like other hyperparameters for training, the process is try and error. In fact we use a relative high $$ \lambda $$
+in this problem because there are only a few trainable parameters in the model. In real life problems, $$ \lambda $$ is lower because we are dealing with larger amount of trainable parameters.
 
-There is another interesting observation during training. The loss may jump up sharply and drop to previous value after a few thousand iterations. 
+There is another interesting observation. The loss may jump up sharply and drop to the previous level after a few thousand iterations. 
 ```
 Iteration 87000 [2.5431744485195127]
 Iteration 88000 [2.525734745522529]
@@ -150,11 +147,15 @@ Iteration 92000 [2.4587727305339286]
 If we look into the equation, we realize the gradient
 
 $$
+y = x_{i}
+$$
+
+$$
 \frac{\partial y}{\partial c_i}   = i  x^{i-1}
 $$
 
-can be very steep which can suffer from the learning rate problem discussed before. The cost here escalate very high which takes many more iterations to undo. For example, from iteration 10,000 to 11,000, the coefficient for $$ x^5 $$
-only change from -0.000038 to -0.000021 but the cost jump from 82 to 34,312.
+can be very steep which cause the learning rate problem discussed before. The cost here escalates very high which takes many iterations to undo. For example, from iteration 10,000 to 11,000, the coefficient for $$ x^5 $$
+changes from -0.000038 to -0.000021 but the cost jumps from 82 to 34,312.
 
 ```
 Iteration 10000 [82.128486144319155, 
@@ -173,14 +174,14 @@ Iteration11000 [34312.355686493174,
        [ -2.05131433e-04]])]
 ```
 
-When we build our model, we try out a polynomial model with order of 9. Even after a long training, the model still makes very poor prediction. We decide to start with a model with order of 3 and increase it gradually: another example to demonstrate why we should start with simple model first. At 7, we find the model is so hard to train to produce good quality model. The following is what a 7-layer model predicts:
+When we build our model, we also try out a polynomial model with order of 9. Even after a long training, the model still makes poors predictions. We decide to start with a model with order of 3, and increase it gradually. This is another example to demonstrate why we should start with a simple model first. At 7, we find the model is too hard to train. The following is what a 7 order model predicts:
 <div class="imgcap">
 <img src="/assets/dl/p4.png" style="border:none;width:60%">
 </div>
 
 ### Diminishing and exploding gradient
 
-From our previous example, we demonstrate how important to trace the gradient at different layer to trouble shoot problem. In our online dating model, we log 
+From our previous example, we demonstrate how important to trace the gradient at different layer to troubleshoot problem. In our online dating model, we log 
 $$ || gradient || $$ 
 for each layers.
 
@@ -211,7 +212,7 @@ iteration 400: ... dW1=1.656e+291 dW2=8.184e+293 ...
 iteration 600: ... dW1=nan dW2=nan ...
 ```
 
- If gradient is small, changes to the parameters are small. In the following log, the gradient diminishing from the right layer (layer 6) to the left layer (layer 0). We should expect layer 0 learn much slower than layer 6.
+ If gradient is small, the network learns slowly. In the following log, the gradient diminishing from the right layer (layer 6) to the left layer (layer 0). Layer 0 is learning much slower than layer 6.
 ```
 iteration 0: loss=553.5
 layer 0: gradient = 2.337481559834108e-05
@@ -239,10 +240,10 @@ layer 5: gradient = 4.064949014764085
 layer 6: gradient = 12.7578637206897
 ```
 
-A network with many deep layers can suffer from this gradient diminishing problem. We need to come back to backpropagation to understand why this happens?
+A network with many deep layers may suffer from this gradient diminishing problem. Let's come back to backpropagation to understand the problems.
 
 <div class="imgcap">
-<img src="/assets/dl/chain.png" style="border:none;width:60%">
+<img src="/assets/dl/chain.png" style="border:none;width:70%">
 </div>
 
 The gradient descent is computed as:
@@ -255,13 +256,13 @@ $$
 \frac{\partial J}{\partial l_{1}} = \frac{\partial J}{\partial l_{10}} \frac{\partial l_{10}}{\partial l_{9}} \cdots  \frac{\partial l_{2}}{\partial l_{1}} 
 $$ 
 
-As indicated, the gradient descent is not only depend on the loss $$ \frac{\partial J}{\partial l} $$ but also on the gradients $$ \frac{\partial l_{k+1}}{\partial l_{k}} $$. Let's look at a sigmoid activation function below. If $$ x $$ is higher than 5 or smaller than -5, the gradient is close to 0. Hence, in those region, the node learns slowly with gradient descent regardless of the loss.
+As indicated, the gradient descent depends on the loss $$ \frac{\partial J}{\partial l} $$ as well as the gradients $$ \frac{\partial l_{k+1}}{\partial l_{k}}, \frac{\partial l_{k}}{\partial l_{k-1}} \dots $$. Let's look at a sigmoid activation function. If $$ x $$ is higher than 5 or smaller than -5, the gradient is close to 0. Hence, in those region, the node learns close to nothing regardless of the loss.
 
 <div class="imgcap">
 <img src="/assets/dl/sigmoid2.png" style="border:none;width:80%">
 </div>
 
-We can visualize the derivative of the sigmoid function behaves like a gate to the loss signal. If the input is > 5 or <-5, the derviative is small and it blocks most of the loss signal to propagage backward. So nodes on its left sides learn less. 
+We can visualize the derivative of a sigmoid function behaves like a gate to the loss signal. If the input is > 5 or <-5, the derviative is so small, it blocks most of the loss signal to propagage backward. So nodes on its left sides learn little. 
 
 In addition, the chain rule in the gradient descent has a multiplication effect. If we multiple numbers smaller than one, it diminishes quickly. On the contrary, if we multiple numbers greater than one, it explodes. 
 
@@ -273,9 +274,9 @@ $$
 5 \cdot 5 \cdot 5 \cdot 5 \cdot 5 = 3125
 $$
 
-So if the network design and the initial parameters have some symmetry that makes the nodes behave similarly,  the gradient may diminish quickly or explode. However, we cannot say with certainty on when and how it may happen because we lack a full understanding between the maths of gradient descent and a complex model. Nevertheless, the empirical data for deep network indicates it is a problem for a deep network.
+So if the network design and the initial parameters have some symmetry that output similar values,  the gradient may diminish quickly or explode. However, we cannot say with certainty on when and how it may happen because we lack a full understanding between the maths of gradient descent and a complex model. Nevertheless, the empirical data for deep network indicates it is a problem.
 
-Microsoft Resnet (2015) has 152 layers. A lot of natural language process (NLP) problems are vulnerable to diminishing and exploding gradients. How can they address the issue? This is the network design for Resnet. Instead of one long chain of nodes, a mechanism is build to bypass a layer to make learning faster. (Source Kaiming He, Xiangyu Zhang ... etc)
+Microsoft Resnet (2015) has 152 layers. A lot of natural language process (NLP) problems are vulnerable to diminishing and exploding gradients. How can they address the issue? This is the network design for Resnet. Instead of one long chain of nodes, a mechanism is built to bypass a layer to make learning faster. (Source Kaiming He, Xiangyu Zhang ... etc)
 <div class="imgcap">
 <img src="/assets/dl/resnet.png" style="border:none;width:40%">
 </div>
@@ -284,18 +285,18 @@ Microsoft Resnet (2015) has 152 layers. A lot of natural language process (NLP) 
 <img src="/assets/dl/resnet2.png" style="border:none;width:40%">
 </div>
 
-As always in DL, an idea often looks complicated in a diagram or a equation. In LSTM, the state of a cell is updated by
+As always in DL, an idea often looks far complicated in a diagram or a equation. In LSTM, the state of a cell is updated by
 
 $$
 C_t = gate_{forget} \cdot C_{t-1} + gate_{input} \cdot \tilde{C}
 $$
 
-Bypassing a layer can visualize as feeding the input to the output directly. For $$ C_t $$ to be the same as $$ C_{t-1} $$, we can have $$ gate_ {forget} $$ to be 1 while $$ gate_{input} $$ to be 0. So one way to addressing the diminishing gradient problem is to design a different function for the node.
+Bypassing a layer can visualize as feeding the input to the output directly $$ out = in $$. For $$ C_t $$ to be the same as $$ C_{t-1} $$, we need $$ gate_ {forget}=1 $$ and $$ gate_{input} = 0 $$. So one way to addressing the diminishing gradient problem is to design a different function used in the node.
 
 #### Gradient clipping
-To avoid gradient explosion, we apply gradient clipping to restrict values of the gradient.
+To avoid gradient explosion, we can apply gradient clipping to restrict values of the gradient.
 
-Here, we will use TensorFlow with Python. TensorFlow is an open source machine learning software from Google. In real life problem, Numpy is important in data preparation but people will use a software package like TensorFlow to implement a deep network.
+Here, we use TensorFlow for coding. TensorFlow is an open source machine learning software from Google. In real life problem, Numpy is important in data preparation but people use a software package like TensorFlow to implement deep networks.
 
 Here we set the maxium clip norm to be 5.0.
 ```python
@@ -306,26 +307,25 @@ for b in xrange(time_steps):
     clipped_gradients, norm = tf.clip_by_global_norm(gradients, 5.0)
 ```
 
-If the gradient reach above 5.0, the gradient will rescale according to the ratio $$ \frac{5}{\text{norm of the gradient}} $$. (L2 norm is the length of the vector.)
+If the gradient reaches above 5.0, the gradients are rescaled according to the ratio $$ \frac{5}{\text{norm of the gradient}} $$. (L2 norm is the length of the vector.)
 ```
 global_norm = sqrt(sum([l2norm(t)**2 for t in t_list]))
-
 t_list[i] * clip_norm / max(global_norm, clip_norm)
 ````
 
 ### Classification
 
-A very important part of deep learning is classification. We have mentioned face detection and object recognition before. These are classification problems asking the question: what is this? For example, for Pieter to safely walk in the street, he needs to learn what is a traffic light, is the pedestrian faceing him or not. Other non-visual problems include how can we classify an email as a spam or not, approve or disapprove a loan etc...
+A very important part of deep learning is classification. We mention face detection and object recognition before. These are classification problems asking the question: what is this? For example, for Android Pieter to safely walk in a street, he needs to learn what is a traffic light, is the pedestrian faceing him or not. Classification applies to non-visual problems also. We classify whether an email is a spam, or approve/disapprove a loan etc...
 
 <div class="imgcap">
 <img src="/assets/dl/street2.jpg" style="border:none;width:40%">
 </div>
 
-Like solving regression problem using DL, we use a deep network to compute a value. In classification, we call this value **a score**. We apply a classifier to convert this score to a probability. To train the network, the training dataset will provide the answers to the classification (school bus, truck, airplane) which we call **true label**.
+Like solving regression problem using DL, we use a deep network to compute a value. In classification, we call this **a score**. We apply a classifier to convert the score to a probability value. To train the network, the training dataset provides the answers to the classification (like classify an image as a school bus/truck/airplane) which we call **true label**.
 
 #### Logistic function (sigmoid function)
 
-A score compute by a network can have any value. We need a classifier to squash it to a probabilty value between 0 and 1. For a "yes" or "no" type of prediction (the email is/is not a spamm, the drug test is positive or negative), we can apply a logistic function (sigmoid function) to the score value. If the output probability is lower than 0.5, we predict "no", otherwise we predict "yes".
+A score compute by a network takes on any value. A classifier squashes it to a probabilty value between 0 and 1. For a "yes" or "no" type of prediction (the email is/is not a spamm, the drug test is positive/negative), we apply a **logistic function** (also called a sigmoid function) to the score value. If the output probability is lower than 0.5, we predict "no", otherwise we predict "yes".
 
 $$
 p = \sigma(score) = \frac{1}{1 + e^{-score}}
@@ -338,19 +338,19 @@ $$
 
 #### Softmax classifier
 
-For many classification problem, we categorize an input to one of the many classes. For example, we can classify an image to one of the 100 possbile image classes, like school bus, airplance, truck, ... etc. We use softmax classifier to compute K probabilites, one per class for an input image. (The combined probabilities remains 1.)
+For many classification problem, we categorize an input to one of the many classes. For example, we can classify an image to one of the 100 possbile object classes. We use softmax classifier to compute K probabilites, one per class for an input image (the combined probabilities remains 1).
 
 <div class="imgcap">
 <img src="/assets/dl/deep_learner2.jpg" style="border:none;width:70%;">
 </div>
 
-For a network predicting K classes, the network generates K scores (one for each class.) The probability for class $$ i $$ will be.
+The network computes K scores per image. The probability that an image belongs to the class $$ i $$ will be.
 
 $$
-p_i =  \frac{e^{z_i}}{\sum e^{z_c}} 
+p_i =  \frac{e^{score_i}}{\sum e^{score_c}} 
 $$
 
-For example, the school bus image above may have a score of (3.2, 0.8, 0) for the class school bus, truck and airplane. The probability for the correponding class is
+For example, the school bus above may have a score of (3.2, 0.8, 0) for the class school bus, truck and airplane respectively. The probability for the correponding class is
 
 $$
 p_{\text{bus}} =  \frac{e^{3.2}}{ e^{3.2} + e^{0.8} + e^0} = 0.88
@@ -366,14 +366,14 @@ $$
 
 ```python
 def softmax(z):
-	z -= np.max(z)
+    z -= np.max(z)
     return np.exp(z) / np.sum(np.exp(z))
 
 a = np.array([3.2, 0.8, 0])   # [ 0.88379809  0.08017635  0.03602556]
 print(softmax(a))
 ```
 
-To avoid adding large expotential value that cause numerical stability problem, we subract the the inputs by its max. Adding or subtract a number from the input produce the same probabilities in softmax. 
+To avoid the numerical stability problem caused by adding large expotential values, we subract the inputs by its max. Adding or subtract a number from the input produces the same probabilities in softmax. 
 
 $$
 softmax(z) = \frac{e^{z_i -C}}{\sum e^{z_c  - C}} =  \frac{e^{-C} e^{z_i}}{e^{-C} \sum e^{z_c}} = \frac{e^{z_i}}{\sum e^{z_c}}
@@ -383,33 +383,38 @@ $$
 z -= np.max(z)
 ```
 
-We apply softmax on a score to compute the probabilities.
-
-$$
-p = softmax(score) = \frac{e^{z_i}}{\sum e^{z_c}}
-$$
-
-**logits** are defined as (to measure odd.)
+**logits** is defined as a mean to measure odd.
 
 $$
 logits = \log(\frac{p}{1-p})
 $$
 
-Combine the definition of the softmax and logits, it is easier to see the score is the logit. That is why many literature or API use the term logit for score when softmax is used. However, there are more than 1 function that map scores to probabiities and meet the definition of logits. Sigmoid function is one of them.
+If we combine the softmax equation with the logits equation, it is easy to see that the score is the logit. 
+
+$$
+p = softmax(score) = \frac{e^{z_i}}{\sum e^{z_c}}
+$$
+
+That is why many literatures and APIs use the term logit for score when softmax is used. However, there are more than one function that map scores to probabiities and meet the definition of logits. Sigmoid function is one of them.
 
 #### SVM classifier
 
-Linear SVM classifer applies a linear classifier to map input to K scores, one per class. The class having the highest score will be the class prediction. To train the network, SVM loss is used. We will discuss the SVM in the cost function section. Its main purpose is to create a boundary to separate class with the largest possible margin.
+Linear SVM classifer applies a linear classifier to map input to K scores, one per class. 
 
 $$
 \hat{y} = W x + b
 $$
+
+The class having the highest score will be the class prediction. To train the network, SVM loss is used. We will discuss the SVM in the cost function section later. Its main objective is to create a boundary to separate classes with the largest possible margin.
+
 
 <div class="imgcap">
 <img src="/assets/dl/SVM.png" style="border:none;width:40%">
 </div>
 
 ### Entropy
+
+> We have introduced a few lingos so you can understand some common DL terms. This section is on the information theory which you can read through it quickly.
 
 With a probablistic model, we want a cost function that works with probability predictions. We need to take a break to the information theory on entropy first. Since entropy is heavily used in machine learning, it may worth the time.
 
