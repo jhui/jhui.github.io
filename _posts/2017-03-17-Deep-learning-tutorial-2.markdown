@@ -9,10 +9,9 @@ date: 2017-03-17 14:00:00
 **This is work in progress... The content needs major editing.**
 
 [Part 1 of the deep learning can be found here](https://jhui.github.io/2017/03/18/Deep-learning-tutorial/)
-
 ### Overfit
 
-In part 1, when we model a simple model with 4 layers of computation nodes. We end up with many possible solutions with different $$ W $$. Should we prefer one solution over the other? Should we prefer a solution with smaller values in $$ W $$ over the other? Are part of the network just cancel out the effect of the other part?
+In part 1, we prepare a simple model with 4 layers of computation nodes. The solutions for $$ W $$ are not unique. Should we prefer one solution over the other, or should we prefer smaller values for $$ W $$? Are part of the network cancel out each other?
 
 ```
 Layer 1:
@@ -41,9 +40,9 @@ Layer 4:
        [ 0.07363663]])]
 ```
 
-This lead us to a very important topic in DL.  We know that when we increase the complexity of our model, we risk the chance of modeling the noise into a model. If we do not have enough sample data to cancel out each other, we make bad predictions. But even with no noise in our data, a complex model can still make mistakes even when we train it well and long enough.
+This lead us to a very important topic.  When we increase the complexity of our model, we risk the chance of modeling the noise into the model. If we do not have enough sample data to cancel out the noise, we make bad predictions. But even without the noise, we can still have a bad model.
 
-Let's walk through another example. We start with training samples with input values range from 0 to 20, how will you connect the dots or how you will create a equation to model the data below.
+Let's walk through an example. We start with training samples with input values and labels range from 0 to 20. How will you create an equation to link the data points below.
 <div class="imgcap">
 <img src="/assets/dl/d1.png" style="border:none;width:70%">
 </div>
@@ -51,28 +50,28 @@ Let's walk through another example. We start with training samples with input va
 One possiblity is
 $$
 y = x
-$$ which is simple and just miss 2 on the left and 2 on the right of the line.
+$$ which is simple and just miss 2 on the left and 2 on the right.
 <div class="imgcap">
 <img src="/assets/dl/d2.png" style="border:none;width:70%">
 </div>
 
-But when we show it to Pieter which has much higher computation capability than us, he models it as:
+But when we show it to our Android Pieter, which has much higher computation capability than us, he models it as:
 
 $$
 y = 1.9  \cdot 10^{-7}  x^9 - 1.6 \cdot 10^{-5} x^8 + 5.6 \cdot 10^{-4} x^7 - 0.01 x^6  + 0.11 x^5 - 0.63 x^4 + 1.9  x^3 - 2.19  x^2 + 0.9 x - 0.0082
 $$
 
-Which does not miss a single point in the sample.
+which does not miss a single point in the sample.
 <div class="imgcap">
 <img src="/assets/dl/d3.png" style="border:none;width:70%">
 </div>
 
-Which model is correct? The answer is "don't know". Some people may think the first one is simplier and simple explanation deserves more credits. But if you show it to a stock broker, they will say the second curve is more real if it is the market closing price of a stock. 
+Which model is correct? The answer is "don't know". Someone thinks the first one is simplier, and simple explanation deserves more credits. But if you show it to a stock broker, they may say the second curve looks closer to the market closing price of a stock. 
 
-Instead, we should ask whether our model is too "custom tailor" for the sample data so it makes bad predictions. The second curve fits the sample data100% but will make some bad predictions if the true model is a straight line.
+Instead, we should ask whether our model is too "custom tailor" for the training data, and fails to make generalized predictions. The second curve fits the sample data 100% but will make poor predictions if the true model is a straight line indeed.
 
 #### Validation
-**Machine learning is about making prediction.** A model that has 100% accuracy in training can be a bad model for making predictions. For that, we often split our testing data into 3 parts: 80% for training, 10% for validation and 10% for testing. During training, we use the training dataset to build models with different network designs and hyperparameters like learning rate. We run those models with the validation dataset and pick the model with the highest accuracy. This strategy works if the validation dataset is close to what we want to predict. Otherwise, the picked model can make bad predictions. As the last safeguard, we use the 10% testing data for a final insanity check. This testing data is for one last verification but not for model selection. If your testing result is dramatically differenced from the validation result, we need to randomize the data more, or to collect more data.
+**Machine learning is about making predictions.** A model that has 100% accuracy in training can be a bad model for making predictions. For that, we often split our testing data into 3 parts: 80% for training, 10% for validation and 10% for testing. During training, we use the training dataset to build models with different network designs and hyperparameters like learning rate. We run those models with the validation dataset and pick the model with the highest accuracy. This strategy works if the validation dataset is close to what we want to predict. Otherwise, the picked model can make bad predictions. As the last safeguard, we use the 10% testing data for a final insanity check. This testing data is for one last verification but not for model selection. If your testing result is dramatically differenced from the validation result, we need to randomize the data more, or to collect more data.
 
 #### Visualization 
 We can train a model to create a boundary to separate the blue dots from the white dots below. A complex model produces far more sophisticated boundary shape than a low complexity model. In the circled area, if we miss the 2 left white dot samples in our training, a complex model may create an odd shape boundary just to include this white dot. A low complexity model can only produce a smoother surface which by chance may be more desirable. A complex model may also more vulnerable to outliers which a simple model may just ignore like the white dot in the green circle.
