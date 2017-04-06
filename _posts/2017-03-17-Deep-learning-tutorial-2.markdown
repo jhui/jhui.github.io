@@ -6,7 +6,7 @@ title: “Deep learning without going down the rabbit holes. (Part 2)”
 excerpt: “Part 2 of the deep learning.”
 date: 2017-03-17 14:00:00
 ---
-**This is work in progress... The content needs major editing.**
+**This is work in progress...**
 
 [Part 1 of the deep learning can be found here](https://jhui.github.io/2017/03/18/Deep-learning-tutorial/)
 ### Overfit
