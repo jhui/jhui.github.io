@@ -250,7 +250,7 @@ Here is another illustration of some real problems.  When we gradually descent, 
 <img src="/assets/dl/ping.jpg" style="border:none;">
 </div>
 
-This example is real but dramatical. But in a lesser extend, instead of settle down at the bottom, || W || oscillates around the minima slightly. If we drop a ball in Grand Canyon, we expect it to land in the bottom. In DL, this is harder.
+This example is real but dramatical. But in a lesser extend, instead of settle down at the bottom, $$ W $$ oscillates around the minima slightly. If we drop a ball in Grand Canyon, we expect it to land in the bottom. In DL, this is harder.
 
 > Adjusting learning rate with better optimization techniques is heavily studied and still in active research for very complex problems.
 
