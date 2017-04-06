@@ -417,7 +417,7 @@ The class having the highest score will be the class prediction. To train the ne
 
 > We have introduced a few lingos so you can understand some common DL terms. This section is on the information theory which you can browse through it quickly.
 
-With a probablistic model, we want a cost function that works with probability predictions. We need to take a break to the information theory on entropy. It may worth the time because entropy is heavily used in machine learning, 
+With a probabilistic model, we want a cost function that works with probability predictions. We need to take a break to the information theory on entropy. It may worth the time because entropy is heavily used in machine learning, 
 
 Say we have a string "abcc", "a" and "b" occurs 25% (0.25) of the time and "c" with 50% (0.5). Entropy defines the minimum amount of bits to represent the string. For the most frequent character, we use fewer bits to represent it.
 
@@ -963,7 +963,7 @@ L0, L1 and L2 regularization penalize on $$ W $$ but on different extends. L2 pu
 
 
 #### Dropout
-An non-intuitive regularization method is called dropout. L2 regularization discourages weights with large values. To avoid overfit, we may not want some weights to be too dominating. By randomly dropping connections from one layer to the other layer, we force the network not to depend too much on a single node, and try to learn from many different ways. This has an effect similar to forcing the weights smaller.
+A non-intuitive regularization method is called dropout. L2 regularization discourages weights with large values. To avoid overfit, we may not want some weights to be too dominating. By randomly dropping connections from one layer to the other layer, we force the network not to depend too much on a single node and try to learn from many different ways. This has an effect similar to forcing the weights smaller.
 
 In the following diagram, for each iteration, we randomly drop off the connection during training.
 <div class="imgcap">
@@ -1296,11 +1296,11 @@ Many places can go wrong when training a deep network. Here are some simple tips
 * For visualization problem, try to display the filter in an early layer and the activations.
 
 ### CNN & LSTM
-FC network is rarely used alone. Exploring all possible connections among nodes in the previous layer provides an over complex model that is wasteful with small returns. A lot of information is localized. For an image, we want to extract features from neighboring pixels. CNN applies filters to explore localized features, and then apply FC to make predictions. LSTM applies time feedback loop to extract time sequence information. CNN & LSTM make changes to the design of a computation node and how it is connected. The core part of DL remains the same, and learning CNN after FC is easier since the foundation is the same. Nevertheless, you will go nowhere in learning DL without CNN and/or LSTM. Hence, we have provided a separate discussion on both CNN and LSTM.
+FC network is rarely used alone. Exploring all possible connections among nodes in the previous layer provides an complex model that is wasteful with small returns. A lot of information is localized. For an image, we want to extract features from neighboring pixels. CNN applies filters to explore localized features, and then apply FC to make predictions. LSTM applies time feedback loop to extract time sequence information. CNN & LSTM make changes to the design of a computation node and how it is connected. The core part of DL remains the same and learning CNN after FC is easier since the foundation is the same. Nevertheless, you will go nowhere in learning DL without CNN and/or LSTM. Hence, we have provided a separate discussion on both CNN and LSTM.
 
 ### Data argumentation
 
-We have focused on the mechanics of the DL. One significant improvement for network training is to have more data. This avoids overfiting and has better coverage of your feature spaces. However, getting labeled samples can be expensive. One alternative is data argumentation. For example, for visual recognition, we can flip the image, slightly rotate or skew the images with software libraries. This helps us to avoid overfitting and produces generalized predictions invariant of the spatial location of the objects. Some research may even expand further by allowing some data without labels to be used as training data if they produce a very high score with the model.
+We have focused on the mechanics of the DL. One significant improvement for network training is to have more data. This avoids overfitting and has better coverage of your feature spaces. However, getting labeled samples can be expensive. One alternative is data argumentation. For example, for visual recognition, we can flip the image, slightly rotate or skew the images with software libraries. This helps us to avoid overfitting and produces generalized predictions invariant of the spatial location of the objects. Some research may even expand further by allowing some data without labels to be used as training data if they produce a very high score with the model.
 
 > Very simple effort to argument your data can have a significant impact on the training.
 

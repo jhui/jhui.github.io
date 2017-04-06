@@ -171,7 +171,7 @@ This is the high-level steps:
 6. Back to step 2 for N iterations.
 7. Use the last value of W & b for our model.
 
-We build a model for each community, and use these models to predict how well Pieter may do in each community.
+We build a model for each community and use these models to predict how well Pieter may do in each community.
 
 > In our model, we predict the number of dates for people with certain income and years of education. The corresponding values (the number of dates) in the training dataset are called the **true values or true labels**.
 
@@ -229,14 +229,14 @@ $$
 W_i = W_i - \Delta W_i
 $$
 
-The variable $$ \alpha $$ is called the **learning rate**.  Small learning rate takes a longer time (more iteration) to locate the minima. However, as we learn in calculus, a larger step results in a larger error in the calculation. In DL, finding the right value for the learning rate is a try and error exercise.  We usually try values ranging from 1e-7 to 1 in logarithmic scale (1e-7, 5e-7, 1e-6, 5e-6, 1e-5 ...) but this depends on the problem you are solving. There are other parameters like learning rate that we need to tune. We call all these parameter **"hyperparameters"**.
+The variable $$ \alpha $$ is called the **learning rate**.  Small learning rate takes a longer time (more iteration) to locate the minima. However, as we learn in calculus, a larger step results in a larger error in the calculation. In DL, finding the right value for the learning rate is a try and error exercise.  We usually try values ranging from 1e-7 to 1 in logarithmic scale (1e-7, 5e-7, 1e-6, 5e-6, 1e-5 ...) but this depends on the problem you are solving. There are other parameters like learning rate that we need to tune. We call all these parameters **"hyperparameters"**.
 
 A large learning step may have other serious problems. It costs $$w$$ to oscillate with increasing cost:
 <div class="imgcap">
 <img src="/assets/dl/learning_rate.jpg" style="border:none;">
 </div>
 
-We start with w = -6 (x-axis) at L1. If the gradient is huge, a learning rate larger than certain value will swing $$w$$ too far to the other side (say L2) with even a larger gradient. Eventually, rather than dropping down slowly to a minima, $$w$$ oscillates and the cost increases. When loss keeps going upward, we need to reduce the learning rate. The follow demonstrates how a learning rate of 0.8 with a steep gradient swings the cost upward instead of downward. The table traces how the oscillation of W causes the cost go upwards from L1 to L2 and then L3.
+We start with w = -6 (x-axis) at L1. If the gradient is huge, a learning rate larger than a certain value will swing $$w$$ too far to the other side (say L2) with even a larger gradient. Eventually, rather than dropping down slowly to a minima, $$w$$ oscillates and the cost increases. When loss keeps going upward, we need to reduce the learning rate. The follow demonstrates how a learning rate of 0.8 with a steep gradient swings the cost upward instead of downward. The table traces how the oscillation of W causes the cost go upwards from L1 to L2 and then L3.
 
 <div class="imgcap">
 <img src="/assets/dl/lr_flow.png" style="border:none;">
@@ -244,7 +244,7 @@ We start with w = -6 (x-axis) at L1. If the gradient is huge, a learning rate la
 
 > We need to be careful about the scale used for the x-axis and y-axis. In the diagram above, the gradient does not look steep.  It is because we have a much smaller scale for y-axis than the x-axis (0 to 150 vs -10 to 10).
 
-Here is another illustration of some real problems.  When we gradudally descent, we may land in an area with steep gradient which the $$W$$ will bounce back. This type of shape is very hard to find the minima with a constant learning rate. Advance methods to address this problem will be discussed later.
+Here is another illustration of some real problems.  When we gradually descent, we may land in an area with a steep gradient which the $$W$$ will bounce back. This type of shape is very hard to find the minima with a constant learning rate. Advanced methods to address this problem will be discussed later.
 
 <div class="imgcap">
 <img src="/assets/dl/ping.jpg" style="border:none;">
@@ -252,10 +252,10 @@ Here is another illustration of some real problems.  When we gradudally descent,
 
 This example is real but dramatical. But in a lesser extend, instead of settle down at the bottom, || W || oscillates around the minima slightly. If we drop a ball in Grand Canyon, we expect it to land in the bottom. In DL, this is harder.
 
-> Adjusting learning rate with better optimization techniques is heavily study and still in active research for very complex problems.
+> Adjusting learning rate with better optimization techniques is heavily studied and still in active research for very complex problems.
 
 #### Naive gradient checking
-There are many ways to compute a paritial derviative. One naive but important method is using the simple partial derviative definition.
+There are many ways to compute a partial derivative. One naive but important method is using the simple partial derivative definition.
 
 $$
 \frac{\partial f}{\partial x} = \frac{f(x+\Delta x_i) - f(x-\Delta x_i) } { 2 \Delta x_{i}} 
@@ -274,11 +274,11 @@ def gradient_check(f, x, h=0.00001):
 f = lambda x: x**2
 print(gradient_check(f, 4))
 ```
-We never use this method in production. But computing partial derviative is tedious and error prone. We use the naive method to verify a partial derviative implementation during development.
+We never use this method in production. But computing partial derivative is tedious and error prone. We use the naive method to verify a partial derivative implementation during development.
 
 #### Mini-batch gradient descent
 
-When computing the cost function, we can add all the errors for the whole training dataset. But this takes too much time for just one update in one iteration. On the contrray, we can perform stochastic gradient descent which make one $$W$$ update per training sample. Nevertheless, the gradient descent will follow a zip zap pattern rather than following the curve of the cost function. This can be a problem if you land in a steep gradient area which the parameters may bounce to area with high cost. The training takes longer, and it might zip zag around the minima rather than converge to it. 
+When computing the cost function, we can add all the errors for the whole training dataset. But this takes too much time for just one update in one iteration. On the contrary, we can perform stochastic gradient descent which makes one $$W$$ update per training sample. Nevertheless, the gradient descent will follow a zip zap pattern rather than follow the curve of the cost function. This can be a problem if you land in a steep gradient area which the parameters may bounce to an area with a high cost. The training takes longer, and it might zip zag around the minima rather than converge to it. 
 
 <div class="imgcap">
 <img src="/assets/dl/solution3.png" style="border:none;">
@@ -293,10 +293,10 @@ $$
 If the cost is very small, we may use the total cost rather than the average cost to make a better precision in the floating point math for the derivative.
 
 ### Backpropagation
-To compute the partial derviatives, $$ \frac{\partial J}{\partial W_i} $$, we can start from each node in the left most layer, and propagate the gradient until it reaches the right most layer.  Then we move to the next layer and start the process again. For a deep network, this is very inefficient. To compute the partial gradient efficiently, we perform a foward pass and a backprogagation. 
+To compute the partial derivatives, $$ \frac{\partial J}{\partial W_i} $$, we can start from each node in the left most layer, and propagate the gradient until it reaches the rightmost layer.  Then we move to the next layer and start the process again. For a deep network, this is very inefficient. To compute the partial gradient efficiently, we perform a forward pass and a backpropagation. 
 
 #### Forward pass
-First, we compute the cost in a forward pass:
+First, we compute the cost of a forward pass:
 <div class="imgcap">
 <img src="/assets/dl/fp.jpg" style="border:none;width:80%">
 </div>
@@ -361,7 +361,7 @@ def mean_square_loss(h, y):
     # h: prediction (N,)
     # y: true value (N,)
     ...
-    dout = 2 * (h-y) / N                  # Compute the partial derviative of J relative to out
+    dout = 2 * (h-y) / N                  # Compute the partial derivative of J relative to out
     return loss, dout
 ```
 
@@ -403,7 +403,7 @@ $$
 \frac{\partial J}{\partial b} = \frac{\partial J}{\partial out} \frac{\partial out}{\partial b}  
 $$ 
 
-With the equation $$ out $$, we take the partial derviative.
+With the equation $$ out $$, we take the partial derivative.
 
 $$
 out = W * X + b
@@ -491,7 +491,7 @@ def mean_square_loss(h, y):
     # y: true value (N,)
     N = X.shape[0]            # Find the number of samples
     loss = np.sum(np.square(h - y)) / N   # Compute the mean square error from its true value y
-    dout = 2 * (h-y) / N                  # Compute the partial derviative of J relative to out
+    dout = 2 * (h-y) / N                  # Compute the partial derivative of J relative to out
     return loss, dout
 
 def backward(dout, cache):
@@ -541,7 +541,7 @@ print(f"b = {b}")
 
 Machine learning library provides pre-built layers with feed forward and backpropagation. Many DL class assignments spend a large amount of time in backpropagation. With vectorization and some ad hoc functions, the process is error prone but not necessary hard. Let's summaries the step above again with some good tips.
 
-> Draw the forward pass and backpropagation pass with clear notication of variables that we used in the program. Add functions, derivatives and the shape for easy reference.
+> Draw the forward pass and backpropagation pass with clear notification of variables that we used in the program. Add functions, derivatives and the shape for easy reference.
 
 <div class="imgcap">
 <img src="/assets/dl/fp.jpg" style="border:none;width:75%">
@@ -561,7 +561,7 @@ $$
 J = \frac{1}{N} \sum_i (out - y_{i})^2
 $$
 
-Find the partial derviative of the cost:
+Find the partial derivative of the cost:
 
 $$
 \frac{\partial J}{\partial out} = \frac{2}{N} (out - y)
@@ -605,7 +605,7 @@ $$
 \text{dW} = \text{dl1} \cdot \frac{\partial f_{1}}{\partial W}  
 $$ 
 
-Put the function derviative in the diagram. Always make the shape (dimension) of the variables clear in the diagram and in the code. Use this information to build and to verify your math operations. For example, multiply a (N, C, D) matrix with a (D, K) matrix should produce a (N, C, K) matrix. Vectorization may confuse you. Expand the equation with sub-indexes with only a couple weights and features to work through the math.
+Put the function derivative in the diagram. Always make the shape (dimension) of the variables clear in the diagram and in the code. Use this information to build and to verify your math operations. For example, multiply a (N, C, D) matrix with a (D, K) matrix should produce a (N, C, K) matrix. Vectorization may confuse you. Expand the equation with sub-indexes with only a couple weights and features to work through the math.
 
 #### More on backpropagation
 
@@ -762,7 +762,7 @@ $$
 \frac {\partial l_{k}}{\partial W} = X \cdot \frac {\partial J}{\partial l_{k+1}} 
 $$
 
-SInce tanh has both positive and negative outputs, tanh does not have this problem as sigmoid.
+Since tanh has both positive and negative outputs, tanh does not have this problem as sigmoid.
 
 Numpy provides all API to implement these functions.
 ```python
@@ -863,7 +863,7 @@ Let's apply all our knowledge to build a fully connected network:
 <img src="/assets/dl/fc_net.png" style="border:none;width:40%">
 </div>
 
-For each nodes in the hidden layer (except the last layer), we apply:
+For each node in the hidden layer (except the last layer), we apply:
 
 $$
 z_j = \sum_{i} W_{ij} x_{i} + b_{i}
