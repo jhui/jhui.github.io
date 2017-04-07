@@ -1265,7 +1265,7 @@ out = gamma * xhat + beta
 Because the model is such a black box to us in real life problems, the hyperparameter tuning is usually a try and error. Some parameters are dependent on each other and cannot tune separately. Sometimes the relationship is subtle. For example, the regularization rate changes the shape of the cost function, and therefore impacts how we tune the learning rate. We can create a mesh of values to be used for tuning. For example, with learning rates of (1e-1, 1e-2, ... 1e-8) and regularization of (1e-3, 1e-4, .. 1e-6), we have a potential of 8x4 combinations to test ( (1e-1, 1e-3), (1e-1, 1e-3), ..., (1e-8, 1e-5), (1e-8, 1e-6) ). We may not want to use an exactly rectangular shape of a mesh. For example, we may want to slightly deviate at each mesh point with the hope that some irregularity may help us to explore more information.
 
 <div class="imgcap">
-<img src="/assets/dl/mesh.png" style="border:none;width:40%">
+<img src="/assets/dl/mesh.png" style="border:none;width:60%">
 </div>
 
 > Start tune parameters from coarse grain with fewer iterations before fine tuning.
