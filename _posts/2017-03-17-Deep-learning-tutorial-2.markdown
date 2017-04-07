@@ -1295,8 +1295,8 @@ Many places can go wrong when training a deep network. Here are some simple tips
 * Plot activation/gradient histograms for all layers. If initialization is not done correctly, there should be a lot of dead/saturated nodes.
 * For visualization problem, try to display the filter in an early layer and the activations.
 
-### CNN & LSTM
-FC network is rarely used alone. Exploring all possible connections among nodes in the previous layer provides an complex model that is wasteful with small returns. A lot of information is localized. For an image, we want to extract features from neighboring pixels. CNN applies filters to explore localized features, and then apply FC to make predictions. LSTM applies time feedback loop to extract time sequence information. CNN & LSTM make changes to the design of a computation node and how it is connected. The core part of DL remains the same and learning CNN after FC is easier since the foundation is the same. Nevertheless, you will go nowhere in learning DL without CNN and/or LSTM. Hence, we have provided a separate discussion on both CNN and LSTM.
+### Convolution Net (CNN) & Long short term memory (LSTM)
+FC network is rarely used alone. Exploring all possible connections among nodes in the previous layer provides a complex model that is wasteful with small returns. A lot of information is localized. For an image, we want to extract features from neighboring pixels. CNN applies filters to explore localized features, and then apply FC to make predictions. LSTM applies time feedback loop to extract time sequence information. CNN & LSTM make changes to the design of a computation node and how it is connected. The core part of DL remains the same and learning CNN after FC is easier since the foundation is the same. Nevertheless, you will go nowhere in learning DL without CNN and/or LSTM. Hence, we have provided separate tutorials on both CNN and LSTM. Fortunately, with most DL techniques already discussed, the tutorials on both CNN and LSTM are much shorter.
 
 ### Data argumentation
 

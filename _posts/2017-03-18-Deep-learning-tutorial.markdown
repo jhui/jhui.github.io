@@ -32,7 +32,9 @@ $$
 f(z_j) = \frac{1}{1 + e^{-z_j}}
 $$
 
-which $$ x_{i} $$ is the input to the node or the pixel values if this is the first layer. 
+which $$ x_{i} $$ is the input pixel values or the inputs to a node.
+
+$$ x_{i} $$ is called **features** in deep learning. **DL is about extracting features in the training data to make predictions.** If one of the node above detects the input image has a lot of yellow color, it definite helps us to differentiate a school bus from a shuttle bus.
 
 > Deep learning has many scary looking equations. We will walk through examples to show how it works. Most of them are pretty simple.
 
@@ -154,7 +156,7 @@ Implement a XOR or a delta function is not important for deep learning (DL). Nev
 > Autonomus driving involves many aspects of AI. DL provides a model estimator that cannot be done analytically.
 
 ### Build a Linear regression model
-**DL solves problem by learning from data.** We will demonstrate how Pieter learns the model parameters $$W$$ by processing training data. For example, Pieter wants to expand on his horizon and start online dating. He wants to find out the relationship between the number of online dates with the years of eductaion and the monthly income.  Pieter starts with a simple linear model as follows:
+**DL solves problems by learning from data.** We will demonstrate how Pieter learns the model parameters $$W$$ by processing training data. For example, Pieter wants to expand on his horizon and start online dating. He wants to find out the relationship between the number of online dates with the years of eductaion and the monthly income.  Pieter starts with a simple linear model as follows:
 
 $$
 \text {number of dates} = W_1* \text{years in school} + W_2*\text{monthly income} + bias
@@ -301,7 +303,7 @@ First, we compute the cost of a forward pass:
 <img src="/assets/dl/fp.jpg" style="border:none;width:80%">
 </div>
 
-> Keep track of the naming of your input & output, its shape (dimension) and the equations. This is one great tip when you program DL. (N,) means a 1-D array with N elements. (N,1) means a 2-D array with N rows each containing 1 element. (N, 3, 4) means a 3-D array.
+> Keep track of the naming of your input & output, its **shape** (dimension) and the equations. This is one great tip when you program DL. (N,) means a 1-D array with N elements. (N,1) means a 2-D array with N rows each containing 1 element. (N, 3, 4) means a 3-D array.
 
 The method "forward" computes the equation below:
 
@@ -567,7 +569,7 @@ $$
 \frac{\partial J}{\partial out} = \frac{2}{N} (out - y)
 $$
 
-For every node, find the derviate of the function:
+For every node, find the derivative of the function:
 
 $$
 out = W * X + b
