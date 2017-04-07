@@ -13,10 +13,6 @@ date: 2017-03-18 14:00:00
  
 Let us build a new andriod named Pieter. Our first task is to teach Pieter how to recognize visual objects. Can the human visual system be replaced by a big function estimator? Can we pass the pixel values to a function and classify it as a school bus, an airplane or a truck?
 
-<div class="imgcap">
-<img src="/assets/dl/deep_learner.jpg" style="border:none;width:70%;">
-</div>
-
 Indeed, in our later example of visual recognition, we will build a system very similar to the following:
 <div class="imgcap">
 <img src="/assets/dl/fc.jpg" style="border:none;width:80%;">
@@ -34,7 +30,7 @@ $$
 
 which $$ x_{i} $$ is the input pixel values or the inputs to a node.
 
-$$ x_{i} $$ is called **features** in deep learning. **DL is about extracting features in the training data to make predictions.** If one of the node above detects the input image has a lot of yellow color, it definite helps us to differentiate a school bus from a shuttle bus.
+$$ x_{i} $$ is called **feature** in deep learning. **A deep network extracts features in the training data to make predictions.** If one of the node detects the amount of yellow color, it definite helps us to differentiate a school bus from a shuttle bus.
 
 > Deep learning has many scary looking equations. We will walk through examples to show how it works. Most of them are pretty simple.
 
@@ -147,7 +143,9 @@ Which output something with shape like a delta function:
 <img src="/assets/dl/delta_func.png" style="border:none;width:50%">
 </div>
 
-Implement a XOR or a delta function is not important for deep learning (DL). Nevertheless, we demonstrate the possibilities of building a complex function estimator through a network of simple computation nodes. A 3-layer network can implement a hand written recognition system for numbers with an accuracy of 95+%. The deeper a network the more complex model that we can build. For example, Microsoft ResNet (2015) for visual recognition has 151 layers. In many modern models, there are 10 million tunable parameters. For many AI problems, the model needed to solve the problem is very complex. In automous driving, we can model a policy (turn, accelerate or brake) to approximate what a human will do for what they see in front of them. This policy is too hard to model it analytically. Alterantive, with enough training data, we train a deep learning network with accuracy of a regular driver.
+Implement a XOR or a delta function is not important for deep learning (DL). Nevertheless, we demonstrate the possibilities of building a complex function estimator through a network of simple computation nodes. A 3-layer network can implement a hand written recognition system for numbers with an accuracy of 95+%. **The deeper a network the more complex it is.** For example, Microsoft ResNet (2015) for visual recognition has 151 layers. In many modern models, there are 10 million tunable parameters. For many AI problems, the model needed to solve the problem is very complex. In automous driving, we can model a policy (turn, accelerate or brake) to approximate what a human will do for what they see in front of them. This policy is too hard to model it analytically. Alterantive, with enough training data, we train a deep learning network with accuracy of a regular driver.
+
+> If we cannot solve a problem analytically, train a model empirically.
 
 <div class="imgcap">
 <img src="/assets/dl/drive.jpg" style="border:none;width:80%">
@@ -156,7 +154,7 @@ Implement a XOR or a delta function is not important for deep learning (DL). Nev
 > Autonomus driving involves many aspects of AI. DL provides a model estimator that cannot be done analytically.
 
 ### Build a Linear regression model
-**DL solves problems by learning from data.** We will demonstrate how Pieter learns the model parameters $$W$$ by processing training data. For example, Pieter wants to expand on his horizon and start online dating. He wants to find out the relationship between the number of online dates with the years of eductaion and the monthly income.  Pieter starts with a simple linear model as follows:
+**Deep learning learns from training data.** We will demonstrate how Pieter learns the model parameters $$W$$ by processing training data. For example, Pieter wants to expand on his horizon and start online dating. He wants to find out the relationship between the number of online dates with the years of eductaion and the monthly income.  Pieter starts with a simple linear model as follows:
 
 $$
 \text {number of dates} = W_1* \text{years in school} + W_2*\text{monthly income} + bias
@@ -173,9 +171,7 @@ This is the high-level steps:
 6. Back to step 2 for N iterations.
 7. Use the last value of W & b for our model.
 
-We build a model for each community and use these models to predict how well Pieter may do in each community.
-
-> In our model, we predict the number of dates for people with certain income and years of education. The corresponding values (the number of dates) in the training dataset are called the **true values or true labels**.
+We build a model for each community and use these models to predict how well Pieter may do in each community. In our model, we predict the number of dates for people with certain income and years of education. The corresponding values (the number of dates) in the training dataset are called the **true values or true labels**.
 
 ### Gradient descent
 **Deep learning is about learning how much it cost.** Step 2-5 is called the gradient descent in DL. We define a function to measure our errors between our model and the true values. In DL, this error function is called **cost function** or **loss function**. Mean square error (MSE) is one obvious candidate.
@@ -210,8 +206,7 @@ $$
 J(W, b, h, y) = \frac{1}{N} \sum_i (W_1*x_i - y_i)^2
 $$
 
-
-Since the gradient at L1 is negative, we move $$ W_1 $$ to the right to find the lowest point. But by how much? L2 has a smaller gradient than L1. i.e. changing $$ W2 $$ has a smaller impact on cost compare to L1. Obviously, we update a parameter proportional to its impact. Therefore, adjustment for $$ (W_1, W_2) $$ is proportional to its partial gradient at that point. i.e.
+**Traing a model with gradients**. Since the gradient at L1 is negative, we move $$ W_1 $$ to the right to find the lowest point. But by how much? L2 has a smaller gradient than L1. i.e. changing $$ W2 $$ has a smaller impact on cost compare to L1. Obviously, we update a parameter proportional to its impact. Therefore, adjustment for $$ (W_1, W_2) $$ is proportional to its partial gradient at that point. i.e.
 
 $$
 \Delta W_i \propto \frac{\partial J}{\partial W_i} 
@@ -231,7 +226,7 @@ $$
 W_i = W_i - \Delta W_i
 $$
 
-The variable $$ \alpha $$ is called the **learning rate**.  Small learning rate takes a longer time (more iteration) to locate the minima. However, as we learn in calculus, a larger step results in a larger error in the calculation. In DL, finding the right value for the learning rate is a try and error exercise.  We usually try values ranging from 1e-7 to 1 in logarithmic scale (1e-7, 5e-7, 1e-6, 5e-6, 1e-5 ...) but this depends on the problem you are solving. There are other parameters like learning rate that we need to tune. We call all these parameters **"hyperparameters"**.
+The variable $$ \alpha $$ is called the **learning rate**.  **Small learning rate learns slowly.** Small learning rate takes a longer time (more iteration) to locate the minima. However, as we learn in calculus, a larger step results in a larger error in the calculation. In DL, finding the right value for the learning rate is a try and error exercise.  We usually try values ranging from 1e-7 to 1 in logarithmic scale (1e-7, 5e-7, 1e-6, 5e-6, 1e-5 ...) but this depends on the problem you are solving. There are other parameters like learning rate that we need to tune. We call all these parameters **"hyperparameters"**.
 
 A large learning step may have other serious problems. It costs $$w$$ to oscillate with increasing cost:
 <div class="imgcap">
@@ -246,7 +241,7 @@ We start with w = -6 (x-axis) at L1. If the gradient is huge, a learning rate la
 
 > We need to be careful about the scale used for the x-axis and y-axis. In the diagram above, the gradient does not look steep.  It is because we have a much smaller scale for y-axis than the x-axis (0 to 150 vs -10 to 10).
 
-Here is another illustration of some real problems.  When we gradually descent, we may land in an area with a steep gradient which the $$W$$ will bounce back. This type of shape is very hard to find the minima with a constant learning rate. Advanced methods to address this problem will be discussed later.
+***Large learning rate overshoots your target.** Here is another illustration of some real problems.  When we gradually descent, we may land in an area with a steep gradient which the $$W$$ will bounce back. This type of shape is very hard to find the minima with a constant learning rate. Advanced methods to address this problem will be discussed later.
 
 <div class="imgcap">
 <img src="/assets/dl/ping.jpg" style="border:none;">
@@ -280,7 +275,7 @@ We never use this method in production. But computing partial derivative is tedi
 
 #### Mini-batch gradient descent
 
-When computing the cost function, we can add all the errors for the whole training dataset. But this takes too much time for just one update in one iteration. On the contrary, we can perform stochastic gradient descent which makes one $$W$$ update per training sample. Nevertheless, the gradient descent will follow a zip zap pattern rather than follow the curve of the cost function. This can be a problem if you land in a steep gradient area which the parameters may bounce to an area with a high cost. The training takes longer, and it might zip zag around the minima rather than converge to it. 
+When computing the cost function, we can add all the errors for the whole training dataset. But this takes too much time for just one update in one iteration. On the contrary, we can perform stochastic gradient descent which makes one $$W$$ update per training sample. Nevertheless, the gradient descent will follow a zip zap pattern rather than follow the curve of the cost function. This can be a problem if you land in a steep gradient area which the parameters may bounce to an area with a high cost. Stochastic gradient descent takes longer, and it may zip zag around the minima rather than converge to it. 
 
 <div class="imgcap">
 <img src="/assets/dl/solution3.png" style="border:none;">
@@ -295,7 +290,7 @@ $$
 If the cost is very small, we may use the total cost rather than the average cost to make a better precision in the floating point math for the derivative.
 
 ### Backpropagation
-To compute the partial derivatives, $$ \frac{\partial J}{\partial W_i} $$, we can start from each node in the left most layer, and propagate the gradient until it reaches the rightmost layer.  Then we move to the next layer and start the process again. For a deep network, this is very inefficient. To compute the partial gradient efficiently, we perform a forward pass and a backpropagation. 
+**Backpropage your loss to adjust W.** To compute the partial derivatives, $$ \frac{\partial J}{\partial W_i} $$, we can start from each node in the left most layer, and propagate the gradient until it reaches the rightmost layer.  Then we move to the next layer and start the process again. For a deep network, this is very inefficient. To compute the partial gradient efficiently, we perform a forward pass and a backpropagation.
 
 #### Forward pass
 First, we compute the cost of a forward pass:
@@ -337,7 +332,7 @@ def mean_square_loss(h, y):
 ```
 
 #### Backpropagation pass
-Then we backprogragate the gradient from the right most layer to the left in one single pass.
+**Find the derivative by backpropagation**. We backprogragate the gradient from the right most layer to the left in one single pass.
 <div class="imgcap">
 <img src="/assets/dl/bp.jpg" style="border:none;width:80%">
 </div>
@@ -377,7 +372,7 @@ $$
 \frac{\partial \text{ f}}{\partial \text{ var}} \text{ as dvar}
 $$
 
-Now we have
+**Use chain rule to backpropagate the gradient.** Now we have
 $$
 \frac{\partial J}{\partial out_i}
 $$ 
@@ -607,7 +602,7 @@ $$
 \text{dW} = \text{dl1} \cdot \frac{\partial f_{1}}{\partial W}  
 $$ 
 
-Put the function derivative in the diagram. Always make the shape (dimension) of the variables clear in the diagram and in the code. Use this information to build and to verify your math operations. For example, multiply a (N, C, D) matrix with a (D, K) matrix should produce a (N, C, K) matrix. Vectorization may confuse you. Expand the equation with sub-indexes with only a couple weights and features to work through the math.
+**Know the shape (dimension) of your variables**. Put the function derivative in the diagram. Always make the shape (dimension) of the variables clear in the diagram and in the code. Use this information to build and to verify your math operations. For example, multiply a (N, C, D) matrix with a (D, K) matrix should produce a (N, C, K) matrix. Vectorization may confuse you. Expand the equation with sub-indexes with only a couple weights and features to work through the math.
 
 #### More on backpropagation
 
@@ -1046,9 +1041,7 @@ We plot the predicted values with the true values. (The values from our Oracle m
 
 > Congratulations! We just solve a problem using deep learning!
 
-The code looks simple and easy. Later, we will solve some visual recognition problems. You will realize the code and methods are almost the same. We prefer to keep things simple now so we can play with it with different ideas. In real life, instead of 2 input (the years of education and the monthly income), there may be a couple dozens **features** (input). For complex problems, we add more fully connected layers (FC) to enrich the model. For visual recognition, we convert the 2-D image into a 1-D array and feed it to a FC. Nevertheless, if we want to push the accuracy up for more complex visual problems, we add convolution layers in front of the FC. Nevertheless, learning the FC covers the critical techniques that needed for CNN.
-
-> In machine learning, we call the input "features". In visual problems, we may visualize what activates a node. We want to realize what features a node are extracting.
+The code looks simple and easy. When we solve couple visual recognition problems later, you will realize the codes are almost the same. We prefer to keep things simple now so we can play with it with different ideas. For real problems, instead of 2 input (the years of education and the monthly income), there may be a couple dozens features (input). For complex problems, we add fully connected layers (FC) to enrich the model. For visual recognition, we convert the 2-D image into a 1-D array and feed it to an FC. Nevertheless, if we want to push the accuracy up for complex visual problems, we add convolution layers in front of the FC. Nevertheless, learning FC covers the critical techniques for CNN.
 
 Now we increase the number of hidden layers back from 2 to 4. Our prediction accuracy drops, and it takes more training time and tuning. When we plot it in 3D with variable income and eduction, some part of the 2D plain is bended instead of flat.
 <div class="imgcap">
@@ -1105,7 +1098,7 @@ Layer 4:
        [ 0.07363663]])]
 ```
 
-In the first part of the tutorial, we finish a FC network. It is a very simple problem. But making it simple allows us to play with it, and learns better insight. Almost the same code and techniques applies to a real problem so it does not hurt either. Nevertheless, making a deep network work is not that easy. In the second part of the tutorial, we cover the critical DL issues and its resolution. We will also put things toegether with 2 visual recognition problems.
+In the first part of the tutorial, we finish a FC network using a very simple problem. But it allows us to play with it, and learns better insight. Almost the same code and techniques applies to a real problem so it does not hurt either. Nevertheless, training a deep network work is not simple. In the second part of the tutorial, we cover the critical DL issues and its resolutions. We will also put things toegether with 2 visual recognition problems.
 
 [Part 2 of the deep learning can be found here.](https://jhui.github.io/2017/03/17/Deep-learning-tutorial-2/)
 

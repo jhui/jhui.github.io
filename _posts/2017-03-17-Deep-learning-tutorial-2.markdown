@@ -107,7 +107,7 @@ So why don't we focus on making a model with the right complexity. In real life 
 
 ### Regularization
 
-As we observe before, there are many solutions to a DL problem but in order to have a close fit, the coefficient of our training parameters will have larger magnitude. 
+**Regularization punishes over-complexity.** As we observe before, there are many solutions to a DL problem but in order to have a close fit, the coefficient of our training parameters will have larger magnitude. 
 
 $$
 ||c|| = \sqrt{(c_5^2 + c_3^2 + c_3^2 + c_2^2 + c_1^2 + c_{0}^2)}
@@ -181,7 +181,7 @@ When we build our model, we also try out a polynomial model with order of 9. Eve
 
 ### Diminishing and exploding gradient
 
-From our previous example, we demonstrate how important to trace the gradient at different layer to troubleshoot problem. In our online dating model, we log 
+**Cannot train a mode if gradients explode or diminish.** From our previous example, we demonstrate how important to trace the gradient at different layer to troubleshoot problem. In our online dating model, we log 
 $$ || gradient || $$ 
 for each layers.
 
@@ -415,7 +415,7 @@ The class having the highest score will be the class prediction. To train the ne
 
 ### Entropy 
 
-> We have introduced a few lingos so you can understand some common DL terms. This section is on the information theory which you can browse through it quickly.
+> This section is about entropy in the information theory. Feel free to browse through it quickly.
 
 With a probabilistic model, we want a cost function that works with probability predictions. We need to take a break to the information theory on entropy. It may worth the time because entropy is heavily used in machine learning, 
 
@@ -465,7 +465,7 @@ KL divergence is simply cross entropy - entropy: the extra bits need to encode t
 
 ### Maximum likelihood estimation (MLE)
 
-> This section is for background information. There are some probability lingos. It is good to know but not required.
+> MLE helps you to understand where the cost functions come from. It is beneficial to know but not required. 
 
 What is our objective in training a model? Our objective is to tune our trainable parameters so that the likelihood of our model is maximized (MLE). In plain terms, we want to train the parameters $$ W $$ such that the prediction for the training data is as close to the labels.
 
@@ -495,7 +495,7 @@ $$
 
 We call this the negative log-likelihood. To maximize the "maximum likelihood estimation" (MLE) is the same as minimizing the negative log-likihood. 
 
-**To train a network, we find $$W $$ to minimizing the negative log-likelihood**.
+**To find $$W $$, we minimize the negative log-likelihood**.
 
 #### Logistic loss
 
