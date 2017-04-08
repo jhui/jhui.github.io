@@ -822,11 +822,11 @@ $$
 With some calculus:
 
 $$
-\frac{\partial \sigma(x)}{\partial x} = \frac{1}{(1+e^{-x})^2} \cdot e^{-x} = \frac{1}{(1+e^{x})} \cdot \frac{1}{ (1+e^{-x})} 
+\frac{\partial \sigma(x)}{\partial x} = \frac{1}{(1+e^{-x})^2} \cdot e^{-x} =  \frac{1}{ (1+e^{-x})} \cdot \frac{1}{(1+e^{x})}
 $$
 
 $$
-\frac{\partial \sigma(x)}{\partial x} = (1 - \frac{1}{1+e^{-x}}) \cdot \frac{1}{ (1+e^{-x})} 
+\frac{\partial \sigma(x)}{\partial x} =  \frac{1}{ (1+e^{-x})} \cdot (1 - \frac{1}{1+e^{-x}})
 $$
 
 $$
