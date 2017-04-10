@@ -102,7 +102,7 @@ s = \tanh(W_{c} C + W_{x} X )
 $$
 
 $$
-\alpha = softmax(s)
+\alpha_i = softmax(s_1, s_2, \dots, s_{n})
 $$
 
 <div class="imgcap">
