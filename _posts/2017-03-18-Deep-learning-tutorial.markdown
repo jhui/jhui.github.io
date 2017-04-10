@@ -206,7 +206,7 @@ $$
 J(W, b, h, y) = \frac{1}{N} \sum_i (W_1*x_i - y_i)^2
 $$
 
-**Training a model with gradients**. Since the gradient at L1 is negative, we move $$ W_1 $$ to the right to find the lowest point. But by how much? L2 has a smaller gradient than L1. i.e. changing $$ W2 $$ has a smaller impact on cost compare to L1. Obviously, we update a parameter proportional to its impact. Therefore, adjustment for $$ (W_1, W_2) $$ is proportional to its partial gradient at that point. i.e.
+**Training a model with gradients**. Since the gradient at L1 is negative, we move $$ W_1 $$ to the right to find the lowest point. But by how much? L2 has a smaller gradient than L1. i.e. changing $$ W2 $$ has a smaller impact on cost compare to L1. Obviously, we should update a parameter proportional to its impact. Therefore, adjustment for $$ (W_1, W_2) $$ is proportional to its partial gradient at that point. i.e.
 
 $$
 \Delta W_i \propto \frac{\partial J}{\partial W_i} 
@@ -241,13 +241,13 @@ We start with w = -6 (x-axis) at L1. If the gradient is huge, a learning rate la
 
 > We need to be careful about the scale used for the x-axis and y-axis. In the diagram above, the gradient does not look steep.  It is because we have a much smaller scale for y-axis than the x-axis (0 to 150 vs -10 to 10).
 
-***Large learning rate overshoots your target.** Here is another illustration of some real problems.  When we gradually descent, we may land in an area with a steep gradient which the $$W$$ will bounce back. This type of shape is very hard to find the minima with a constant learning rate. Advanced methods to address this problem will be discussed later.
+**Large learning rate overshoots your target.** Here is another illustration of some real problems.  When we gradually descent, we may land in an area with a steep gradient which the $$W$$ will bounce back. This type of shape is very hard to find the minima with a constant learning rate. Advanced methods to address this problem will be discussed later.
 
 <div class="imgcap">
 <img src="/assets/dl/ping.jpg" style="border:none;">
 </div>
 
-This example is real but dramatical. But in a lesser extend, instead of settle down at the bottom, $$ W $$ oscillates around the minima slightly. If we drop a ball in Grand Canyon, we expect it to land in the bottom. In DL, this is harder.
+This example is dramatical but real. But in a lesser extend, instead of settle down at the bottom, $$ W $$ oscillates around the minima slightly. If we drop a ball in Grand Canyon, we expect it to land in the bottom. In DL, this is harder.
 
 > Adjusting learning rate with better optimization techniques is heavily studied and still in active research for very complex problems.
 
