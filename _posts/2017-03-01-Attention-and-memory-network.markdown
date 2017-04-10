@@ -91,32 +91,42 @@ Here, for completness, we put back the attention modules back into the LSTM mode
 
 ### Soft attention
 
-A soft attention identifies areas of focus by finding the weight $$ \alpha $$ of attention that the attention module focus on in each region. For example, we multiple $$ \alpha $$ with the image to display the area of focus and the predicted caption word at that time step.
-
-<div class="imgcap">
-<img src="/assets/att/attention2.png" style="border:none;;">
-</div>
+Instead of using the whole image as an input to the LSTM, attention computes the features representing the "attention area". With our CNN outputs $$ x_1, x_2, x_3 and x_4 $$, each feature map covers a sub-section of an image. With each $$ x_i $$, we compute a score $$ s_{i} $$ to measure its attention under the current context:
 
 $$
-s = \tanh(W_{c} C + W_{x} X )
+s_{i} = \tanh(W_{c} C + W_{x} X_{i} )
 $$
 
+We pass it to a softmax to normalize it. This becomes a weight $$ \alpha $$ to measure the attention relative to each other.
+
 $$
-\alpha_i = softmax(s_1, s_2, \dots, s_{n})
+\alpha_i = softmax(s_1, s_2, \dots, s_{n}, \dots)
+$$
+
+With softmax, $$ \alpha_{i} $$ adds up to 1 and therefore we can use it to compute a weight average of $$ x_{i} $$ to replace $$ x $$. Since the weight $$ \alpha_{i} $$ is higher for high attention area, $$ Z $$ is more "focus" as the LSTM input comparing with $$ x $$.
+
+$$
+Z = \sum_{i} \alpha_{i} x_{i}
 $$
 
 <div class="imgcap">
 <img src="/assets/att/soft.png" style="border:none;;">
 </div>
 
+If we multiply the weight $$ \alpha_{i} $$ with the original image, we can highlight area of interested for the specific word that we predict.
+
+<div class="imgcap">
+<img src="/assets/att/attention2.png" style="border:none;;">
+</div>
+
 ### Hard attention
 
-In soft attention, we compute a weight $$ s_{i} $$ for each $$ x_{i}$$, and use it to calculate a weighted average of $$ x $$ as the input to the LSTM module. $$ s_{i} $$ adds up to 1 which can also be interpreted as the chance that $$ x_{i} $$ is the "attention area". So instead of a weighted average, hard attention use $$ s_{i} $$ as the sample rate to pick $$ x_{i} $$ as the input to LSTM. Hard attention replace the deterministic method with a stochastic sampling model. To calculate the gradient descent correctly in backpropagation, we cannot just make 1 sampling. Instead, we perform a method called Monte Carlo to make many samplings/guessing to compute the gradient. Monte Carlo performs many end-to-end episodes to compute the gradients, and take the average as the final gradient. Soft attention assumes a weighted average is a good approximation to our attention objects while hard attention make no such assumptions but require many samplings to make it accurate. Nevertheless, the assumption in soft attention seems to be valid with easier backpropagation.
+In soft attention, we compute a weight $$ \alpha_{i} $$ for each $$ x_{i}$$, and use it to calculate a weighted average of $$ x $$ as the input to the LSTM module. $$ \alpha_{i} $$ adds up to 1 which can also be interpreted as the chance that $$ x_{i} $$ covers our current "attention area". So instead of a weighted average, hard attention uses $$ s_{i} $$ as a sample rate to pick $$ x_{i} $$ as the input to LSTM. Hard attention replaces a deterministic method with a stochastic sampling model. To calculate the gradient descent correctly in the backpropagation, we need to perform many samplings and average out our results using the Monte Carlo method. Monte Carlo performs many end-to-end episodes to compute an average for all sampling results. Soft attention assumes a weighted average is a good approximation to our "attention objects" while hard attention makes no such assumptions but requires a lot of samplings to make it accurate. 
 
 > Soft attention is more popular because the backpropagation seems more effective.
 
 <div class="imgcap">
-<img src="/assets/att/hard.png" style="border:none;;">
+<img src="/assets/att/hard.png" style="border:none;width:70%;">
 </div>
 
 
