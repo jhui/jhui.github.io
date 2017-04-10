@@ -111,6 +111,8 @@ $$
 
 ### Hard attention
 
+In soft attention, we compute the weight $$ s_{i} $$ for each $$ X_{i}$$, and use it to calculate the weighted average of $$ x $$ as the input to the LSTM module. $$ s_{i} $$ adds up to 1 which can also be interpreted as the chance that $$ x_{i} $$ should be the "attention" under the current context. So instead of using a weighted average, hard attention use $$ s_{i} $$ as the sample rate to pick $$ x_{i} $$ as the input to the LSTM. In hard attention, we replaced the last part of computing a weighted average with a stochastic method using sampling. Like other stochastic model, we need many samplings to find the result, and one of the techniques used is call Monte Carlo.  
+
 <div class="imgcap">
 <img src="/assets/att/hard.png" style="border:none;;">
 </div>
