@@ -91,19 +91,25 @@ Here, for completness, we put back the attention modules back into the LSTM mode
 
 ### Soft attention
 
-Instead of using the whole image as an input to the LSTM, attention computes the features representing the "attention area". With our CNN outputs $$ x_1, x_2, x_3 and x_4 $$, each feature map covers a sub-section of an image. With each $$ x_i $$, we compute a score $$ s_{i} $$ to measure its attention under the current context:
+Instead of using the image as an input to the LSTM, we input a weighted image account for attention. Soft attention computes weights to be multiplied with input features. If we plot those weighted features, we can visualize areas with high attention. For example, with the context $$h_{t-1} $$ representing "A man holding a couple plastic", soft attention highlights the plastic container area to predict the word "container".
+
+<div class="imgcap">
+<img src="/assets/att/attention2.png" style="border:none;;">
+</div>
+
+With our CNN outputs $$ x_1, x_2, x_3 \text{ and } x_4 $$, each feature map covers a sub-section of an image. With $$ x_i $$, we compute a score $$ s_{i} $$ to measure the attention level under the current context:
 
 $$
-s_{i} = \tanh(W_{c} C + W_{x} X_{i} )
+s_{i} = \tanh(W_{c} C + W_{x} X_{i} ) = \tanh(W_{c} h_{t-1} + W_{x} x_{i} )
 $$
 
-We pass it to a softmax to normalize it. This becomes a weight $$ \alpha $$ to measure the attention relative to each other.
+We pass $$ s_{i} $$ to a softmax to normalize it. This becomes a weight $$ \alpha $$ to measure the attention relative to each other.
 
 $$
 \alpha_i = softmax(s_1, s_2, \dots, s_{n}, \dots)
 $$
 
-With softmax, $$ \alpha_{i} $$ adds up to 1 and therefore we can use it to compute a weight average of $$ x_{i} $$ to replace $$ x $$. Since the weight $$ \alpha_{i} $$ is higher for high attention area, $$ Z $$ is more "focus" as the LSTM input comparing with $$ x $$.
+With softmax, $$ \alpha_{i} $$ adds up to 1 and therefore we can use it to compute a weighted average $$ x_{i} $$ to replace $$ x $$. Since the weight $$ \alpha_{i} $$ is higher in high attention area, $$ Z $$ is more "focus" that $$ x $$ as a LSTM input.
 
 $$
 Z = \sum_{i} \alpha_{i} x_{i}
@@ -111,12 +117,6 @@ $$
 
 <div class="imgcap">
 <img src="/assets/att/soft.png" style="border:none;;">
-</div>
-
-If we multiply the weight $$ \alpha_{i} $$ with the original image, we can highlight area of interested for the specific word that we predict.
-
-<div class="imgcap">
-<img src="/assets/att/attention2.png" style="border:none;;">
 </div>
 
 ### Hard attention
