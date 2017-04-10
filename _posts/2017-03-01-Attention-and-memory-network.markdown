@@ -20,7 +20,7 @@ In cognitive psychology, selective attention restricts our attention to particul
 We have the caption to start with a "start" token, we can model the next word in the caption roughly as: 
 
 $$
-\text{next word} = f(\text{last word}, image)
+\text{next word} = f(image, \text{last word})
 $$
 
 Applying the RNN techniques, we can rewrite the model more precisely as:
@@ -29,22 +29,53 @@ $$
 h_{t} = f(x, h_{t-1})
 $$
 
-which $$ x $$ is the image and $$ h_{t} $$ is the hidden state to predicit the "next word" at time step $$ t $$. As we learn from the selective attention, this model is over generalized, and can be more effective in focusing on a smaller region.
-
 $$
-h_{t} = f(h_{t-1}, attention(x, h_{t-1}) )
+y_{t} = g(h_{t})
 $$
 
-which $$ attention $$ is a network to compute where should we focus based on the image and the last word.
+
+which $$ x $$ is the image and $$ h_{t} $$ is the hidden state to predicit the "next word" $$ y_{t} $$ at time step $$ t $$. As we learn from the selective attention, this model is over generalized, and can be more effective in focusing on a smaller region.
+
+$$
+h_{t} = f(attention(x, h_{t-1}), h_{t-1} )
+$$
+
+which $$ attention $$ is a function to compute where should we focus based on the image and the last word.
 
 ### Image caption model with RNN
 
-Let's have a quick review of image caption using RNN. We use a CNN to extract the feature $$ x $$ of an image, and feed it to every LSTM cells. To make prediction, each LSTM cell takes in the hidden state from the previous time step $$ h_{t-1} $$ and the image featuers $$ x $$ to make a hidden state $$ h_{t} $$. We pass $$ h_{t} $$ to say an affine operation to make a prediction of the caption word.
-
+Let's have a quick review of image caption using LSTM. We use a CNN to extract the features $$ x $$ of an image, and feed it to every LSTM cells. To make prediction, each LSTM cell takes in the hidden state from the previous time step $$ h_{t-1} $$ and the image featuers $$ x $$ to make a hidden state $$ h_{t} $$. We pass $$ h_{t} $$ to say an affine operation to make a prediction of the caption word $$ y_{t} $$. 
 
 <div class="imgcap">
 <img src="/assets/att/rnn.png" style="border:none;;">
 </div>
+
+### Attention
+
+<div class="imgcap">
+<img src="/assets/att/att2.png" style="border:none;;">
+</div>
+
+<div class="imgcap">
+<img src="/assets/att/context.png" style="border:none;;">
+</div>
+
+<div class="imgcap">
+<img src="/assets/att/att3.png" style="border:none;;">
+</div>
+
+### Soft attention
+
+<div class="imgcap">
+<img src="/assets/att/soft.png" style="border:none;;">
+</div>
+
+### Hard attention
+
+<div class="imgcap">
+<img src="/assets/att/hard.png" style="border:none;;">
+</div>
+
 
 
 
