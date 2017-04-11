@@ -87,17 +87,17 @@ Here, the feature maps in the second convolution layers are divided into 4 which
 
 The attention module takes the context $$ h_{t-1} $$ and 4 regions of images $$ (x_1, x_2, x_3, x_{4}) $$ from the CNN to comput the new image features used by the LSTM.
 <div class="imgcap">
-<img src="/assets/att/context.png" style="border:none;;">
+<img src="/assets/att/context.png" style="border:none;width:70%;">
 </div>
 
 The following is the complete flow of the LSTM model using attentions.
 <div class="imgcap">
-<img src="/assets/att/att3.png" style="border:none;;">
+<img src="/assets/att/att3.png" style="border:none;width:80%;">
 </div>
 
 ### Soft attention
 
-We can implement attention with soft attention or hard attention. In soft attention, instead of using the image as an input to the LSTM, we input a weighted image account for attention. Soft attention computes weights to be multiplied with input features. If we plot those weighted features, we will visualize areas with high attention. For example, with the context $$h_{t-1} $$ representing "A man holding a couple plastic", soft attention highlights the plastic container area to predict the word "container".
+We can implement attention with soft attention or hard attention. In soft attention, instead of using the image as an input to the LSTM, we input a weighted image features accounted for attention. Soft attention computes weights to be multiplied with input features. If we plot those weighted features, the highlights represent high attention areas. For example, with the context $$h_{t-1} $$ "A man holding a couple plastic", soft attention highlights the plastic container area to predict the word "container".
 
 <div class="imgcap">
 <img src="/assets/att/attention2.png" style="border:none;;">
@@ -109,7 +109,7 @@ $$
 s_{i} = \tanh(W_{c} C + W_{x} X_{i} ) = \tanh(W_{c} h_{t-1} + W_{x} x_{i} )
 $$
 
-We pass $$ s_{i} $$ to a softmax to normalize it. This becomes a weight $$ \alpha $$ to measure the attention relative to each other.
+We pass $$ s_{i} $$ to a softmax for normalization. This becomes a weight $$ \alpha_{i} $$ to measure the attention level relative to each other.
 
 $$
 \alpha_i = softmax(s_1, s_2, \dots, s_{n}, \dots)
