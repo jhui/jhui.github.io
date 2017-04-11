@@ -97,7 +97,7 @@ The following is the complete flow of the LSTM model using attentions.
 
 ### Soft attention
 
-We can implement attention with soft attention or hard attention. In soft attention, instead of using the image as an input to the LSTM, we input a weighted image features accounted for attention. Soft attention computes weights to be multiplied with input features. If we plot those weighted features, the highlights represent high attention areas. For example, with the context $$h_{t-1} $$ "A man holding a couple plastic", soft attention highlights the plastic container area to predict the word "container".
+We can implement attention with soft attention or hard attention. In soft attention, instead of using the image as an input to the LSTM, we input a weighted image features accounted for attention. Soft attention computes weights to be multiplied with input features. If we visualize those weighted features, the highlights represent high attention areas. For example, with the context $$h_{t-1} $$ "A man holding a couple plastic", soft attention highlights the plastic container area to predict the word "container".
 
 <div class="imgcap">
 <img src="/assets/att/attention2.png" style="border:none;;">
@@ -115,25 +115,25 @@ $$
 \alpha_i = softmax(s_1, s_2, \dots, s_{n}, \dots)
 $$
 
-With softmax, $$ \alpha_{i} $$ adds up to 1 and therefore we can use it to compute a weighted average $$ x_{i} $$ to replace $$ x $$. Since the weight $$ \alpha_{i} $$ is higher in high attention area, $$ Z $$ is more "focus" that $$ x $$ as a LSTM input.
+With softmax, $$ \alpha_{i} $$ adds up to 1 and therefore we can use it to compute a weighted average $$ x_{i} $$ to replace $$ x $$.
 
 $$
 Z = \sum_{i} \alpha_{i} x_{i}
 $$
 
 <div class="imgcap">
-<img src="/assets/att/soft.png" style="border:none;;">
+<img src="/assets/att/soft.png" style="border:none;width:70%;">
 </div>
 
 ### Hard attention
 
-In soft attention, we compute a weight $$ \alpha_{i} $$ for each $$ x_{i}$$, and use it to calculate a weighted average of $$ x $$ as the input to the LSTM module. $$ \alpha_{i} $$ adds up to 1 which can also be interpreted as the chance that $$ x_{i} $$ is the "attention area". So instead of a weighted average, hard attention uses $$ s_{i} $$ as a sample rate to pick one $$ x_{i} $$ as the input to LSTM. Therefore Y is one of the $$ x_{i} $$ using sampling based on the sampling rate $$ \alpha_{i} $$
+In soft attention, we compute a weight $$ \alpha_{i} $$ for each $$ x_{i}$$, and use it to calculate a weighted average of $$ x $$ as the input to the LSTM module. $$ \alpha_{i} $$ adds up to 1 which can also be interpreted as the chance that $$ x_{i} $$ is the "attention area". So instead of a weighted average, hard attention uses $$ \alpha_{i} $$ as a sample rate to pick one $$ x_{i} $$ as the input $$ Y $$ to LSTM. 
 
 <div class="imgcap">
-<img src="/assets/att/hard.png" style="border:none;">
+<img src="/assets/att/hard.png" style="border:none;width:70%">
 </div>
 
-Hard attention replaces a deterministic method with a stochastic sampling model. To calculate the gradient descent correctly in the backpropagation, we perform many samplings and average our results using the Monte Carlo method. Monte Carlo performs many end-to-end episodes to compute an average for all sampling results. Soft attention assumes a weighted average is a good approximation to our "attention objects" while hard attention makes no such assumptions but requires a lot of samplings to make it accurate. 
+Hard attention replaces a deterministic method with a stochastic sampling model. To calculate the gradient descent correctly in the backpropagation, we perform many samplings and average our results using the Monte Carlo method. Monte Carlo performs many end-to-end episodes to compute an average for all sampling results. Soft attention assumes a weighted average is a good approximation to the "attention objects" while hard attention makes no such assumptions but requires a lot of samplings to make it accurate. 
 
 > Soft attention is more popular because the backpropagation seems more effective.
 
