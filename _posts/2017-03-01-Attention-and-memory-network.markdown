@@ -80,7 +80,13 @@ The attention module have 2 inputs:
 * a context, and
 * image features in each localized areas.
 
-For the context, we use the hidden state $$ h_{t-1} $$ of the previous time step. In a LSTM system, we process an image with a CNN and use one of the fully connected layer output as input features to the LSTM. Nevertheless, this is not adequate for an attention model since spatial information has been lost. Instead, we use the feature maps of one of the convolution layer which spatial information is still preserved.
+For the context, we use the hidden state $$ h_{t-1} $$ of the previous time step. In a LSTM system, we process an image with a CNN and use one of the fully connected layer output as input features $$ x $$ to the LSTM. 
+
+<div class="imgcap">
+<img src="/assets/att/cnn.png" style="border:none;width:50%;">
+</div>
+
+Nevertheless, this is not adequate for an attention model since spatial information has been lost. Instead, we use the feature maps of one of the convolution layer which spatial information is still preserved.
 
 <div class="imgcap">
 <img src="/assets/att/cnn3d2.png" style="border:none;;">
@@ -99,7 +105,7 @@ The following is the complete flow of the LSTM model using attentions.
 
 ### Soft attention
 
-We can implement attention with soft attention or hard attention. In soft attention, instead of using the image as an input to the LSTM, we input a weighted image features accounted for attention. Soft attention computes weights to be multiplied with input features. If we visualize those weighted features, the highlights represent high attention areas. For example, with the context $$h_{t-1} $$ "A man holding a couple plastic", soft attention highlights the plastic container area to predict the word "container".
+We can implement attention with soft attention or hard attention. In soft attention, instead of using the image as an input to the LSTM, we input a weighted image features accounted for attention. We compute the weights for $$ x_1, x_2, x_3 \text{ and } x_{4} $$ respectively based on the current context $$ h_{t-1} $$ and $$ x $$. We multiply the weights with the corresponding $$ x_1, x_2, x_3 \text{ and } x_{4} $$ to form the input to the LSTM. If we visualize the weighted features, dark areas are where attention is low. By reducing the features' value of irrelevant areas, the LSTM makes better predictions. For example, with the context of "A man holding a plastic", the weighted features focus arround the plastic container area and make the word prediction "container".
 
 <div class="imgcap">
 <img src="/assets/att/attention2.png" style="border:none;;">
