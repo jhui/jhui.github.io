@@ -80,10 +80,10 @@ The attention module have 2 inputs:
 * a context, and
 * image features in each localized areas.
 
-For the context, we use the hidden state $$ h_{t-1} $$ of the previous time step. In a LSTM system, we process an image with a CNN and use one of the fully connected layer output as input features $$ x $$ to the LSTM. 
+For the context, we use the hidden state $$ h_{t-1} $$ from the previous time step. In a LSTM system, we process an image with a CNN and use one of the fully connected layer output as input features $$ x $$ to the LSTM. 
 
 <div class="imgcap">
-<img src="/assets/att/cnn.png" style="border:none;width:50%;">
+<img src="/assets/att/cnn.png" style="border:none;width:70%;">
 </div>
 
 Nevertheless, this is not adequate for an attention model since spatial information has been lost. Instead, we use the feature maps of one of the convolution layer which spatial information is still preserved.
@@ -105,25 +105,27 @@ The following is the complete flow of the LSTM model using attentions.
 
 ### Soft attention
 
-We can implement attention with soft attention or hard attention. In soft attention, instead of using the image as an input to the LSTM, we input a weighted image features accounted for attention. We compute the weights for $$ x_1, x_2, x_3 \text{ and } x_{4} $$ respectively based on the current context $$ h_{t-1} $$ and $$ x $$. We multiply the weights with the corresponding $$ x_1, x_2, x_3 \text{ and } x_{4} $$ to form the input to the LSTM. If we visualize the weighted features, dark areas are where attention is low. By reducing the features' value of irrelevant areas, the LSTM makes better predictions. For example, with the context of "A man holding a plastic", the weighted features focus arround the plastic container area and make the word prediction "container".
+We implement attention with soft attention or hard attention. In soft attention, instead of using the image $$ x $$ as an input to the LSTM, we input a weighted image features accounted for attention. Before going into details, we can visualize the weighted features to illustrate the difference.
 
 <div class="imgcap">
 <img src="/assets/att/attention2.png" style="border:none;;">
 </div>
 
-With our CNN outputs $$ x_1, x_2, x_3 \text{ and } x_4 $$, each feature map covers a sub-section of an image. With $$ x_i $$, we compute a score $$ s_{i} $$ to measure the attention level under the current context:
+The picture visualizes the weighted features to the LSTM and the word it predicted. The weighted features discredit irrelevant areas by multiply them with a low weight. Accordingly high attention area keeps the original value while low attention areas get closer to 0. With the context of "A man holding a couple plastic", the attention module creates a new feature map with all areas darken except the plastic container area. With this more focus information, the LSTM make a better prediction (the word "container").
+
+With our CNN outputs $$ x_1, x_2, x_3 \text{ and } x_4 $$, each feature map covers a sub-section of an image. With $$ x_i $$ and the context $$ C  = h_{t-1} $$ , we compute a score $$ s_{i} $$ to measure the attention level:
 
 $$
 s_{i} = \tanh(W_{c} C + W_{x} X_{i} ) = \tanh(W_{c} h_{t-1} + W_{x} x_{i} )
 $$
 
-We pass $$ s_{i} $$ to a softmax for normalization. This becomes a weight $$ \alpha_{i} $$ to measure the attention level relative to each other.
+We pass $$ s_{i} $$ to a softmax for normalization. This becomes a weight $$ \alpha_{i} $$ to measure the attention level relative to each other $$ x_{i}$$ .
 
 $$
 \alpha_i = softmax(s_1, s_2, \dots, s_{n}, \dots)
 $$
 
-With softmax, $$ \alpha_{i} $$ adds up to 1 and therefore we can use it to compute a weighted average $$ x_{i} $$ to replace $$ x $$ as inputs to the LSTM.
+With softmax, $$ \alpha_{i} $$ adds up to 1, we use it to compute a weighted average for $$ x_{i} $$ to replace $$ x $$ as inputs to the LSTM. 
 
 $$
 Z = \sum_{i} \alpha_{i} x_{i}
