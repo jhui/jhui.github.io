@@ -8,7 +8,7 @@ date: 2017-03-01 12:00:00
 ---
 **This is work in progress... The content needs major editing.**
 
-### Attention
+### Attention overview
 
 In cognitive science, selective attention restricts our attention to particular objects in the environment. It helps us focus, so we can tune out irrelevant information and concentrate on what really matters. For example, when we cross a busy street, our attention is to avoid hitting people. To transcript the following picture, one possibility is "A man holding a couple plastic containers is walking down a street towards me." Once, we have a visual fixation, we continue exploring other relevant details including what is he doing, where is he.
 
@@ -122,14 +122,15 @@ $$
 
 ### Hard attention
 
-In soft attention, we compute a weight $$ \alpha_{i} $$ for each $$ x_{i}$$, and use it to calculate a weighted average of $$ x $$ as the input to the LSTM module. $$ \alpha_{i} $$ adds up to 1 which can also be interpreted as the chance that $$ x_{i} $$ covers our current "attention area". So instead of a weighted average, hard attention uses $$ s_{i} $$ as a sample rate to pick $$ x_{i} $$ as the input to LSTM. Hard attention replaces a deterministic method with a stochastic sampling model. To calculate the gradient descent correctly in the backpropagation, we need to perform many samplings and average out our results using the Monte Carlo method. Monte Carlo performs many end-to-end episodes to compute an average for all sampling results. Soft attention assumes a weighted average is a good approximation to our "attention objects" while hard attention makes no such assumptions but requires a lot of samplings to make it accurate. 
-
-> Soft attention is more popular because the backpropagation seems more effective.
+In soft attention, we compute a weight $$ \alpha_{i} $$ for each $$ x_{i}$$, and use it to calculate a weighted average of $$ x $$ as the input to the LSTM module. $$ \alpha_{i} $$ adds up to 1 which can also be interpreted as the chance that $$ x_{i} $$ is the "attention area". So instead of a weighted average, hard attention uses $$ s_{i} $$ as a sample rate to pick one $$ x_{i} $$ as the input to LSTM. Therefore Y is one of the $$ x_{i} $$ using sampling based on the sampling rate $$ \alpha_{i} $$
 
 <div class="imgcap">
 <img src="/assets/att/hard.png" style="border:none;">
 </div>
 
+Hard attention replaces a deterministic method with a stochastic sampling model. To calculate the gradient descent correctly in the backpropagation, we perform many samplings and average our results using the Monte Carlo method. Monte Carlo performs many end-to-end episodes to compute an average for all sampling results. Soft attention assumes a weighted average is a good approximation to our "attention objects" while hard attention makes no such assumptions but requires a lot of samplings to make it accurate. 
+
+> Soft attention is more popular because the backpropagation seems more effective.
 
 
 
