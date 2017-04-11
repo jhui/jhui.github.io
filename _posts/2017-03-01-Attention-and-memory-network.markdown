@@ -6,24 +6,23 @@ title: “Soft & hard attention and memory network ”
 excerpt: “How to use attention to improve deep network learning, and use memory network for Q&A?”
 date: 2017-03-01 12:00:00
 ---
-**This is work in progress... The content needs major editing.**
+**This is work in progress...**
 
-### Attention overview
+### Generate image captions
 
-In cognitive science, selective attention restricts our attention to particular objects in the environment. It helps us focus, so we can tune out irrelevant information and concentrate on what really matters. For example, when we cross a busy street, our attention is to avoid hitting people. To transcript the following picture, one possibility is "A man holding a couple plastic containers is walking down a street towards me." Once, we have a visual fixation, we continue exploring other relevant details including what is he doing, where is he.
+In cognitive science, selective attention restricts our attention to particular objects in the environment. It helps us focus, so we can tune out irrelevant information and concentrate on what really matters. For example, when we cross a busy street, our attention is to avoid hitting people. To transcript the following picture, one possibility is "A man holding a couple plastic containers is walking down an intersection towards me." Once we have a visual fixation, we continue exploring other relevant details including what is he doing, and where is he.
 
 <div class="imgcap">
 <img src="/assets/att/attention.jpg" style="border:none;;">
 </div>
 
-
-We generate an image caption starting with a "start" token. We predict the next word in the caption with the following formula: 
+To generate an image caption, we start the caption with a "start" token. We predict the next word in the caption with the following concept:
 
 $$
 \text{next word} = f(image, \text{last word})
 $$
 
-Applying the RNN techniques, we rewrite the model more precisely as:
+Applying the RNN techniques, we rewrite the model as:
 
 $$
 h_{t} = f(x, h_{t-1})
@@ -34,7 +33,7 @@ $$
 $$
 
 
-which $$ x $$ is the image and $$ h_{t} $$ is the hidden state to predict the "next word" $$ y_{t} $$ at time step $$ t $$. As we learn from the selective attention, this model is over generalized, and can be more effective if we replace the image with more focused information.
+which $$ x $$ is the image and $$ h_{t} $$ is the RNN hidden state to predict the "next word" $$ y_{t} $$ at time step $$ t $$. We continue the process until we predict the "end" token. As we learn from the selective attention, this model is over generalized, and can be more effective if we replace the image with a more focus attention area.
 
 $$
 h_{t} = f(attention(x, h_{t-1}), h_{t-1} )
@@ -44,7 +43,7 @@ which $$ attention $$ is a function to generate more focus image features.
 
 ### Image caption model with LSTM
 
-Let's have a quick review of the image caption using LSTM. We use a CNN to extract the features $$ x $$ of an image, and feed it to every LSTM cells. Each LSTM cell takes in the hidden state $$ h_{t-1} $$ from the previous time step and the image features $$ x $$ to calculate a new hidden state. We pass $$ h_{t} $$ to say an affine operation to make a prediction on the next caption word $$ y_{t} $$. 
+Before we discuss attention, we will have a quick review of the image caption using LSTM. We use a CNN to extract the image features $$ x $$, and feed it to every LSTM cells. Each LSTM cell takes in the hidden state $$ h_{t-1} $$ from the previous time step and the image features $$ x $$ to calculate a new hidden state $$ h_{t} $$. We pass $$ h_{t} $$ to say an affine operation to make a prediction on the next caption word $$ y_{t} $$. 
 
 <div class="imgcap">
 <img src="/assets/att/rnn.png" style="border:none;width:80%;">
@@ -52,7 +51,7 @@ Let's have a quick review of the image caption using LSTM. We use a CNN to extra
 
 ### Attention
 
-The key difference between a LSTM model and the one with attention is that attention pays attention to specific area. For example, at the beginning of the caption creation, we start with an empty context. Our first attention is on the man walking towards us, and we make the first word prediction "A". We update the context to be "A" with a continous focus on the man. Once we predict the second word as "man", we move our attention to what he is holding. By continue exploring the attention area and updating the context, we generate an image caption. Mathematically, we are trying to replace the image $$ x $$ in LSTM model,
+The key difference between a LSTM model and the one with attention is that "attention" pays attention to particular areas or objects. For example, at the beginning of the caption creation, we start with an empty context. Our first attention area starts with the man who walks towards us. We make the first word prediction "A", and update the context to "A" with a continous focus on the man. We make a prediction of the word "man" based on the context "A" and the current attention area. To make the next prediction, our attention shifts to what he is doing. By continue exploring the attention area and updating the context, we generate an image caption like " A man is walking with a couple plastic containers in an intersection towards me." Mathematically, we are trying to replace the image $$ x $$ in LSTM model,
 
 $$
 h_{t} = f(x, h_{t-1})
