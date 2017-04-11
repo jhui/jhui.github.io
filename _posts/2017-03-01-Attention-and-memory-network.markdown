@@ -10,20 +10,20 @@ date: 2017-03-01 12:00:00
 
 ### Attention
 
-In cognitive psychology, selective attention restricts our attention to particular objects in the environment. It helps us focus, so we can tune out irrelevant information and concentrate on what really matters. For example, when we cross a busy street, our attention is to avoid hitting people. To transcript the following picture, we concentrate on the people walking towards my direction. One possible transcript is "A man holding a couple plastic container is walking down a street towards me." Once, we have a visual fixation on the man, we continue exploring other relevant details including what is he doing, where is he.
+In cognitive science, selective attention restricts our attention to particular objects in the environment. It helps us focus, so we can tune out irrelevant information and concentrate on what really matters. For example, when we cross a busy street, our attention is to avoid hitting people. To transcript the following picture, one possibility is "A man holding a couple plastic containers is walking down a street towards me." Once, we have a visual fixation on the man, we continue exploring other relevant details including what is he doing, where is he.
 
 <div class="imgcap">
 <img src="/assets/att/attention.jpg" style="border:none;;">
 </div>
 
 
-We have the caption to start with a "start" token, we can model the next word in the caption roughly as: 
+We generate image captions each starts with a "start" token. We can model the next word in the caption roughly as: 
 
 $$
 \text{next word} = f(image, \text{last word})
 $$
 
-Applying the RNN techniques, we can rewrite the model more precisely as:
+Applying the RNN techniques, we rewrite the model more precisely as:
 
 $$
 h_{t} = f(x, h_{t-1})
@@ -34,20 +34,20 @@ y_{t} = g(h_{t})
 $$
 
 
-which $$ x $$ is the image and $$ h_{t} $$ is the hidden state to predict the "next word" $$ y_{t} $$ at time step $$ t $$. As we learn from the selective attention, this model is over generalized, and can be more effective in focusing on a smaller region.
+which $$ x $$ is the image and $$ h_{t} $$ is the hidden state to predict the "next word" $$ y_{t} $$ at time step $$ t $$. As we learn from the selective attention, this model is over generalized, and can be more effective if we replace the image with more focused information.
 
 $$
 h_{t} = f(attention(x, h_{t-1}), h_{t-1} )
 $$
 
-which $$ attention $$ is a function to compute where should we focus based on the image and the last word.
+which $$ attention $$ is a function to generate more focus image features.
 
 ### Image caption model with LSTM
 
-Let's have a quick review of image caption using LSTM. We use a CNN to extract the features $$ x $$ of an image, and feed it to every LSTM cells. To make prediction, each LSTM cell takes in the hidden state from the previous time step $$ h_{t-1} $$ and the image features $$ x $$ to make a hidden state $$ h_{t} $$. We pass $$ h_{t} $$ to say an affine operation to make a prediction of the caption word $$ y_{t} $$. 
+Let's have a quick review of image caption using LSTM. We use a CNN to extract the features $$ x $$ of an image, and feed it to every LSTM cells. Each LSTM cell takes in the hidden state $$ h_{t} $$ from the previous time step and the image features $$ x $$ to calculate a new hidden state. We pass $$ h_{t} $$ to say an affine operation to make a prediction on the next caption word $$ y_{t} $$. 
 
 <div class="imgcap">
-<img src="/assets/att/rnn.png" style="border:none;;">
+<img src="/assets/att/rnn.png" style="border:none;width:80%;">
 </div>
 
 ### Attention
@@ -126,7 +126,7 @@ In soft attention, we compute a weight $$ \alpha_{i} $$ for each $$ x_{i}$$, and
 > Soft attention is more popular because the backpropagation seems more effective.
 
 <div class="imgcap">
-<img src="/assets/att/hard.png" style="border:none;width:70%;">
+<img src="/assets/att/hard.png" style="border:none;">
 </div>
 
 
