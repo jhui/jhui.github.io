@@ -10,7 +10,7 @@ date: 2017-03-01 12:00:00
 
 ### Generate image captions
 
-In cognitive science, selective attention restricts our attention to particular objects in the environment. It helps us focus, so we can tune out irrelevant information and concentrate on what really matters. For example, when we cross a busy street, our attention is to avoid hitting people. To transcript the following picture, one possibility is "A man holding a couple plastic containers is walking down an intersection towards me." Once we have a visual fixation, we continue exploring other relevant details including what is he doing, and where is he.
+In cognitive science, selective attention restricts our attention to particular objects in our surroundings. It helps us focus, so we can tune out irrelevant information and concentrate on what really matters. For example, when we cross a busy street, our attention is to avoid hitting people. With our attention on the man walking towards us, we continue exploring other details include what is he holding, or where is he. From these information, we may generate a caption like "A man holding a couple plastic containers is walking down an intersection towards me." Selective attention demonstrates objects or pixels are not treated equally. This tutorial demonstrates techniques of incorpoating attention into deep learning.
 
 <div class="imgcap">
 <img src="/assets/att/attention.jpg" style="border:none;;">
