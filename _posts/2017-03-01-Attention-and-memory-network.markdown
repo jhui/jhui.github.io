@@ -51,7 +51,13 @@ Before we discuss attention, we will have a quick review of the image caption us
 
 ### Attention
 
-The key difference between a LSTM model and the one with attention is that "attention" pays attention to particular areas or objects. For example, at the beginning of the caption creation, we start with an empty context. Our first attention area starts with the man who walks towards us. We make the first word prediction "A", and update the context to "A" with a continous focus on the man. We make a prediction of the word "man" based on the context "A" and the current attention area. To make the next prediction, our attention shifts to what he is doing. By continue exploring the attention area and updating the context, we generate an image caption like " A man is walking with a couple plastic containers in an intersection towards me." Mathematically, we are trying to replace the image $$ x $$ in LSTM model,
+The key difference between a LSTM model and the one with attention is that "attention" pays attention to particular areas or objects. For example, at the beginning of the caption creation, we start with an empty context. Our first attention area starts with the man who walks towards us. We predict the first word "A", and update the context to "A" with a continous focus on the man. We make a second prediction "man" based on the context "A" and the attention area. To make the next prediction, our attention shifts to what he is holding in his hand area. By continue exploring the attention area and updating the context, we generate an image caption like " A man holding a couple plastic containers is walking down an intersection towards me." 
+
+<div class="imgcap">
+<img src="/assets/att/attention3.jpg" style="border:none;width:80%;">
+</div>
+
+Mathematically, we are trying to replace the image $$ x $$ in LSTM model,
 
 $$
 h_{t} = f(x, h_{t-1})
@@ -63,17 +69,17 @@ $$
 h_{t} = f(attention(x, h_{t-1}), h_{t-1} )
 $$
 
-The attention module have 2 major inputs:
+The attention module have 2 inputs:
 * a context, and
 * image features in each localized areas.
 
-For the context, we use the hidden state $$ h_{t-1} $$ of the previous time step as our context. To generate image features, instead of feeding the whole image to the module, we have images divided into regions. In a LSTM system, we process an image with CNN and use one of the fully connected layer output as input features. Nevertheless, this is not adequate for attention since some spatial information has lost. Instead, we use the output of one of the convolution layer which spatial information is still preserved.
+For the context, we use the hidden state $$ h_{t-1} $$ of the previous time step. In a LSTM system, we process an image with a CNN and use one of the fully connected layer output as input features to the LSTM. Nevertheless, this is not adequate for attention since spatial information has been lost. Instead, we use the output of one of the convolution layer which spatial information is still preserved.
 
 <div class="imgcap">
 <img src="/assets/att/cnn3d2.png" style="border:none;;">
 </div>
 
-Here, the feature maps in the second convolution layers are divided into 4 which closely resemble the top right & left and the bottom right & left of the original pictures. In the following diagram, we replace the image $$ x $$ as an input to a LSTM model with an attention module.
+Here, the feature maps in the second convolution layers are divided into 4 which closely resemble the top right & left and the bottom right & left of the original pictures. In the following diagram, we replace the LSTM input $$ x $$ with an attention module.
 
 <div class="imgcap">
 <img src="/assets/att/att2.png" style="border:none;width:80%;">
