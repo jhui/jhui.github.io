@@ -10,14 +10,14 @@ date: 2017-03-01 12:00:00
 
 ### Attention
 
-In cognitive science, selective attention restricts our attention to particular objects in the environment. It helps us focus, so we can tune out irrelevant information and concentrate on what really matters. For example, when we cross a busy street, our attention is to avoid hitting people. To transcript the following picture, one possibility is "A man holding a couple plastic containers is walking down a street towards me." Once, we have a visual fixation on the man, we continue exploring other relevant details including what is he doing, where is he.
+In cognitive science, selective attention restricts our attention to particular objects in the environment. It helps us focus, so we can tune out irrelevant information and concentrate on what really matters. For example, when we cross a busy street, our attention is to avoid hitting people. To transcript the following picture, one possibility is "A man holding a couple plastic containers is walking down a street towards me." Once, we have a visual fixation, we continue exploring other relevant details including what is he doing, where is he.
 
 <div class="imgcap">
 <img src="/assets/att/attention.jpg" style="border:none;;">
 </div>
 
 
-We generate image captions each starts with a "start" token. We can model the next word in the caption roughly as: 
+We generate an image caption starting with a "start" token. We predict the next word in the caption with the following formula: 
 
 $$
 \text{next word} = f(image, \text{last word})
@@ -30,7 +30,7 @@ h_{t} = f(x, h_{t-1})
 $$
 
 $$
-y_{t} = g(h_{t})
+\text{next word} = y_{t} = g(h_{t})
 $$
 
 
@@ -44,7 +44,7 @@ which $$ attention $$ is a function to generate more focus image features.
 
 ### Image caption model with LSTM
 
-Let's have a quick review of image caption using LSTM. We use a CNN to extract the features $$ x $$ of an image, and feed it to every LSTM cells. Each LSTM cell takes in the hidden state $$ h_{t} $$ from the previous time step and the image features $$ x $$ to calculate a new hidden state. We pass $$ h_{t} $$ to say an affine operation to make a prediction on the next caption word $$ y_{t} $$. 
+Let's have a quick review of the image caption using LSTM. We use a CNN to extract the features $$ x $$ of an image, and feed it to every LSTM cells. Each LSTM cell takes in the hidden state $$ h_{t-1} $$ from the previous time step and the image features $$ x $$ to calculate a new hidden state. We pass $$ h_{t} $$ to say an affine operation to make a prediction on the next caption word $$ y_{t} $$. 
 
 <div class="imgcap">
 <img src="/assets/att/rnn.png" style="border:none;width:80%;">
@@ -52,7 +52,7 @@ Let's have a quick review of image caption using LSTM. We use a CNN to extract t
 
 ### Attention
 
-The key difference between a LSTM model and the one with attention is that we are not paying attention to the whole picture. Instead, we focus on selective areas under the current context. For example, at the beginning of the caption creation, we start with an empty context and with our first attention at the man walking towards us. Next, we update the context to be "a man", and pay attention to a local area to find what is he holding. By continue exploring the areas in focus and updating the context, we generate the image caption. Mathematically, we are trying to replace the LSTM model,
+The key difference between a LSTM model and the one with attention is that attention pays attention to specific area. For example, at the beginning of the caption creation, we start with an empty context. Our first attention is on the man walking towards us, and we make the first word prediction "A". We update the context to be "A" with a continous focus on the man. Once we predict the second word as "man", we move our attention to what he is holding. By continue exploring the attention area and updating the context, we generate an image caption. Mathematically, we are trying to replace the image $$ x $$ in LSTM model,
 
 $$
 h_{t} = f(x, h_{t-1})
@@ -68,30 +68,31 @@ The attention module have 2 major inputs:
 * a context, and
 * image features in each localized areas.
 
-For the context, we use the hidden state $$ h_{t-1} $$ of the previous time step as our context. For image features, instead of feeding the whole image to the module, we have images divided into regions. In a LSTM system, we process an image with CNN and use one of the output from the fully connected layer as images features. Nevertheless, we loss the spatial locality information. For attention, we use the output of one of the convolution layer which spatial information is preserved.
+For the context, we use the hidden state $$ h_{t-1} $$ of the previous time step as our context. To generate image features, instead of feeding the whole image to the module, we have images divided into regions. In a LSTM system, we process an image with CNN and use one of the fully connected layer output as input features. Nevertheless, this is not adequate for attention since some spatial information has lost. Instead, we use the output of one of the convolution layer which spatial information is still preserved.
 
 <div class="imgcap">
 <img src="/assets/att/cnn3d2.png" style="border:none;;">
 </div>
 
-Here, the feature maps in the second convolution layers are divided into 4 which closely resemble the top right & left and the bottom right & left of the original pictures. In the following diagram, we replace the image $$ x $$ as an input to a LSTM model with an attention module with the context $$ h_{t-1} $$ and 4 regions of images $$ (x_1, x_2, x_3, x_{4}) $$ from the CNN.
+Here, the feature maps in the second convolution layers are divided into 4 which closely resemble the top right & left and the bottom right & left of the original pictures. In the following diagram, we replace the image $$ x $$ as an input to a LSTM model with an attention module.
 
 <div class="imgcap">
-<img src="/assets/att/att2.png" style="border:none;;">
+<img src="/assets/att/att2.png" style="border:none;width:80%;">
 </div>
 
+The attention module takes the context $$ h_{t-1} $$ and 4 regions of images $$ (x_1, x_2, x_3, x_{4}) $$ from the CNN to comput the new image features used by the LSTM.
 <div class="imgcap">
 <img src="/assets/att/context.png" style="border:none;;">
 </div>
 
-Here, for completness, we put back the attention modules back into the LSTM models.
+The following is the complete flow of the LSTM model using attentions.
 <div class="imgcap">
 <img src="/assets/att/att3.png" style="border:none;;">
 </div>
 
 ### Soft attention
 
-Instead of using the image as an input to the LSTM, we input a weighted image account for attention. Soft attention computes weights to be multiplied with input features. If we plot those weighted features, we can visualize areas with high attention. For example, with the context $$h_{t-1} $$ representing "A man holding a couple plastic", soft attention highlights the plastic container area to predict the word "container".
+We can implement attention with soft attention or hard attention. In soft attention, instead of using the image as an input to the LSTM, we input a weighted image account for attention. Soft attention computes weights to be multiplied with input features. If we plot those weighted features, we will visualize areas with high attention. For example, with the context $$h_{t-1} $$ representing "A man holding a couple plastic", soft attention highlights the plastic container area to predict the word "container".
 
 <div class="imgcap">
 <img src="/assets/att/attention2.png" style="border:none;;">
