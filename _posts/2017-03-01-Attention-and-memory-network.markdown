@@ -10,13 +10,13 @@ date: 2017-03-01 12:00:00
 
 ### Generate image captions
 
-In cognitive science, selective attention restricts our attention to particular objects in our surroundings. It helps us focus, so we can tune out irrelevant information and concentrate on what really matters. For example, when we cross a busy street, our attention is to avoid hitting people. With our attention on the man walking towards us, we continue exploring other details include what is he holding, or where is he. From these information, we may generate a caption like "A man holding a couple plastic containers is walking down an intersection towards me." Selective attention demonstrates objects or pixels are not treated equally. This tutorial demonstrates techniques of incorpoating attention into deep learning.
+In cognitive science, selective attention illustrates how we restricts our attention to particular objects in the surroundings. It helps us focus, so we can tune out irrelevant information and concentrate on what really matters. We can apply this attention mechanism in solving many deep learning problems. For example, we want to generate a caption for the picture below. Naturally, we pay attention to the closest man that walking towards us. We continue exploring the details or shift attentions according to the questions that we want to answer. Eventually we may generate a caption like: "A man holding a couple plastic containers is walking down an intersection towards me." Selective attention demonstrates objects or pixels are not treated equally. Attention in deep learning localizes the information we need in making predictions. The right side of the picture below demonstrates how our attention may change when generate different part of the caption.
 
 <div class="imgcap">
 <img src="/assets/att/attention.jpg" style="border:none;;">
 </div>
 
-To generate an image caption, we start the caption with a "start" token. We predict the next word in the caption with the following concept:
+To generate an image caption, we start the caption with a "start" token and generate (predict) one word at a time. We predict the next word in the caption based on the last predicted word and the image:
 
 $$
 \text{next word} = f(image, \text{last word})
@@ -29,21 +29,24 @@ h_{t} = f(x, h_{t-1})
 $$
 
 $$
-\text{next word} = y_{t} = g(h_{t})
+\text{next word} = g(h_{t})
 $$
 
+which $$ x $$ is the image and $$ h_{t} $$ is the RNN hidden state to predict the "next word" $$ at time step $$ t $$. 
 
-which $$ x $$ is the image and $$ h_{t} $$ is the RNN hidden state to predict the "next word" $$ y_{t} $$ at time step $$ t $$. We continue the process until we predict the "end" token. As we learn from the selective attention, this model is over generalized, and can be more effective if we replace the image with a more focus attention area.
+> In layman term, $$ h_{t} $$ represents the caption that we generate so far.
+
+We continue the process until we predict the "end" token. As the selective attention may suggest, this model is over generalized, and we can replace the image with a more focus attention area.
 
 $$
 h_{t} = f(attention(x, h_{t-1}), h_{t-1} )
 $$
 
-which $$ attention $$ is a function to generate more focus image features.
+which $$ attention $$ is a function to generate more relevant image features from the original image $$ x $$.
 
 ### Image caption model with LSTM
 
-Before we discuss attention, we will have a quick review of the image caption using LSTM. We use a CNN to extract the image features $$ x $$, and feed it to every LSTM cells. Each LSTM cell takes in the hidden state $$ h_{t-1} $$ from the previous time step and the image features $$ x $$ to calculate a new hidden state $$ h_{t} $$. We pass $$ h_{t} $$ to say an affine operation to make a prediction on the next caption word $$ y_{t} $$. 
+Before we discuss attention, we will have a quick review of the image caption using LSTM. We use a CNN to extract the image features $$ x $$, and feed it to every LSTM cells. Each LSTM cell takes in the previous hidden state $$ h_{t-1} $$ and the image features $$ x $$ to calculate a new hidden state $$ h_{t} $$. We pass $$ h_{t} $$ to say an affine operation to make a prediction on the next caption word $$ y_{t} $$. 
 
 <div class="imgcap">
 <img src="/assets/att/rnn.png" style="border:none;width:80%;">
@@ -51,7 +54,7 @@ Before we discuss attention, we will have a quick review of the image caption us
 
 ### Attention
 
-The key difference between a LSTM model and the one with attention is that "attention" pays attention to particular areas or objects. For example, at the beginning of the caption creation, we start with an empty context. Our first attention area starts with the man who walks towards us. We predict the first word "A", and update the context to "A" with a continous focus on the man. We make a second prediction "man" based on the context "A" and the attention area. To make the next prediction, our attention shifts to what he is holding in his hand area. By continue exploring the attention area and updating the context, we generate an image caption like " A man holding a couple plastic containers is walking down an intersection towards me." 
+The key difference between a LSTM model and the one with attention is that "attention" pays attention to particular areas or objects rather than treating the whole image equally. For example, at the beginning of the caption creation, we start with an empty context. Our first attention area starts with the man who walks towards us. We predict the first word "A", and update the context to "A" with a continous focus on the man. We make a second prediction "man" based on the context "A" and the attention area. For the next prediction, our attention shifts to what he is holding in his hand area. By continue exploring or shifting the attention area and updating the context, we generate an caption like " A man holding a couple plastic containers is walking down an intersection towards me." 
 
 <div class="imgcap">
 <img src="/assets/att/attention3.jpg" style="border:none;width:80%;">
@@ -69,23 +72,22 @@ $$
 h_{t} = f(attention(x, h_{t-1}), h_{t-1} )
 $$
 
+<div class="imgcap">
+<img src="/assets/att/att2.png" style="border:none;width:80%;">
+</div>
+
 The attention module have 2 inputs:
 * a context, and
 * image features in each localized areas.
 
-For the context, we use the hidden state $$ h_{t-1} $$ of the previous time step. In a LSTM system, we process an image with a CNN and use one of the fully connected layer output as input features to the LSTM. Nevertheless, this is not adequate for attention since spatial information has been lost. Instead, we use the output of one of the convolution layer which spatial information is still preserved.
+For the context, we use the hidden state $$ h_{t-1} $$ of the previous time step. In a LSTM system, we process an image with a CNN and use one of the fully connected layer output as input features to the LSTM. Nevertheless, this is not adequate for an attention model since spatial information has been lost. Instead, we use the feature maps of one of the convolution layer which spatial information is still preserved.
 
 <div class="imgcap">
 <img src="/assets/att/cnn3d2.png" style="border:none;;">
 </div>
 
-Here, the feature maps in the second convolution layers are divided into 4 which closely resemble the top right & left and the bottom right & left of the original pictures. In the following diagram, we replace the LSTM input $$ x $$ with an attention module.
+Here, the feature maps in the second convolution layers are divided into 4 which closely resemble the top right & left and the bottom right & left of the original pictures. We replace the LSTM input $$ x $$ with an attention module. The attention module takes the context $$ h_{t-1} $$ and 4 regions of images $$ (x_1, x_2, x_3, x_{4}) $$ from the CNN to comput the new image features used by the LSTM.
 
-<div class="imgcap">
-<img src="/assets/att/att2.png" style="border:none;width:80%;">
-</div>
-
-The attention module takes the context $$ h_{t-1} $$ and 4 regions of images $$ (x_1, x_2, x_3, x_{4}) $$ from the CNN to comput the new image features used by the LSTM.
 <div class="imgcap">
 <img src="/assets/att/context.png" style="border:none;width:70%;">
 </div>
