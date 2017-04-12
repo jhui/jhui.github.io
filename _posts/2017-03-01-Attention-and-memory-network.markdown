@@ -117,20 +117,19 @@ We implement attention with soft attention or hard attention. In soft attention,
 
 > Again, we visualize what the feature maps may look like as a picture.
 
-This picture visualizes the weighted features to the LSTM and the word it predicted. Soft attention discredit irrelevant areas by multiply the corresponding features map with a low weight. Accordingly, high attention area keeps the original value while low attention areas get closer to 0 (become dark in the visualization). With the context of "A man holding a couple plastic", the attention module creates a new feature map with all areas darken except the plastic container area. With more focused information, the LSTM makes a better prediction (the word "container").
+This picture visualizes the weighted features to the LSTM and the word it predicted. Soft attention discredits irrelevant areas by multiply the corresponding features map with a low weight. Accordingly, high attention area keeps the original value while low attention areas get closer to 0 (become dark in the visualization). With the context of "A man holding a couple plastic", the attention module creates a new feature map with all areas darken except the plastic container area. With more focused information, the LSTM makes a better prediction (the word "container").
 
-Let's show how to commpute the weighted features for the LSTM. $$ x_1, x_2, x_3 \text{ and } x_4 $$ each cover a sub-section of an image. To compute a score $$ s_{i} $$ to measure how much attention for $$ x_{i} $$, we use
+Let's show how to commpute the weighted features for the LSTM. $$ x_1, x_2, x_3 \text{ and } x_4 $$ each cover a sub-section of an image. To compute a score $$ s_{i} $$ to measure how much attention for $$ x_{i} $$, we use (with the context $$ C = h_{t-1} $$):
 
 $$
 s_{i} = \tanh(W_{c} C + W_{x} X_{i} ) = \tanh(W_{c} h_{t-1} + W_{x} x_{i} )
 $$
 
-(with the context $$ C $$ equals to $$ h_{t-1} $$ .)
 
 We pass $$ s_{i} $$ to a softmax for normalization to compute the weight $$ \alpha_{i} $$.
 
 $$
-\alpha_i = softmax(s_1, s_2, \dots, s_{n}, \dots)
+\alpha_i = softmax(s_1, s_2, \dots, s_{i}, \dots)
 $$
 
 With softmax, $$ \alpha_{i} $$ adds up to 1, and we use it to compute a weighted average for $$ x_1, x_2, x_3 \text{ and } x_4 $$  
@@ -147,7 +146,7 @@ Finally, we use $$Z$$ to replace $$ x $$ as the LSTM input.
 
 ### Hard attention
 
-In soft attention, we compute a weight $$ \alpha_{i} $$ for each $$ x_{i}$$, and use it to calculate a weighted average for $$ x_{i} $$ as the LSTM input. $$ \alpha_{i} $$ adds up to 1 which can be interpreted as the probability that $$ x_{i} $$ is the area that we should pay attention to. So instead of a weighted average, hard attention uses $$ \alpha_{i} $$ as a sample rate to pick one $$ x_{i} $$ as the input $$ Y $$ to LSTM. 
+In soft attention, we compute a weight $$ \alpha_{i} $$ for each $$ x_{i}$$, and use it to calculate a weighted average for $$ x_{i} $$ as the LSTM input. $$ \alpha_{i} $$ adds up to 1 which can be interpreted as the probability that $$ x_{i} $$ is the area that we should pay attention to. So instead of a weighted average, hard attention uses $$ \alpha_{i} $$ as a sample rate to pick one $$ x_{i} $$ as the input to the LSTM. 
 
 $$
 Z \sim x_{i}, \alpha_{i} 
@@ -157,7 +156,7 @@ $$
 <img src="/assets/att/hard.png" style="border:none;width:70%">
 </div>
 
-Hard attention replaces a deterministic method with a stochastic sampling model. To calculate the gradient descent correctly in the backpropagation, we perform many samplings and average our results using the Monte Carlo method. Monte Carlo performs many end-to-end episodes to compute an average for all sampling results. Soft attention assumes a weighted average is a good approximation to the "attention objects" while hard attention makes no such assumptions but requires a lot of samplings to make it accurate. 
+Hard attention replaces a deterministic method with a stochastic sampling model. To calculate the gradient descent correctly in the backpropagation, we perform samplings and average our results using the Monte Carlo method. Monte Carlo performs end-to-end episodes to compute an average for all sampling results. The accuracy is subject to how many samplings are performed and how well it is sampled. On the other hand, soft attention follows the regular and easier backpropagation method to compute the gradient. However, the accuracy is subject to the assumption that the weighted average is a good representation for the area of attention. Both have their short-comings. Currently, soft attention is more popular.
 
 > Soft attention is more popular because the backpropagation seems more effective.
 
