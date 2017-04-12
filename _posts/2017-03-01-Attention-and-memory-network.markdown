@@ -115,27 +115,29 @@ We implement attention with soft attention or hard attention. In soft attention,
 <img src="/assets/att/attention2.png" style="border:none;;">
 </div>
 
-This picture visualizes the weighted features to the LSTM and the word it predicted. Soft attention discredit irrelevant areas by multiply the corresponding features map with a low weight. Accordingly, high attention area keeps the original value while low attention areas get closer to 0. With the context of "A man holding a couple plastic", the attention module creates a new feature map with all areas darken except the plastic container area. With this focus information, the LSTM makes a better prediction (the word "container").
+> Again, we visualize what the feature maps may look like as a picture.
 
-$$ x_1, x_2, x_3 \text{ and } x_4 $$, each cover a sub-section of an image. To compute a score $$ s_{i} $$ to measure how much attention that we should pay for each $$ x_{i} $$, we use
+This picture visualizes the weighted features to the LSTM and the word it predicted. Soft attention discredit irrelevant areas by multiply the corresponding features map with a low weight. Accordingly, high attention area keeps the original value while low attention areas get closer to 0 (become dark in the visualization). With the context of "A man holding a couple plastic", the attention module creates a new feature map with all areas darken except the plastic container area. With this focus information, the LSTM makes a better prediction (the word "container").
+
+Let's show how to commpute the weighted features for the LSTM. $$ x_1, x_2, x_3 \text{ and } x_4 $$ each cover a sub-section of an image. To compute a score $$ s_{i} $$ to measure how much we should pay attention for each $$ x_{i} $$, we use
 
 $$
 s_{i} = \tanh(W_{c} C + W_{x} X_{i} ) = \tanh(W_{c} h_{t-1} + W_{x} x_{i} )
 $$
 
-which the context $$ C $$  equals $$ h_{t-1} $$ .
+(Put the context $$ C $$ equals to $$ h_{t-1} $$ .)
 
-We pass $$ s_{i} $$ to a softmax for normalization. This becomes a weight $$ \alpha_{i} $$ to measure the attention level relative to other $$ x_{j}$$ .
+We pass $$ s_{i} $$ to a softmax for normalization. $$ \alpha_{i} $$ (weight) is a normalized attention level for $$ x_{j}$$ .
 
 $$
 \alpha_i = softmax(s_1, s_2, \dots, s_{n}, \dots)
 $$
 
-With softmax, $$ \alpha_{i} $$ adds up to 1, we use it to compute a weighted average for $$ x_{i} $$ to replace $$ x $$ as inputs to the LSTM. 
+With softmax, $$ \alpha_{i} $$ adds up to 1, and we can use it to compute a weighted average for $$ x_1, x_2, x_3 \text{ and } x_4 $$  and use it as the new image input to the LSTM.
 
 $$
 Z = \sum_{i} \alpha_{i} x_{i}
-$$
+$$ 
 
 <div class="imgcap">
 <img src="/assets/att/soft.png" style="border:none;width:70%;">
