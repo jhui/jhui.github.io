@@ -10,13 +10,13 @@ date: 2017-03-01 12:00:00
 
 ### Generate image captions
 
-In cognitive science, selective attention illustrates how we restricts our attention to particular objects in the surroundings. It helps us focus, so we can tune out irrelevant information and concentrate on what really matters. We can apply this attention mechanism in solving many deep learning problems. For example, we want to generate a caption for the picture below. Naturally, we pay attention to the closest man that walking towards us. We continue exploring the details or shift attentions according to the questions that we want to answer. Eventually we may generate a caption like: "A man holding a couple plastic containers is walking down an intersection towards me." Selective attention demonstrates objects or pixels are not treated equally. Attention in deep learning localizes the information we need in making predictions. The right side of the picture below demonstrates how our attention may change when generate different part of the caption.
+In cognitive science, selective attention illustrates how we restricts our attention to particular objects in the surroundings. It helps us focus, so we can tune out irrelevant information and concentrate on what really matters. We can apply this attention mechanism in solving many deep learning problems. For example, we focus on different areas of the image when generating different parts of a caption. In the image below, we first pay attention to the closest man that walking towards us. We continue exploring the details or shift attentions according to the questions that we want to answer. Eventually we may generate a caption like: "A man holding a couple plastic containers is walking down an intersection towards me." Selective attention demonstrates objects or pixels are not treated equally. Attention in deep learning localizes the information we need in making predictions. The picture below demonstrates the relationship between the attention area and the words we generate.
 
 <div class="imgcap">
 <img src="/assets/att/attention.jpg" style="border:none;;">
 </div>
 
-To generate an image caption, we start the caption with a "start" token and generate (predict) one word at a time. We predict the next word in the caption based on the last predicted word and the image:
+To generate an image caption with deep learning, we start the caption with a "start" token and generate (predict) one word at a time. We predict the next caption's word based on the last predicted word and the image:
 
 $$
 \text{next word} = f(image, \text{last word})
@@ -32,17 +32,17 @@ $$
 \text{next word} = g(h_{t})
 $$
 
-which $$ x $$ is the image and $$ h_{t} $$ is the RNN hidden state to predict the "next word" $$ at time step $$ t $$. 
+which $$ x $$ is the image and $$ h_{t} $$ is the RNN hidden state to predict the "next word" at time step $$ t $$. 
 
 > In layman term, $$ h_{t} $$ represents the caption that we generate so far.
 
-We continue the process until we predict the "end" token. As the selective attention may suggest, this model is over generalized, and we can replace the image with a more focus attention area.
+We continue the process until we predict the "end" token. As the selective attention may suggest, this model is over generalized, and we should replace the image with a more focus attention area.
 
 $$
 h_{t} = f(attention(x, h_{t-1}), h_{t-1} )
 $$
 
-which $$ attention $$ is a function to generate more relevant image features from the original image $$ x $$.
+which $$ attention $$ is a function to generate more relevant image features from the image $$ x $$.
 
 ### Image caption model with LSTM
 
@@ -51,6 +51,8 @@ Before we discuss attention, we will have a quick review of the image caption us
 <div class="imgcap">
 <img src="/assets/att/rnn.png" style="border:none;width:80%;">
 </div>
+
+>  $$ x $$ are the image features extracted from an image using a CNN. From the LSTM prespective, $$ x $$ represents the image. When we reference the "image" in this article, we means $$x$$ rather than the raw image pixels.
 
 ### Attention
 
@@ -111,7 +113,7 @@ We implement attention with soft attention or hard attention. In soft attention,
 <img src="/assets/att/attention2.png" style="border:none;;">
 </div>
 
-The picture visualizes the weighted features to the LSTM and the word it predicted. The weighted features discredit irrelevant areas by multiply them with a low weight. Accordingly high attention area keeps the original value while low attention areas get closer to 0. With the context of "A man holding a couple plastic", the attention module creates a new feature map with all areas darken except the plastic container area. With this more focus information, the LSTM make a better prediction (the word "container").
+This picture visualizes the weighted features to the LSTM and the word it predicted. The weighted features discredit irrelevant areas by multiply them with a low weight. Accordingly high attention area keeps the original value while low attention areas get closer to 0. With the context of "A man holding a couple plastic", the attention module creates a new feature map with all areas darken except the plastic container area. With this more focus information, the LSTM make a better prediction (the word "container").
 
 With our CNN outputs $$ x_1, x_2, x_3 \text{ and } x_4 $$, each feature map covers a sub-section of an image. With $$ x_i $$ and the context $$ C  = h_{t-1} $$ , we compute a score $$ s_{i} $$ to measure the attention level:
 
