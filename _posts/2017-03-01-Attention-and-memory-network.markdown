@@ -100,7 +100,7 @@ Here, the feature maps in the second convolution layers are divided into 4 which
 <img src="/assets/att/context.png" style="border:none;width:70%;">
 </div>
 
-> $$ (x_1, x_2, x_3, x_{4}) $$ are features map. For demonstration purpose, we visualize the features maps in this article as the corresponding image that it may look like instead of the map itself.
+> $$ (x_1, x_2, x_3, x_{4}) $$ are features map. For demonstration purpose, we visualize the features maps in this article as the corresponding image that it may look like.
 
 The following is the complete flow of the LSTM model using attentions.
 <div class="imgcap">
@@ -117,35 +117,41 @@ We implement attention with soft attention or hard attention. In soft attention,
 
 > Again, we visualize what the feature maps may look like as a picture.
 
-This picture visualizes the weighted features to the LSTM and the word it predicted. Soft attention discredit irrelevant areas by multiply the corresponding features map with a low weight. Accordingly, high attention area keeps the original value while low attention areas get closer to 0 (become dark in the visualization). With the context of "A man holding a couple plastic", the attention module creates a new feature map with all areas darken except the plastic container area. With this focus information, the LSTM makes a better prediction (the word "container").
+This picture visualizes the weighted features to the LSTM and the word it predicted. Soft attention discredit irrelevant areas by multiply the corresponding features map with a low weight. Accordingly, high attention area keeps the original value while low attention areas get closer to 0 (become dark in the visualization). With the context of "A man holding a couple plastic", the attention module creates a new feature map with all areas darken except the plastic container area. With more focused information, the LSTM makes a better prediction (the word "container").
 
-Let's show how to commpute the weighted features for the LSTM. $$ x_1, x_2, x_3 \text{ and } x_4 $$ each cover a sub-section of an image. To compute a score $$ s_{i} $$ to measure how much we should pay attention for each $$ x_{i} $$, we use
+Let's show how to commpute the weighted features for the LSTM. $$ x_1, x_2, x_3 \text{ and } x_4 $$ each cover a sub-section of an image. To compute a score $$ s_{i} $$ to measure how much attention for $$ x_{i} $$, we use
 
 $$
 s_{i} = \tanh(W_{c} C + W_{x} X_{i} ) = \tanh(W_{c} h_{t-1} + W_{x} x_{i} )
 $$
 
-(Put the context $$ C $$ equals to $$ h_{t-1} $$ .)
+(with the context $$ C $$ equals to $$ h_{t-1} $$ .)
 
-We pass $$ s_{i} $$ to a softmax for normalization. $$ \alpha_{i} $$ (weight) is a normalized attention level for $$ x_{j}$$ .
+We pass $$ s_{i} $$ to a softmax for normalization to compute the weight $$ \alpha_{i} $$.
 
 $$
 \alpha_i = softmax(s_1, s_2, \dots, s_{n}, \dots)
 $$
 
-With softmax, $$ \alpha_{i} $$ adds up to 1, and we can use it to compute a weighted average for $$ x_1, x_2, x_3 \text{ and } x_4 $$  and use it as the new image input to the LSTM.
+With softmax, $$ \alpha_{i} $$ adds up to 1, and we use it to compute a weighted average for $$ x_1, x_2, x_3 \text{ and } x_4 $$  
 
 $$
 Z = \sum_{i} \alpha_{i} x_{i}
 $$ 
 
+Finally, we use $$Z$$ to replace $$ x $$ as the LSTM input.
+ 
 <div class="imgcap">
 <img src="/assets/att/soft.png" style="border:none;width:70%;">
 </div>
 
 ### Hard attention
 
-In soft attention, we compute a weight $$ \alpha_{i} $$ for each $$ x_{i}$$, and use it to calculate a weighted average of $$ x $$ as the input to the LSTM module. $$ \alpha_{i} $$ adds up to 1 which can also be interpreted as the chance that $$ x_{i} $$ is the "attention area". So instead of a weighted average, hard attention uses $$ \alpha_{i} $$ as a sample rate to pick one $$ x_{i} $$ as the input $$ Y $$ to LSTM. 
+In soft attention, we compute a weight $$ \alpha_{i} $$ for each $$ x_{i}$$, and use it to calculate a weighted average for $$ x_{i} $$ as the LSTM input. $$ \alpha_{i} $$ adds up to 1 which can be interpreted as the probability that $$ x_{i} $$ is the area that we should pay attention to. So instead of a weighted average, hard attention uses $$ \alpha_{i} $$ as a sample rate to pick one $$ x_{i} $$ as the input $$ Y $$ to LSTM. 
+
+$$
+Z \sim x_{i}, \alpha_{i} 
+$$
 
 <div class="imgcap">
 <img src="/assets/att/hard.png" style="border:none;width:70%">
