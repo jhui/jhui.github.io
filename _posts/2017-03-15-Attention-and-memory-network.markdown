@@ -4,7 +4,7 @@ comments: true
 mathjax: true
 title: “Soft & hard attention and memory network ”
 excerpt: “How to use attention to improve deep network learning, and use memory network for Q&A?”
-date: 2017-03-16 12:00:00
+date: 2017-03-15 11:00:00
 ---
 **This is work in progress...**
 
