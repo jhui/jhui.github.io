@@ -2,8 +2,8 @@
 layout: post
 comments: true
 mathjax: true
-title: “Soft & hard attention and memory network ”
-excerpt: “How to use attention to improve deep network learning, and use memory network for Q&A?”
+title: “Soft & hard attention”
+excerpt: “How to use attention to improve deep network learning? Attention extracts relevant information selectively for more effective training.”
 date: 2017-03-15 11:00:00
 ---
 **This is work in progress...**
@@ -159,7 +159,6 @@ $$
 Hard attention replaces a deterministic method with a stochastic sampling model. To calculate the gradient descent correctly in the backpropagation, we perform samplings and average our results using the Monte Carlo method. Monte Carlo performs end-to-end episodes to compute an average for all sampling results. The accuracy is subject to how many samplings are performed and how well it is sampled. On the other hand, soft attention follows the regular and easier backpropagation method to compute the gradient. However, the accuracy is subject to the assumption that the weighted average is a good representation for the area of attention. Both have their short-comings. Currently, soft attention is more popular.
 
 > Soft attention is more popular because the backpropagation seems more effective.
-
 
 
 
