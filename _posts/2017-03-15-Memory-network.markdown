@@ -189,7 +189,7 @@ $$
 $$
 
 <div class="imgcap">
-<img src="/assets/mem/max13.png" style="border:none;width:70%;">
+<img src="/assets/mem/max13.png" style="border:none;width:60%;">
 </div>
 
 Here, we combine all the steps into 1 diagram:
