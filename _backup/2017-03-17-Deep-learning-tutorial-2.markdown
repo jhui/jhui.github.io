@@ -6,11 +6,12 @@ title: “Deep learning without going down the rabbit holes. (Part 2)”
 excerpt: “Part 2 of the deep learning.”
 date: 2017-03-17 14:00:00
 ---
+**This is work in progress...**
 
-[Part 1 of the deep learning can be found here.](https://jhui.github.io/2017/03/18/Deep-learning-tutorial/)
+[Part 1 of the deep learning can be found here](https://jhui.github.io/2017/03/18/Deep-learning-tutorial/)
 ### Overfit
 
-In part one, we prepare a simple model with 4 layers of computational nodes. The solutions for $$ W $$ are not unique. Should we prefer one solution over the other or should we select smaller values for $$ W $$? Does part of the network cancel out each other?
+In part 1, we prepare a simple model with 4 layers of computation nodes. The solutions for $$ W $$ are not unique. Should we prefer one solution over the other, or should we select smaller values for $$ W $$? Are part of the network cancel out each other?
 
 ```
 Layer 1:
@@ -39,21 +40,20 @@ Layer 4:
        [ 0.07363663]])]
 ```
 
-This leads us to a very important topic. When we increase the complexity of our model, we risk the chance of including the noise in the model. If we do not have enough sample data to cancel out the noise, we make bad predictions. But, even without the noise, we can still have a bad model. Let’s walk through an example. We start with training samples with input values and output range from 0 to 20. How will you create an equation to link the data points below?
-
+This lead us to a very important topic.  When we increase the complexity of our model, we risk the chance of modeling the noise into the model. If we do not have enough sample data to cancel out the noise, we make bad predictions. But even without the noise, we can still have a bad model. Let's walk through an example. We start with training samples with input values and output range from 0 to 20. How will you create an equation to link the data points below.
 <div class="imgcap">
 <img src="/assets/dl/d1.png" style="border:none;width:70%">
 </div>
 
-One possibility is
+One possiblity is
 $$
 y = x
-$$ which is simple and just misses 2 on the left and 2 on the right.
+$$ which is simple and just miss 2 on the left and 2 on the right.
 <div class="imgcap">
 <img src="/assets/dl/d2.png" style="border:none;width:70%">
 </div>
 
-But, when we show it to our android, Pieter, who has a much higher computational capability than us, he models it as:
+But when we show it to our Android Pieter, which has much higher computation capability than us, he models it as:
 
 $$
 y = 1.9  \cdot 10^{-7}  x^9 - 1.6 \cdot 10^{-5} x^8 + 5.6 \cdot 10^{-4} x^7 - 0.01 x^6  + 0.11 x^5 - 0.63 x^4 + 1.9  x^3 - 2.19  x^2 + 0.9 x - 0.0082
@@ -63,20 +63,21 @@ $$
 <img src="/assets/dl/d3.png" style="border:none;width:70%">
 </div>
 
-Which model is correct? The answer is “don’t know”. Someone thinks the first one is simpler. Simple explanations deserve more credit. But, if you show it to a stock broker, they may say the second curve looks closer to the market closing price of a stock.
-Instead, we should ask whether our model is too “custom tailored” for the training data, and fails to make generalized predictions. The second curve fits the sample data completely, but will make poor predictions if the true model is a straight line.
+Which model is correct? The answer is "don't know". Someone thinks the first one is simplier, and simple explanation deserves more credits. But if you show it to a stock broker, they may say the second curve looks closer to the market closing price of a stock. 
+
+Instead, we should ask whether our model is too "custom tailor" for the training data, and fails to make generalized predictions. The second curve fits the sample data 100% but will make poor predictions if the true model is a straight line.
 
 #### Validation
-**Machine learning is about making predictions.** A model that has 100% accuracy in training can be a bad model. For that, we split our testing data into three parts: say 80% for training, 10% for validation and 10% for testing. During training, we use the training dataset to build models with different hyperparameters. We run those models with the validation dataset and pick the one with the highest accuracy. This strategy works if the validation dataset is similar to what we want to predict. But, as a last safeguard, we use the 10% testing data for a final insanity check. This testing data is for a final verification, but not for model selection. If your testing result is dramatically different from the validation result, the data should be randomized more, or more data should be collected.
+**Machine learning is about making predictions.** A model that has 100% accuracy in training can be a bad model. For that, we split our testing data into 3 parts: say 80% for training, 10% for validation and 10% for testing. During training, we use the training dataset to build models with different hyperparameters. We run those models with the validation dataset and pick the one with the highest accuracy. This strategy works if the validation dataset is similar to what we want to predict. But as a last safeguard, we use the 10% testing data for a final insanity check. This testing data is for one last verification but not for model selection. If your testing result is dramatically different from the validation result, we need to randomize the data more, or to collect more data.
 
 #### Visualization 
-We can train a model to create a boundary to separate the blue dots from the white dots below. A complex model can produce sophisticated boundaries compared to a low complexity model. In the yellow-circled area, if we miss the two left white dot samples in our training, a complex model may create an odd shaped boundary just to include this white dot. A low complexity model may produce a smoother surface, which by chance may include those two white dots. A complex model may mishandle outliers. For example, a complex model should ignore the white dot in the green circle just as a simple model does.
+We can train a model to create a boundary to separate the blue dots from the white dots below. A complex model can produce sophisticated boundaries comparing to a low complexity model. In the yellow circled area, if we miss the 2 left white dot samples in our training, a complex model may create an odd shape boundary just to include this white dot. A low complexity model may produce a smoother surface which by chance may include those 2 white dots. A complex model may mishandle outliers. For example, a complex model should ignore the white dot in the green circle like a simple model does.
 
 <div class="imgcap">
 <img src="/assets/dl/of.png" style="border:none;width:60%">
 </div>
 
-Recall from Pieter’s equation, our sample data can be modeled nicely with the following equations:
+Recall from Pieter's equation, our sample data can be model nicely with the following equations:
 
 $$
 y = 1.9  \cdot 10^{-7}  x^9 - 1.6 \cdot 10^{-5} x^8 + 5.6 \cdot 10^{-4} x^7 - 0.01 x^6  + 0.11 x^5 - 0.63 x^4 + 1.9  x^3 - 2.19  x^2 + 0.9 x - 0.0082
@@ -84,30 +85,29 @@ $$
 
 In fact, there are infinite answers using as many polynomial orders $$ x^k \dots $$
 
-Compared with the linear model $$ y = x $$, we realize that the
+Comparing with the linear model $$ y = x $$, we realize that the
 $$ || coefficient || $$ 
-in Pieter’s equation is higher. In addition, the higher the order, the harder it will be to train the model because we have a bigger search space for the parameters. In additional, some areas of the search space have a very steep gradient.
+in Pieter equation is higher. In additional, the higher the order, it will be harder to train the model because we have a bigger search space for the parameters. In additional, some areas of the search space have a very steep gradient.
 
-Let us create a polynomial model with order 5 to fit our sample data.
+Let us create a polynomal model with order 5 to fit our sample data.
 
 $$
 y = c_5 x^5 + c_4 x^4 + c_3 x^3 + c_2 x^2 + c_1 x + c_{0}
 $$
 
-We need more iterations to train this model and that will result is less accuracy than a model with order three.
-
+We need more iterations to train this model and result is less accurate than a model with order 3.
 <div class="imgcap">
 <img src="/assets/dl/p1.png" style="border:none;width:60%">
 </div>
 
-So why don’t we focus on making a model with the right complexity. In real life problems, a complex model is the only way to push accuracy to an acceptable level. Overfitting is unavoidable. You may even find it harder to train a model if the model is over simplified. A better solution is to introduce methods to reduce overfitting rather than make the model simpler. One simple solution is to add more sample data such that it is much harder to overfit. Here, double the sample data produces a model closer to a straight line. Unfortunately, labeling large training dataset in real problems can be expensive.
+So why don't we focus on making a model with the right complexity. In real life problems, a complex model is the only way to push accuracy to an acceptable level, and overfitting is un-avoidable. You may even find it harder to train a model if the model is over simplified. A better solution is to introduce methods to reduce overfitting rather than make the model simpiler. One simple solution is to add more sample data such that it is much harder to overfit. Here, double the sample data produces a model closer to a straight line. Unfortunately, labeling large training dataset in real problems can be expensive.
 <div class="imgcap">
 <img src="/assets/dl/p2.png" style="border:none;width:60%">
 </div>
 
 ### Regularization
 
-**Regularization punishes over-complexity.** As we have observed before, there are many solutions to a DL problem. In order to have a close fit, the coefficient of our training parameters will have larger magnitude. 
+**Regularization punishes over-complexity.** As we observe before, there are many solutions to a DL problem but in order to have a close fit, the coefficient of our training parameters will have larger magnitude. 
 
 $$
 ||c|| = \sqrt{(c_5^2 + c_3^2 + c_3^2 + c_2^2 + c_1^2 + c_{0}^2)}
@@ -119,20 +119,20 @@ $$
 J = \text{mean square error} + \lambda \cdot ||W||
 $$
 
-This is called **regularization**. Here, we introduce another hyperparameter called regularization factor $$ \lambda $$ to penalize overfitting.
+This is called **regularization**. Here we introduce another hyperparameter called regularization factor $$ \lambda $$ to penalize overfitting.
 
 In this example, we use a L2 norm (**L2 regularization**)
 $$ ||W|| $$
- as the penalty. 
+ as the penality. 
 
-After many repetitions of trial, we pick $$ \lambda $$ to be 1. With the regularization, our model makes better predictions.
+After many try and error, we pick $$ \lambda $$ to be 1. With the regularization, our model makes better predictions.
 
 <div class="imgcap">
 <img src="/assets/dl/p3.png" style="border:none;width:60%">
 </div>
 
-Like other hyperparameters for training, the process is trial and error. In fact, we use a relatively high $$ \lambda $$
-in this problem because there are only a few trainable parameters in the model. In real life problems, $$ \lambda $$ is lower because we are dealing with larger amounts of trainable parameters.
+Like other hyperparameters for training, the process is try and error. In fact we use a relative high $$ \lambda $$
+in this problem because there are only a few trainable parameters in the model. In real life problems, $$ \lambda $$ is lower because we are dealing with larger amount of trainable parameters.
 
 There is another interesting observation. The loss may jump up sharply and drop to the previous level after a few thousand iterations. 
 ```
@@ -174,14 +174,14 @@ Iteration11000 [34312.355686493174,
        [ -2.05131433e-04]])]
 ```
 
-When we build our model, we also try out a polynomial model with order of nine. Even after a long training, the model still makes poor predictions. We decide to start with a model with order of three and increase it gradually. This is another example to demonstrate why we should start with a simple model first. At seven, we find the model is too hard to train. The following is what a seven-order model predicts:
+When we build our model, we also try out a polynomial model with order of 9. Even after a long training, the model still makes poors predictions. We decide to start with a model with order of 3, and increase it gradually. This is another example to demonstrate why we should start with a simple model first. At 7, we find the model is too hard to train. The following is what a 7 order model predicts:
 <div class="imgcap">
 <img src="/assets/dl/p4.png" style="border:none;width:60%">
 </div>
 
 ### Diminishing and exploding gradient
 
-**Cannot train a mode if gradients explode or diminish.** From our previous example, we demonstrate the importantance of tracing the gradient at different layers to troubleshoot problems. In our online dating model, we log
+**Cannot train a mode if gradients explode or diminish.** From our previous example, we demonstrate how important to trace the gradient at different layer to troubleshoot problem. In our online dating model, we log 
 $$ || gradient || $$ 
 for each layers.
 
@@ -204,7 +204,7 @@ layer 2: gradient = 9.97983678446837
 layer 3: gradient = 7.053793667949491
 ```
 
-A couple of things we need to be monitored. Is the magnitude too high or too small? If the magnitude is too high at a later stage of training, the gradient descent is having problems finding the minimum.Some parameters may be oscillating. For example, when we have the scaling problem with the features (years of education and monthly income), the gradient is so huge that the model learns nothing.
+There are a couple things that we need to monitor. Are the magnitude too high or too small? If the magnitude is too high at later stage of training, the gradient descent is having problem to find the minima. Some parameters may be oscillating. For example, when we have the scaling problem with the features (year of education and monthly income), the gradient is so huge that the model learns nothing.
 ```
 iteration 0: ... dW1=1.183e+04 dW2=5.929e+06 ...
 iteration 200: ... dW1=4.458e+147 dW2=2.203e+150 ...
@@ -212,7 +212,7 @@ iteration 400: ... dW1=1.656e+291 dW2=8.184e+293 ...
 iteration 600: ... dW1=nan dW2=nan ...
 ```
 
-If the gradient is small, the network learns slowly. In the following log, the gradient diminishes from the right layer (layer 6) to the left layer (layer 0). Layer 0 is learning much slower than layer 6.
+ If gradient is small, the network learns slowly. In the following log, the gradient diminishing from the right layer (layer 6) to the left layer (layer 0). Layer 0 is learning much slower than layer 6.
 ```
 iteration 0: loss=553.5
 layer 0: gradient = 2.337481559834108e-05
@@ -240,7 +240,7 @@ layer 5: gradient = 4.064949014764085
 layer 6: gradient = 12.7578637206897
 ```
 
-A network with many deep layers may suffer from this gradient diminishing problem. Let’s come back to backpropagation to understand the problems.
+A network with many deep layers may suffer from this gradient diminishing problem. Let's come back to backpropagation to understand the problems.
 
 <div class="imgcap">
 <img src="/assets/dl/chain.png" style="border:none;width:70%">
@@ -256,15 +256,15 @@ $$
 \frac{\partial J}{\partial l_{1}} = \frac{\partial J}{\partial l_{10}} \frac{\partial l_{10}}{\partial l_{9}} \cdots  \frac{\partial l_{2}}{\partial l_{1}} 
 $$ 
 
-As indicated, the gradient descent depends on the loss $$ \frac{\partial J}{\partial l} $$ as well as the gradients $$ \frac{\partial l_{k+1}}{\partial l_{k}}, \frac{\partial l_{k}}{\partial l_{k-1}} \dots $$. Let's look at a sigmoid activation function. If $$ x $$ is higher than 5 or smaller than -5, the gradient is close to 0. Hence, in these regions the node learns close to nothing regardless of the loss.
+As indicated, the gradient descent depends on the loss $$ \frac{\partial J}{\partial l} $$ as well as the gradients $$ \frac{\partial l_{k+1}}{\partial l_{k}}, \frac{\partial l_{k}}{\partial l_{k-1}} \dots $$. Let's look at a sigmoid activation function. If $$ x $$ is higher than 5 or smaller than -5, the gradient is close to 0. Hence, in those region, the node learns close to nothing regardless of the loss.
 
 <div class="imgcap">
 <img src="/assets/dl/sigmoid2.png" style="border:none;width:80%">
 </div>
 
-We can visualize that the derivative of a sigmoid function behaves like a gate to the loss signal. If the input is > 5 or <-5, the derivative is so small, it blocks most of the loss signal to propagate backwards. So, nodes on its left sides learn little.
+We can visualize the derivative of a sigmoid function behaves like a gate to the loss signal. If the input is > 5 or <-5, the derviative is so small, it blocks most of the loss signal to propagage backward. So nodes on its left sides learn little. 
 
-In addition, the chain rule in the gradient descent has a multiplication effect. If we multiple numbers smaller than one, it diminishes quickly. On the contrary, if we multiple numbers greater than one, it explodes.
+In addition, the chain rule in the gradient descent has a multiplication effect. If we multiple numbers smaller than one, it diminishes quickly. On the contrary, if we multiple numbers greater than one, it explodes. 
 
 $$ 
 0.1 \cdot 0.1 \cdot 0.1 \cdot 0.1 \cdot 0.1 = 0.00001 
@@ -276,8 +276,7 @@ $$
 
 So if the network design and the initial parameters have some symmetry that output similar values,  the gradient may diminish quickly or explode. However, we cannot say with certainty on when and how it may happen because we lack a full understanding between the maths of gradient descent and a complex model. Nevertheless, the empirical data for deep network indicates it is a problem.
 
-Microsoft Resnet (2015) has 152 layers. Many natural language process (NLP) problems are vulnerable to diminishing and exploding gradients. How can they address the issue? This is the network design for Resnet. Instead of one long chain of nodes, a mechanism is built to bypass a layer to make learning faster. (Source Kaiming He, Xiangyu Zhang … etc)
-
+Microsoft Resnet (2015) has 152 layers. A lot of natural language process (NLP) problems are vulnerable to diminishing and exploding gradients. How can they address the issue? This is the network design for Resnet. Instead of one long chain of nodes, a mechanism is built to bypass a layer to make learning faster. (Source Kaiming He, Xiangyu Zhang ... etc)
 <div class="imgcap">
 <img src="/assets/dl/resnet.png" style="border:none;width:40%">
 </div>
@@ -286,20 +285,20 @@ Microsoft Resnet (2015) has 152 layers. Many natural language process (NLP) prob
 <img src="/assets/dl/resnet2.png" style="border:none;width:40%">
 </div>
 
-As always in DL, an idea often looks complicated in a diagram or an equation. In LSTM, the state of a cell is updated by
+As always in DL, an idea often looks far complicated in a diagram or a equation. In LSTM, the state of a cell is updated by
 
 $$
 C_t = gate_{forget} \cdot C_{t-1} + gate_{input} \cdot \tilde{C}
 $$
 
-Bypassing a layer can be visualized as feeding the input to the output directly $$ out = in $$. For $$ C_t $$ to be the same as $$ C_{t-1} $$, we need $$ gate_ {forget}=1 $$ and $$ gate_{input} = 0 $$. So one way to address the diminishing gradient problem is to design a different function used in the node.
+Bypassing a layer can visualize as feeding the input to the output directly $$ out = in $$. For $$ C_t $$ to be the same as $$ C_{t-1} $$, we need $$ gate_ {forget}=1 $$ and $$ gate_{input} = 0 $$. So one way to addressing the diminishing gradient problem is to design a different function used in the node.
 
 #### Gradient clipping
 To avoid gradient explosion, we can apply gradient clipping to restrict values of the gradient.
 
-Here, we use TensorFlow for coding. TensorFlow is an open source machine learning software from Google. In real life problems, Numpy is important in data preparation but people use a software package like TensorFlow to implement deep networks.
+Here, we use TensorFlow for coding. TensorFlow is an open source machine learning software from Google. In real life problem, Numpy is important in data preparation but people use a software package like TensorFlow to implement deep networks.
 
-Here we set the maximum clip norm to be 5.0.
+Here we set the maxium clip norm to be 5.0.
 ```python
 params = tf.trainable_variables()
 opt = tf.train.GradientDescentOptimizer(learning_rate)
@@ -308,7 +307,7 @@ for b in xrange(time_steps):
     clipped_gradients, norm = tf.clip_by_global_norm(gradients, 5.0)
 ```
 
-If the gradient exceeds 5.0, the gradients are rescaled according to the ratio $$ \frac{5}{\text{norm of the gradient}} $$. (L2 norm is the length of the vector.)
+If the gradient reaches above 5.0, the gradients are rescaled according to the ratio $$ \frac{5}{\text{norm of the gradient}} $$. (L2 norm is the length of the vector.)
 ```
 global_norm = sqrt(sum([l2norm(t)**2 for t in t_list]))
 t_list[i] * clip_norm / max(global_norm, clip_norm)
@@ -316,17 +315,17 @@ t_list[i] * clip_norm / max(global_norm, clip_norm)
 
 ### Classification
 
-A very important part of deep learning is classification. We have mentioned face detection and object recognition before. These are classification problems asking the question: what is this? For example, for Android Pieter to safely walk in a street, he needs to learn what is a traffic light, and is the pedestrian facing him or not. Classification applies to non-visual problems also. We classify whether an email is a spam or does it approve/disapprove a loan etc…
+A very important part of deep learning is classification. We mention face detection and object recognition before. These are classification problems asking the question: what is this? For example, for Android Pieter to safely walk in a street, he needs to learn what is a traffic light, is the pedestrian faceing him or not. Classification applies to non-visual problems also. We classify whether an email is a spam, or approve/disapprove a loan etc...
 
 <div class="imgcap">
 <img src="/assets/dl/street2.jpg" style="border:none;width:40%">
 </div>
 
-Like solving regression problem using DL, we use a deep network to compute a value. In classification, we call this **a score**. We apply a classifier to convert the score to a probability value. To train the network, the training dataset provides the answers to the classification (like classifying an image as a school bus/truck/airplane) which we call **true label**.
+Like solving regression problem using DL, we use a deep network to compute a value. In classification, we call this **a score**. We apply a classifier to convert the score to a probability value. To train the network, the training dataset provides the answers to the classification (like classify an image as a school bus/truck/airplane) which we call **true label**.
 
 #### Logistic function (sigmoid function)
 
-A score computed by a network takes on any value. A classifier squashes it to a probability value between 0 and 1. For a “yes” or “no” type of prediction (the email is/is not a spam, the drug test is positive/negative), we apply a **logistic function** (also called a sigmoid function) to the score value. If the output probability is lower than 0.5, we predict "no", otherwise we predict "yes".
+A score compute by a network takes on any value. A classifier squashes it to a probabilty value between 0 and 1. For a "yes" or "no" type of prediction (the email is/is not a spamm, the drug test is positive/negative), we apply a **logistic function** (also called a sigmoid function) to the score value. If the output probability is lower than 0.5, we predict "no", otherwise we predict "yes".
 
 $$
 p = \sigma(score) = \frac{1}{1 + e^{-score}}
@@ -339,7 +338,7 @@ $$
 
 #### Softmax classifier
 
-For many classification problems, we categorize an input to one of the many classes. For example, we can classify an image to one of the 100 possible object classes. We use softmax classifier to compute K probabilities, one per class for an input image (the combined probabilities remains 1).
+For many classification problem, we categorize an input to one of the many classes. For example, we can classify an image to one of the 100 possbile object classes. We use softmax classifier to compute K probabilites, one per class for an input image (the combined probabilities remains 1).
 
 <div class="imgcap">
 <img src="/assets/dl/deep_learner2.jpg" style="border:none;width:70%;">
@@ -351,7 +350,7 @@ $$
 p_i =  \frac{e^{score_i}}{\sum e^{score_c}} 
 $$
 
-For example, the school bus above may have a score of (3.2, 0.8, 0) for the class school bus, truck and airplane respectively. The probability for the corresponding class is
+For example, the school bus above may have a score of (3.2, 0.8, 0) for the class school bus, truck and airplane respectively. The probability for the correponding class is
 
 $$
 p_{\text{bus}} =  \frac{e^{3.2}}{ e^{3.2} + e^{0.8} + e^0} = 0.88
@@ -374,7 +373,7 @@ a = np.array([3.2, 0.8, 0])   # [ 0.88379809  0.08017635  0.03602556]
 print(softmax(a))
 ```
 
-To avoid the numerical stability problem caused by adding large exponential values, we subtract the inputs by its maximum. Adding or subtract a number from the input produces the same probabilities in softmax. 
+To avoid the numerical stability problem caused by adding large expotential values, we subract the inputs by its max. Adding or subtract a number from the input produces the same probabilities in softmax. 
 
 $$
 softmax(z) = \frac{e^{z_i -C}}{\sum e^{z_c  - C}} =  \frac{e^{-C} e^{z_i}}{e^{-C} \sum e^{z_c}} = \frac{e^{z_i}}{\sum e^{z_c}}
@@ -396,19 +395,19 @@ $$
 p = softmax(score) = \frac{e^{z_i}}{\sum e^{z_c}}
 $$
 
-That is why many literatures and APIs use the term logit for a score when softmax is used. However, more than one function that maps scores to probabilities and meet the definition of logits. Sigmoid function is one of them.
+That is why many literatures and APIs use the term logit for score when softmax is used. However, there are more than one function that map scores to probabiities and meet the definition of logits. Sigmoid function is one of them.
 
 > Softmax is the most common classifier among others.
 
 #### SVM classifier
 
-The Linear SVM classifier applies a linear classifier to map input to K scores, one per class. 
+Linear SVM classifer applies a linear classifier to map input to K scores, one per class. 
 
 $$
 \hat{y} = W x + b
 $$
 
-The class having the highest score will be the class prediction. To train the network, SVM loss is used. We will discuss SVM in the cost function section later. Its main objective is to create a boundary to separate classes with the largest possible margin.
+The class having the highest score will be the class prediction. To train the network, SVM loss is used. We will discuss the SVM in the cost function section later. Its main objective is to create a boundary to separate classes with the largest possible margin.
 
 <div class="imgcap">
 <img src="/assets/dl/SVM.png" style="border:none;width:40%">
@@ -418,10 +417,9 @@ The class having the highest score will be the class prediction. To train the ne
 
 > This section is about entropy in the information theory. Feel free to browse through it quickly.
 
-With a probabilistic model, we want a cost function that works with probability predictions. We need to take a break to address the information theory on entropy. It may be worth the time because entropy is heavily used in machine learning.
+With a probabilistic model, we want a cost function that works with probability predictions. We need to take a break to the information theory on entropy. It may worth the time because entropy is heavily used in machine learning, 
 
-For example, suppose we have a string “abcc”, “a” and “b” occurs 25% (0.25) of the time and “c” with 50% (0.5). Entropy defines the minimum amount of bits to represent the string. For the most frequent character, we use fewer bits to represent it.
-
+Say we have a string "abcc", "a" and "b" occurs 25% (0.25) of the time and "c" with 50% (0.5). Entropy defines the minimum amount of bits to represent the string. For the most frequent character, we use fewer bits to represent it.
 
 Entropy:
 
@@ -429,7 +427,7 @@ $$
 H(y) = \sum_i y_i \log \frac{1}{y_i} = -\sum_i y_i \log y_{i}
 $$
 
-The string "abcc" needs 1.5 bits per character. Here is our encoding scheme: 0 represents 'c', binary number 01 for 'a' and 10 for 'b'.  The average number of bit to represent the string is 
+The string "abcc" needs 1.5 bit per character. Here is our encoding scheme: 0 represents 'c', binary number 01 for 'a' and 10 for 'b'.  The average number of bit to represent the string is 
 
 $$ H = 0.25 \log(\frac{1}{0.25}) + 0.25 \log(\frac{1}{0.25})  + 0.5 \log(\frac{1}{0.5}) $$
 
@@ -439,9 +437,9 @@ $$ H  = 0.25 \cdot 2 \cdot 2 + 1 \cdot 0.5 = 1.5 $$
 b = -( 0.25 * math.log2(0.25) + 0.25 * math.log2(0.25) + 0.5 * math.log2(0.5) )   # 1.5 bit
 ```
 
-Entropy is also a measure of randomness (disorder). A fair dice, compared with a biased dice, has more randomness with even distribution of outcomes. A biased dice is more predictable and therefore less entropic. In entropy, randomness means more information since it requires more bits to represent the information. For example, it takes more time to describe the details inside a messy room.
+Entropy is also a measure of randomness (disorder). A fair dice, comparing with a biased dice, has more randomness with even distribution of outcomes. A biased dice is more predictable and therefore less entropy. In entropy, randomness means more information since it requires more bits to represent the information. For example, it takes more time to descibe the details inside a messy room.
 
-The entropy of a biased coin and a fair coin:
+The entropy of a biased coin and a fair coin.
 ```python
 b = -(1.0 * math.log2(1.0))                           # 0 : A 2-head coin
 b = -(0.5 * math.log2(0.5) + 0.5 * math.log2(0.5)  )  # 1 bit: 0 for head 1 for tail.
@@ -461,7 +459,7 @@ $$
 \mbox{KL}(y~||~\hat{y}) = \sum_i y_i \log \frac{1}{\hat{y}_i} - \sum_i y_i \log \frac{1}{y_i} = \sum_i y_i \log \frac{y_i}{\hat{y}_i}
 $$
 
-KL divergence is simply cross entropy - entropy: the extra bits needed to encode the information. In machine learning, KL Divergence estimates the difference between 2 distributions. Since $$y$$ is the true labels, which do not change, we can treat it as a constant. Therefore finding a model to minimize KL divergence (the difference between probability distribution (1, 0, 0) & (0.88, 0.08, 0.04)) is the same as minimize the cross entropy. We, therefore, compute cross entropy most of the time.
+KL divergence is simply cross entropy - entropy: the extra bits need to encode the information. In machine learning, KL Divergenence estimates the difference between 2 distributions. Since $$ y $$ is the true labels which does not change, we can treat it as a constant. Therefore finding a model to minimze KL divergence (the difference between probability distribution (1, 0, 0) & (0.88, 0.08, 0.04)) is the same as minimze the cross entropy. We, therefore, compute cross entropy most of the time.
 
 > Use cross entropy to optimize a model.
 
@@ -469,9 +467,9 @@ KL divergence is simply cross entropy - entropy: the extra bits needed to encode
 
 > MLE helps you to understand where the cost functions come from. It is beneficial to know but not required. 
 
-What is our objective in training a model? Our objective is to tune our trainable parameters so that the likelihood of our model is maximized (MLE). In plain terms, we want to train the parameters WW such that the prediction for the training data is close to the labels.
+What is our objective in training a model? Our objective is to tune our trainable parameters so that the likelihood of our model is maximized (MLE). In plain terms, we want to train the parameters $$ W $$ such that the prediction for the training data is as close to the labels.
 
-The likelihood is define as the probability of making a prediction to be the same as the true labels give the input $$X$$ and $$W$$. If we can find the $$ W $$ to maximize the likelihood for all training data, we find our model. In probability, we write it as
+The likelihood is define as the probabilty of making a prediction to be the same as the true labels give the input $$X$$ and $$W$$. If we can find the $$ W $$ to maximize the likelihood for all training data, we find our model. In probability, we write it as
 
 $$
 p(y | x, W) =  \prod_i p(y_{i} |  x_{i}, W)
@@ -485,9 +483,9 @@ $$
 
 which $$ y_{1} = (1, 0, 0) $$ in our example (100% for school bus and 0% chance otherwise), and $$ \hat{y_{1}} $$ = $$ (0.88, 0.08, 0.04)$$.
 
-#### Negative log-likelihood (NLL)
+#### Neagtive log-likelihood (NLL)
 
-We want to take the log of the MLE because we can treat the product terms as additions, which are easier. Log is a monotonic increase function, therefore, finding $$ x $$ to maximize $$ f(x) $$ is the same as find $$x$$ to maximize $$ \log(f(x))$$.
+We want to take the log of the MLE because we can treat the product terms as additions which is easier. Log is a monotonic increase function, and therefore, finding $$ x $$ to maximize $$ f(x) $$ is the same as find $$x$$ to maximize $$ \log(f(x))$$.
 
 Since probability is between 0 and 1 and its log is negative, we take a negative sign to make it positive. 
 
@@ -495,13 +493,13 @@ $$
 nll = - \log {p(y_{i} |  x_{i}, W)} = - \log{ \hat{y_{i}}}
 $$
 
-We call this the negative log-likelihood. To maximize the "maximum likelihood estimation" (MLE) is the same as minimizing the negative log-likelihood. 
+We call this the negative log-likelihood. To maximize the "maximum likelihood estimation" (MLE) is the same as minimizing the negative log-likihood. 
 
 **To find $$W $$, we minimize the negative log-likelihood**.
 
 #### Logistic loss
 
-As an exercise to demonstrate NLL, we derive the logistic loss from NLL.
+As an exercise to demonstrate NLL, we dervive the logistic loss (or even the mean square error) from NLL.
 
 In logistic regression, we compute the probability by
 
@@ -526,7 +524,7 @@ $$
 $$
 
 ### Cost function
-**Deep learning is about knowing your costs.** But, how do you define the cost? San Francisco is about 400 miles from Los Angeles. It costs about $60 for the gas. When you order food from a restaurant, they do not deliver to homes more than a few miles away. From their perspective, the cost grows exponentially with distance. So, there are many definitions of cost. In DL, our objective is not knowing the value of the cost, but finding a set of $$W$$ to make cost the lowest. Therefore, we have much flexibility for the cost function as long as we can find this set of $$W$$. There are objectives to punish outliners heavily. But, there are other important considerations including how easy and how fast can we optimize the cost function. Does the cost function solve the gradient diminishing problem?
+**Deep learning is knowing your cost.** But how to define the cost? San Francisco is about 400 miles from Los Angels. It costs about $60 for the gas. When you order food from a restaurant, they do not deliver to home more than a few miles away. From their prespective, the cost grows expotentially with distance. So there are many definitions of cost. In DL, our objective is not knowing the value of the cost, but find a set of $$W$$ to make cost the lowest. Therefore, we have many flexibility for the cost function as long as we can find this set of $$W$$. There are objectives to punish outliners heavily. But there are other important consideration include how easy and how fast to optimize the cost function. Does the cost function solve the gradient diminishing problem?
 
 #### Cross entropy cost function
 Apply NLL to find the cost function for a classification problem:
@@ -561,7 +559,7 @@ $$
 \text{nll} =  - \sum_n \log {\hat{y_{i}}}
 $$
 
-> Cross entropy cost function with softmax classifier is one of the most popular combinations to solve classification problems.
+> Cross entroy cost function with softmax classifier is one of the most popular combination to solve classification problems.
 
 #### SVM loss (also called Hinge loss or Max margin loss)
 
@@ -569,7 +567,7 @@ $$
 J = \sum_{j\neq y_i} \max(0, score_j - score_{y_i} + 1)
 $$
 
-If the margin between the score of a class and that of the true label is greater than -1, we add it to the cost.  For example, a score of (8, 14, 9.5, 10) with the last entry being the true label:
+If the margin between the score of a class and that of the true label is greater than -1, we add it to the cost.  For example, a score of (8, 14, 9.5, 10) with the last entry being the true label.
 
 $$
 J = max(0, 8 - 10 + 1) + max(0, 14 - 10 + 1) + max(0, 9.5 - 10 + 1)
@@ -591,33 +589,33 @@ $$
 \text{mean square error} = \frac{1}{N} \sum_i (h_i - y_{i})^2
 $$
 
-We have used MSE for regression problems before. We can use MSE in classification. But, in practice, we use cross entropy loss. Classification uses a classifier to squash values to a probability between 0 and 1. The mapping is not linear. For a sigmod classifier, a large range of values (less than -5 or greater than 5) is squeezed to 0 or 1. As shown before, those areas have to be close to 0 partial derivative. Based on the chain rule in the back propagation:
+We use MSE for regression problems before. We can use MSE in classification. But in practice, we use cross entropy loss. Classification uses a classifier to squash values to a probability between 0 and 1. The mapping is not linear. For a sigmod classfier, a large range of value (less than -5 or greater than 5) is squeezed to 0 or 1. As shown before, those areas have close to 0 partial derviative. Based on the chain rule in the back propagation 
 
 $$
 \frac{\partial J}{\partial score} = \frac{\partial J}{\partial out} \frac{\partial out}{\partial score}
 $$
 
-The loss signal is hard to propagate backward in those regions regardless of loss because However, there is a way to solve this issue. The partial derivative of the sigmoid function can be small but we can make 
+The loss signal is hard to propage backward in those region regardless of loss because $$ \frac{\partial out}{\partial score} \approx 0$$ . However, there is a way to solve this issue. The partial derviative of the sigmod function can be small but we can make 
 $$ 
 \frac{\partial J}{\partial out} 
 $$ 
-very large if the prediction is bad. The sigmoid function squashes values exponentially. We need a cost function that punishes bad predictions in the same scale to counter that. Squaring the error does not make it. Cross entropy punishes bad predictions exponentially. That is why the cross entropy cost function trains better than MSE in the classification problems.
+very large if the prediction is bad. The sigmod function squashes values expontentially. We need a cost function that punishes bad predictions in the same scale to counter that. Squaring the error does not make it. Cross entropy punishes bad prediction expotentially. That is why cross entropy cost function trains better than MSE in the classification problems.
 
-### Deep learning network (Fully-connected layers) CIFAR-10
+### Deep learing network (Fully-connected layers) CIFAR-10
 
-Let's put together everything to solve the CIFRA-10. CIFAR-10 is a computer vision dataset for object classification. It has 60,000 32x32 color images belonging to one of 10 object classes, with 6000 images per class.
+Let's put together everything to solve the CIFRA-10. CIFAR-10 is a computer vision dataset for object classification. It has 60,000 32x32 color images belong to one of 10 object classes, with 6000 images per class.
 
 (Source Alex Krizhevsky)
 <div class="imgcap">
 <img src="/assets/dl/cifra.png" style="border:none;width:40%">
 </div>
 
-We implement a fully connected network similar to the following to classify the CIFRA images to the corresponding classes. In our implementation, we allow the user to control how many hidden layers to create and the number of nodes per layer.
+We implement a fully connected network similar to the following to classify the CIFRA images to the corresponding classes. In our implmentation, we allow user to control how many hidden layers to create and the number of nodes per layer.
 <div class="imgcap">
 <img src="/assets/dl/fc_net.png" style="border:none;width:40%">
 </div>
 
-Let’s have some boiler plate code that we did before. This is the forward feed and the back propagation code for
+Let's have some boiler plate code that did before. This is the forward feed and the backpropagation code for 
 $$
 y = Wx + b
 $$
@@ -663,7 +661,7 @@ def affine_relu_backward(dout, cache):
     return dx, dw, db
 ```
 
-Our softmax function:
+Our softmax function
 ```python
 def softmax_loss(x, y):
     probs = np.exp(x - np.max(x, axis=1, keepdims=True))
@@ -676,7 +674,7 @@ def softmax_loss(x, y):
     return loss, dx
 ```
 
-We are creating a FullyConnectedNet network with 3 hidden layers with (100, 50, 25), nodes respectively.
+We are creating a FullyConnectedNet network with 3 hidden layers with (100, 50, 25) nodes respectively.
 ```python
 class FullyConnectedNet(object):
 
@@ -701,7 +699,7 @@ class FullyConnectedNet(object):
 model = FullyConnectedNet([100, 50, 25], weight_scale=5e-2, dtype=np.float64)			
 ```
 
-Here is the key part in computing the loss. We do a feed forward, use softmax to compute the loss, and compute all the gradients for the back propagation. The code should be familiar, and the comment should be self-explanatory.
+Here is the key part in computing the loss. We do a feed forward, use softmax to compute the lost, and compute all the gradients for the backpropagation. The code should be familiar, and the comment should be self-explanable.
 ```python
 def loss(self, X, y=None):
     X = X.astype(self.dtype)
@@ -767,7 +765,7 @@ solver = Solver(model, data,
 solver.train()
 ```
 
-And, the code of making predictions:
+And the code of making predictions:
 ```python
 X_test, y_test, X_val, y_val = data['X_test'], data['y_test'], data['X_val'], data['y_val']
 
@@ -779,10 +777,10 @@ print('Test set accuracy: ', (y_test_pred == y_test).mean())
 
 We will not show the code of preparing the data and the code performing the gradient descent. For the gradient descent, people use out of the box libraries to solve it. We will demonstrate it using TensorFlow in the next section.
 
-**Deep learning is about creating a model by learning from data**. We have solved a visual recognition problem that is otherwise difficult to solve. Instead of coding all the rules, which is impossible for the CIFRA problem, we create a FC network to learn the model from data. The accuracy of our model is reasonable using the FC layer, but easily beat by adding convolution layers. Hence, we will not spend more effort for now.
+**Deep learning is about create a model by learning from data**. We have solved a visual recognition problem that otherwise hard to solve. Instead of coding all the rules which is impossible for the CIFRA problem, we create a FC network to learn the model from data. The accuracy of our model is reasonable using the FC layer, but easily beat by adding convolution layers. Hence, we will not spend more effort for now.
 
 ### MNist
-One of the first deep learning datasets that most people learn is the MNist. It is a dataset for handwritten numbers from 0 to 9.
+One of the first deep learning dataset that most people learn is the MNist. It is a dataset for handwritten numbers from 0 to 9.
 
 <div class="imgcap">
 <img src="/assets/dl/mnist.gif" style="border:none;width:40%">
@@ -790,7 +788,7 @@ One of the first deep learning datasets that most people learn is the MNist. It 
 
 We will show the TensorFlow code to solve the problem with 98%+ accuracy.
 
-Unlike the code with numpy, TensorFlow constructs a graph describing the network first. Here, we declare a placeholder for our input features (the pixel values of the image) and the labels, which will be provided later in the training. 
+Unlike the code with numpy, TensorFlow constructs a graph describing the network first. Here we declare a placeholder for our input features (the pixel values of the image) and the ture labels which will be provided later in the training. 
 ```python
 x = tf.placeholder(tf.float32, [None, 784])
 labels = tf.placeholder(tf.float32, [None, 10])  # True label.
@@ -807,7 +805,7 @@ W3 = tf.Variable(tf.truncated_normal([100, 10], stddev=np.sqrt(2.0 / 100)))
 b3 = tf.Variable(tf.zeros([10]))
 ```
 
-We define 2 hidden layers. Each has a matrix multiplication operation followed by ReLU. Then, another operation multiplies it with a matrix. Note, so far we are just making declarations, no variables are initialized and no matrix multiplication is done.
+We define 2 hidden layers. Each has a matrix multiplication operation followed by ReLU. Then another operation multiplies it with a matrix. Note, so far we are just making declaration, no variables are initialized and no matrix multiplication is done.
 ```python
 ### Building a model
 # Create a fully connected network with 2 hidden layers
@@ -817,7 +815,7 @@ h2 = tf.nn.relu(tf.matmul(h1, W2) + b2)
 y = tf.matmul(h2, W3) + b3
 ```
 
-Now, we define our loss function including a cross entropy and the regularization penalty for our $$ W $$. We use Adam as an optimizer for the gradient descent.  We also have a placeholder for $$ \lambda $$ so a user can supply it later to control the regularization.
+Now we define our loss function including a cross entropy and the regularization penalty for our $$ W $$. We use Adam as an optimizer for the gradient descent.  We also have a placeholder for $$ \lambda $$ so user can supply it later to control the regularization.
 ```
 # Cost function & optimizer
 # Use a cross entropy cost fuction with a L2 regularization.
@@ -828,7 +826,7 @@ cross_entropy = tf.reduce_mean(
 train_step = tf.train.AdamOptimizer(learning_rate=0.001).minimize(cross_entropy)
 ```
 
-We created a session to execute the graph and train the network for 10,000 iterations. For each iteration, we retrieve the next batch of sample data, and run the operation "train_step" (the Adam optimizer). TensorFlow runs the operation as well as all operations that it depends on. 
+We create a session to execute the graph and train the network for 10,000 iteratons. For each iteration, we retrieve the next batch of sample data, and run the operation "train_step" (the Adam optimizer). TensorFlow runs the operation as well as all operations that it depends on. 
 ```python
 # Create an operation to initialize the variable
 init = tf.global_variables_initializer()
@@ -841,7 +839,7 @@ with tf.Session() as sess:
       sess.run(train_step, feed_dict={x: batch_xs, labels: batch_ys, lmbda:5e-5})
 ```
 
-Once the training is complete, we create 2 more operations, the correct_prediction compare the predictions with the true labels. “Accuracy” computes how many predictions are correct.
+Once the training is complete, we create 2 more operations, the correct_prediction compare the predictions with the true lables. "accuracy" computes how many predictions are correct.
 ```python
 with tf.Session() as sess:
     ...
@@ -851,7 +849,7 @@ with tf.Session() as sess:
     accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 ```
 
-We run the accuracy operation with our testing dataset and print out the results.
+We run the accuracy operation with our testing dataset and print out the result.
 ```python
 with tf.Session() as sess:
     ...
@@ -860,7 +858,7 @@ with tf.Session() as sess:
                                           labels: mnist.test.labels}))
 ```
 
-For completeness, here is the code listing. This file depends on "tensorflow.examples.tutorials.mnist" which is used to read the MNist data.
+For completness, here is the code listing. This file depends on "tensorflow.examples.tutorials.mnist" which is used to read the MNist data.
 ```python
 import argparse
 import sys
@@ -929,11 +927,11 @@ if __name__ == '__main__':
 
 ```
 
-This code demonstrates the power to solve a complex visual problem with few lines of DL code. With 10,000 iterations, we achieved accuracy above 98%.
+This code demonstrates how powerful to solve a complex visual problem with few lines of DL code. With 10,000 iterations, we achieve an accuracy above 98%.
 
 ### Regularization
 
-We apply regularization to overcome overfit. The idea is to train a model that makes generalized predictions. It forces the model not to memorize the small bits of an individual sample that is not part of the generalized features. Part of the overfit problem is that the model is too powerful. We can reduce the complexity of the model by reducing the number of features: remove features that can be directly or indirectly derived by others. We can also eliminate some layers or switch to a design that explores better on the locality of the information. For example, we use CNN for images to explore the spatial locality and LSTM for NPL. Overfit can be overcome by adding more training data also.
+We apply regularization to overcome overfit. The idea is to train a model that makes generalized predictions. It forces the model not to memorize the small bits of an individual sample that is not part of the genearlized features. Part of the overfit problem is that the model is too powerful. We can reduce the complexity of the model by reducing the number of features: remove features that can be direct or indirect derived by others. We can also eliminate some layers, or switch to a design that explores better on the locality of the information. For example, we use CNN for images to explore the spatial locality and LSTM for NPL. Overfit can be overcomed by adding more training data also.
 
 #### L0, L1, L2 regularization
 
@@ -961,18 +959,18 @@ $$
 || W ||_1 = \sum |w|
 $$
 
-L0, L1 and L2 regularization penalize on WW but on different extents. L2 puts the highest attention (or penalty) on large parameters and L0 pays attention on non-zero parameters. L0 penalizes non-zero parameters, which forces more parameters to be 0, i.e. increase the sparsity of the parameters. L2 focuses on large parameters; therefore, we have more non-zero parameters. L1 regularization also rewards sparsity. Sparsity of parameters effectively reduces the features in making predictions. Sometimes it is used as feature selections. L2 is more popular but some problem domains may prefer higher sparsity.
+L0, L1 and L2 regularization penalize on $$ W $$ but on different extends. L2 puts the highest attention (or penalty) on large parameters and L0 pays attention on non-zero prameters.  L0 penalizes non-zero parameters which forces more parameters to be 0, i.e. increase the sparsity of the parameters. L2 focuses on large parameters, and therefore have more non-zero parameters. L1 regularization also rewards sparsity. Sparsity of parameters effectively reduces the features in making prediction. Sometimes it is used as feature selections. L2 is more popular but some problem domains may prefer higher sparsity.
 
 
 #### Dropout
-A non-intuitive regularization method called dropout discourages weights with large values. To avoid overfit, we may not want some weights to be too dominating. By randomly dropping connections from one layer to the other layer, we force the network not to depend too much on a single node and try to learn from many different ways. This has an effect similar to forcing the weights smaller.
+A non-intuitive regularization method is called dropout. L2 regularization discourages weights with large values. To avoid overfit, we may not want some weights to be too dominating. By randomly dropping connections from one layer to the other layer, we force the network not to depend too much on a single node and try to learn from many different ways. This has an effect similar to forcing the weights smaller.
 
 In the following diagram, for each iteration, we randomly drop off the connection during training.
 <div class="imgcap">
 <img src="/assets/dl/drop.png" style="border:none;width:40%">
 </div>
 
-Here is the code to implement the dropout for the forward feed and back propagation. In the forward feed, it takes a parameter on the percentage of nodes to be dropout. Notice that, dropout applies to training only.
+Here is the code to implement the dropout for the forward feed and backpropagation. In the forward feed, it takes a parameter on the percentage of nodes to be dropout. Notice that, dropout applies to training only.
 ```python
 def dropout_forward(x, dropout_param):
   p, mode = dropout_param['p'], dropout_param['mode']
@@ -1008,7 +1006,7 @@ def dropout_backward(dout, cache):
 
 ### Weight initialization
 
-Weight initialization is one important area in implementing a network. If you start the parameters incorrectly, you may not even beat the random odd of guessing. The initial input to the activation function (or non-linear functions) should not fall into its low partial derivative areas. Otherwise, the network learns slowly. Sometimes those parameters are accidentally initialized with 0s. This is close to turning every neuron dead and not able to backpropagate the loss correctly. In fact, you do not want the output values for the next layer to look the same. Some non-symmetry is preferable, otherwise, the loss will evenly distribute back to previous layers. To introduce such non-symmetry, we initialize those parameters with Gaussian distribution with mean = 0. But should we use $$ \sigma = 1$$ 
+Weight initialization is one important area in implementing a network. If you start the parameters incorrectly, you may not even beat the random odd of guessing. The initial input to the activation function (or non-linear functions) should not fall into its low partial derivative areas. Otherwise, the network learns slowly. Sometimes those parameters are accidentally initialized with 0s. This is close to turning every neuron dead, and not able to backpropagate the loss correctly. In fact, you do not want the output values to the next layer to look the same. Some non-symmetry is preferable, otherwise, the loss will evenly distribute back to previous layers. To introduce such non-symmetry, we initialize those parameters with gaussian distribution with mean = 0.  But should we use $$ \sigma = 1$$ 
 
 The value to the activation is produced by $$ z = Wx + b $$. We will demonstrate that if $$ W $$ has $$ \sigma = 1$$, $$z$$ will be much flatter with high variance value.
 
@@ -1020,7 +1018,7 @@ $$ \sigma = 0.998 $$
 <img src="/assets/dl/var1.png" style="border:none;width:40%">
 </div>
 
-We generate 20,000 values of $$ y $$ using our familiar formula with 1000 of input $$x$$ in which half of them are 1 and another half are 0:
+We generate 20,000 values of $$ y $$ using our familiar formula with 1000 of input $$x$$ which half of them are 1 and another half are 0:
 
 $$
 y = Wx + b
@@ -1040,7 +1038,7 @@ The plot has different scales for the x and y-dimension. If we decrease the scal
 <img src="/assets/dl/var3.png" style="border:none;width:40%">
 </div>
 
-The plot is flat. i.e. it is more uniform. Therefore to generate an input to the activation function with a Gaussian distribution of mean = 0 and $$\sigma = 1$$, we need to take into the account of the number of inputs to the node. Hence, we use the following formula for the variance:
+The plot is flat. i.e. it is more uniform. Therefore to generate an input to the activation function with a gaussian distribution of mean = 0 and $$\sigma = 1$$, we need to take into the account of the number of inputs to the node. Hence we use the following formula for the variance:
 
 $$
 \frac {2}{\sqrt{\text{number of input}}}
@@ -1050,22 +1048,22 @@ Note: Some research paper indicates using 2 as numerator has better performance 
 
 ### Training parameters
 
-In previous sections, we discuss many problems in training a network and how bad learning rate produces bad predictions. We now come back to the gradient descent and discuss different methods for updating the trainable parameters. This is not an easy topic because the shape of the cost function can be very different in different problem domains. Fortunately, most DL software libraries provide many different optimization methods. We will cover a couple of core concepts here.
+In previous sections, we discuss many problems in training a network, and how bad learning rate produces bad predictions. We now come back to the gradient descent and discuss different methods for updating the trainable parameters. This is not an easy topic because the shape of the cost function can be very different in different problem domains. Fortunately, most DL software libraries provide many different optimization methods. We will cover a couple core concepts here.
 
-#### Rate of decay
+#### Rate decay
 To maintain a constant learning rate is not be a good idea. It is like using a saw to finish the last part of making a table. One common way to reduce the rate is after some initial phase, we start to decay the learning rate for every N iterations. For example, after 10,000 iterations, the learning rate will be decay by the formula below for every 20,000 iterations:
 
 $$
 \text{learning rate} = \text{learning rate} \cdot \text{decay factor}
 $$
 
-where decay factor is another hyperparameter say 0.95.
+which decay factor is another hyperparameter say 0.95.
 
 #### Momentum update
-We mentioned that gradient descent is like dropping a ball in a bowl. But our gradient descent adjusts the parameters by the gradient of the current location of $$ W $$ only. In the physical world, the movement of the ball not only depends on the location, but also the velocity of the ball. We could adjust $$ W $$ by the gradient and its history rather than throw all the information away. If we recall the stochastic gradient descent, it follows a zip zap pattern rather than a smooth curve. With this historical information, we can make stochastic gradient or mini-batch gradient to behave more smoothly.
+We mention gradient descent is like dropping a ball in a bowl. But our gradient descent adjusts the parameters by the gradient of the current location of $$ W $$ only. In the physical world, the movement of the ball depends on the location but also the velocity of the ball. We could adjust $$ W $$ by the gradient and its history rather than throw all the information away. If we recall the stochastic gradient descent, it follows a zip zap pattern rather than a smooth curve. With this history information, we can make stochastic gradient or mini-batch gradient to behave more smoothly.
 
-Here we introduce a variable $$v$$, which behaves like the velocity (momentum) in the physical word. In each iteration, we update $$ v $$ by keeping a portion of v minus the change caused by the gradient at that location. $$ mu $$ controls how much history information to keep, and this will be another hyperparameter. Researchers may describe $$ mu_ $$ 
-as a fraction. If you recall the parameter oscillation problem before, this actually becomes a damper to stop the oscillations. Momentum based gradient descent often has a smoother path and settles to a minimal closer and faster.
+Here we introduce a variable $$v$$ which behaves like the velocity (momentum) in the physical word. In each iteration, we update $$ v $$ by keeping a portion of v minus the change caused by the gradient at that location. $$ mu $$ controls how much history information to keep, and this will be another hyperparameter. Researchers may describe $$ mu_ $$ 
+as a fraction. If you recall the parameter oscillation problem before, this actually becomes a damper to stop the oscillations. Momentum based gradient descent often have a smoother path and settle to a minima closer and faster.
 
 ```python
 v = mu * v - learning_rate * dw
@@ -1073,7 +1071,7 @@ w += v
 ```
 
 #### Adagrad
- If the input features are not scaled correctly, it is impossible to find the right learning rate that works for all the features. This indicates the learning rate needed to self-adapt for each tunable parameter. One way to do it is to remember how much change has made to a specific $$ W_i $$. We will reduce the parameter of change if that parameter has been changed frequently. This will absolutely help the oscillation problem because it acts like a damper again. In Adagrad, it was done slightly different by allowing the rate of change to drop inversely by the L2 norm of all the previous gradients $$ dw_i $$.
+ If the input features are not scaled correctly, it is impossible to find the right learning rate that works for all the features. This indicates the learning rate needs to self-adapt for each tunable parameter. One way to do it is to remember how much change has made to a specific $$ W_i $$. We will reduce the parameter change if that parameter has been changed frequently. This will absolutely help the oscillation problem because it acts like a damper again. In Adagrad, it was done slightly difference by allowing the rate change to drop inversely by the L2 norm of all the previous gradients $$ dw_i $$.
  
 ```python
 cache += dw**2
@@ -1082,7 +1080,7 @@ w += - learning_rate * dw / (np.sqrt(cache) + 1e-7) # add a tiny value to avoid 
 
 #### RMSprop
 
-RMSprop uses a similar concept with the following formula and the hyperparameter decay_rate to control how much previous histories you keep.
+RMSprop uses a similar concepts with the following formula and the hyperparameter decay_rate to control how much previous histories yo keep.
 ```python
 cache = decay_rate * cache + (1 - decay_rate) * dw**2
 w += - learning_rate * dx / (np.sqrt(cache) + 1e-7)
@@ -1120,7 +1118,7 @@ with tf.Session(graph=graph) as session:
 
 #### Visualization
 
-Here are some animations produced by Alec Radford in demonstrating how the gradient descent behaves for different algorithms. Regular gradient descent (red) learns the slowest and different algorithms have different descending patterns and speed. One point that is more interesting is how some algorithms overshoot the minimal or oscillate around it.
+Here is some animations produced by Alec Radford in demonstrating how the gradient descent behaves for different algorithms. Regular gradient desent (red) learns the slowest and different algorithms have different descending patterns and speed. One more interesting point is how some algorithms overshoot the minima or oscailate around it.
 
 <div class="imgcap">
 <img src="/assets/dl/a1.gif" style="border:none;width:70%">
@@ -1132,7 +1130,7 @@ Here are some animations produced by Alec Radford in demonstrating how the gradi
 
 ### Feature Scaling (normalization)
 
-As we find out, we want the feature input to the network to be scaled correctly (normalized). If the features do not have the proper scale, it will be much more difficult for the gradient descent to work. The training parameters may oscillate.
+As we find out, we want the feature input to the network to be scaled correctly (normalized). If the features do not have the proper scale, it will be much harder for the gradient descent to work. The training parameters may oscaillate.
 
 <div class="imgcap">
 <img src="/assets/dl/gauss_s.jpg" style="border:none;width:40%">
@@ -1149,23 +1147,23 @@ $$
 z = \frac{x - \mu}{\sigma}
 $$
 
-For images, we normalize every pixel independently. We compute a mean and a variance at each pixel location for the entire training dataset. Therefore, for an image with NxN pixels, we use NxN means and variances to normalize the image.
+For image, we normalize every pixels independently. We compute a mean and a variance at each pixel location for the whole training dataset. Therefore, for an image with NxN pixels, we use NxN means and variances to normalize the image.
 
 $$
 z_{ij} = \frac{x_{ij} - \mu_{ij}}{\sigma{ij}}
 $$
 
-In practice, we do not read all the training data at once to compute the mean or variance. We compute a running mean during the training. Here is the formula for the running mean:
+In practice, we do not read all the trainning data at once to compute the mean or variance. We compute a running mean during the training. Here is the formula for the running mean:
 
 $$
 \mu_{n} = \mu_{n-1}  + k \cdot (x_{i}-\mu_{n-1})
 $$
 
-where $$k$$ is a small constant.
+which $$k$$ is a small constant.
 
 #### Whitening
 
-In machine learning, we prefer features to be unrelated. For example, in a dating application, a person may prefer a tall person but not too thin. However, weight and height are co-related. A taller person is heavier than a shorter person on average. Re-scaling these features independently can only tell whether a person is lighter than average in the population, but not whether the person is thin. Weigth increases with height:
+In machine learning, we prefer features to be un-related. For example, in a dating application, a person may prefer a tall person but not too thin. However, weight and heigth are co-related. A taller person is heavier than a shorter person in average. Re-scaling these features independently can only tell whether a person is lighter than average in the population, but not whether the person is thin. Weigth increases with height:
 <div class="imgcap">
 <img src="/assets/dl/gauss.jpg" style="border:none;">
 </div>
@@ -1183,7 +1181,7 @@ $$
 
 Which $$ E $$ is the expected value.
 
-Consider 2 data samples (10, 20) and (32, 52). 
+Consider 2 data samples : (10, 20) and (32, 52). 
 The mean of $$ x_1 $$ will be $$ \mu_1 = \frac {10+32}{2} = 21 $$ and $$ \mu_2 = 36 $$
 
 The expected value of the first element in the second row will be:
@@ -1198,7 +1196,7 @@ From the covariance matrix $$ \sum $$, we find a matrix $$W$$ by $$ \sum $$ to c
 <img src="/assets/dl/gaussf.jpg" style="border:none;width:50%">
 </div>
 
-This sounds complicated, but can be done by Numpy linear algebra library.
+This sounds complicated but can be done by numpy linear algebra library
 ```python
 X -= np.mean(X, axis = 0)    
 cov = np.dot(X.T, X) / X.shape[0]
@@ -1214,7 +1212,7 @@ Xwhite = Xdecorelate / np.sqrt(S + 1e-5)
 
 We have emphasized so many times the benefits of having features with mean = 0 and $$ \sigma=1 $$ 
 
-But, why do we stop at the input layer only. Batch normalization renormalizes a layer output. For example, we renormalized the output of the linear layer before feeding it into the ReLU.
+But why we only stop at the input layer only. Batch normalization re-normalizes a layer output. For example,  we re-normalizes the output of the linear layer before feeding it into the ReLU.
 ```python
 def affine_batchnorm_relu_forward(x, w, b, gamma, beta, bn_param):
   h, h_cache = affine_forward(x, w, b)
@@ -1230,13 +1228,13 @@ $$
 z = \frac{x - \mu}{\sigma}
 $$
 
-We use the mean and variance computed from the current mini-batch samples. We then feed the output to a linear equation with the trainable scalar values $$ \gamma $$ and $$ \beta$$ (1 pair for each normalized layer). 
+which during the training, we use the mean and variance computed from the current mini-batch samples. We then feed the output to a linear equation with the trainable scalar values $$ \gamma $$ and $$ \beta$$ (1 pair for each normalized layer). 
 
 $$
 out = \gamma z + \beta
 $$
 
-If $$ gamma = \sigma $$ and $$ \beta = \mu $$, we can see the normalization can be undone.
+If $$ gamma = \sigma $$ and $$ \beta = \mu $$, we can see the normalization can be undo.
 
 ```python
 def batchnorm_forward(x, gamma, beta, bn_param):
@@ -1264,13 +1262,13 @@ out = gamma * xhat + beta
 
 ### Hyperparameter tuning
 
-Because the model is such a black box to us in real life problems, the hyperparameter tuning is usually a try and error. Some parameters are dependent on each other and cannot tune separately. Sometimes the relationship is subtle. For example, the regularization rate changes the shape of the cost function. Therefore it impacts how we tune the learning rate. We can create a mesh of values to be used for tuning. For example, with learning rates of (1e-1, 1e-2, … 1e-8) and regularization of (1e-3, 1e-4, .. 1e-6), we have a potential of 8x4 combinations to test ( (1e-1, 1e-3), (1e-1, 1e-3), …, (1e-8, 1e-5), (1e-8, 1e-6) ). We may not want to use an exactly rectangular shape of a mesh. For example, we may want to slight deviations at each mesh point with the hope that some irregularity may help us to explore more information.
+Because the model is such a black box to us in real life problems, the hyperparameter tuning is usually a try and error. Some parameters are dependent on each other and cannot tune separately. Sometimes the relationship is subtle. For example, the regularization rate changes the shape of the cost function, and therefore impacts how we tune the learning rate. We can create a mesh of values to be used for tuning. For example, with learning rates of (1e-1, 1e-2, ... 1e-8) and regularization of (1e-3, 1e-4, .. 1e-6), we have a potential of 8x4 combinations to test ( (1e-1, 1e-3), (1e-1, 1e-3), ..., (1e-8, 1e-5), (1e-8, 1e-6) ). We may not want to use an exactly rectangular shape of a mesh. For example, we may want to slightly deviate at each mesh point with the hope that some irregularity may help us to explore more information.
 
 <div class="imgcap">
 <img src="/assets/dl/mesh.png" style="border:none;width:60%">
 </div>
 
-> Start tuning parameters from coarse grain with fewer iterations before fine tuning.
+> Start tune parameters from coarse grain with fewer iterations before fine tuning.
 
 ### Troubleshooting
 
@@ -1279,8 +1277,8 @@ Many places can go wrong when training a deep network. Here are some simple tips
 	* At the beginning, test with non-random data.
 * Compare the backpropagation result with the naive gradient check.
 * Always start with a simple network that works. 
-	* Increasing accuracy should not be the first priority.
-	* Handling multiple challenges in a complex network is not the way to go. Issues grow exponentially in DL.
+	* Push accuracy up should not be the first priority.
+	* Handle multiple battle fronts in a complex network is not the way to go. Issues grow exponentially in DL.
 * Create simple scenarios to verify the network:
 	* Train with a small dataset with few iterations.
 	* Compare the loss/accuracy value with the corresponding value of a random guess. 
@@ -1294,24 +1292,24 @@ Many places can go wrong when training a deep network. Here are some simple tips
 * Always keep track of the shape of the data and document it in the code.
 * Display and verify some training samples and the predictions.
 * Plot out accuracy between validation and training to identify overfit issues.
-* Plot activation/gradient histograms for all layers. If initialization is not done correctly, many dead or saturated nodes will be see.
+* Plot activation/gradient histograms for all layers. If initialization is not done correctly, there should be a lot of dead/saturated nodes.
 * For visualization problem, try to display the filter in an early layer and the activations.
 
 ### Convolution Net (CNN) & Long short term memory (LSTM)
 FC network is rarely used alone. Exploring all possible connections among nodes in the previous layer provides a complex model that is wasteful with small returns. A lot of information is localized. For an image, we want to extract features from neighboring pixels. CNN applies filters to explore localized features, and then apply FC to make predictions. LSTM applies time feedback loop to extract time sequence information. CNN & LSTM make changes to the design of a computation node and how it is connected. The core part of DL remains the same and learning CNN after FC is easier since the foundation is the same. Nevertheless, you will go nowhere in learning DL without CNN and/or LSTM. Hence, we have provided separate tutorials on both CNN and LSTM. Fortunately, with most DL techniques already discussed, the tutorials on both CNN and LSTM are much shorter.
 
-### Data augmentation
+### Data argumentation
 
-We have focused on the mechanics of the DL. One significant improvement for network training is to have more data. This avoids overfitting and has better coverage of your feature spaces. However, getting labeled samples can be expensive. One alternative is data augmentation. For example, for visual recognition, we can flip the image, slightly rotate or skew the images with software libraries. This helps us to avoid overfitting and produces generalized predictions invariant of the spatial location of the objects. Some research may even expand further by allowing some data without labels to be used as training data if they produce a very high score with the model.
+We have focused on the mechanics of the DL. One significant improvement for network training is to have more data. This avoids overfitting and has better coverage of your feature spaces. However, getting labeled samples can be expensive. One alternative is data argumentation. For example, for visual recognition, we can flip the image, slightly rotate or skew the images with software libraries. This helps us to avoid overfitting and produces generalized predictions invariant of the spatial location of the objects. Some research may even expand further by allowing some data without labels to be used as training data if they produce a very high score with the model.
 
-> Very simple effort to augment your data can have a significant impact on the training.
+> Very simple effort to argument your data can have a significant impact on the training.
 
 ### Model ensembles
 
-So far, we try to find the best models. In machine learning, we can take a vote from different decision trees to make the final prediction. This is based on the assumption that mistakes are localized. There is a smaller chance for 2 different models to make the same mistake. In DL, each training starts with random guesses and therefore the models usually are not unique.  We can pick the best models after training the networks multiple times. We can vote from different models to make the final predictions. This requires us to run the program multiple times, and can be prohibitively expensive. The alternative, we can run the training once and pick the best models during the latter phase of the training. We can have one vote per model, taking an average or use weights based on the confidence level of each prediction.
+So far, we try to find the best models. In machine learning, we can take a vote from different decision trees to make the final prediction. This base on the assumption that mistakes can be localized. There is a smaller chance for 2 different models to make the same mistake. In DL, each training starts with random guesses and therefore the models usually are not unique.  We can pick the best models after training the networks multiple times. We can vote from different models to make the final predictions. This requires us to run the program multiple times, and can be prohibitively expensive. The alternative, we can run the training once and pick the best models during the latter phase of the training. We can have one vote per model, taking an average or use weights based on the confidence level of each prediction.
 
 ### Credits
-For the CIFRA 10 example, we start with assignment 2 in the Stanford class "CS231n Convolutional Neural Networks for Visual Recognition". We start with some skeleton codes provided by the assignment and put it into our code to complete the assignment.
+For the CIFRA 10 example, we start with assignment 2 in the Stanford class "CS231n Convolutional Neural Networks for Visual Recognition". We start with some skeleton codes provided by the assignment and put into our code to complete the assignment.
 
 
 
