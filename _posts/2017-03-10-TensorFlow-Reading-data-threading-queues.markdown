@@ -10,10 +10,10 @@ date: 2017-03-08 14:00:00
 Before we learn how to read data into a TensorFlow programing through a pipeline, some basic understanding of the TensorFlow thread and queues are helpful but not required. 
 
 ### Threading
-TensorFlow use a coordinator *tf.train.Coordinator* for thread coordination. The code below:
+TensorFlow uses a coordinator *tf.train.Coordinator* for thread coordination. The code below:
 * Start 4 threads
 	* Each thread print out a hello message and then sleep for a random amount of time.
-	* When the thread wake up from sleep, it print another message.
+	* When the thread wakes up from sleep, it prints another message.
 * Whenever a thread print out 4 messages already, it will ask the coordinator to request all other threads to stop.
  
 ```python
@@ -83,7 +83,7 @@ def loop(coord):
 
 * For each thread, exit when it was told by the coordinator *coord.should_stop*.
 * Print out a hello message and sleep for some random of time.
-* Whenever a thread has print the message 4 times, it will ask the coordinator to request all other threads to stop.
+* Whenever a thread has printed the message 4 times, it will ask the coordinator to request all other threads to stop.
 
 ### Queue
 Data reading and preparation may take time. TensorFlow provide a queueing mechanism to allow multiple threads to enqueue data onto the same queue. The general steps are:
@@ -91,7 +91,7 @@ Data reading and preparation may take time. TensorFlow provide a queueing mechan
 * Define op node(s) to enqueue data.
 * Define an op node to dequeue data.
 * Create a QueueRunner which start multiple enqueue later.
-* Create a TensorFlow session and an coordinator.
+* Create a TensorFlow session and a coordinator.
 	* Have the QueueRunner to launch multiple enqueue node threads.
 	* Run the dequeue op
 	* Wait until the coordinator to call it quit.
@@ -151,7 +151,7 @@ Define a queue which each row contains 2 entries: one with 4 elements and the ot
 ```python
 queue = tf.FIFOQueue(capacity=50, dtypes=[tf.float32, tf.int32], shapes=[[4], []])
 ```
-Besides a FIFO queue, TensorFlow provides other queue like Priority Queue *tf.PriorityQueue* and Random shuffle queue *tf.RandomShuffleQueue*.
+Besides a FIFO queue, TensorFlow provides other queues like Priority Queue *tf.PriorityQueue* and Random shuffle queue *tf.RandomShuffleQueue*.
 
 #### Define enqueue op node(s)
 Create an op node which will put the (x, y) pair to the queue.
@@ -181,7 +181,7 @@ qr = tf.train.QueueRunner(queue, [enqueue_op1, enqueue_op2])
 ```
 
 #### Dequeue data
-Within an TensorFlow session and a coordinator.
+Within a TensorFlow session and a coordinator.
 * Have the QueueRunner to start all the enqueue threads defined in the earlier steps.
 * Use *sess.run* to dequeue one row at a time from the dequeue op node.
 
@@ -281,7 +281,7 @@ with tf.Session() as sess:
 filename_queue = tf.train.string_input_producer(["iris_training.csv", "iris_training2.csv", "iris_training3.csv"])
 ```
 
-*string_input_producer* has options for shuffling and setting a maximum number of epochs. QueueRunner adds the whole list of filenames to the queue once for each epoch. Optional shuffling within an epoch (shuffle=True) provides a uniform sampling of files.
+*string_input_producer* has options for shuffling and setting a maximum number of epochs. QueueRunner adds the whole list of file names to the queue once for each epoch. Optional shuffling within an epoch (shuffle=True) provides a uniform sampling of files.
 
 #### A reader
 ```python

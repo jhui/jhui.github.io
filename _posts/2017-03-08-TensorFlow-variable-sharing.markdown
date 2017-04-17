@@ -133,7 +133,7 @@ with tf.variable_scope("nl1", reuse=True):
 #### Reuse
 However, TensorFlow wants the developer to be self-aware of whether the variable exists or not. Developers need to have the correct setting for the "reuse" flag before calling *tf.get_variable*. Both scenarios below will throw an exception when calling *tf.get_variable*:
 *  if the reuse flag is None (default) and the variable already exists.
-*  if the reuse flag is True and the variable does not exists.
+*  if the reuse flag is True and the variable does not exist.
 
 Do **NOT** do this
 ```python

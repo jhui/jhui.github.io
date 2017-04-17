@@ -6,11 +6,11 @@ title: “Soft & hard attention”
 excerpt: “How to use attention to improve deep network learning? Attention extracts relevant information selectively for more effective training.”
 date: 2017-03-15 11:00:00
 ---
-**This is work in progress...**
+**This is a work in progress...**
 
 ### Generate image captions
 
-In cognitive science, selective attention illustrates how we restricts our attention to particular objects in the surroundings. It helps us focus, so we can tune out irrelevant information and concentrate on what really matters. We can apply this attention mechanism in solving many deep learning problems. For example, we focus on different areas of the image when generating an image caption. In the image below, we first pay attention to the closest man that walking towards us. We continue exploring the details or shift attentions according to the questions that we want to answer. Eventually we may generate a caption like: "A man holding a couple plastic containers is walking down an intersection towards me." Selective attention demonstrates objects or pixels are not treated equally. Attention in deep learning localizes information in making predictions. The picture below demonstrates the relationship between the attention area and the words we generate.
+In cognitive science, selective attention illustrates how we restrict our attention to particular objects in the surroundings. It helps us focus, so we can tune out irrelevant information and concentrate on what really matters. We can apply this attention mechanism in solving many deep learning problems. For example, we focus on different areas of the image when generating an image caption. In the image below, we first pay attention to the closest man that walking towards us. We continue exploring the details or shift attentions according to the questions that we want to answer. Eventually, we may generate a caption like: "A man holding a couple plastic containers is walking down an intersection towards me." Selective attention demonstrates objects or pixels are not treated equally. Attention in deep learning localizes information in making predictions. The picture below demonstrates the relationship between the attention area and the words we generate.
 
 <div class="imgcap">
 <img src="/assets/att/attention.jpg" style="border:none;;">
@@ -32,11 +32,11 @@ $$
 \text{next word} = g(h_{t})
 $$
 
-which $$ x $$ is the image and $$ h_{t} $$ is the RNN hidden state to predict the "next word" at time step $$ t $$. 
+which $$ x $$ is the image, and $$ h_{t} $$ is the RNN hidden state to predict the "next word" at time step $$ t $$. 
 
 > In layman term, $$ h_{t} $$ represents the caption that we generate so far.
 
-We continue the process until we predict the "end" token. As the selective attention may suggest, this model is over generalized, and we should replace the image with a more focus attention area.
+We continue the process until we predict the "end" token. As the selective attention may suggest, this model is over-generalized, and we should replace the image with a more focus attention area.
 
 $$
 h_{t} = f(attention(x, h_{t-1}), h_{t-1} )
@@ -52,11 +52,11 @@ Before we discuss attention, we will have a quick review of the image caption us
 <img src="/assets/att/rnn.png" style="border:none;width:80%;">
 </div>
 
->  $$ x $$ are the image features extracted from an image using a CNN. From the LSTM prespective, $$ x $$ represents the image. When we reference the "image" in this article, we means $$x$$ rather than the raw image pixels.
+>  $$ x $$ are the image features extracted from an image using a CNN. From the LSTM perspective, $$ x $$ represents the image. When we reference the "image" in this article, we mean $$x$$ rather than the raw image pixels.
 
 ### Attention
 
-The key difference between a LSTM model and the one with attention is that "attention" pays attention to particular areas or objects rather than treating the whole image equally. For example, at the beginning of the caption creation, we start with an empty context. Our first attention area starts with the man who walks towards us. We predict the first word "A", and update the context to "A". We also keep the attention area unchange. We make a second prediction "man" based on the context "A" and the attention area. For the next prediction, our attention shifts to what he is holding near his hand. By continue exploring or shifting the attention area and updating the context, we generate an caption like " A man holding a couple plastic containers is walking down an intersection towards me." 
+The key difference between a LSTM model and the one with attention is that "attention" pays attention to particular areas or objects rather than treating the whole image equally. For example, at the beginning of the caption creation, we start with an empty context. Our first attention area starts with the man who walks towards us. We predict the first word "A", and update the context to "A". We also keep the attention area unchanged. We make a second prediction "man" based on the context "A" and the attention area. For the next prediction, our attention shifts to what he is holding near his hand. By continue exploring or shifting the attention area and updating the context, we generate an caption like " A man holding a couple plastic containers is walking down an intersection towards me." 
 
 <div class="imgcap">
 <img src="/assets/att/attention3.jpg" style="border:none;width:80%;">
@@ -78,7 +78,7 @@ $$
 <img src="/assets/att/att2.png" style="border:none;width:80%;">
 </div>
 
-The attention module have 2 inputs:
+The attention module has 2 inputs:
 * a context, and
 * image features in each localized areas.
 
@@ -109,7 +109,7 @@ The following is the complete flow of the LSTM model using attentions.
 
 ### Soft attention
 
-We implement attention with soft attention or hard attention. In soft attention, instead of using the image $$ x $$ as an input to the LSTM, we input a weighted image features accounted for attention. Before going into details, we can visualize the weighted features to illustrate the difference.
+We implement attention with soft attention or hard attention. In soft attention, instead of using the image $$ x $$ as an input to the LSTM, we input weighted image features accounted for attention. Before going into details, we can visualize the weighted features to illustrate the difference.
 
 <div class="imgcap">
 <img src="/assets/att/attention2.png" style="border:none;;">
@@ -117,9 +117,9 @@ We implement attention with soft attention or hard attention. In soft attention,
 
 > Again, we visualize what the feature maps may look like as a picture.
 
-This picture visualizes the weighted features to the LSTM and the word it predicted. Soft attention discredits irrelevant areas by multiply the corresponding features map with a low weight. Accordingly, high attention area keeps the original value while low attention areas get closer to 0 (become dark in the visualization). With the context of "A man holding a couple plastic", the attention module creates a new feature map with all areas darken except the plastic container area. With more focused information, the LSTM makes a better prediction (the word "container").
+This picture visualizes the weighted features to the LSTM and the word it predicted. Soft attention discredits irrelevant areas by multiply the corresponding features map with a low weight. Accordingly, high attention area keeps the original value while low attention areas get closer to 0 (become dark in the visualization). With the context of "A man holding a couple plastic", the attention module creates a new feature map with all areas darkened except the plastic container area. With more focused information, the LSTM makes a better prediction (the word "container").
 
-Let's show how to commpute the weighted features for the LSTM. $$ x_1, x_2, x_3 \text{ and } x_4 $$ each cover a sub-section of an image. To compute a score $$ s_{i} $$ to measure how much attention for $$ x_{i} $$, we use (with the context $$ C = h_{t-1} $$):
+Let's show how to compute the weighted features for the LSTM. $$ x_1, x_2, x_3 \text{ and } x_4 $$ each covers a sub-section of an image. To compute a score $$ s_{i} $$ to measure how much attention for $$ x_{i} $$, we use (with the context $$ C = h_{t-1} $$):
 
 $$
 s_{i} = \tanh(W_{c} C + W_{x} X_{i} ) = \tanh(W_{c} h_{t-1} + W_{x} x_{i} )
@@ -156,7 +156,7 @@ $$
 <img src="/assets/att/hard.png" style="border:none;width:70%">
 </div>
 
-Hard attention replaces a deterministic method with a stochastic sampling model. To calculate the gradient descent correctly in the backpropagation, we perform samplings and average our results using the Monte Carlo method. Monte Carlo performs end-to-end episodes to compute an average for all sampling results. The accuracy is subject to how many samplings are performed and how well it is sampled. On the other hand, soft attention follows the regular and easier backpropagation method to compute the gradient. However, the accuracy is subject to the assumption that the weighted average is a good representation for the area of attention. Both have their short-comings. Currently, soft attention is more popular.
+Hard attention replaces a deterministic method with a stochastic sampling model. To calculate the gradient descent correctly in the backpropagation, we perform samplings and average our results using the Monte Carlo method. Monte Carlo performs end-to-end episodes to compute an average for all sampling results. The accuracy is subject to how many samplings are performed and how well it is sampled. On the other hand, soft attention follows the regular and easier backpropagation method to compute the gradient. However, the accuracy is subject to the assumption that the weighted average is a good representation for the area of attention. Both have their shortcomings. Currently, soft attention is more popular.
 
 > Soft attention is more popular because the backpropagation seems more effective.
 

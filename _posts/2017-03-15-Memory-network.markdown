@@ -3,14 +3,14 @@ layout: post
 comments: true
 mathjax: true
 title: “Memory network (MemNN) & End to end memory network (MemN2N)”
-excerpt: “Use a memory network to store knowlege for inferencing.”
+excerpt: “Use a memory network to store knowledge for inferencing.”
 date: 2017-03-15 11:00:00
 ---
 **This is work in progress...**
 
 ### Memory network
 
-Virtual assistances are pretty good at answering an one-line query, but fail badly in carrying out a conversation. Here is a verbal exchange demonstrating the challenge ahead of us with virtual assistances:
+Virtual assistances are pretty good at answering a one-line query but fail badly in carrying out a conversation. Here is a verbal exchange demonstrating the challenge ahead of us with virtual assistances:
 
 * Me: Can you find me some restaurants?
 * Assistance: I find a few places within 0.25 mile. The first one is Caffé Opera on Lincoln Street. The second one is ...
@@ -26,7 +26,7 @@ Consider the follow "story" statements:
 - Joe went to the kitchen. 
 - Fred went to the kitchen. 
 - Joe picked up the milk.
-- Joe travelled to the office. 
+- Joe traveled to the office. 
 - Joe left the milk. 
 - Joe went to the bathroom.
 
@@ -39,7 +39,7 @@ First, we store all the statements in the memory $$ m $$:
 | 1 | Joe went to the kitchen. |
 | 2 | Fred went to the kitchen. |
 | 3 | Joe picked up the milk. |
-| 4 | Joe travelled to the office. | 
+| 4 | Joe traveled to the office. | 
 | 5 | Joe left the milk. |
 | 6 | Joe went to the bathroom. |
 
@@ -54,7 +54,7 @@ Then, we make a second inference based on $$ \big[ q \text{ "where is the milk n
 
 $$ o_2 = O_2(x, m) = \underset{i=1, \dots, N}{\arg\max} s_o(\big[ q, m_{o_{1}} \big], m_{i}) $$
 
-where $$ m_{o_2}  $$ will be "Joe travelled to the office.". 
+where $$ m_{o_2}  $$ will be "Joe traveled to the office.". 
 
 We combine the query, and the inference results as $$ o $$:
 
@@ -69,7 +69,7 @@ where $$W$$ is all the words in the dictionary, and $$ s_{r} $$ is another funct
 > We assume we can find the answer with 2 rounds of  inference.
 
 #### Encoding the input
-We use bags of words to represent our input text. First, we starts with a vocabulary of size 
+We use bags of words to represent our input text. First, we start with a vocabulary of a size 
 $$ \left| W \right| $$ 
 .
 
@@ -101,7 +101,7 @@ $$ 3 \left| W \right| $$
 
 We use word embeddings $$ U $$ to convert a sentence with a bag of words with size 
 $$ 3 \left| W \right| $$ 
-to a dense word embedding of size $$n$$. We evaluate both score functions $$s_{o} $$ and $$ s_{r} $$  with:
+into a dense word embedding with a size $$n$$. We evaluate both score functions $$s_{o} $$ and $$ s_{r} $$  with:
 
 $$
 s_{o}(x, y) = Φ_{x}(x)^T{U_{o}}^TU_{o}Φ_{y}(y)
@@ -133,11 +133,11 @@ where $$ \bar{f}, \bar{f'} $$ and $$ \bar{r} $$ are other possible predictions o
 
 ### Huge memory networks
 
-For a system with huge memory, computing every score for each memory entry is expensive. Alternatively, after computing the word embedding $$ U_{0} $$, we apply K-clustering to divide the word embedding space into K clusters. We map each input $$ x $$ into its corresponding cluster, and perform inference within that cluster space only.
+For a system with huge memory, computing every score for each memory entry is expensive. Alternatively, after computing the word embedding $$ U_{0} $$, we apply K-clustering to divide the word embedding space into K clusters. We map each input $$ x $$ into its corresponding cluster and perform inference within that cluster space only.
 
 ### End to end memory network (MemN2N)
 
-> The description as well as the diagrams on the end to end memory networks (MemN2N) are based on [End-To-End Memory Networks, Sainbayar Sukhbaatar etc.](https://arxiv.org/abs/1503.08895)
+> The description, as well as the diagrams, on the end to end memory networks (MemN2N) are based on [End-To-End Memory Networks, Sainbayar Sukhbaatar etc.](https://arxiv.org/abs/1503.08895)
 
 We start with a query "where is the milk now?". It is encoded with bags of words using a vector of size $$ V $$. (which $$ V $$ is the size of the vocabulary.) In the simplest case, we use Embedding $$B$$ ($$d \times V$$) to convert the vector to a word embedding of size d.
 
@@ -192,7 +192,7 @@ $$
 <img src="/assets/mem/max13.png" style="border:none;width:60%;">
 </div>
 
-Here, we combine all the steps into 1 diagram:
+Here, we combine all the steps into one diagram:
 <div class="imgcap">
 <img src="/assets/mem/max1.png" style="border:none;">
 </div>

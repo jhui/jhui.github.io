@@ -7,7 +7,7 @@ date: 2017-03-12 12:00:00
 ---
 ### TensorBoard
 
-TensorBoard is a browser based application that help you to visualize your training parameters (like weights & biases), metrics (like loss), hyper parameters or any statistics. For example, we plot the histogram distribution of the weight for the first fully connected layer every 20 iterations.
+TensorBoard is a browser based application that helps you to visualize your training parameters (like weights & biases), metrics (like loss), hyper parameters or any statistics. For example, we plot the histogram distribution of the weight for the first fully connected layer every 20 iterations.
 
 <div class="imgcap">
 <img src="/assets/tensorboard/tb_hist.png" style="border:none; width:100%;">
@@ -248,7 +248,7 @@ if __name__ == '__main__':
 ```
 
 ### Logging and monitoring
-TensorFlow also provide some pre-built monitoring to be used. The code for monitoring is pretty simple and focus on the *validation_metrics* and *validation_monitor* below:
+TensorFlow also provides some pre-built monitoring to be used. The code for monitoring is pretty simple and focus on the *validation_metrics* and *validation_monitor* below:
 ```python
 """Model training for Iris data set using Validation Monitor."""
 
@@ -360,7 +360,7 @@ tf.logging.set_verbosity(tf.logging.INFO)
 
 ```
 #### Checkpoint
-The validation monitor utilize the checkpoint saving.  Hence, we need to set up where the checkpoint data is stored as while as the checkpoint frequency.
+The validation monitor utilizes the checkpoint saving.  Hence, we need to set up where the checkpoint data is stored as while as the checkpoint frequency.
 ```
   classifier = tf.contrib.learn.DNNClassifier(
       feature_columns=feature_columns,
@@ -403,7 +403,7 @@ Image source from TensorFlow:
 
 ### TensorBoard graph & distribution
 
-TensorFlow automatically plot the computational graph and can be viewed under the graph tab.
+TensorFlow automatically plots the computational graph and can be viewed under the graph tab.
 <div class="imgcap">
 <img src="/assets/tensorboard/tb_graph.png" style="border:none; width:100%;">
 </div>

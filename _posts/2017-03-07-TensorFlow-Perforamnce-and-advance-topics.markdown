@@ -12,11 +12,11 @@ date: 2017-03-07 14:00:00
 * Put the data preprocessing on the CPU.
 * Reading many small files are not efficient. Pre-process the data and create a few large one with TFRecord.
 * When using tf.contrib.layers.batch_norm, set the attribute fused=True.
-* Consider quantize the Neural network for inference in particular for mobile devices.
+* Consider quantizing the Neural network for inference in particular for mobile devices.
 
 ### Supervisor
 
-Supervisor allows a long running training to be recovered after a crash.  Checkpoint is constantly made.  When the process die, it can reload trained parameters from the checkpoint appoint startup. The code related to supervisor is shown as below:
+Supervisor allows a long running training to be recovered after a crash.  Checkpoints are constantly made.  When the process dies, it can reload trained parameters from the checkpoint appoint startup. The code related to the supervisor is shown as below:
 ```python
 # For monitor purpose, we need to setup the global_step variable.
 global_step = tf.Variable(0, name='global_step', trainable=False)

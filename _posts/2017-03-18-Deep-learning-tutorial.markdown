@@ -224,7 +224,7 @@ $$
 W_i = W_i - \Delta W_i
 $$
 
-The variable $$ \alpha $$ is called the **learning rate**.  **A small learning rate learns slowly.** A small learning rate takes a longer time or more reptitions  to locate the minimum. However, as we learn in calculus, a larger step results in a larger error in the calculation. In DL, finding the right value for the learning rate is a trial and error exercise. We usually try values ranging from 1e-7 to 1 in logarithmic scale (1e-7, 5e-7, 1e-6, 5e-6, 1e-5 …), but this depends on the problem you are solving. Other parameters such as learning rate  need to be tuned. We call all these parameters **"hyperparameters"**.
+The variable $$ \alpha $$ is called the **learning rate**.  **A small learning rate learns slowly.** A small learning rate takes a longer time or more iterations to locate the minimum. However, as we learn in calculus, a larger step results in a larger error in the calculation. In DL, finding the right value for the learning rate is a trial and error exercise. We usually try values ranging from 1e-7 to 1 in logarithmic scale (1e-7, 5e-7, 1e-6, 5e-6, 1e-5 …), but this depends on the problem you are solving. Other parameters such as learning rate  need to be tuned. We call all these parameters **"hyperparameters"**.
 
 A large learning step may have other serious problems. It costs $$w$$ to oscillate with increasing cost:
 <div class="imgcap">
@@ -546,7 +546,7 @@ The machine learning library provides pre-built layers with feed forward and bac
 <img src="/assets/dl/bp.jpg" style="border:none;width:75%">
 </div>
 
-Perform a forwad pass to calculate the output and the cost:
+Perform a forward pass to calculate the output and the cost:
 
 $$
 out = W_1 \cdot  X_{1}  + W_2 \cdot X_{2} + b

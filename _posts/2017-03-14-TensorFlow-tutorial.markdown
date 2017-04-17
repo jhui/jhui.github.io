@@ -11,7 +11,7 @@ TensorFlow is an open source software library for machine learning developed by 
 #### First TensorFlow program
 TensorFlow represents computations by linking op nodes into graphs. TensorFlow programs are structured into a construction phase and an execution phase. The following program:
 1. Constructs a computation graph for a matrix multiplication. 
-2. Open a TensorFlow session and compute the matrix multiplication by execute the computation graph.
+2. Open a TensorFlow session and compute the matrix multiplication by executing the computation graph.
 
 ```python
 import tensorflow as tf
@@ -26,7 +26,7 @@ with tf.Session() as sess:     # Open a TensorFlow session to execute the graph.
     result = sess.run(product) # Compute the result for “product”
     print(result)              # 3*2+5*4: [[26]]
 ```
-The above program hardwire the matrix as a constant. We will implement a new linear equation that feed the graph with input data on execution.
+The above program hardwires the matrix as a constant. We will implement a new linear equation that feeds the graph with input data on execution.
 
 ```python
 import tensorflow as tf
@@ -144,7 +144,7 @@ init = tf.global_variables_initializer()
 with tf.Session() as sess:
     sess.run(init)
 ```
-We train our data with 1000 iterations.  For every 100 iteration, we compute the loss and print it out.
+We train our data with 1000 iterations.  For every 100 iterations, we compute the loss and print it out.
 ```python
 for i in range(1000):
    sess.run(train, {x:x_train, y:y_train})
@@ -165,7 +165,7 @@ y = 2x - 0.5
 $$
 
 ### Linear Regressor
-TensorFlow comes with many prebuilt models. The following code replace the last program with a prebuilt Linear Regressor. It constructs a linear regressor as an estimator and we will create an input functions to pre-process and feed data into the models. 
+TensorFlow comes with many prebuilt models. The following code replaces the last program with a prebuilt Linear Regressor. It constructs a linear regressor as an estimator and we will create an input function to pre-process and feed data into the models. 
 ```python
 import tensorflow as tf
 
@@ -263,7 +263,7 @@ estimator = tf.contrib.learn.Estimator(model_fn=model)
 <img src="/assets/tensorflow/mnist.png" style="border:none; width:40%;">
 </div>
 
-The MNIST dataset contains handwritten digits with examples shown as above. It has a training set of 60,000 examples, and a test set of 10,000 examples. The following python file from TensorFlow [mnist_softmax.py](https://github.com/tensorflow/tensorflow/blob/master/tensorflow/examples/tutorials/mnist/mnist_softmax.py) train a linear classifier for MNist digit recognition. The following model reaches an accuracy of **92%**.
+The MNIST dataset contains handwritten digits with examples shown as above. It has a training set of 60,000 examples and a test set of 10,000 examples. The following python file from TensorFlow [mnist_softmax.py](https://github.com/tensorflow/tensorflow/blob/master/tensorflow/examples/tutorials/mnist/mnist_softmax.py) train a linear classifier for MNist digit recognition. The following model reaches an accuracy of **92%**.
 
 ```python
 """A very simple MNIST classifier.
@@ -348,7 +348,7 @@ b = tf.Variable(tf.zeros([10]))
 y = tf.matmul(x, W) + b
 ```
 
-We use cross entropy as the cost functions:
+We use cross-entropy as the cost functions:
 ```python
   # The raw formulation of cross-entropy,
   #
@@ -462,7 +462,7 @@ y = tf.matmul(h2, W3) + b3
 ```
 
 
-We initializes the weight with a normal distribution with standard deviation inverse proportional to the input size.
+We initialize the weight with a normal distribution with standard deviation inverse proportional to the input size.
 ```python
 W1 = tf.Variable(tf.truncated_normal([784, 256], stddev=np.sqrt(2.0 / 784)))
 W2 = tf.Variable(tf.truncated_normal([256, 100], stddev=np.sqrt(2.0 / 256)))
@@ -486,7 +486,7 @@ sess.run(train_step, feed_dict={x: batch_xs, labels: batch_ys, lmbda:5e-5})
 Further accuracy improvement can be achieved by:
 * Increase the number of iterations.
 * Change to a CNN architect.
-* Replace the regularization with more advance methods like batch normalization or dropout.
+* Replace the regularization with more advanced methods like batch normalization or dropout.
 * Fine tuning of the learning rate in the Adam optimizer and the lambda in the L2 regularization.
 
 In next section, we will cover the CNN and dropout implementation.
@@ -494,7 +494,7 @@ In next section, we will cover the CNN and dropout implementation.
 ### MNist with a Convolution network (CNN)
 
 To push the accuracy higher, we will create a model with 2 CNN layers followed by 2 hidden fully connected (FC) layers and the final linear classifier. We also apply:
-* a 5x5 filters for both CNN layers.
+* a 5x5 filter for both CNN layers.
 * a 2x2 max pooling max(z11, z12, z21, z22) for both CNN layers.
 * Use RELU max(0, z) for both CNN and FC layer.
 * Use dropout for regularization.
@@ -648,7 +648,7 @@ x = x.reshape((-1, 6))
 print(x.shape)          # (1, 6)
 ```
 
-Find the shape of an tensor and reshape it
+Find the shape of a tensor and reshape it
 ```python
 import tensorflow as tf
 import numpy as np
@@ -691,7 +691,7 @@ with tf.Session() as sess:
     print(sess.run(y_shape))   # [3] contains 3 unique elements
 ```
 
-#### Intialize varaibles
+#### Initialize variables
 
 Initialize variables with constant:
 ```python
@@ -711,7 +711,7 @@ b2 = tf.Variable(tf.zeros([3], dtype=tf.int32))    # int32 (3,)
 b3 = tf.Variable(tf.fill([3], 1))                  # int32 (3,)
 ```
 
-Randomized the value of varaibles:
+Randomized the value of variables:
 ```python
 import tensorflow as tf
 import numpy as np
@@ -749,7 +749,7 @@ s1, s2, s3 = tf.split(value, [2, 3, 5], 1)
 s0, s1= tf.split(value, num_or_size_splits=2, axis=1)  # s0 shape(4, 5)
 
 ```
-Generate one-hot vector
+Generate a one-hot vector
 ```python
 import tensorflow as tf
 
@@ -774,8 +774,8 @@ s0 = tf.cast(s0, tf.int32)
 s0 = tf.to_int64(s0)
 ```
 
-#### Training trouble shooting using gradient
-During training, we may interest in the gradients for each varaibles. For example, from the gradients, we may tell how well the gradient descent is working for the deep network. To expose the gradient, replace the following code:
+#### Training using gradient
+During training, we may interest in the gradients for each variable. For example, from the gradients, we may tell how well the gradient descent is working for the deep network. To expose the gradient, replace the following code:
 ```python
 optimizer = tf.train.GradientDescentOptimizer(0.01)
 optimizer = optimizer.minimize(loss)
@@ -826,7 +826,7 @@ print(f"label shape = {training_set.target.shape}")   # (3320,)
 ```
 
 #### InteractiveSession
-TensorFlow provide another way to execute a computational graph using *tf.InteractiveSession* which is more convenient for an ipython environment.
+TensorFlow provides another way to execute a computational graph using *tf.InteractiveSession* which is more convenient for an ipython environment.
 ```python
 import tensorflow as tf
 sess = tf.InteractiveSession()
@@ -847,11 +847,11 @@ sess.close()
 ```
 
 ### Further thoughts
-Tensorflow provides [a MNlist implementation using CNN with the higher level API Estimator](https://github.com/tensorflow/tensorflow/blob/master/tensorflow/examples/tutorials/layers/cnn_mnist.py). For people want to work with the Estimator, this worths taking a look. 
+TensorFlow provides [a MNlist implementation using CNN with the higher level API Estimator](https://github.com/tensorflow/tensorflow/blob/master/tensorflow/examples/tutorials/layers/cnn_mnist.py). For people want to work with the Estimator, this worths taking a look. 
 
 ### Appendix
 #### DNNClassifier (tf.contrib.learn.DNNClassifier)
-We use a Deep network classifier (with 3 hidden-layers) to classify the iris samples into 3 subclasses. We load 150 samples and split it into 120 training data and 30 testing data.
+We use a Deep network classifier (with 3 hidden layers) to classify the iris samples into 3 subclasses. We load 150 samples and split it into 120 training data and 30 testing data.
 
 The 4 features used as the model input: (image from wiki)
 <div class="imgcap">
@@ -899,6 +899,6 @@ if __name__ == '__main__':
 ```
 
 ### Caveat
-* Some APIs like tf.split, tf.concat in v1.0 are not backward compatible with pre-v1.0 version. Some files are moved to different directories. Care must be taken between the version of Tensorflow and the version the code is intended for.
-* Github example directories, including v1.0 and nightly build, contains some code that have not ported to v1.0. However, the changes usually is not too complicated. Just some information is hard to find. Read the doc API for any signature changes.
+* Some APIs like tf.split, tf.concat in v1.0 are not backward compatible with pre-v1.0 version. Some files are moved to different directories. Care must be taken between the Tensorflow version and the version that the code is written on.
+* Github example directories, including v1.0 and nightly build, contains some codes that have not ported to v1.0. However, the changes usually is not too complicated. Just some information is hard to find. Read the doc API for any signature changes.
 
