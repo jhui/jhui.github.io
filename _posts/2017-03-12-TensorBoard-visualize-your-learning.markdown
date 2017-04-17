@@ -132,7 +132,7 @@ if __name__ == '__main__':
 ```
 
 ### View the TensorBoard
-Open the terminal and run the tensorboard command with you log file location.
+Open the terminal and run the Tensorboard command with you log file location.
 ```
 $ tensorboard --logdir=/tmp/tensorflow/mnist/log
 Starting TensorBoard b'41' on port 6006
@@ -328,8 +328,8 @@ Set up the logging level of the output:
 tf.logging.set_verbosity(tf.logging.INFO)
 ```
 #### Define the MetricSpec used for monitoring
-* metric_fn define the metric function used to calculate that metrics.
-* if metric_fn returns a dictionary, prediction_key is the name of the key to access the metrics value in the dictionary.
+* "metric_fn" define the metric function used to calculate that metrics.
+* "metric fn" returns a dictionary, prediction_key is the name of the key to access the metrics value in the dictionary.
 
 ```python
   validation_metrics = {

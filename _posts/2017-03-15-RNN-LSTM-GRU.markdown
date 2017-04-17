@@ -210,7 +210,7 @@ h, cache_rnn = rnn_forward(x, h0, Wx, Wh, b)
 <img src="/assets/rnn/cap13.png" style="border:none;width:40%;">
 </div>
 
-rnn_forward unroll the RNN by T time steps and compute $$ h_t $$ by calling "rnn_step_forward". At each step, it takes $$ h{t-1} $$ from the previous step and use the true captions provided by the training set to compute $$ X_t $$.  i.e., we do not use the highest score word from previous time step as input. We always use the true caption from our training dataset during training since the whole purpose is to lower the prediction error of our RNN for the true captions (supervised lablels).
+rnn_forward unroll the RNN by T time steps and compute $$ h_t $$ by calling "rnn_step_forward". At each step, it takes $$ h{t-1} $$ from the previous step and use the true captions provided by the training set to compute $$ X_t $$.  i.e., we do not use the highest score word from previous time step as input. We always use the true caption from our training dataset during training since the whole purpose is to lower the prediction error of our RNN for the true captions (supervised labels).
 
 ```python
 def rnn_forward(x, h0, Wx, Wh, b):
@@ -265,7 +265,7 @@ $$
 
 #### Softmax cost
 
-For each words in the vocabulary (1004 words), we predict the probability of those words to be the next caption word. With these scors, we can apply the deep learning technique to compute the softmax loss which are used in the gradient descent to optimize our RNN.
+For each words in the vocabulary (1004 words), we predict the probability of those words to be the next caption word. With these scores, we can apply the deep learning technique to compute the softmax loss which are used in the gradient descent to optimize our RNN.
 ```python
 def temporal_softmax_loss(x, y, mask):
   N, T, V = x.shape
@@ -362,13 +362,13 @@ from the image features and use the true caption "start" to make a prediction $$
 
 #### Making prediction
 
-To generate captions automatically, we will use the CNN to generate image featurs and map it to $$ h_0 $$ with $$ W_{proj} $$.
+To generate captions automatically, we will use the CNN to generate image features and map it to $$ h_0 $$ with $$ W_{proj} $$.
 <div class="imgcap">
 <img src="/assets/rnn/cap4.png" style="border:none;width:80%;">
 </div>
 
 At time step 1, we feed the RNN with the input "start" to get the word vector $$ X_1 $$. The RNN computes the value $$ h_1$$
-which later multiply with $$ W_{vocab} $$ to generate scores for each word in the vocabulary (1004). We make the first word prediction by select the one with the highest score (say, "A"). Unlikely training, we use the word with the higest score as the next time step input. With $$ h_1 $$ and the highest score word "A" in time step 1, we go through the RNN step again and made the second preduction "bus" at time step 2. 
+which later multiply with $$ W_{vocab} $$ to generate scores for each word in the vocabulary (1004). We make the first word prediction by select the one with the highest score (say, "A"). Unlikely training, we use the word with the highest score as the next time step input. With $$ h_1 $$ and the highest score word "A" in time step 1, we go through the RNN step again and made the second prediction "bus" at time step 2. 
 	
 <div class="imgcap">
 <img src="/assets/rnn/cap7.png" style="border:none;width:70%;">
@@ -451,7 +451,7 @@ $$ h_t $$ actually serve 2 different purposes. LSTM breaks $$ h_t $$ into 2 acco
 </div>
 
 #### LSTM gates
-In LSTM, we want a mechansim to selectively allow what information to remember and what information to forget. Therefore we construct different gates with value between 0 to 1, and multiple it with the information we want to remember or to forget. For example, a gate with 0 means forget everything and a gate with 1 means remember everything.
+In LSTM, we want a mechanism to selectively allow what information to remember and what information to forget. Therefore we construct different gates with value between 0 to 1, and multiple it with the information we want to remember or to forget. For example, a gate with 0 means forget everything and a gate with 1 means remember everything.
 
 $$ 
 \text{value} = \text{gate} \cdot \text{value}
@@ -473,7 +473,7 @@ which $$ \sigma $$ is the sigmoid function behaves like an on/off switch.
 </div>
 
 To update C, the hidden state of a LSTM cell, we constructs 2 gates:
-* forget gate: a gate to forget previous hidden state informatin $$ C_{t-1} $$.
+* forget gate: a gate to forget previous hidden state information $$ C_{t-1} $$.
 * input gate: a gate to remember what information in $$ \tilde{C} $$ we want to remember.
 
 $$
@@ -571,7 +571,7 @@ def lstm_forward(x, h0, Wx, Wh, b):
   return h, cache
 ```
 
-One of the reason that we do not sub-index W and b is that we can concatent all W and b into one big matrix and apply the matrix multiplication at once. The following code compute 3 different gates and then compute $$ \tilde{C} $$, $$C $$ and $$ h $$ .
+One of the reason that we do not sub-index W and b is that we can concatenate all W and b into one big matrix and apply the matrix multiplication at once. The following code compute 3 different gates and then compute $$ \tilde{C} $$, $$C $$ and $$ h $$ .
 ```python
 def lstm_step_forward(x, prev_h, prev_c, Wx, Wh, b):
   next_h, next_c, cache = None, None, None
@@ -620,4 +620,4 @@ h_t = (1 - gate_{update}) \cdot h_{t-1} +  gate_{update} \cdot \tilde{h_{t}}
 $$
 
 ### Credits
-For the RNN/LSTM case study, we use the image caption assignment (assignment 3) in the Stanford class "CS231n Convolutional Neural Networks for Visual Recognition". We start with the skeleton codes provided by the assignement and put into our code to complete the assignment code.
+For the RNN/LSTM case study, we use the image caption assignment (assignment 3) in the Stanford class "CS231n Convolutional Neural Networks for Visual Recognition". We start with the skeleton codes provided by the assignment and put it into our code to complete the assignment code.

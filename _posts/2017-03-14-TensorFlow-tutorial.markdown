@@ -125,7 +125,7 @@ W = tf.Variable([0.1], tf.float32)
 b = tf.Variable([0.0], tf.float32)
 ```
 
-#### Lost function and optimizer & trainner
+#### Lost function and optimizer & trainer
 Define the Mean Square Error (MSE) cost function:
 ```python
 loss = tf.reduce_sum(tf.square(model - y))
@@ -257,13 +257,13 @@ def model(features, labels, mode):
 estimator = tf.contrib.learn.Estimator(model_fn=model)
 ```
 
-### Solving Mnist
+### Solving MNist
 
 <div class="imgcap">
 <img src="/assets/tensorflow/mnist.png" style="border:none; width:40%;">
 </div>
 
-The MNIST dataset contains handwritten digits with examples shown as above. It has a training set of 60,000 examples, and a test set of 10,000 examples. The following python file from Tensorflow [mnist_softmax.py](https://github.com/tensorflow/tensorflow/blob/master/tensorflow/examples/tutorials/mnist/mnist_softmax.py) train a linear classifier for MNist digit recognition. The following model reaches an accuracy of **92%**.
+The MNIST dataset contains handwritten digits with examples shown as above. It has a training set of 60,000 examples, and a test set of 10,000 examples. The following python file from TensorFlow [mnist_softmax.py](https://github.com/tensorflow/tensorflow/blob/master/tensorflow/examples/tutorials/mnist/mnist_softmax.py) train a linear classifier for MNist digit recognition. The following model reaches an accuracy of **92%**.
 
 ```python
 """A very simple MNIST classifier.
@@ -626,7 +626,7 @@ Further possible accuracy improvement:
 
 ### Tips
 #### Reshape
-Find the shape of a numpy array and reshape it.
+Find the shape of a Numpy array and reshape it.
 ```python
 import tensorflow as tf
 import numpy as np

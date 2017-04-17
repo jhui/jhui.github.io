@@ -35,7 +35,7 @@ To apply the filter to an image, we move the fiter 1 pixel at a time from left t
 </div>
 
 #### Stride and padding
-However, we may encounter some problem on the edge. For example, on the top left corner, a filter may cover beyond the edge of an image. For a filter with patch size 3x3, we may ignore the edge and geneate an output with width and height reduce by 2 pixels. Otherwise, we can pack extra 0 or replicate the edge of the origina image. All these settings are possible and configurable as "padding" in a CNN. 
+However, we may encounter some problem on the edge. For example, on the top left corner, a filter may cover beyond the edge of an image. For a filter with patch size 3x3, we may ignore the edge and generate an output with width and height reduce by 2 pixels. Otherwise, we can pack extra 0 or replicate the edge of the original image. All these settings are possible and configurable as "padding" in a CNN. 
 <div class="imgcap">
 <img src="/assets/cnn/padding.png" style="border:none;width:50%">
 </div>
@@ -60,7 +60,7 @@ A convolution neural network composes of convolution layers, polling layers and 
 <img src="/assets/cnn/conv_layer.png" style="border:none;width:70%">
 </div>
 
-When we process the image, we apply filters which each geneate an output that we call **feature map**. If k features map are created, we have feature maps with depth k.
+When we process the image, we apply filters which each generates an output that we call **feature map**. If k features map are created, we have feature maps with depth k.
 
 <div class="imgcap">
 <img src="/assets/cnn/filter_m.png" style="border:none;width:70%">
@@ -74,7 +74,7 @@ Here is the 96 filters learned in the first convolution layer in AlexNet. A lot 
 <img src="/assets/cnn/cnnfilter.png" style="border:none;width:50%">
 </div>
 
-The right side is the image in the dataset that highly activate some neuron in the feature maps in layer 4. Then the image is reconstruct based on the activations in the feautre maps for those images. This gives up some understanding of what the neuoon is looking for.
+The right side is the image in the dataset that highly activate some neuron in the feature maps in layer 4. Then the image is reconstruct based on the activations in the feature maps for those images. This gives up some understanding of what the neuron is looking for.
 (Source from Matthew D Zeiler et al.)
 <div class="imgcap">
 <img src="/assets/cnn/cnnlayer_4.png" style="border:none;width:70%">
@@ -109,7 +109,7 @@ The CNN above composes of 3 convolution layer. We start with a 32x32 pixel image
 </div>
 
 ### Fully connected (FC) layers
-After using convolution layers to extract the spatial features of an image, we apply fully connected layers for the final classification. First we flatten the output of the convolution layers. For example, if the final features maps have a dimension of 4x4x512, we will flaten it to an array of 4096 elements. We apply 2 more hidden layers here before we perform the final classification. The techniques needed are no difference from a FC network in deep learning.
+After using convolution layers to extract the spatial features of an image, we apply fully connected layers for the final classification. First we flatten the output of the convolution layers. For example, if the final features maps have a dimension of 4x4x512, we will flatten it to an array of 4096 elements. We apply 2 more hidden layers here before we perform the final classification. The techniques needed are no difference from a FC network in deep learning.
 
 <div class="imgcap">
 <img src="/assets/cnn/convolution_b2.png" style="border:none;width:50%">
@@ -120,12 +120,12 @@ After using convolution layers to extract the spatial features of an image, we a
 Here are some of the tips to construct a CNN:
 * Use smaller filters like 3x3 or 5x5 with more convolution layer. 
 * Convolution filter with small stride works better.
-* If GPU memory is not large enough, scarifice the first layer with larger filter like 7x7 with stride 2.
+* If GPU memory is not large enough, sacrifice the first layer with larger filter like 7x7 with stride 2.
 * Use padding fill with 0.
 * Use filter size 2, stride size 2 for max pooling if needed.
 
 For the network design:
-1. Start with 2-3 convolution layers with small fiters 3x3 or 5x5 and no pooling. 
+1. Start with 2-3 convolution layers with small filters 3x3 or 5x5 and no pooling. 
 2. Add a 2x2 maximum pool to reduce the spatial dimension.  
 3. Repeat 1-2 until a desired spatial dimension is reached for the fully connected layer. This can be a try and error process.
 4. Use 2-3 hidden layers for the fully connection layers.
@@ -138,7 +138,7 @@ For each convolution layer, we reduce the spatial dimension while increase the d
 <img src="/assets/cnn/cnn3d.png" style="border:none;">
 </div>
 
-Here, we reduce the spatial dimension of each convolution layer through pooling or soemtimes apply a filter stride size > 1.
+Here, we reduce the spatial dimension of each convolution layer through pooling or sometimes apply a filter stride size > 1.
 <div class="imgcap">
 <img src="/assets/cnn/cnn3d4.png" style="border:none;width:50%">
 </div>
@@ -152,7 +152,7 @@ The core thinking of CNN is to apply small filters to explore spatial feature. T
 
 #### Google inceptions
 
-In our previous discussion, the convolution filter in each layer is of the same patch size say 3x3. To increase the depth of the feature maps, we can apply more filters using the same patch size. However, in GoogleNet, it applies a different approach to increase the depth. GoogleNet use different filter patch size for the same layer. Here we can have filters with patch size 3x3 and 1x1. Don't mistaken that a 1x1 filter is doing nothing. It does not explore the spatial dimension but it explores the depth of the feature maps. For example, in the 1x1 filter below, we convert the RGB channels (depth 3) into 2 feature maps output.The first set of filters generate 8 features map while the second one generate 2. We can concantentate them to form maps of depth 10. The inception idea is to increase the depth of the feature map by concantentate feature maps using different patch size of convolution filters and pooling. 
+In our previous discussion, the convolution filter in each layer is of the same patch size say 3x3. To increase the depth of the feature maps, we can apply more filters using the same patch size. However, in GoogleNet, it applies a different approach to increase the depth. GoogleNet use different filter patch size for the same layer. Here we can have filters with patch size 3x3 and 1x1. Don't mistaken that a 1x1 filter is doing nothing. It does not explore the spatial dimension but it explores the depth of the feature maps. For example, in the 1x1 filter below, we convert the RGB channels (depth 3) into 2 feature maps output.The first set of filters generate 8 features map while the second one generate 2. We can concatenate them to form maps of depth 10. The inception idea is to increase the depth of the feature map by concatenate feature maps using different patch size of convolution filters and pooling. 
 <div class="imgcap">
 <img src="/assets/cnn/inception.png" style="border:none;width:60%">
 </div>
@@ -175,7 +175,7 @@ After exploring the spatial relationship, we flatten the convolution layer outpu
 ### Tensor code
 We will implement coding for a CNN to classify hand writing for digits (0 to 9).
 
-> We will use TensorFlow to implement a CNN. Nevertheless, the puropose is for those curious audience that want details. Full understand of the coding is not needed or suggested even the code is pretty self explainable.
+> We will use TensorFlow to implement a CNN. Nevertheless, the purpose is for those curious audience that want details. Full understand of the coding is not needed or suggested even the code is pretty self explainable.
 
 #### Construct a CNN
 In the code below, we construct a CNN with 2 convolution layer followed by 2 FC layer and then 1 classifier. Here is where we construct our CNN network.
@@ -267,7 +267,7 @@ classifier_W = tf.Variable(tf.truncated_normal([num_hidden2, num_labels], stddev
 classifier_b = tf.Variable(tf.constant(1.0, shape=[num_labels]))
 ```
 
-Here is the full code for completness. Nevertheless, the code requires the datafile 'notMNIST.pickle' to run which is not provided here.
+Here is the full code for completeness. Nevertheless, the code requires the datafile 'notMNIST.pickle' to run which is not provided here.
 ```pyhton
 import matplotlib.pyplot as plt
 import numpy as np
@@ -430,13 +430,13 @@ with tf.Session(graph=graph) as session:
 
 ### Transfer learning
 
-Training a network can take a long time and a large dataset. Transfer learning is about using other people models to solve your problems. For example, can we use a pre-built natual language processing network in English for Spanish? Can we use a CNN network to predict different kind of classes. In practice, there are more commons than we think. The features extracted at earlier layers may be similar for many problem domains. For example, we can reuse a mature CNN model pre-trained with huge dataset, and replace a few right most FC layers. In the network below, we replace the red layer and the ones on its right. We can add or remove nodes and layers. We initialize the new layers and train with our smaller dataset. There are 2 options in the training. Allow the whole system to be trained or just perform gradient descent on the changed layers.
+Training a network can take a long time and a large dataset. Transfer learning is about using other people models to solve your problems. For example, can we use a pre-built natural language processing network in English for Spanish? Can we use a CNN network to predict different kind of classes. In practice, there are more commons than we think. The features extracted at earlier layers may be similar for many problem domains. For example, we can reuse a mature CNN model pre-trained with huge dataset, and replace a few right most FC layers. In the network below, we replace the red layer and the ones on its right. We can add or remove nodes and layers. We initialize the new layers and train with our smaller dataset. There are 2 options in the training. Allow the whole system to be trained or just perform gradient descent on the changed layers.
 
 <div class="imgcap">
 <img src="/assets/cnn/cnn.png" style="border:none;width:50%">
 </div>
 
-In addition, we can feed the activation output at certain layer to a different network to solve a different problem. For example,we want to create caption for images automatically. First, we can process images by a CNN and use the features in the FC layer as input to a recurrent network to generate caption.
+In addition, we can feed the activation output at certain layer to a different network to solve a different problem. For example, we want to create caption for images automatically. First, we can process images by a CNN and use the features in the FC layer as input to a recurrent network to generate caption.
 
 ### Credits
 For the TensorFlow coding, we start with the CNN class assignment 4 from the Google deep learning class on Udacity. We implement a CNN design with additional code to complete the assignment.

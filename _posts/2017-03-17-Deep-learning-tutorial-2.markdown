@@ -339,7 +339,7 @@ $$
 
 #### Softmax classifier
 
-For many classification problems, we categorize an input to one of the many classes. For example, we can classify an image to one of the 100 possible object classes. We use softmax classifier to compute K probabilities, one per class for an input image (the combined probabilities remains 1).
+For many classification problems, we categorize an input to one of the many classes. For example, we can classify an image to one of the 100 possible object classes. We use a softmax classifier to compute K probabilities, one per class for an input image (the combined probabilities remains 1).
 
 <div class="imgcap">
 <img src="/assets/dl/deep_learner2.jpg" style="border:none;width:70%;">
@@ -1165,7 +1165,7 @@ where $$k$$ is a small constant.
 
 #### Whitening
 
-In machine learning, we prefer features to be unrelated. For example, in a dating application, a person may prefer a tall person but not too thin. However, weight and height are co-related. A taller person is heavier than a shorter person on average. Re-scaling these features independently can only tell whether a person is lighter than average in the population, but not whether the person is thin. Weigth increases with height:
+In machine learning, we prefer features to be unrelated. For example, in a dating application, a person may prefer a tall person but not too thin. However, weight and height are co-related. A taller person is heavier than a shorter person on average. Re-scaling these features independently can only tell whether a person is lighter than average in the population, but not whether the person is thin. Weight increases with height:
 <div class="imgcap">
 <img src="/assets/dl/gauss.jpg" style="border:none;">
 </div>
