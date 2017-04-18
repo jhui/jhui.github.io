@@ -158,7 +158,7 @@ $$
 The match between $$u$$ and each memory $$m_{i} $$ is computed by taking the inner product followed by a softmax:
 
 $$
-p_{i} = softmax(u^T, m_{i}).
+p_{i} = softmax(u^T m_{i}).
 $$
 
 
