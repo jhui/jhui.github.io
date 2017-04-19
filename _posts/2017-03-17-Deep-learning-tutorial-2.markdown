@@ -181,7 +181,7 @@ When we build our model, we also try out a polynomial model with order of nine. 
 
 ### Diminishing and exploding gradient
 
-**Cannot train a mode if gradients explode or diminish.** From our previous example, we demonstrate the importantance of tracing the gradient at different layers to troubleshoot problems. In our online dating model, we log
+**Cannot train a model if gradients explode or diminish.** From our previous example, we demonstrate the importance of tracing the gradient at different layers to troubleshoot problems. In our online dating model, we log
 $$ || gradient || $$ 
 for each layers.
 
