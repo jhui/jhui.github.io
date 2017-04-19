@@ -1039,7 +1039,7 @@ We plot the predicted values with the true values. (The values derived from our 
 
 > Congratulations! We just solved a problem using deep learning!
 
-The code looks simple and easy. When we solve couple visual recognition problems later, you will realize that the codes are almost the same. We prefer to keep things simple now so we can play with it using different ideas. For real problems, instead of two inputs (the years of education and the monthly income), there may be a couple dozen features (input). For complex problems, we add fully connected layers (FC) to enrich the model. For visual recognition, we convert the 2-D image into a 1-D array and feed it to an FC. Nevertheless, if we want to push the accuracy up for complex visual problems, we add convolution layers in front of the FC. Nevertheless, learning FC covers the critical techniques for CNN.
+The code looks simple and easy. When we solve couple visual recognition problems later, you will realize that the codes are almost the same. We prefer to keep things simple now so we can play with the model. For real problems,  we will have a couple dozen input features, and add more fully-connected layers (FC). For visual recognition, we convert the 2-D image into a 1-D array and feed it to an FC network. In practice, we add convolution layers (CNN) in front of the FC to push the accuracy higher. Fortunately, FC and CNN share many common techniques, and we will continue our discussion with simpler models.
 
 Now, we increase the number of hidden layers back from 2 to 4. Our prediction accuracy drops. It takes more training time and tuning. When we plot it in 3D with variable income and education, some part of the 2D plain is bent instead of flat.
 <div class="imgcap">
@@ -1059,7 +1059,7 @@ def sample(education, income, verbose=True):
     return dates + noise
 ```
 
-For completness, we replace our ReLU function with a sigmoid function and plot the same diagram:
+For completeness, we replace our ReLU function with a sigmoid function and plot the same diagram:
 
 <div class="imgcap">
 <img src="/assets/dl/fc_si1.png" style="border:none;width:60%">
