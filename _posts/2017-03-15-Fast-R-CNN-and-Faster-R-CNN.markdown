@@ -215,6 +215,11 @@ In the example above, we generate 1 proposal per sliding window.  The region pro
 <img src="/assets/rcnn/anchor3.png" style="border:none;width:75%">
 </div>
 
+### Implementations
+
+The implementations of Faster R-CNN can be found at:
+* [Ross Girshick Github](https://github.com/rbgirshick/py-faster-rcnn) and
+* [Shaoqing Ren Github](https://github.com/ShaoqingRen/faster_rcnn)
 
 
 
