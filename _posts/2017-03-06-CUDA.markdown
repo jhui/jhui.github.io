@@ -1,0 +1,325 @@
+---
+layout: post
+comments: true
+mathjax: true
+title: “CUDA”
+excerpt: “NVIDIA CUDA”
+date: 2017-03-06 14:00:00
+---
+### Sample code in adding 2 numbers with a GPU
+
+> Terminology: Host (a CPU and its memory), device (a GPU and its memory). CPU and GPU do not share memory.
+
+The sample code in adding 2 numbers together with a GPU:
+* Define a kernel (a function to run on the GPU).
+* Allocate & initialize the host data.
+* Allocate & initialize the device data.
+* Invoke a kernel in the GPU.
+* Copy kernel output to the host.
+* Cleanup.
+
+#### Define a kernel
+
+Use the keyword **\_\_global\_\_** to define a kerne. A **Kernel** is a function to be run on a GPU. This kernel takes 2 numbers $$a$$ & $$b$$ and store the result in $$c$$.
+
+```
+// Kernel definition 
+// Run on GPU
+// Adding 2 numbers and store the result in c
+__global__ void add(int *a, int *b, int *c) 
+{
+    *c = *a + *b;
+}
+```
+
+#### Allocate & initialize host data
+
+Prepare input and output parameters for the kernel. Because CPU & GPU do not share memory. We need to prepare a local copy in the host first.
+```
+int main(void) {
+    // Allocate & initialize host data - run on the host
+    int a, b, c;         // host copies of a, b, c
+    a = 2;
+    b = 7;
+    ...
+}	
+```
+
+#### Allocate and initialize device data
+
+We allocate space in the device so we can copy the input of the kernel ($$a$$ & $$b$$) from the host to the device. We also allocate space for $$c$$ to copy result from the device to the host later.
+```
+int main(void) {
+    ...
+	
+    int *d_a, *d_b, *d_c; // device copies of a, b, c
+	
+    // Allocate space for device copies of a, b, c
+    cudaMalloc((void **)&d_a, size);
+    cudaMalloc((void **)&d_b, size);
+    cudaMalloc((void **)&d_c, size);
+	
+    // Copy a & b from the host to the device
+    cudaMemcpy(d_a, &a, size, cudaMemcpyHostToDevice);
+    cudaMemcpy(d_b, &b, size, cudaMemcpyHostToDevice);	
+    ...
+}
+```
+
+#### Invoke the kernel
+
+Invoke the kernel _add_ with 1 block each containing 1 thread (\<\<\<1,1\>\>\>), and parameters a, b, c.
+
+> Each parallel invocation of add() is referred to as a **block**. Each block can have multiple threads.
+
+In this example, we will use 1 block and 1 thread per block.
+```
+int main(void) {
+    ...
+    // Launch add() kernel on GPU with parameters (d_a, d_b, d_c) 
+    add<<<1,1>>>(d_a, d_b, d_c);
+    ...
+}
+```
+
+#### Copy kernel output to the host
+```
+    // Copy result back to the host
+    cudaMemcpy(&c, d_c, size, cudaMemcpyDeviceToHost);
+```
+
+#### Clean up 
+```
+    // Cleanup
+    cudaFree(d_a); cudaFree(d_b); cudaFree(d_c);
+```
+
+#### Putting together: Heterogeneous Computing
+In CUDA, we define a single file to run both the host and the device code. 
+```
+nvcc add.cu   # Compile the source code
+a.out         # Run the code.
+```
+
+The following is the complete source code for our example.
+```
+// Kernel definition 
+// Run on GPU
+__global__ void add(int *a, int *b, int *c) {
+    *c = *a + *b;
+}
+
+int main(void) {
+	// Allocate & initialize host data - run on the host
+    int a, b, c;         // host copies of a, b, c
+    a = 2;
+    b = 7;
+
+    int *d_a, *d_b, *d_c; // device copies of a, b, c
+    // Allocate space for device copies of a, b, c
+    int size = sizeof(int);
+    cudaMalloc((void **)&d_a, size);
+    cudaMalloc((void **)&d_b, size);
+    cudaMalloc((void **)&d_c, size);
+	
+    // Copy a & b from the host to the device
+    cudaMemcpy(d_a, &a, size, cudaMemcpyHostToDevice);
+    cudaMemcpy(d_b, &b, size, cudaMemcpyHostToDevice);
+	
+    // Launch add() kernel on GPU
+    add<<<1,1>>>(d_a, d_b, d_c);
+	
+    // Copy result back to the host
+    cudaMemcpy(&c, d_c, size, cudaMemcpyDeviceToHost);
+	
+    // Cleanup
+    cudaFree(d_a); cudaFree(d_b); cudaFree(d_c);
+    return 0;
+}
+```
+
+### Block and thread
+
+CUDA uses **block** and **threads** to provide parallelism. CUDA creates multiple blocks and each block creates multiple threads. 
+
+To take advantage of block and threads, we need to change _add_ to process different sub-section of the data. Each thread calls a kernel in parallel. In the kernel below, we perform one addition per call. To locate the data for each thread, we compute the index of the data by the current block and thread index.
+
+$$
+index_{data} = index_{thread }+ index_{block} * \text{ (threads per block)}
+$$
+
+```
+__global__ void add(int *a, int *b, int *c)
+{
+    // blockIdx.x is the index of the block.
+    // Each block has blockDim.x threads.
+    // threadIdx.x is the index of the thead.
+    // Each thread can perform 1 addition. 
+    // a[index] & b[index] are the 2 numbers to add in the current thread.
+    int index = threadIdx.x + blockIdx.x * blockDim.x;
+    c[index] = a[index] + b[index];
+}
+```
+
+```
+#define N (2048*2048)
+#define THREADS_PER_BLOCK 512
+int main(void) {
+   int *a, *b, *c; 
+   // Alloc space for host copies of a, b, c and setup input values
+   a = (int *)malloc(size); random_ints(a, N);
+   b = (int *)malloc(size); random_ints(b, N);
+   c = (int *)malloc(size);
+
+   int *d_a, *d_b, *d_c;
+   int size = N * sizeof(int);
+   // Alloc space for device copies of a, b, c
+   cudaMalloc((void **)&d_a, size);
+   cudaMalloc((void **)&d_b, size);
+   cudaMalloc((void **)&d_c, size);
+
+   // Copy inputs to device
+   cudaMemcpy(d_a, a, size, cudaMemcpyHostToDevice);
+   cudaMemcpy(d_b, b, size, cudaMemcpyHostToDevice);
+
+   // Launch add() kernel on GPU
+   add<<<N/THREADS_PER_BLOCK,THREADS_PER_BLOCK>>>(d_a, d_b, d_c);
+
+   // Copy result back to host
+   cudaMemcpy(c, d_c, size, cudaMemcpyDeviceToHost);
+
+   // Cleanup
+   free(a); free(b); free(c);
+   cudaFree(d_a); cudaFree(d_b); cudaFree(d_c);
+   return 0;
+}
+```
+
+Here we invoke the kernel with multiple blocks and multiple threads per block.
+```
+   // Launch add() kernel on GPU
+   // Use N/THREADS_PER_BLOCK block and THREADS_PER_BLOCK threads
+   add<<<N/THREADS_PER_BLOCK,THREADS_PER_BLOCK>>>(d_a, d_b, d_c);
+```
+
+### Threads & shared memory
+
+Why do we need threads when we have blocks? GPU has a global memory and shared memories. Data is copy from the host to the global memory in the device. Each block has their own shared memory and it is not shared among blocks. The shared memory is faster than the global memory. Hence, we often copy all the data needed for a block from the global memory to the shared memory first.
+
+Use **\_\_shared\_\_** to declare a variable using the shared memory:
+```
+__global__ void add(int *a, int *b, int *c)
+{
+    __shared__ int temp[1000];
+}	
+```
+
+Shared memory speeds up performance in particular when we need to access multiple data per threads. We create a new kernel _stencil_ which add all its neighboring data within a _radius_. 
+
+$$
+out = in_{k-radius} + in_{k-radius+1} + \dots + in_{k}  + in_{k+radius-1} + in_{k+radius}
+$$
+
+We read all data needed in a block to a shared memory:
+```
+#define RADIUS 7
+#define BLOCK_SIZE 512
+__global__ void stencil(int *in, int *out) 
+{
+    __shared__ int temp[BLOCK_SIZE + 2 * RADIUS];
+    int gindex = threadIdx.x + blockIdx.x * blockDim.x;
+    int lindex = threadIdx.x + RADIUS;
+	
+    // Read input elements into shared memory
+    temp[lindex] = in[gindex];
+    // At both end of a block, the sliding window moves beyond the block boundary.
+    if (threadIdx.x < RADIUS) {
+       temp[lindex - RADIUS] = in[gindex - RADIUS];
+       temp[lindex + BLOCK_SIZE] = in[gindex + BLOCK_SIZE];
+    }
+ 
+    // Apply the stencil
+    int result = 0;
+    for (int offset = -RADIUS ; offset <= RADIUS ; offset++)
+       result += temp[lindex + offset];
+
+    // Store the result
+    out[gindex] = result; 
+}	
+```
+
+### Thread synchronization
+The code in the last section has a fatal problem. For example, to propagate data for $$temp[0]$$ to $$temp[radius-1]$$ on the left end, we need the thread from $$0$$ to $$ radius - 1$$ to complete the follow code before thread $$ radius $$ starts computing $$out$$. However, threads are executed in parallel with no guarantee of order. We will encounter data race problem.
+```
+    if (threadIdx.x < RADIUS) {
+       temp[lindex - RADIUS] = in[gindex - RADIUS];
+       temp[lindex + BLOCK_SIZE] = in[gindex + BLOCK_SIZE];
+    }
+```
+
+```
+    for (int offset = -RADIUS ; offset <= RADIUS ; offset++)
+       result += temp[lindex + offset];    // Data race problem here.
+```
+
+So, like other multi-threading programming, CUDA provides thread synchronization methods **\_\_syncthreads()**
+
+```
+__global__ void stencil_1d(int *in, int *out) {
+    __shared__ int temp[BLOCK_SIZE + 2 * RADIUS];
+    int gindex = threadIdx.x + blockIdx.x * blockDim.x;
+    int lindex = threadIdx.x + RADIUS;
+	
+    // Read input elements into shared memory
+    temp[lindex] = in[gindex];
+    // At both end of a block, the sliding window moves beyond the block boundary.
+    if (threadIdx.x < RADIUS) {
+       temp[lindex - RADIUS] = in[gindex - RADIUS];
+       temp[lindex + BLOCK_SIZE] = in[gindex + BLOCK_SIZE];
+    }
+ 
+    // Synchronize (ensure all the threads will be completed before continue)
+    __syncthreads();
+	
+    // Apply the stencil
+    int result = 0;
+    for (int offset = -RADIUS ; offset <= RADIUS ; offset++)
+       result += temp[lindex + offset];
+
+    // Store the result
+    out[gindex] = result; 
+
+}
+```
+
+Other synchronization methods:
+
+| Call | Behavior |
+| --- | --- |
+| cudaMemcpy() | Blocks the CPU until the copy is complete <br> Copy begins when all preceding CUDA calls have completed |
+| cudaMemcpyAsync() | Asynchronous, does not block the CPU |
+| cudaDeviceSynchronize() | Blocks the CPU until all preceding CUDA calls have completed |
+
+### Thread index
+A thread block contains multiple threads to be run in parallel.  Add 2 2-D matrices with 1 thread block of NxN threads:
+```c
+__global__ void MatAdd(float A[N][N], float B[N][N],
+                       float C[N][N])
+{
+    int i = threadIdx.x;
+    int j = threadIdx.y;
+    C[i][j] = A[i][j] + B[i][j];
+}
+
+int main()
+{
+    ...
+    // Kernel invocation with one block of N * N * 1 threads
+    int numBlocks = 1;
+    dim3 threadsPerBlock(N, N);
+    MatAdd<<<numBlocks, threadsPerBlock>>>(A, B, C);
+    ...
+}
+```
+
+> On current GPUs, a thread block may contain up to 1024 threads.
