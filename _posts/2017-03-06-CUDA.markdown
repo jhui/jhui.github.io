@@ -8,7 +8,7 @@ date: 2017-03-06 14:00:00
 ---
 ### Sample code in adding 2 numbers with a GPU
 
-> Terminology: Host (a CPU and its memory), device (a GPU and its memory). CPU and GPU do not share memory.
+> Terminology: Host (a CPU and host memory), device (a GPU and device memory). CPU and GPU do not share memory.
 
 The sample code in adding 2 numbers together with a GPU:
 * Define a kernel (a function to run on the GPU).
@@ -20,7 +20,7 @@ The sample code in adding 2 numbers together with a GPU:
 
 #### Define a kernel
 
-Use the keyword **\_\_global\_\_** to define a kerne. A **Kernel** is a function to be run on a GPU. This kernel takes 2 numbers $$a$$ & $$b$$ and store the result in $$c$$.
+Use the keyword **\_\_global\_\_** to define a kerne. A **Kernel** is a function to be run on a GPU instead of a CPU. This kernel takes 2 numbers $$a$$ & $$b$$ and store the result in $$c$$.
 
 ```
 // Kernel definition 
@@ -34,7 +34,7 @@ __global__ void add(int *a, int *b, int *c)
 
 #### Allocate & initialize host data
 
-Prepare input and output parameters for the kernel. Because CPU & GPU do not share memory. We need to prepare a local copy in the host first.
+Prepare input and output parameters for the kernel call: Because CPU & GPU do not share memory. We need to prepare a local copy in the host first.
 ```
 int main(void) {
     // Allocate & initialize host data - run on the host
@@ -46,6 +46,8 @@ int main(void) {
 ```
 
 #### Allocate and initialize device data
+
+A CUDA program manages the device space memory through calls to the CUDA runtime. This includes device memory allocation and deallocation as well as data transfer between host and device memory.
 
 We allocate space in the device so we can copy the input of the kernel ($$a$$ & $$b$$) from the host to the device. We also allocate space for $$c$$ to copy result from the device to the host later.
 ```
@@ -66,13 +68,12 @@ int main(void) {
 }
 ```
 
+
+
 #### Invoke the kernel
 
-Invoke the kernel _add_ with 1 block each containing 1 thread (\<\<\<1,1\>\>\>), and parameters a, b, c.
+In this example, we invoke the kernel _add_ with 1 block each containing 1 thread (\<\<\<1,1\>\>\>), and parameters for a, b, c.
 
-> Each parallel invocation of add() is referred to as a **block**. Each block can have multiple threads.
-
-In this example, we will use 1 block and 1 thread per block.
 ```
 int main(void) {
     ...
@@ -81,6 +82,11 @@ int main(void) {
     ...
 }
 ```
+
+A multithreaded program is partitioned into blocks of threads that execute independently from each other. Each parallel invocation of _add_ is referred to as a **block**. Each block can have multiple threads. Each block of threads can be scheduled on any of the available **streaming multiprocessors** (SM) within a GPU.
+
+> In contrast to a regular C function call, a kernel can be executed N times in parallel by M different CUDA threads (\<\<\<N,M\>\>\>). On current GPUs, a thread block may contain up to 1024 threads.
+
 
 #### Copy kernel output to the host
 ```
@@ -138,14 +144,14 @@ int main(void) {
 }
 ```
 
-### Block and thread
+### Blocks and threads
 
-CUDA uses **block** and **threads** to provide parallelism. CUDA creates multiple blocks and each block creates multiple threads. 
+CUDA uses **block** and **threads** to provide data parallelism. CUDA creates multiple blocks and each block has multiple threads. Each thread that executes the kernel is given a unique Bock ID & thread ID that is accessible within the kernel through the built-in **blockIdx.x** and **threadIdx,x** variable.
 
-To take advantage of block and threads, we need to change _add_ to process different sub-section of the data. Each thread calls a kernel in parallel. In the kernel below, we perform one addition per call. To locate the data for each thread, we compute the index of the data by the current block and thread index.
+Threads call a kernel in parallel. To take advantage of the data parallelism, we change our program to add 2048x2048 numbers together. In the kernel below, each thread add one pair of number together. To avoid data overlap, we use the $$blockIdx.x$$ and $$threadIdx.x$$  to compute the index of the input data, so each thread is responsible for adding a different pairs of number ($$a[index]$$ and $$b[index]$$).
 
 $$
-index_{data} = index_{thread }+ index_{block} * \text{ (threads per block)}
+index_{data} = index_{block} * \text{ (threads per block)} + index_{thread}
 $$
 
 ```
@@ -156,11 +162,12 @@ __global__ void add(int *a, int *b, int *c)
     // threadIdx.x is the index of the thead.
     // Each thread can perform 1 addition. 
     // a[index] & b[index] are the 2 numbers to add in the current thread.
-    int index = threadIdx.x + blockIdx.x * blockDim.x;
+    int index = blockIdx.x * blockDim.x + threadIdx.x;
     c[index] = a[index] + b[index];
 }
 ```
 
+We change the program to add 2048x2048 numbers together with 512 threads per block:
 ```
 #define N (2048*2048)
 #define THREADS_PER_BLOCK 512
@@ -198,13 +205,13 @@ int main(void) {
 Here we invoke the kernel with multiple blocks and multiple threads per block.
 ```
    // Launch add() kernel on GPU
-   // Use N/THREADS_PER_BLOCK block and THREADS_PER_BLOCK threads
+   // Use N/THREADS_PER_BLOCK blocks and THREADS_PER_BLOCK threads per block
    add<<<N/THREADS_PER_BLOCK,THREADS_PER_BLOCK>>>(d_a, d_b, d_c);
 ```
 
 ### Threads & shared memory
 
-Why do we need threads when we have blocks? GPU has a global memory and shared memories. Data is copy from the host to the global memory in the device. Each block has their own shared memory and it is not shared among blocks. The shared memory is faster than the global memory. Hence, we often copy all the data needed for a block from the global memory to the shared memory first.
+Why do we need threads when we have blocks? CUDA threads have access to multiple memory spaces with different performance. Each thread has its own local memory. Each thread block has shared memory visible to all threads of the block and with the same lifetime as the block. All threads have access to the same global memory. Data access for the shared memory is faster than the global memory. Data is copy from the host to the global memory in the GPU first. All threads in a block run on the same multiprocessor. Hence, to reduce memory latency, we can copy all the data needed for a block from the global memory to the shared memory.
 
 Use **\_\_shared\_\_** to declare a variable using the shared memory:
 ```
@@ -214,13 +221,13 @@ __global__ void add(int *a, int *b, int *c)
 }	
 ```
 
-Shared memory speeds up performance in particular when we need to access multiple data per threads. We create a new kernel _stencil_ which add all its neighboring data within a _radius_. 
+Shared memory speeds up performance in particular when we need to access data frequently. Here, we create a new kernel _stencil_ which add all its neighboring data within a _radius_. 
 
 $$
 out = in_{k-radius} + in_{k-radius+1} + \dots + in_{k}  + in_{k+radius-1} + in_{k+radius}
 $$
 
-We read all data needed in a block to a shared memory:
+We read all data needed in a block to a shared memory. With a radius of 7 and a block with index from 512 to 1023, we need to read data from 505 to 1030.
 ```
 #define RADIUS 7
 #define BLOCK_SIZE 512
@@ -233,6 +240,7 @@ __global__ void stencil(int *in, int *out)
     // Read input elements into shared memory
     temp[lindex] = in[gindex];
     // At both end of a block, the sliding window moves beyond the block boundary.
+    // E.g, for thread id = 512, we wiil read in[505] and in[1030] into temp.
     if (threadIdx.x < RADIUS) {
        temp[lindex - RADIUS] = in[gindex - RADIUS];
        temp[lindex + BLOCK_SIZE] = in[gindex + BLOCK_SIZE];
@@ -248,8 +256,16 @@ __global__ void stencil(int *in, int *out)
 }	
 ```
 
+> We must make sure the shared memory is smaller than the available physical shared memory.
+
 ### Thread synchronization
-The code in the last section has a fatal problem. For example, to propagate data for $$temp[0]$$ to $$temp[radius-1]$$ on the left end, we need the thread from $$0$$ to $$ radius - 1$$ to complete the follow code before thread $$ radius $$ starts computing $$out$$. However, threads are executed in parallel with no guarantee of order. We will encounter data race problem.
+The code in the last section has a fatal data racing problem. Data is not stored in the shared memory before accessing it. For example, to compute the result for say thread 20, we need to access $$temp$$ corresponding to $$in[13]$$ to $$in[27]$$.  
+```
+    for (int offset = -RADIUS ; offset <= RADIUS ; offset++)
+       result += temp[lindex + offset];    // Data race problem here.
+```
+
+However, thread 27 is responsible for loading $$temp$$ with $$in[27]$$. Since threads are executed in parallel with no guarantee of order, we may compute the result for thread 20 before thread 27 stores $$in[27]$$ into $$temp$$.
 ```
     if (threadIdx.x < RADIUS) {
        temp[lindex - RADIUS] = in[gindex - RADIUS];
@@ -257,12 +273,8 @@ The code in the last section has a fatal problem. For example, to propagate data
     }
 ```
 
-```
-    for (int offset = -RADIUS ; offset <= RADIUS ; offset++)
-       result += temp[lindex + offset];    // Data race problem here.
-```
 
-So, like other multi-threading programming, CUDA provides thread synchronization methods **\_\_syncthreads()**
+So, like other multi-threading programming, CUDA provides thread synchronization methods **\_\_syncthreads** to solve this data racing problem. All threads will be blocked at \_\_syncthreads until all threads in the same block have reached the same point.
 
 ```
 __global__ void stencil_1d(int *in, int *out) {
@@ -292,6 +304,8 @@ __global__ void stencil_1d(int *in, int *out) {
 }
 ```
 
+> \_\_syncthreads is expected to be lightweight.
+
 Other synchronization methods:
 
 | Call | Behavior |
@@ -300,14 +314,17 @@ Other synchronization methods:
 | cudaMemcpyAsync() | Asynchronous, does not block the CPU |
 | cudaDeviceSynchronize() | Blocks the CPU until all preceding CUDA calls have completed |
 
-### Thread index
-A thread block contains multiple threads to be run in parallel.  Add 2 2-D matrices with 1 thread block of NxN threads:
+### Thread hierarchy
+In pervious example, the thread index $$threadIdx.x$$ is 1-dimensional. To access multiple dimensional matrices easier, CUDA also support multiple dimensional thread index.
+
+The following code add two 2-D matrices with 1 thread block of NxN threads. $$treadIdx.x$$ and $$treadIdx.y$$ represents a 2-dimensional index for easy 2-D matrix access.
 ```c
 __global__ void MatAdd(float A[N][N], float B[N][N],
                        float C[N][N])
 {
-    int i = threadIdx.x;
-    int j = threadIdx.y;
+    // the blockIdx and treadIdx is now 2-dimensional.
+    int i = blockIdx.x * blockDim.x + threadIdx.x; 
+    int j = blockIdx.y * blockDim.y + threadIdx.y; 
     C[i][j] = A[i][j] + B[i][j];
 }
 
@@ -315,11 +332,273 @@ int main()
 {
     ...
     // Kernel invocation with one block of N * N * 1 threads
-    int numBlocks = 1;
     dim3 threadsPerBlock(N, N);
-    MatAdd<<<numBlocks, threadsPerBlock>>>(A, B, C);
+    MatAdd<<<1, threadsPerBlock>>>(A, B, C);
     ...
 }
 ```
 
-> On current GPUs, a thread block may contain up to 1024 threads.
+> CUDA supports one-dimensional, two-dimensional, or three-dimensional thread index with the type $$dim3$$.
+
+A block may not align exactly with the input data boundary. We add a if loop to avoid a thread to go beyond the input data boundary. For example, in the last block, we may not have enough data for the amount of threads configured.
+```
+// Kernel definition 
+__global__ void MatAdd(float A[N][N], float B[N][N], float C[N][N]) 
+{ 
+    int i = blockIdx.x * blockDim.x + threadIdx.x; 
+    int j = blockIdx.y * blockDim.y + threadIdx.y; 
+    // Avoid a thread block that go beyond the input data boundary.
+    if (i < N && j < N)
+        C[i][j] = A[i][j] + B[i][j];
+} 
+
+int main() 
+{ 
+    ... 
+    // Kernel invocation 
+    dim3 threadsPerBlock(16, 16);
+    dim3 numBlocks(N / threadsPerBlock.x, N / threadsPerBlock.y);
+    MatAdd<<<numBlocks, threadsPerBlock>>>(A, B, C); 
+    ...
+}
+```
+
+> A thread block size of 16x16 (256 threads) is a very common choice.
+
+### nvcc
+
+The compute capability of a device "SM version" shows what a device supports. We can compile code to support multiple target devices:
+```
+nvcc x.cu -gencode arch=compute_20, code=sm_20 
+          -gencode arch=compute_30,code=sm_30
+          -gencode arch=compute_35,code=\'compute_35,sm_35\'
+```
+
+
+This embeds binary code compatible with compute capability 2.0 and 3.0 and PTX and binary code compatible with compute capability 3.5 (third -gencode option). Host code will select at runtime the most appropriate code to load and execute for the target device.
+
+> PTU is the CUDA instruction set. Any PTX code is compiled further to binary code by the device driver (by a just-in-time compiler).  This takes advantage of future versions of hardware. 
+
+The runtime for CUDA calls is implemented in the cudart library, which is linked to the application, either statically via cudart.lib or libcudart.a, or dynamically via cudart.dll or libcudart.so. Those libraries are included during installation.
+
+### Memory
+
+#### Device memory
+Device memory can be allocated either as linear memory. Like our sample code before, linear memory is managed by _cudaMalloc_, _cudaFree_ and _cudaMemcpy_. Linear memory can also be managed by _cudaMallocPitch_, _cudaMalloc3D_, _cudaMemcpy2D_ and _cudaMemcpy3D_ for 2D or 3D arrays.
+
+For 2-D array:
+```
+// Host code 
+int width = 64, height = 64; 
+float* devPtr; 
+size_t pitch; 
+cudaMallocPitch(&devPtr, &pitch, width * sizeof(float), height); 
+MyKernel<<<100, 512>>>(devPtr, pitch, width, height); 
+
+// Device code __global__ void MyKernel(float* devPtr, size_t pitch, int width, int height) 
+{ 
+    for (int r = 0; r < height; ++r) { 
+        float* row = (float*)((char*)devPtr + r * pitch); 
+        for (int c = 0; c < width; ++c) { 
+            float element = row[c]; 
+        } 
+    }
+}
+```
+
+```
+// Host code 
+int width = 64, height = 64, depth = 64; 
+cudaExtent extent = make_cudaExtent(width * sizeof(float), height, depth); 
+cudaPitchedPtr devPitchedPtr; 
+cudaMalloc3D(&devPitchedPtr, extent); 
+MyKernel<<<100, 512>>>(devPitchedPtr, width, height, depth); 
+
+// Device code __global__ void MyKernel(cudaPitchedPtr devPitchedPtr, int width, int height, int depth) 
+{ 
+    char* devPtr = devPitchedPtr.ptr; 
+    size_t pitch = devPitchedPtr.pitch;
+    size_t slicePitch = pitch * height; 
+    for (int z = 0; z < depth; ++z) { 
+        char* slice = devPtr + z * slicePitch; 
+        for (int y = 0; y < height; ++y) { 
+            float* row = (float*)(slice + y * pitch); 
+            for (int x = 0; x < width; ++x) { 
+                float element = row[x];
+            } 
+        } 
+    }     
+}
+```
+
+#### Shared memory
+
+<div class="imgcap">
+<img src="/assets/cuda/matrix.png" style="border:none;width:60%">
+</div>
+source Nvidia (CUDA tookit documentation)
+
+Matrix multiplication with shared memory
+
+```
+// Matrices are stored in row-major order:
+// M(row, col) = *(M.elements + row * M.stride + col)
+typedef struct {
+    int width;
+    int height;
+    int stride; 
+    float* elements;
+} Matrix;
+
+// Get a matrix element
+__device__ float GetElement(const Matrix A, int row, int col)
+{
+    return A.elements[row * A.stride + col];
+}
+
+// Set a matrix element
+__device__ void SetElement(Matrix A, int row, int col,
+                           float value)
+{
+    A.elements[row * A.stride + col] = value;
+}
+
+// Get the BLOCK_SIZExBLOCK_SIZE sub-matrix Asub of A that is
+// located col sub-matrices to the right and row sub-matrices down
+// from the upper-left corner of A
+ __device__ Matrix GetSubMatrix(Matrix A, int row, int col) 
+{
+    Matrix Asub;
+    Asub.width    = BLOCK_SIZE;
+    Asub.height   = BLOCK_SIZE;
+    Asub.stride   = A.stride;
+    Asub.elements = &A.elements[A.stride * BLOCK_SIZE * row
+                                         + BLOCK_SIZE * col];
+    return Asub;
+}
+
+// Thread block size
+#define BLOCK_SIZE 16
+
+// Forward declaration of the matrix multiplication kernel
+__global__ void MatMulKernel(const Matrix, const Matrix, Matrix);
+
+// Matrix multiplication - Host code
+// Matrix dimensions are assumed to be multiples of BLOCK_SIZE
+void MatMul(const Matrix A, const Matrix B, Matrix C)
+{
+    // Load A and B to device memory
+    Matrix d_A;
+    d_A.width = d_A.stride = A.width; d_A.height = A.height;
+    size_t size = A.width * A.height * sizeof(float);
+    cudaMalloc(&d_A.elements, size);
+    cudaMemcpy(d_A.elements, A.elements, size,
+               cudaMemcpyHostToDevice);
+    Matrix d_B;
+    d_B.width = d_B.stride = B.width; d_B.height = B.height;
+    size = B.width * B.height * sizeof(float);
+    cudaMalloc(&d_B.elements, size);
+    cudaMemcpy(d_B.elements, B.elements, size,
+    cudaMemcpyHostToDevice);
+
+    // Allocate C in device memory
+    Matrix d_C;
+    d_C.width = d_C.stride = C.width; d_C.height = C.height;
+    size = C.width * C.height * sizeof(float);
+    cudaMalloc(&d_C.elements, size);
+
+    // Invoke kernel
+    dim3 dimBlock(BLOCK_SIZE, BLOCK_SIZE);
+    dim3 dimGrid(B.width / dimBlock.x, A.height / dimBlock.y);
+    MatMulKernel<<<dimGrid, dimBlock>>>(d_A, d_B, d_C);
+
+    // Read C from device memory
+    cudaMemcpy(C.elements, d_C.elements, size,
+               cudaMemcpyDeviceToHost);
+
+    // Free device memory
+    cudaFree(d_A.elements);
+    cudaFree(d_B.elements);
+    cudaFree(d_C.elements);
+}
+
+// Matrix multiplication kernel called by MatMul()
+ __global__ void MatMulKernel(Matrix A, Matrix B, Matrix C)
+{
+    // Block row and column
+    int blockRow = blockIdx.y;
+    int blockCol = blockIdx.x;
+
+    // Each thread block computes one sub-matrix Csub of C
+    Matrix Csub = GetSubMatrix(C, blockRow, blockCol);
+
+    // Each thread computes one element of Csub
+    // by accumulating results into Cvalue
+    float Cvalue = 0;
+
+    // Thread row and column within Csub
+    int row = threadIdx.y;
+    int col = threadIdx.x;
+
+    // Loop over all the sub-matrices of A and B that are
+    // required to compute Csub
+    // Multiply each pair of sub-matrices together
+    // and accumulate the results
+    for (int m = 0; m < (A.width / BLOCK_SIZE); ++m) {
+
+        // Get sub-matrix Asub of A
+        Matrix Asub = GetSubMatrix(A, blockRow, m);
+
+        // Get sub-matrix Bsub of B
+        Matrix Bsub = GetSubMatrix(B, m, blockCol);
+
+        // Shared memory used to store Asub and Bsub respectively
+        __shared__ float As[BLOCK_SIZE][BLOCK_SIZE];
+        __shared__ float Bs[BLOCK_SIZE][BLOCK_SIZE];
+
+        // Load Asub and Bsub from device memory to shared memory
+        // Each thread loads one element of each sub-matrix
+        As[row][col] = GetElement(Asub, row, col);
+        Bs[row][col] = GetElement(Bsub, row, col);
+
+        // Synchronize to make sure the sub-matrices are loaded
+        // before starting the computation
+        __syncthreads();
+
+        // Multiply Asub and Bsub together
+        for (int e = 0; e < BLOCK_SIZE; ++e)
+            Cvalue += As[row][e] * Bs[e][col];
+
+        // Synchronize to make sure that the preceding
+        // computation is done before loading two new
+        // sub-matrices of A and B in the next iteration
+        __syncthreads();
+    }
+
+    // Write Csub to device memory
+    // Each thread writes one element
+    SetElement(Csub, row, col, Cvalue);
+}
+```
+
+#### Page-Locked Host Memory
+
+Page-locked host memory has several benefits:
+* Asynchronous Concurrent Execution: Copies between host and device can be performed concurrently with kernel execution.
+* Mapped Memory: Can be mapped into the address space of the device, eliminating the need of explicit copy.
+* Write-Combining Memory: Higher bandwidth between host and device memory. 
+
+Page-locked host memory is managed by:
+* _cudaHostAlloc_ and _cudaFreeHost_ allocate and free page-locked host memory.
+* _cudaHostRegister_ page-locks memory allocated by malloc() 
+
+> Page-lock host memory is a scare resource. Make sure it is available.
+
+Tips:
+* Portable memory: Set the flag _cudaHostAllocPortable_ to _cudaHostAlloc_. Make it available to all devices, not just the device that was current when the memory was allocated. 
+* Write-Combining Memory: Set the flag _cudaHostAllocWriteCombined_ in _cudaHostAlloc_. Write-combining memory frees up the host's L1 and L2 cache resources which is not needed and improve transfer performance to the device by up to 40%.
+* Mapped memory: Set the flag _cudaHostAllocMapped_ in _cudaHostAlloc_. The memory block has two addresses: one in host memory that is returned by _cudaHostAlloc_, and one in device memory that can be retrieved using _cudaHostGetDevicePointer_ and then used to access the block from within a kernel.
+	* Mapped memory allow a kernel to access a host memory directly. Data transfers are implicitly performed as needed by the kernel.
+
+
+
