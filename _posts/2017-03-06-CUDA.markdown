@@ -8,10 +8,10 @@ date: 2017-03-06 14:00:00
 ---
 ### Sample code in adding 2 numbers with a GPU
 
-> Terminology: Host (a CPU and host memory), device (a GPU and device memory). CPU and GPU do not share memory.
+> Terminology: Host (a CPU and host memory), device (a GPU and device memory).
 
-The sample code in adding 2 numbers together with a GPU:
-* Define a kernel (a function to run on the GPU).
+This sample code adds 2 numbers together with a GPU:
+* Define a kernel (a function to run on a GPU).
 * Allocate & initialize the host data.
 * Allocate & initialize the device data.
 * Invoke a kernel in the GPU.
@@ -19,9 +19,7 @@ The sample code in adding 2 numbers together with a GPU:
 * Cleanup.
 
 #### Define a kernel
-
-Use the keyword **\_\_global\_\_** to define a kerne. A **Kernel** is a function to be run on a GPU instead of a CPU. This kernel takes 2 numbers $$a$$ & $$b$$ and store the result in $$c$$.
-
+Use the keyword **\_\_global\_\_** to define a kernel. A **kernel** is a function to be run on a GPU instead of a CPU. This kernel adds 2 numbers $$a$$ & $$b$$ and store the result in $$c$$.
 ```
 // Kernel definition 
 // Run on GPU
@@ -33,8 +31,7 @@ __global__ void add(int *a, int *b, int *c)
 ```
 
 #### Allocate & initialize host data
-
-Prepare input and output parameters for the kernel call: Because CPU & GPU do not share memory. We need to prepare a local copy in the host first.
+In the host, allocate the input and output parameters for the kernel call, and initiate all input parameters. 
 ```
 int main(void) {
     // Allocate & initialize host data - run on the host
@@ -45,11 +42,10 @@ int main(void) {
 }	
 ```
 
-#### Allocate and initialize device data
+#### Allocate and copy host data to the device
+A CUDA application manages the device space memory through calls to the CUDA runtime. This includes device memory allocation and deallocation as well as data transfer between the host and device memory.
 
-A CUDA program manages the device space memory through calls to the CUDA runtime. This includes device memory allocation and deallocation as well as data transfer between host and device memory.
-
-We allocate space in the device so we can copy the input of the kernel ($$a$$ & $$b$$) from the host to the device. We also allocate space for $$c$$ to copy result from the device to the host later.
+We allocate space in the device so we can copy the input of the kernel ($$a$$ & $$b$$) from the host to the device. We also allocate space to copy result from the device to the host later.
 ```
 int main(void) {
     ...
@@ -68,11 +64,8 @@ int main(void) {
 }
 ```
 
-
-
 #### Invoke the kernel
-
-In this example, we invoke the kernel _add_ with 1 block each containing 1 thread (\<\<\<1,1\>\>\>), and parameters for a, b, c.
+Invoke the kernel _add_ with parameters for $$a, b, c.$$
 
 ```
 int main(void) {
@@ -83,18 +76,20 @@ int main(void) {
 }
 ```
 
-A multithreaded program is partitioned into blocks of threads that execute independently from each other. Each parallel invocation of _add_ is referred to as a **block**. Each block can have multiple threads. Each block of threads can be scheduled on any of the available **streaming multiprocessors** (SM) within a GPU.
+To provide data parallelism, a multithreaded CUDA application is partitioned into blocks of threads that execute independently (and often concurrently) from each other. Each parallel invocation of _add_ is referred to as a **block**. Each block have multiple **threads**. These block of threads can be scheduled on any of the available **streaming multiprocessors** (**SM**) within a GPU. In our simple example, since we just add one pair of numbers, we only need 1 block containing 1 thread (\<\<\<1,1\>\>\>).
 
-> In contrast to a regular C function call, a kernel can be executed N times in parallel by M different CUDA threads (\<\<\<N,M\>\>\>). On current GPUs, a thread block may contain up to 1024 threads.
+> In contrast to a regular C function call, a kernel can be executed N times in parallel by M CUDA threads (\<\<\<N, M\>\>\>). On current GPUs, a thread block may contain up to 1024 threads.
 
 
 #### Copy kernel output to the host
+Copy the addition result from the device to the host:
 ```
     // Copy result back to the host
     cudaMemcpy(&c, d_c, size, cudaMemcpyDeviceToHost);
 ```
 
 #### Clean up 
+Clean up memory:
 ```
     // Cleanup
     cudaFree(d_a); cudaFree(d_b); cudaFree(d_c);
@@ -144,14 +139,179 @@ int main(void) {
 }
 ```
 
+### CUDA logical model
+
+```
+    add<<<4,4>>>(d_a, d_b, d_c);
+```
+
+A CUDA applications composes of multiple blocks of threads (**a grid**) with each thread calls a kernel once.
+
+<div class="imgcap">
+<img src="/assets/cuda/g1.png" style="border:none;width:60%">
+</div>
+
+In the second example, we have 6 blocks and 12 threads per block.
+<div class="imgcap">
+<img src="/assets/cuda/l1.png" style="border:none;width:60%">
+</div>
+(source: Nvidia)
+
+
+### GPU physical model
+
+A GPU composes of many Streaming Multiprocessors (SMs) with a global memory accessible by all SMs and a local memory.  
+
+<div class="imgcap">
+<img src="/assets/cuda/p1.png" style="border:none;width:70%">
+</div>
+
+Each SM contains multiple cores which share a shared memory as well as one local to itself.
+
+<div class="imgcap">
+<img src="/assets/cuda/p2.png" style="border:none;width:60%">
+</div>
+
+Here is the architect for GeoForce 8800 with 16 SMs each with 8 cores (Streaming processing SP).
+<div class="imgcap">
+<img src="/assets/cuda/ar1.png" style="border:none;width:80%">
+</div>
+
+A SM in the Fermi architecture:
+<div class="imgcap">
+<img src="/assets/cuda/mp.png" style="border:none;width:80%">
+</div>
+
+### Execution model
+
+#### Device level
+
+The entire device can only process one single application at a time and switch between applications is slow. At the device level, a global work distribution engine schedules thread blocks to SMs. The scheduler maintains a list of blocks to be executed and assign blocks to SMs. Threads of the same block run on the same SM. 
+
+Application can call/schedule multiple kernels. All threads in a grid execute the same kernel. GPU can handle multiple kernels from the same application simultaneously. Pascal GP100 can handle maximum of 32 thread blocks and 2048 threads per SM.
+
+<div class="imgcap">
+<img src="/assets/cuda/d1.png" style="border:none;width:60%">
+</div>
+
+Here, we have a CUDA application composes of 8 blocks. It can be executed on a GPU with 2 SMs or 4SMs. With 4 SMs, block 0 & 4 is assigned to SM0, block 1, 5 to SM1, block 2, 6 to SM2 and block 3, 7 to SM3.
+<div class="imgcap">
+<img src="/assets/cuda/th1.png" style="border:none;width:60%">
+</div>
+(source: Nvidia)
+
+#### SM level
+
+Once a block of threads is assigned to a SM, the threads are divided into units called warps. (The size of a warp is determined by the hardware implementation.) A warp scheduler schedule a warp of threads one at a time. In Fremi architect, the warp scheduler  schedule a warp of 32 threads. Each warp of threads runs the same instruction at the same time. In the diagram below, we have 2 dispatch unit. Each one can run a different warp. In each warp, it ran the same instruction.  When the threads in a warp is wait for the previous instruction to complete, the warp scheduler will select another warp to execute. Two warps from different blocks or different kernels can be executed concurrently.  
+
+<div class="imgcap">
+<img src="/assets/cuda/wa1.png" style="border:none;width:60%">
+</div>
+
+#### Branch divergence
+
+Each core (SP) run the same instruction for each threads in a warp. To execute a branch like:
+```
+if (a==0)
+    a++;
+else	
+    a--;
+``` 
+
+SM idles each core subjected to the branch conditions:
+
+| | c0 (a=3) | c1(a=3) | c2 (a=-3) | c3(a=7) | c4(a=2) | c5(a=6) | c6 (a=-2) | c7 (a=-1)|
+| if a==0  | ↓ |↓ |↓ |↓ |↓ |↓ |↓ |↓ |
+| a++| ↓ | ↓ | | ↓ | ↓ | ↓ | |
+| else a--| | | ↓ | | | | ↓| ↓ |
+ 
+To maximize throughput, all threads in a warp should follow the same control-flow. Program can be rewritten such that threads within a warp branch to the same code:
+```
+if (a<range) 
+   ...
+else
+   ...   
+```
+is preferred over
+```
+if (a%2==0) 
+   ...
+else
+   ...   
+
+```
+ 
+For loop unrolling is another technique to avoid branching:
+```
+for (int i=0; i<4; i++)
+  c[i] += a[i];
+```
+```
+c[0] = a[0] + a[1] + a[2] + a[3];
+```
+
+### Memory model
+
+Every SM has a **shared memory** accessible by all threads in the same block. Each thread has its own set of registers and local memory. All blocks can access a global memory, a constant memory(read only) and a texture memory. (read only memory for spatial data.)
+<div class="imgcap">
+<img src="/assets/cuda/m1.png" style="border:none;width:60%">
+</div>
+
+Each SM has a L1 cache for global memory references. All SMs share a second L2 cache. Access to the shared memory is in the TB/s. Global memory is an order of magnitude slower. Each GPS has a constant memory for read only with shorter latency and higher throughput.
+
+
+| Type | Read/write | Speed |
+|---|---|---|
+| Global memory | read and write | slow, but cached |
+| Texture memory | read only | cache optimized for 2D/3D access pattern |
+| Constant memory | read only | where constants and kernel arguments are stored |
+| Shared memory | read/write | fast |
+| Local memory | read/write | used when it does not fit in to registers <br> part of global memory <br>slow but cached |
+| Registers | read/write | fast |
+
+| Declaration | Memory | Scope | Lifetime |
+| int v | register | thread | thread |
+| int vArray[10] | local | thread | thread |
+| \_\_shared\_\_  int sharedV | shared | block| block |
+| \_\_device\_\_ int globalV | global | grid | application |
+| \_\_constant\_\_ int constantV | constant | grid | application |
+
+When threads in a warp load data from global memory, the system detects whether they are
+consecutive. It combines consecutive accesses into one single access to DRAM.
+
+#### constant memory
+
+SM aggressively cache constant memory which results in short latency.
+```c
+__constant__ float M[10];
+...
+	
+cudaMemcpyToSymbol(...);
+```
+
 ### Blocks and threads
 
-CUDA uses **block** and **threads** to provide data parallelism. CUDA creates multiple blocks and each block has multiple threads. Each thread that executes the kernel is given a unique Bock ID & thread ID that is accessible within the kernel through the built-in **blockIdx.x** and **threadIdx,x** variable.
+CUDA uses **blocks** and **threads** to provide data parallelism. CUDA creates multiple blocks and each block has multiple threads. Each thread calls the same kernel to process a section of the data.
 
-Threads call a kernel in parallel. To take advantage of the data parallelism, we change our program to add 2048x2048 numbers together. In the kernel below, each thread add one pair of number together. To avoid data overlap, we use the $$blockIdx.x$$ and $$threadIdx.x$$  to compute the index of the input data, so each thread is responsible for adding a different pairs of number ($$a[index]$$ and $$b[index]$$).
+<div class="imgcap">
+<img src="/assets/cuda/c1.png" style="border:none;width:40%">
+</div>
+(source: Nvidia)
+
+Here, we change our sample code to add 1024x1024 numbers together but the kernel remains almost the same by adding just one pair of number. To add all the numbers, we therefore create 4096 blocks with 256 threads per block.
 
 $$
-index_{data} = index_{block} * \text{ (threads per block)} + index_{thread}
+\text{# of numbers} = (\text{# of blocks}) \times (\text{# threads/block}) \times (\text{# of additions in the kernel})
+$$ 
+
+$$
+1024 \times 1024 = 4096 \times 256 \times 1
+$$ 
+
+Each thread that executes the kernel is given a unique Bock ID & thread ID that is accessible within the kernel through the built-in **blockIdx.x** and **threadIdx,x** variable. We use this index to locate which pairs of number we want to add in the kernel.
+
+$$
+index_{data} = index_{block} * \text{ (# of threads per block)} + index_{thread}
 $$
 
 ```
@@ -167,10 +327,10 @@ __global__ void add(int *a, int *b, int *c)
 }
 ```
 
-We change the program to add 2048x2048 numbers together with 512 threads per block:
+We change the program to add 1024x1024 numbers together with 256 threads per block:
 ```
-#define N (2048*2048)
-#define THREADS_PER_BLOCK 512
+#define N (1024*1024)
+#define THREADS_PER_BLOCK 256
 int main(void) {
    int *a, *b, *c; 
    // Alloc space for host copies of a, b, c and setup input values
@@ -380,10 +540,118 @@ This embeds binary code compatible with compute capability 2.0 and 3.0 and PTX a
 > PTU is the CUDA instruction set. Any PTX code is compiled further to binary code by the device driver (by a just-in-time compiler).  This takes advantage of future versions of hardware. 
 
 The runtime for CUDA calls is implemented in the cudart library, which is linked to the application, either statically via cudart.lib or libcudart.a, or dynamically via cudart.dll or libcudart.so. Those libraries are included during installation.
+### Nvidia Tesla P100
+
+Let's take a glimpse of the product offering for GPGPU cards. (General purpose GPU). The followings are the Nvidia Tesla P100 GPGPU cards with the Pascal GP100 GPU in the middle and memory (DRAM) on the sides:
+
+> Images from this section are from Nvidia
+
+<div class="imgcap">
+<img src="/assets/cuda/t01.png" style="border:none;width:60%">
+</div>
+
+#### Pascal GP100 GPU with 60 Streaming Multiprocessors (SM) Units
+
+GP100 contains 6 Graphics Processing Clusters (GPCs), 30 Texture
+Processing Clusters (TPCs) and eight 512-bit memory controllers (4096 bits total). Each GPC has 10 SMs (a total of 60 SMs). Each SM has 64 CUDA Cores and four texture units. With 60 SMs, GP100 has a total of 3840 single precision CUDA Cores and 240 texture units. Each memory controller is attached to 512 KB of L2 cache, and each HBM2 DRAM stack is controlled by a pair of memory controllers. The full GPU includes a total of 4096 KB of L2 cache. 
+
+> Pascal is the Nvidia GPU architecture as the successor to the Maxwell which precede Kepler .
+
+<div class="imgcap">
+<img src="/assets/cuda/t1.png" style="border:none;">
+</div>
+
+The following is the device query information for Tesla P100:
+```
+./deviceQuery Starting...
+
+ CUDA Device Query (Runtime API) version (CUDART static linking)
+
+Detected 1 CUDA Capable device(s)
+
+Device 0: "Tesla P100-PCIE-16GB"
+  CUDA Driver Version / Runtime Version          8.0 / 8.0
+  CUDA Capability Major/Minor version number:    6.0
+  Total amount of global memory:                 16276 MBytes (17066885120 bytes)
+  (56) Multiprocessors, ( 64) CUDA Cores/MP:     3584 CUDA Cores
+  GPU Max Clock rate:                            405 MHz (0.41 GHz)
+  Memory Clock rate:                             715 Mhz
+  Memory Bus Width:                              4096-bit
+  L2 Cache Size:                                 4194304 bytes
+  Maximum Texture Dimension Size (x,y,z)         1D=(131072), 2D=(131072, 65536), 3D=(16384, 16384, 16384)
+  Maximum Layered 1D Texture Size, (num) layers  1D=(32768), 2048 layers
+  Maximum Layered 2D Texture Size, (num) layers  2D=(32768, 32768), 2048 layers
+  Total amount of constant memory:               65536 bytes
+  Total amount of shared memory per block:       49152 bytes
+  Total number of registers available per block: 65536
+  Warp size:                                     32
+  Maximum number of threads per multiprocessor:  2048
+  Maximum number of threads per block:           1024
+  Max dimension size of a thread block (x,y,z): (1024, 1024, 64)
+  Max dimension size of a grid size    (x,y,z): (2147483647, 65535, 65535)
+  Maximum memory pitch:                          2147483647 bytes
+  Texture alignment:                             512 bytes
+  Concurrent copy and kernel execution:          Yes with 2 copy engine(s)
+  Run time limit on kernels:                     No
+  Integrated GPU sharing Host Memory:            No
+  Support host page-locked memory mapping:       Yes
+  Alignment requirement for Surfaces:            Yes
+  Device has ECC support:                        Enabled
+  Device supports Unified Addressing (UVA):      Yes
+  Device PCI Domain ID / Bus ID / location ID:   0 / 2 / 0
+  Compute Mode:
+     < Default (multiple host threads can use ::cudaSetDevice() with device simultaneously) >
+
+deviceQuery, CUDA Driver = CUDART, CUDA Driver Version = 8.0, CUDA Runtime Version = 8.0, NumDevs = 1, Device0 = Tesla P100-PCIE-16GB
+Result = PASS
+```
+
+> To maximize performance and data parallelism, we need to fully aware of the memory size for different memory structures, number of cores per SM and maximum thread size. We want to have the maximum parallelism within the physical capacity of the GPU.
+
+<div class="imgcap">
+<img src="/assets/cuda/s1.png" style="border:none">
+</div>
+
+> Call cudaGetDeviceProperties to get the device information from an application.
+
+#### Streaming Multiprocessor
+<div class="imgcap">
+<img src="/assets/cuda/t2.png" style="border:none">
+</div>
+
+GP100’s SM has 64 single-precision (FP32) CUDA Cores. The GP100 SM is partitioned into two processing blocks,
+each having 32 single-precision CUDA Cores, an instruction buffer, a warp scheduler, and two dispatch
+units. 
+
+<div class="imgcap">
+<img src="/assets/cuda/s2.png" style="border:none">
+</div>
+
+#### L1/L2 cache
+Kepler GPUs featured a 64 KB configurable shared memory and L1 cache that could split the allocation of memory between L1 and shared memory functions depending on workload. Beginning with Maxwell, the cache hierarchy was changed. The GP100 SM has its own dedicated pool of shared memory (64 KB/SM) and an L1 cache that can also serve as a texture cache depending on workload. The unified L1/texture cache acts as a coalescing buffer for memory accesses, gathering up the data requested by the threads of a warp prior to delivery of that data to the warp. GP100 features a unified 4096 KB L2 cache that provides efficient, high speed data sharing across the
+GPU. With more cache located on-chip, fewer requests to the GPU’s DRAM are needed.
+
+#### NVLink
+
+NVLink improves both GPU-to-GPU communications and for GPU access to system memory.
+
+<div class="imgcap">
+<img src="/assets/cuda/ii1.png" style="border:none;width:60%">
+</div>
+
+
+### Compute Preemption 
+Compute Preemption is another new feature of the Pascal GP100 GPU architecture. It allows tasks to be preempted at instruction-level with context swapped to device memory rather than interrupted at the thread block level as in prior Maxwell/Kepler GPU architectures. Compute Preemption prevents long-running applications from either monopolizing the system computation power or being time out or killed. Programmers no longer need to change their long-running applications to play nicely with other GPU
+applications. With Compute Preemption in GP100, applications can run as long as needed while scheduled alongside other tasks. 
+
+### Atomics
+
+Kepler implements shared memory atomics using a lock/update/unlock pattern that could be expensive. Maxwell improved atomic operations by implementing native hardware support for shared memory atomic operations for 32-bit integers, and native shared memory 32-bit and 64-bit compare-and-swap (CAS). Pascal improves atomic operations using Unified Memory and NVLink. The atomicAdd() function can apply to 32 and 64-bit integer and floating-point data. 
+
 
 ### Memory
 
-#### Device memory
+#### Device memory (Global memory)
 Device memory can be allocated either as linear memory. Like our sample code before, linear memory is managed by _cudaMalloc_, _cudaFree_ and _cudaMemcpy_. Linear memory can also be managed by _cudaMallocPitch_, _cudaMalloc3D_, _cudaMemcpy2D_ and _cudaMemcpy3D_ for 2D or 3D arrays.
 
 For 2-D array:
@@ -430,6 +698,9 @@ MyKernel<<<100, 512>>>(devPitchedPtr, width, height, depth);
     }     
 }
 ```
+
+#### Pitch
+Memory access is most efficient on 64 byte boundary._cudaMallocPitch_ & _cudaMemcpy2D_ takes care of necessary memory padding for memory alignement for 2-D arrays.
 
 #### Shared memory
 
@@ -581,12 +852,30 @@ void MatMul(const Matrix A, const Matrix B, Matrix C)
 }
 ```
 
+Shared memory is divided into equally sized memory modules called banks. Banks can be accessed concurrently. Shared memory accesses in consecutive locations can therefore loaded simultaneously. The bank size is configureable by __cudaDeviceSetSharedMemConfig__.
+
+#### Dynamic shared memory
+
+Use dynamic shared memory if the size of the array is not known inside the kernel:
+```c
+{
+extern __shared__ int array[];
+}
+```
+Supply the size when launching the kernel:
+```
+add<<<10, 10, N*sizeof(int)>>>(d_a, d_b);
+```
+
 #### Page-Locked Host Memory
 
-Page-locked host memory has several benefits:
-* Asynchronous Concurrent Execution: Copies between host and device can be performed concurrently with kernel execution.
-* Mapped Memory: Can be mapped into the address space of the device, eliminating the need of explicit copy.
-* Write-Combining Memory: Higher bandwidth between host and device memory. 
+Unified Virtual Addressing (UVA) in CUDA 4 provides a single virtual memory address space for both CPU and GPU memory and enable pointers to be accessed from GPU code. UVA enables Zero-Copy memory, which is pinned CPU memory accessible by GPU code directly, over PCIe, without a memcpy. Zero-Copy provides some of the
+convenience of Unified Memory, but none of the performance, because it is always accessed by the GPU with PCIe’s low bandwidth and high latency.
+
+Install of using malloc in allocating host memory, we can call CUDA to create page-locked pinned host memory. Page-locked host memory has several benefits:
+* Asynchronous concurrent execution: Copies between host and device can be concurrent with the kernel execution.
+* Mapped memory: Can be mapped into the address space of the device, eliminating the need of allocate a block in device memory.
+* Memory bandwidth: Higher bandwidth between host and device memory in particular with Write-combining memory.
 
 Page-locked host memory is managed by:
 * _cudaHostAlloc_ and _cudaFreeHost_ allocate and free page-locked host memory.
@@ -595,10 +884,196 @@ Page-locked host memory is managed by:
 > Page-lock host memory is a scare resource. Make sure it is available.
 
 Tips:
-* Portable memory: Set the flag _cudaHostAllocPortable_ to _cudaHostAlloc_. Make it available to all devices, not just the device that was current when the memory was allocated. 
-* Write-Combining Memory: Set the flag _cudaHostAllocWriteCombined_ in _cudaHostAlloc_. Write-combining memory frees up the host's L1 and L2 cache resources which is not needed and improve transfer performance to the device by up to 40%.
-* Mapped memory: Set the flag _cudaHostAllocMapped_ in _cudaHostAlloc_. The memory block has two addresses: one in host memory that is returned by _cudaHostAlloc_, and one in device memory that can be retrieved using _cudaHostGetDevicePointer_ and then used to access the block from within a kernel.
-	* Mapped memory allow a kernel to access a host memory directly. Data transfers are implicitly performed as needed by the kernel.
+* Portable memory: Set the flag _cudaHostAllocPortable_ in _cudaHostAlloc_ or _cudaHostRegisterPortable_ in cudaHostRegister. This make the block (memory block) available to all devices, not just the device that was current when the memory was allocated. 
+* Write-Combining Memory: Set the flag _cudaHostAllocWriteCombined_ in _cudaHostAlloc_. Write-combining memory frees up the host's L1 and L2 cache resources which is not needed and will improve transfer performance to the device by up to 40%.
+* Reading from write-combining memory from the host is prohibitively slow, so write-combining memory should be used for memory that the host only writes to.
 
+#### Mapped memory
+If a device support mapped memory, we can use mapped memory by enable _cudaDeviceMapHost_ in _cudaSetDeviceFlags_ once, and then allocate the memory with the flag _cudaHostAllocMapped_ in _cudaHostAlloc_ or _cudaHostRegisterMapped_ in cudaHostRegister. A block of page-locked host memory can be mapped into the address space of the device. The memory block has two addresses: one in host memory that is returned by _cudaHostAlloc_, and one in device memory that can be retrieved using _cudaHostGetDevicePointer_. Mapped memory allow a kernel to access a host memory directly. Data transfers are implicitly performed as needed by the kernel. Therefore, data transfer can also be concurrent with Kernel execution. However, the application must synchronize memory accesses using streams or events. Async memory copies will be synchronous if the host memory is not page-locked.
+
+```
+void sortfile(FILE *fp, int N)
+{
+    char *data;
+	cudaMallocManaged(&data, N);
+	
+	fread(data, 1, N, fp);
+	
+	qsort<<<...>>>(data, N, 1, compare);
+	
+	cudaDevicesSynchronize();
+	
+	use_data(data);
+
+	cudaFree(data);
+}
+```
+
+Zero-copy shares host memory with direct device access through PCIe, which is slow. So use it when you transfer data to/from the device and access it there only once.
+
+> With Pascal architecture, this is replaced by the Unified Memory.
+
+### Unified Memory
+
+Pascal GP100 GPU architecture adds new feature to the Unified Memory. It provides a single virtual address space for accessing CPU and GPU memory. Programmers no longer need to manage data transfer between the host and device memory.  Unified Memory creates a pool of managed memory that is shared between the CPU and GPU. Managed memory is accessible to both the CPU and GPU using a single pointer.  GP100 supports hardware page faulting, and allows transparent migration of data between the full virtual address spaces of both the GPU and CPU.  If a kernel running on the GPU accesses a page that is not in its GPU memory, it faults, allowing the page to be automatically migrated to the GPU memory on-demand. Alternatively, the page may be mapped into the GPU address space for access over the PCIe or NVLink interconnects (mapping on access can sometimes be faster than
+migration). Note that Unified Memory is system-wide: GPUs (and CPUs) can fault and migrate memory
+pages either from CPU memory or from the memory of other GPUs in the system.
+
+Before Unified Memory, the memories of the CPU and each GPU have been physically distinct and connect by a bus, typically PCIe. In early versions of CUDA like the previous sample code, application explicitly manage CPU and GPU memory allocations and data transfers. The programmer had to use explicit memory copy calls to move the most up-to-date data between them. This increases programming complexity. Explicit data transfers can also cost performance in the case of sparse memory access.
+
+With OS support, the Unified memory code looks like:
+```
+void sortfile(FILE *fp, int N)
+{
+    char *data;
+	data = (char *)malloc(N);
+	
+	fread(data, 1, N, fp);
+	
+	qsort<<<...>>>(data, N, 1, compare);
+	
+	cudaDevicesSynchronize();
+	
+	use_data(data);
+
+	free(data);
+}
+```
+
+
+Benefits: By migrating data on demand between the CPU and GPU, Unified Memory can offer the performance of local data on the GPU. With page faulting on GP100, locality can be ensured even for programs with sparse data access, where the pages accessed by the CPU or GPU cannot be known ahead of time, and where the CPU and GPU access parts of the same array allocations simultaneously.
+
+CUDA 8 introduce APIs for providing hints to the runtime with memory usage and for explicit prefetching. These tools allow the same capabilities as explicit memory copy and pinning APIs, without reverting to the limitations of explicit GPU memory allocation.
+
+
+### Streams
+Kernels can be executed in parallel with streams. For example, we can create 3 streams each one handle a sequence of 3 depending tasks. Each stream can run in parallel:
+
+<div class="imgcap">
+<img src="/assets/cuda/str1.png" style="border:none;width:60%">
+</div>
+
+To create streams:
+```
+cudaStream_t stream[3];
+for (int i = 0; i < 3; ++i)
+    cudaStreamCreate(&stream[i]);
+float* hostPtr;
+cudaMallocHost(&hostPtr, 3 * size);
+```
+
+To execute streams:
+```
+for (int i = 0; i < 3; ++i) {
+    cudaMemcpyAsync(inputDevPtr + i * size, hostPtr + i * size,
+                    size, cudaMemcpyHostToDevice, stream[i]);
+    MyKernel <<<100, 512, 0, stream[i]>>>
+          (outputDevPtr + i * size, inputDevPtr + i * size, size);
+    cudaMemcpyAsync(hostPtr + i * size, outputDevPtr + i * size,
+                    size, cudaMemcpyDeviceToHost, stream[i]);
+}
+```
+If the stream is not defined, the default stream 0 will be used. Use _cudaDeviceSynchronize_ for synchronization if needed. The host memory involved in the data transfer must be pinned memory.
+
+### Asynchronous Concurrent Execution
+
+Asynchronous calls return back to host thread before finishing the requests. These calls are:
+
+* Kernel launches.
+* Memory copies between two addresses to the same device memory.
+* Memory copies from host to device of a memory block of 64 KB or less.
+* Memory copies performed by functions with the Async suffix.
+* Memory set function calls.
+
+### Multiple GPUs
+
+To get and set different GPU to launch kernels:
+```
+int numDevs= 0;
+cudaGetDeviceCount(&numDevs);
+
+for (int d = 0; d < numDevs; d++) {
+    cudaSetDevice(d);
+    kernel<<<blocks, threads>>>(args);
+}
+```
+
+### Peer to peer access
+Use _cudaDeviceCanAccessPeer_ to verify device capability and _cudaDeviceEnablePeerAccess_ to enable peer access. _cudaMemcpyPeer_ for peer to peer copy.
+
+```
+cudaSetDevice(0);                   // Set device 0 as current
+float* p0;
+size_t size = 1024 * sizeof(float);
+cudaMalloc(&p0, size);              // Allocate memory on device 0
+MyKernel<<<1000, 128>>>(p0);        // Launch kernel on device 0
+cudaSetDevice(1);                   // Set device 1 as current
+cudaDeviceEnablePeerAccess(0, 0);   // Enable peer-to-peer access
+                                    // with device 0
+
+// Launch kernel on device 1
+// This kernel launch can access memory on device 0 at address p0
+MyKernel<<<1000, 128>>>(p0);
+```
+
+
+### Dynamic parallelism
+Kernels can start new kernels, and streams can spawn new streams. To make sure all child kernels are completed, use _cudaDeviceSynchronize_.
+```
+__global__ void child_launch(int *data) {
+   data[threadIdx.x] = data[threadIdx.x]+1;
+}
+
+__global__ void parent_launch(int *data) {
+   data[threadIdx.x] = threadIdx.x;
+
+   __syncthreads();
+
+   if (threadIdx.x == 0) {
+       child_launch<<< 1, 256 >>>(data);
+       cudaDeviceSynchronize();
+   }
+
+   __syncthreads();
+}
+
+void host_launch(int *data) {
+    parent_launch<<< 1, 256 >>>(data);
+}
+```
+
+### Texture memory
+
+Texture memory is a read-only memory for spatial data. It is cached in SM's texture caches.
+
+### Error handling
+```
+parentKernel<<<1,1>>>(); 
+
+if (cudaSuccess != cudaGetLastError()) 
+{ 
+    return 1; 
+} 
+```
+Use _ cudaGetErrorString_ to retrieve the error message.
+
+### Optimization
+
+Memory access:
+* Read data into shared memory to be used by the block.
+* Maximize data coalescing.
+* Share data space if there are not used at the same time.
+* Minimize host and device transfer.
+
+Control flow:
+* Threads in the same warp should branch to the same code.
+* Use compiler flag to unroll loops.
+
+Lock:
+* Lock last node instead of 
+
+Parallelism:
+* Maximize thread counts under resource constraint.
+* Use all SM.
 
 
