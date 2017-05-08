@@ -2,7 +2,7 @@
 layout: post
 comments: true
 mathjax: true
-title: “CUDA”
+title: “CUDA Tutorial”
 excerpt: “NVIDIA CUDA”
 date: 2017-03-06 14:00:00
 ---
@@ -202,7 +202,7 @@ Here, we have a CUDA application composes of 8 blocks. It can be executed on a G
 
 #### SM level
 
-Once a block of threads is assigned to a SM, the threads are divided into units called warps. (The size of a warp is determined by the hardware implementation.) A warp scheduler schedule a warp of threads one at a time. In Fremi architect, the warp scheduler  schedule a warp of 32 threads. Each warp of threads runs the same instruction at the same time. In the diagram below, we have 2 dispatch unit. Each one can run a different warp. In each warp, it ran the same instruction.  When the threads in a warp is wait for the previous instruction to complete, the warp scheduler will select another warp to execute. Two warps from different blocks or different kernels can be executed concurrently.  
+Once a block of threads is assigned to a SM, the threads are divided into units called warps. (The size of a warp is determined by the hardware implementation.) A warp scheduler selects a warp that is ready to execute its next instruction. In Fremi architect, the warp scheduler  schedule a warp of 32 threads. Each warp of threads runs the same instruction. In the diagram below, we have 2 dispatch unit. Each one runs a different warp. In each warp, it runs the same instruction.  When the threads in a warp is wait for the previous instruction to complete, the warp scheduler will select another warp to execute. Two warps from different blocks or different kernels can be executed concurrently.  
 
 <div class="imgcap">
 <img src="/assets/cuda/wa1.png" style="border:none;width:60%">
@@ -1059,21 +1059,123 @@ Use _ cudaGetErrorString_ to retrieve the error message.
 
 ### Optimization
 
-Memory access:
-* Read data into shared memory to be used by the block.
-* Maximize data coalescing.
-* Share data space if there are not used at the same time.
-* Minimize host and device transfer.
+#### Maximize utilization & parallelism
 
-Control flow:
-* Threads in the same warp should branch to the same code.
-* Use compiler flag to unroll loops.
+* Use streaming and asynchronous functions calls to maximize kernel concurrency.
+* Use as many SM as possible.
+* If thread synchronization is required to write shared data before reading it, use block level synchronization with \_\_syncthreads over breaking the kernel into 2 synchronized kernels: one for write and the other for read.
+	* Structure the design such that synchronization is done at block level rather than at kernel level.
 
-Lock:
-* Lock last node instead of 
+SM level utilization & parallelism:
+The number of threads per block is important. When SM executes an instruction $$i_{k}$$ for a warp, the next instruction $$i_{k+1}$$ of that warp may not be ready for execution for some number of clock cycles (called **latency**). Such latency may range from 11 clock cycles for the instruction ($$i_{k}$$) to complete or 200-400 clock cycles if SM need to read global memory for the input operand of $$i_{k+1}$$. To keep the SM busy. the warp scheduler will schedule another warp for execution. We call this **latency hiding**. High number of resident warps allows the warp scheduler to fully utilize the SM. However, registers will not be released until a thread is finished. Likewise, share memory has a lifecycle of a block. Hence, we need to make sure the resident warps do not consume more registers/memory than a SM can offer. To maximize utilization, we need to make sure we have a high number of resident warps with the constraints of registers/memory consumption. The size of the block threads impacts the number of resident warps. For example, if a thread needs 32 register, and if GPU assigns 2 blocks of 512 threads/block to a SM, it will need 32*2*512 registers. If we need one more register per thread, they will push the count to 33*2*512 which is higher than what a SM can offer (register spilling). This forces the compiler to use local memory which will degrade the performance.
 
-Parallelism:
-* Maximize thread counts under resource constraint.
-* Use all SM.
+The number of threads per block should be a multiple of the warp size to maximize utilization.
+
+_cudaOccupancyMaxActiveBlocksPerMultiprocessor_ provides an occupancy prediction based on the block size and shared memory usage of a kernel. This function reports occupancy in terms of the number of concurrent thread blocks per multiprocessor.
+
+The code below calculates the ratio between concurrent warps versus maximum warps per multiprocessor.
+
+```
+// Device code
+__global__ void MyKernel(int *d, int *a, int *b)
+{
+    int idx = threadIdx.x + blockIdx.x * blockDim.x;
+    d[idx] = a[idx] * b[idx];
+}
+
+// Host code
+int main()
+{
+    int numBlocks;        // Occupancy in terms of active blocks
+    int blockSize = 32;
+
+    // These variables are used to convert occupancy to warps
+    int device;
+    cudaDeviceProp prop;
+    int activeWarps;
+    int maxWarps;
+
+    cudaGetDevice(&device);
+    cudaGetDeviceProperties(&prop, device);
+    
+    cudaOccupancyMaxActiveBlocksPerMultiprocessor(
+        &numBlocks,
+        MyKernel,
+        blockSize,
+        0);
+
+    activeWarps = numBlocks * blockSize / prop.warpSize;
+    maxWarps = prop.maxThreadsPerMultiProcessor / prop.warpSize;
+
+    std::cout << "Occupancy: " << (double)activeWarps / maxWarps * 100 << "%" << std::endl;
+    
+    return 0;
+}
+```
+
+#### Maximize memory throughput
+
+Objective: Minimize data transfer between the host & device, data transfer between the global memory & device.
+
+Sorted by the memory latency (shortest on top):
+
+| Registers | read/write |  on-chip | by compiler |
+| Shared memory | read/write | on-chip | user-managed cache |
+| L1/texture/constant cache | | on-chip | hardware managed cache |
+| L2 cache | on-chip |  hardware managed cache |
+| Texture memory | read | on device | user program |
+| Constant memory | read |  on device | user program |
+| Local memory | read/write | on device | |
+| Global memory | read/write | on device| |
+
+Use of shared memory:
+
+* Shared memory is much faster than local memory or global memory.
+* Shared memory is divided into equally-sized modules, called banks which can be accessed concurrently. Design application access to avoid access the same bank simultaneously. (Avoid bank conflict.)
+
+Shared memory usage pattern:
+
+* Load data from device memory to shared memory.
+* Synchronize with all the threads of the block so data is already populated by different threads.
+* Process the data in shared memory by threads of the block.
+* Synchronize again if necessary to make sure that shared memory has been updated with the results.
+* Write the results back to device memory.
+
+Host and device memory transfer:
+
+* Move code (even with low parallelism) from the host to the device if it can avoid data transfer.
+* Consolidate small transfers into a larger transfer.
+* Page-locked host memory can speed up transfer if memory resource is not scare.
+* Mapped memory by-passes explicit memory copy, it improve performance if data access is sparse or not repeating.
+
+Memory access within a warp:
+* When a warp executes an instruction, it coalesces all memory access to form the minimum memory loads.
+* Design the application to localize/minimize memory accesses within a warp.
+* Mis-aligned memory accesses require extra memory loading. Make sure memory access are aligned within a warp.
+* For a 2D array access, make sure the width of the thread block and the array is a multiple of the warp size. 
+* Pad a 2D array using _cudaMallocPitch_ and _cuMemAllocPitch_ if needed.
+
+Local memory:
+* Local memory is actually stored in global memory. (same latency as global memory)
+* Local memory is very slow comparing with shared memory.
+* Compiler tries to place variables into registers except:
+	* Arrays that is not accessed with constant quantities, or
+	* Large structures or arrays that consume too much or cannot fit into the register space.
+	* Use _cuobjdump_ to identify local memory, or --ptxas-options=-v during compilation for local memory size.
+	
+Constant/texture/surface memory
+* Stored in the device memory but can be cached for future hits.
+* The texture cache is optimized for 2D spatial locality, and it is designed for streaming fetches with a constant latency.
+
+#### Maximize instruction throughput
+
+* Trade precision (single precision vs double precision) for speed if acceptable.
+* Trade intrinsic functions vs regular functions if acceptable.
+* Avoids arithmetic instructions with low throughput.
+* Minimize divergent warps caused by branching. Design the application such that the code within a warp branches in the same way.
+* Use compiler to un-roll loop.
+* Use compiler flags to generate faster but less precise code:
+	* "denormalized numbers are flushed to zero" when compiling code gives better throughput.
+	* Other flags controlling precision
 
 
