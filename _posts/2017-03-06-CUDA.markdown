@@ -1414,6 +1414,7 @@ In the example above, a thread in a warp may branch differently. If this happens
 |\_\_global\_\_ | a kernel |
 
 Variable extension
+
 |\_\_device\_\_ | use with other declaration for memory space in a device |
 |\_\_constant\_\_ | in constant space |
 |\_\_shared\_\_ | in share space |
