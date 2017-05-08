@@ -186,9 +186,9 @@ A SM in the Fermi architecture:
 
 #### Device level
 
-The entire device can only process one single application at a time and switch between applications is slow. At the device level, a global work distribution engine schedules thread blocks to SMs. The scheduler maintains a list of blocks to be executed and assign blocks to SMs. Threads of the same block run on the same SM. 
+When a CUDA application on the host invokes a kernel grid, the blocks of the grid are enumerated and a global work distribution engine assign them to SM with available execution capacity. Threads of the same block always run on the same SM. Multiple thread blocks and multiple threads in a thread block can execute concurrently on one SM. As thread blocks terminate, new blocks are launched on the vacated multiprocessors.
 
-Application can call/schedule multiple kernels. All threads in a grid execute the same kernel. GPU can handle multiple kernels from the same application simultaneously. Pascal GP100 can handle maximum of 32 thread blocks and 2048 threads per SM.
+All threads in a grid execute the same kernel. GPU can handle multiple kernels from the same application simultaneously. Pascal GP100 can handle maximum of 32 thread blocks and 2048 threads per SM.
 
 <div class="imgcap">
 <img src="/assets/cuda/d1.png" style="border:none;width:60%">
@@ -200,9 +200,11 @@ Here, we have a CUDA application composes of 8 blocks. It can be executed on a G
 </div>
 (source: Nvidia)
 
+> The entire device can only process one single application at a time and switch between applications is slow. 
+
 #### SM level
 
-Once a block of threads is assigned to a SM, the threads are divided into units called warps. (The size of a warp is determined by the hardware implementation.) A warp scheduler selects a warp that is ready to execute its next instruction. In Fremi architect, the warp scheduler  schedule a warp of 32 threads. Each warp of threads runs the same instruction. In the diagram below, we have 2 dispatch unit. Each one runs a different warp. In each warp, it runs the same instruction.  When the threads in a warp is wait for the previous instruction to complete, the warp scheduler will select another warp to execute. Two warps from different blocks or different kernels can be executed concurrently.  
+Once a block of threads is assigned to a SM, the threads are divided into units called **warps**. A block is partitioned into warps with each warp contains threads of consecutive, increasing thread IDs with the first warp containing thread 0.The size of a warp is determined by the hardware implementation. A warp scheduler selects a warp that is ready to execute its next instruction. In Fremi architect, the warp scheduler  schedule a warp of 32 threads. Each warp of threads runs the same instruction. In the diagram below, we have 2 dispatch unit. Each one runs a different warp. In each warp, it runs the same instruction.  When the threads in a warp is wait for the previous instruction to complete, the warp scheduler will select another warp to execute. Two warps from different blocks or different kernels can be executed concurrently.  
 
 <div class="imgcap">
 <img src="/assets/cuda/wa1.png" style="border:none;width:60%">
@@ -210,31 +212,33 @@ Once a block of threads is assigned to a SM, the threads are divided into units 
 
 #### Branch divergence
 
-Each core (SP) run the same instruction for each threads in a warp. To execute a branch like:
+A warp executes one common instruction at a time. Each core (SP) run the same instruction for each threads in a warp. To execute a branch like:
 ```
-if (a==0)
-    a++;
+if (a[index]==0)
+    a[index]++;
 else	
-    a--;
+    a[index]--;
 ``` 
 
-SM idles each core subjected to the branch conditions:
+SM skips execution of a core subjected to the branch conditions:
 
 | | c0 (a=3) | c1(a=3) | c2 (a=-3) | c3(a=7) | c4(a=2) | c5(a=6) | c6 (a=-2) | c7 (a=-1)|
-| if a==0  | ↓ |↓ |↓ |↓ |↓ |↓ |↓ |↓ |
-| a++| ↓ | ↓ | | ↓ | ↓ | ↓ | |
-| else a--| | | ↓ | | | | ↓| ↓ |
+| if a[index]==0  | ↓ |↓ |↓ |↓ |↓ |↓ |↓ |↓ |
+| a[index]++| ↓ | ↓ | | ↓ | ↓ | ↓ | |
+| a[index]--| | | ↓ | | | | ↓| ↓ |
+ 
+So full efficiency is realized when all 32 threads of a warp branch to the same execution path. If threads of a warp diverge via a data-dependent conditional branch, the warp serially executes each branch path taken, disabling threads that are not on that path, and when all paths complete, the threads converge back to the same execution path. 
  
 To maximize throughput, all threads in a warp should follow the same control-flow. Program can be rewritten such that threads within a warp branch to the same code:
 ```
-if (a<range) 
-   ...
+if (a[index]<range) 
+   ...    // More likely, threads with a warp will branch the same way.
 else
    ...   
 ```
 is preferred over
 ```
-if (a%2==0) 
+if (a[index]%2==0) 
    ...
 else
    ...   
@@ -529,11 +533,12 @@ int main()
 
 The compute capability of a device "SM version" shows what a device supports. We can compile code to support multiple target devices:
 ```
-nvcc x.cu -gencode arch=compute_20, code=sm_20 
+nvcc x.cu -gencode arch=compute_20,code=sm_20 
           -gencode arch=compute_30,code=sm_30
           -gencode arch=compute_35,code=\'compute_35,sm_35\'
 ```
 
+"arch=compute_20,code=sm_20" instructs the compiler to generate binary code for devices of compute capability 2.0.
 
 This embeds binary code compatible with compute capability 2.0 and 3.0 and PTX and binary code compatible with compute capability 3.5 (third -gencode option). Host code will select at runtime the most appropriate code to load and execute for the target device.
 
@@ -631,28 +636,10 @@ units.
 Kepler GPUs featured a 64 KB configurable shared memory and L1 cache that could split the allocation of memory between L1 and shared memory functions depending on workload. Beginning with Maxwell, the cache hierarchy was changed. The GP100 SM has its own dedicated pool of shared memory (64 KB/SM) and an L1 cache that can also serve as a texture cache depending on workload. The unified L1/texture cache acts as a coalescing buffer for memory accesses, gathering up the data requested by the threads of a warp prior to delivery of that data to the warp. GP100 features a unified 4096 KB L2 cache that provides efficient, high speed data sharing across the
 GPU. With more cache located on-chip, fewer requests to the GPU’s DRAM are needed.
 
-#### NVLink
-
-NVLink improves both GPU-to-GPU communications and for GPU access to system memory.
-
-<div class="imgcap">
-<img src="/assets/cuda/ii1.png" style="border:none;width:60%">
-</div>
-
-
-### Compute Preemption 
-Compute Preemption is another new feature of the Pascal GP100 GPU architecture. It allows tasks to be preempted at instruction-level with context swapped to device memory rather than interrupted at the thread block level as in prior Maxwell/Kepler GPU architectures. Compute Preemption prevents long-running applications from either monopolizing the system computation power or being time out or killed. Programmers no longer need to change their long-running applications to play nicely with other GPU
-applications. With Compute Preemption in GP100, applications can run as long as needed while scheduled alongside other tasks. 
-
-### Atomics
-
-Kepler implements shared memory atomics using a lock/update/unlock pattern that could be expensive. Maxwell improved atomic operations by implementing native hardware support for shared memory atomic operations for 32-bit integers, and native shared memory 32-bit and 64-bit compare-and-swap (CAS). Pascal improves atomic operations using Unified Memory and NVLink. The atomicAdd() function can apply to 32 and 64-bit integer and floating-point data. 
-
-
 ### Memory
 
 #### Device memory (Global memory)
-Device memory can be allocated either as linear memory. Like our sample code before, linear memory is managed by _cudaMalloc_, _cudaFree_ and _cudaMemcpy_. Linear memory can also be managed by _cudaMallocPitch_, _cudaMalloc3D_, _cudaMemcpy2D_ and _cudaMemcpy3D_ for 2D or 3D arrays.
+Device memory can be allocated either as linear memory. Like our sample code before, linear memory is managed by _cudaMalloc_, _cudaFree_ and _cudaMemcpy_. Linear memory can also be managed by _cudaMalloc3D_, _cudaMemcpy2D_ and _cudaMemcpy3D_ for 2D or 3D arrays.
 
 For 2-D array:
 ```
@@ -673,7 +660,7 @@ MyKernel<<<100, 512>>>(devPtr, pitch, width, height);
     }
 }
 ```
-
+For a 3-D array:
 ```
 // Host code 
 int width = 64, height = 64, depth = 64; 
@@ -699,10 +686,29 @@ MyKernel<<<100, 512>>>(devPitchedPtr, width, height, depth);
 }
 ```
 
+Other ways to copy memory:
+```
+__constant__ float constData[256];
+float data[256];
+cudaMemcpyToSymbol(constData, data, sizeof(data));
+cudaMemcpyFromSymbol(data, constData, sizeof(data));
+
+__device__ float devData;
+float value = 3.14f;
+cudaMemcpyToSymbol(devData, &value, sizeof(float));
+
+__device__ float* devPointer;
+float* ptr;
+cudaMalloc(&ptr, 256 * sizeof(float));
+cudaMemcpyToSymbol(devPointer, &ptr, sizeof(ptr));
+```
+
 #### Pitch
-Memory access is most efficient on 64 byte boundary._cudaMallocPitch_ & _cudaMemcpy2D_ takes care of necessary memory padding for memory alignement for 2-D arrays.
+Memory access is most efficient if aligned correctly. Mis-aligned access requires extra memory load. _cudaMallocPitch_ & _cudaMemcpy2D_ takes care of necessary memory padding for memory alignement for 2-D arrays.
 
 #### Shared memory
+
+Shared memory is expected to be much faster than global memory and declared with \_\_shared\_\_.
 
 <div class="imgcap">
 <img src="/assets/cuda/matrix.png" style="border:none;width:60%">
@@ -852,7 +858,7 @@ void MatMul(const Matrix A, const Matrix B, Matrix C)
 }
 ```
 
-Shared memory is divided into equally sized memory modules called banks. Banks can be accessed concurrently. Shared memory accesses in consecutive locations can therefore loaded simultaneously. The bank size is configureable by __cudaDeviceSetSharedMemConfig__.
+Shared memory is divided into equally sized memory modules called banks. Banks can be accessed concurrently. Shared memory accesses in consecutive locations can therefore loaded simultaneously. 
 
 #### Dynamic shared memory
 
@@ -867,21 +873,20 @@ Supply the size when launching the kernel:
 add<<<10, 10, N*sizeof(int)>>>(d_a, d_b);
 ```
 
-#### Page-Locked Host Memory
+### Page-Locked Host Memory
 
-Unified Virtual Addressing (UVA) in CUDA 4 provides a single virtual memory address space for both CPU and GPU memory and enable pointers to be accessed from GPU code. UVA enables Zero-Copy memory, which is pinned CPU memory accessible by GPU code directly, over PCIe, without a memcpy. Zero-Copy provides some of the
-convenience of Unified Memory, but none of the performance, because it is always accessed by the GPU with PCIe’s low bandwidth and high latency.
+Unified Virtual Addressing (UVA) in CUDA 4 provides a single virtual memory address space for both CPU and GPU memory and enable pointers to be accessed from GPU code. UVA enables Zero-copy memory, which is pinned CPU memory accessible by GPU code directly over PCIe, without a memcpy. Zero-Copy provides some of the convenience of Unified Memory (described in later section which do implicit memory copy). Both mechanisms release the burden of programmers to manage memory transfer explicitly. Zero-copy is good for the kernel code accessing host data sparsely or not repeatedly. In contrast to Unified Memory, data is always accessed by the GPU with PCIe’s low bandwidth and high latency. Unified memory provide faster memory access if same data is read repeatedly.
 
-Install of using malloc in allocating host memory, we can call CUDA to create page-locked pinned host memory. Page-locked host memory has several benefits:
-* Asynchronous concurrent execution: Copies between host and device can be concurrent with the kernel execution.
-* Mapped memory: Can be mapped into the address space of the device, eliminating the need of allocate a block in device memory.
-* Memory bandwidth: Higher bandwidth between host and device memory in particular with Write-combining memory.
+Instead of using malloc in allocating host memory, we call CUDA to create page-locked pinned host memory. Page-locked host memory has several benefits:
+* Asynchronous concurrent execution of kernels and memory transfer using streaming.
+* With mapped memory, it eliminates the need of allocate a block in device memory.
+* Higher bandwidth between host and device memory in particular with Write-combining memory.
 
 Page-locked host memory is managed by:
 * _cudaHostAlloc_ and _cudaFreeHost_ allocate and free page-locked host memory.
-* _cudaHostRegister_ page-locks memory allocated by malloc() 
+* _cudaHostRegister_ page-locks memory allocated by _malloc_
 
-> Page-lock host memory is a scare resource. Make sure it is available.
+> Page-lock host memory disturb how a system manage memory . Will have catastrophic result if memory is running low.
 
 Tips:
 * Portable memory: Set the flag _cudaHostAllocPortable_ in _cudaHostAlloc_ or _cudaHostRegisterPortable_ in cudaHostRegister. This make the block (memory block) available to all devices, not just the device that was current when the memory was allocated. 
@@ -889,71 +894,146 @@ Tips:
 * Reading from write-combining memory from the host is prohibitively slow, so write-combining memory should be used for memory that the host only writes to.
 
 #### Mapped memory
-If a device support mapped memory, we can use mapped memory by enable _cudaDeviceMapHost_ in _cudaSetDeviceFlags_ once, and then allocate the memory with the flag _cudaHostAllocMapped_ in _cudaHostAlloc_ or _cudaHostRegisterMapped_ in cudaHostRegister. A block of page-locked host memory can be mapped into the address space of the device. The memory block has two addresses: one in host memory that is returned by _cudaHostAlloc_, and one in device memory that can be retrieved using _cudaHostGetDevicePointer_. Mapped memory allow a kernel to access a host memory directly. Data transfers are implicitly performed as needed by the kernel. Therefore, data transfer can also be concurrent with Kernel execution. However, the application must synchronize memory accesses using streams or events. Async memory copies will be synchronous if the host memory is not page-locked.
+If a device support mapped memory, we can use mapped memory by enable _cudaDeviceMapHost_ in _cudaSetDeviceFlags_ once, and then allocate the memory with the flag _cudaHostAllocMapped_ in _cudaHostAlloc_ or _cudaHostRegisterMapped_ in _cudaHostRegister_. A block of page-locked host memory can be mapped into the address space of the device. The memory block has two addresses: one in host memory that is returned by _cudaHostAlloc_, and one in device memory that can be retrieved using _cudaHostGetDevicePointer_. Mapped memory allow a kernel to access a host memory directly. Data transfers are implicitly performed as needed by the kernel. Therefore, data transfer can also be concurrent with Kernel execution without a stream. 
+
+Since mapped memory is shared between host and device, the application must synchronize memory accesses using streams or events between host and device.
 
 ```
 void sortfile(FILE *fp, int N)
 {
-    char *data;
-	cudaMallocManaged(&data, N);
+    ...	
+    qsort<<<...>>>(data, N, 1, compare);
 	
-	fread(data, 1, N, fp);
+    cudaDevicesSynchronize();
 	
-	qsort<<<...>>>(data, N, 1, compare);
-	
-	cudaDevicesSynchronize();
-	
-	use_data(data);
+    use_data(data);
 
 	cudaFree(data);
 }
 ```
 
-Zero-copy shares host memory with direct device access through PCIe, which is slow. So use it when you transfer data to/from the device and access it there only once.
-
-> With Pascal architecture, this is replaced by the Unified Memory.
+To retrieve the device pointer of a mapped memory, memory mapping must be enabled by setting _cudaDeviceMapHost_ in _cudaSetDeviceFlags_.
 
 ### Unified Memory
 
-Pascal GP100 GPU architecture adds new feature to the Unified Memory. It provides a single virtual address space for accessing CPU and GPU memory. Programmers no longer need to manage data transfer between the host and device memory.  Unified Memory creates a pool of managed memory that is shared between the CPU and GPU. Managed memory is accessible to both the CPU and GPU using a single pointer.  GP100 supports hardware page faulting, and allows transparent migration of data between the full virtual address spaces of both the GPU and CPU.  If a kernel running on the GPU accesses a page that is not in its GPU memory, it faults, allowing the page to be automatically migrated to the GPU memory on-demand. Alternatively, the page may be mapped into the GPU address space for access over the PCIe or NVLink interconnects (mapping on access can sometimes be faster than
-migration). Note that Unified Memory is system-wide: GPUs (and CPUs) can fault and migrate memory
-pages either from CPU memory or from the memory of other GPUs in the system.
+Pascal GP100 GPU architecture adds new feature to the Unified Memory. It defines a single memory space accessing from CPU and GPU. Programmers no longer need to manage data transfer between the host and device memory.  Unified Memory creates a pool of managed memory that is shared between the CPU and GPU. Managed memory is accessible to both the CPU and GPU using a single pointer.  GP100 supports hardware page faulting, and allows transparent migration of data between the full virtual address spaces of both the GPU and CPU.  If a kernel running on the GPU accesses a page that is not in its GPU memory, it faults. It allows the page to be automatically migrated to the GPU memory on-demand. 
 
-Before Unified Memory, the memories of the CPU and each GPU have been physically distinct and connect by a bus, typically PCIe. In early versions of CUDA like the previous sample code, application explicitly manage CPU and GPU memory allocations and data transfers. The programmer had to use explicit memory copy calls to move the most up-to-date data between them. This increases programming complexity. Explicit data transfers can also cost performance in the case of sparse memory access.
+Unified Memory eliminates the need for explicit data transfer. Data transfer still occurs but a copy will preside in the GPU such that it will not suffer performance penalty like the zero-copy when it is accessed multiple times. Zero-copy allocations pinned the memory in the CPU system such that a program may have fast or slow access to it depending on where it is being accessed from. Unified Memory, on the other hand, decouples memory and execution spaces so that all data accesses are fast.
 
-With OS support, the Unified memory code looks like:
+By default starting with CUDA 8.0 with compute capability 6, malloc or new can be accessed from both GPU and CPU. Unified Memory is the default:
+
+The Unified memory code can also use \_\_managed\_\_ to declare variables. No cudaMemcpy is needed. cudaMemcpy will synchronize kernel calls with memory transfer. In Unified memory, we use _cudaDeviceSynchronize_ for such synchronization.
 ```
-void sortfile(FILE *fp, int N)
-{
-    char *data;
-	data = (char *)malloc(N);
-	
-	fread(data, 1, N, fp);
-	
-	qsort<<<...>>>(data, N, 1, compare);
-	
-	cudaDevicesSynchronize();
-	
-	use_data(data);
-
-	free(data);
+__device__ __managed__  int  ret[1000];
+__global__ void AplusB(int a, int b) {
+    ret[threadIdx.x] = a + b + threadIdx.x;
+}
+int main() {
+    AplusB<<< 1, 1000 >>>(10, 100);
+    cudaDeviceSynchronize();      // Since data transfer is on demand, we need to syncronize the code here before printing the result.
+    for(int i=0; i<1000; i++)
+        printf("%d: A+B = %d\n", i, ret[i]);
+    return  0;
 }
 ```
 
+Alloc it manually with _cudaMallocManaged_:
+```
+__global__ void printme(char *str) {
+    printf(str);
+}
+int main() {
+    // Allocate 100 bytes of memory, accessible to both Host and Device code
+    char *s;
+    cudaMallocManaged(&s, 100);
+    // Note direct Host-code use of "s"
+    strncpy(s, "Hello Unified Memory\n", 99);
+    // Here we pass "s" to a kernel without explicitly copying
+    printme<<< 1, 1 >>>(s);
+    cudaDeviceSynchronize();
+    // Free as for normal CUDA allocations
+    cudaFree(s); 
+    return  0;
+}
+```
 
-Benefits: By migrating data on demand between the CPU and GPU, Unified Memory can offer the performance of local data on the GPU. With page faulting on GP100, locality can be ensured even for programs with sparse data access, where the pages accessed by the CPU or GPU cannot be known ahead of time, and where the CPU and GPU access parts of the same array allocations simultaneously.
+By migrating data on demand between the CPU and GPU, Unified Memory can offer the performance of local data on the GPU. With page faulting on GP100, locality can be ensured even for programs with sparse data access, where the pages accessed by the CPU or GPU cannot be known ahead of time, and where the CPU and GPU access parts of the same array allocations simultaneously.
 
 CUDA 8 introduce APIs for providing hints to the runtime with memory usage and for explicit prefetching. These tools allow the same capabilities as explicit memory copy and pinning APIs, without reverting to the limitations of explicit GPU memory allocation.
 
+#### Pre-6x compute capability
+
+For GPU in pre-6x compute capability, GPU has exclusive access to all managed data while any kernel operation is executing, regardless of whether the specific kernel is actively using the data. 
+
+```
+__device__ __managed__ int x, y=2;
+__global__  void  kernel() {
+    x = 10;
+}
+int main() {
+    kernel<<< 1, 1 >>>();
+    y = 20;            // Error on GPUs not supporting concurrent access
+                       
+    cudaDeviceSynchronize();
+    return  0;
+}
+```
+
+The code runs successfully for compute capability >= 6.x. However, fail otherwise, even y is not read by the kernel.
+
+To fix it for those devices,
+```
+__device__ __managed__ int x, y=2;
+__global__  void  kernel() {
+    x = 10;
+}
+int main() {
+    kernel<<< 1, 1 >>>();
+    cudaDeviceSynchronize();
+    y = 20;            //  Success on GPUs not supporing concurrent access
+    return  0;
+}
+```
+
+Here, we allow y to attach to the host and accessible by the host at all time.
+```
+__device__ __managed__ int x, y=2;
+__global__  void  kernel() {
+    x = 10;
+}
+int main() {
+    cudaStream_t stream1;
+    cudaStreamCreate(&stream1);
+    cudaStreamAttachMemAsync(stream1, &y, 0, cudaMemAttachHost);
+    cudaDeviceSynchronize();          // Wait for Host attachment to occur.
+    kernel<<< 1, 1, 0, stream1 >>>(); // Note: Launches into stream1.
+    y = 20;                           // Success – a kernel is running but “y” 
+                                      // has been associated with no stream.
+    return  0;
+}
+```
+_cudaStreamAttachMemAsync_ associates ptr with the specified stream. The Unified Memory allows CPU access to ptr so long as all operations in stream have completed, regardless of other streams. 
+
+### Asynchronous Concurrent Execution
+
+Asynchronous calls return back to host thread before finishing the requests. These calls are:
+
+* Kernel launches.
+* Memory copies between two addresses to the same device memory.
+* Memory copies from host to device of a memory block of 64 KB or less.
+* Memory copies performed by functions with the Async suffix.
+* Memory set function calls.
 
 ### Streams
-Kernels can be executed in parallel with streams. For example, we can create 3 streams each one handle a sequence of 3 depending tasks. Each stream can run in parallel:
+Kernels can be executed in parallel with streams. A stream is a sequence of commands (possibly from host threads) that execute in sequence. Different streams, on the other hand, may execute their commands concurrently. Kernels launched into the same stream are guaranteed to execute consecutively, while kernels launched into different streams are permitted to execute concurrently. 
+
+For example, we can create 3 streams each one handle a sequence of 3 depending tasks. Each stream can run in parallel:
 
 <div class="imgcap">
 <img src="/assets/cuda/str1.png" style="border:none;width:60%">
 </div>
 
-To create streams:
+#### Streams
 ```
 cudaStream_t stream[3];
 for (int i = 0; i < 3; ++i)
@@ -961,6 +1041,7 @@ for (int i = 0; i < 3; ++i)
 float* hostPtr;
 cudaMallocHost(&hostPtr, 3 * size);
 ```
+If it is not a Unified memory, hostPtr must point to page-locked host memory for any concurrent process here.
 
 To execute streams:
 ```
@@ -973,17 +1054,67 @@ for (int i = 0; i < 3; ++i) {
                     size, cudaMemcpyDeviceToHost, stream[i]);
 }
 ```
-If the stream is not defined, the default stream 0 will be used. Use _cudaDeviceSynchronize_ for synchronization if needed. The host memory involved in the data transfer must be pinned memory.
+_cudaMemcpyAsync_ allows concurrent memory transfer in different streams.
 
-### Asynchronous Concurrent Execution
+If launching a kernel without specific a stream, the default stream 0 is used.
 
-Asynchronous calls return back to host thread before finishing the requests. These calls are:
+To destroy streams:
+```
+for (int i = 0; i < 2; ++i) 
+    cudaStreamDestroy(stream[i]);
+```
 
-* Kernel launches.
-* Memory copies between two addresses to the same device memory.
-* Memory copies from host to device of a memory block of 64 KB or less.
-* Memory copies performed by functions with the Async suffix.
-* Memory set function calls.
+If the stream is not defined, the default stream 0 will be used. 
+
+#### Streams with Unified memory
+
+
+#### Stream synchronization
+
+_cudaDeviceSynchronize_ waits until all preceding commands in all streams of all host threads have completed. _cudaStreamSynchronize_ waits for a particular stream instead of all streams.
+
+#### Stream priority
+
+Setting stream priority:
+```
+// get the range of stream priorities for this device
+int priority_high, priority_low;
+cudaDeviceGetStreamPriorityRange(&priority_low, &priority_high);
+// create streams with highest and lowest available priorities
+cudaStream_t st_high, st_low;
+cudaStreamCreateWithPriority(&st_high, cudaStreamNonBlocking, priority_high);
+cudaStreamCreateWithPriority(&st_low, cudaStreamNonBlocking, priority_low);
+```
+
+### Events
+
+Application can asynchronously record events at any point in the program for monitor the device progress.
+```
+cudaEvent_t start, stop;
+cudaEventCreate(&start);
+cudaEventCreate(&stop);
+
+...
+
+cudaEventRecord(start, 0);
+for (int i = 0; i < 2; ++i) {
+    cudaMemcpyAsync(inputDev + i * size, inputHost + i * size,
+                    size, cudaMemcpyHostToDevice, stream[i]);
+    MyKernel<<<100, 512, 0, stream[i]>>>
+               (outputDev + i * size, inputDev + i * size, size);
+    cudaMemcpyAsync(outputHost + i * size, outputDev + i * size,
+                    size, cudaMemcpyDeviceToHost, stream[i]);
+}
+cudaEventRecord(stop, 0);
+cudaEventSynchronize(stop);
+float elapsedTime;
+cudaEventElapsedTime(&elapsedTime, start, stop);
+...
+
+cudaEventDestroy(start);
+cudaEventDestroy(stop);
+```
+
 
 ### Multiple GPUs
 
@@ -1044,7 +1175,92 @@ void host_launch(int *data) {
 
 ### Texture memory
 
-Texture memory is a read-only memory for spatial data. It is cached in SM's texture caches.
+Texture memory is a read-only memory for spatial data. It is cached in SM's texture caches. For spatial data, texture memory is more effective comparing with global memory.
+
+Apply some simple transformation kernel to a texture.
+```
+// Simple transformation kernel
+__global__ void transformKernel(float* output,
+                                cudaTextureObject_t texObj,
+                                int width, int height,
+                                float theta) 
+{
+    // Calculate normalized texture coordinates
+    unsigned int x = blockIdx.x * blockDim.x + threadIdx.x;
+    unsigned int y = blockIdx.y * blockDim.y + threadIdx.y;
+
+    float u = x / (float)width;
+    float v = y / (float)height;
+
+    // Transform coordinates
+    u -= 0.5f;
+    v -= 0.5f;
+    float tu = u * cosf(theta) - v * sinf(theta) + 0.5f;
+    float tv = v * cosf(theta) + u * sinf(theta) + 0.5f;
+
+    // Read from texture and write to global memory
+    output[y * width + x] = tex2D<float>(texObj, tu, tv);
+}
+
+// Host code
+int main()
+{
+    // Allocate CUDA array in device memory
+    cudaChannelFormatDesc channelDesc =
+               cudaCreateChannelDesc(32, 0, 0, 0,
+                                     cudaChannelFormatKindFloat);
+    cudaArray* cuArray;
+    cudaMallocArray(&cuArray, &channelDesc, width, height);
+
+    // Copy to device memory some data located at address h_data
+    // in host memory 
+    cudaMemcpyToArray(cuArray, 0, 0, h_data, size,
+                      cudaMemcpyHostToDevice);
+
+    // Specify texture
+    struct cudaResourceDesc resDesc;
+    memset(&resDesc, 0, sizeof(resDesc));
+    resDesc.resType = cudaResourceTypeArray;
+    resDesc.res.array.array = cuArray;
+
+    // Specify texture object parameters
+    struct cudaTextureDesc texDesc;
+    memset(&texDesc, 0, sizeof(texDesc));
+    texDesc.addressMode[0]   = cudaAddressModeWrap;
+    texDesc.addressMode[1]   = cudaAddressModeWrap;
+    texDesc.filterMode       = cudaFilterModeLinear;
+    texDesc.readMode         = cudaReadModeElementType;
+    texDesc.normalizedCoords = 1;
+
+    // Create texture object
+    cudaTextureObject_t texObj = 0;
+    cudaCreateTextureObject(&texObj, &resDesc, &texDesc, NULL);
+
+    // Allocate result of transformation in device memory
+    float* output;
+    cudaMalloc(&output, width * height * sizeof(float));
+
+    // Invoke kernel
+    dim3 dimBlock(16, 16);
+    dim3 dimGrid((width  + dimBlock.x - 1) / dimBlock.x,
+                 (height + dimBlock.y - 1) / dimBlock.y);
+    transformKernel<<<dimGrid, dimBlock>>>(output,
+                                           texObj, width, height,
+                                           angle);
+
+    // Destroy texture object
+    cudaDestroyTextureObject(texObj);
+
+    // Free device memory
+    cudaFreeArray(cuArray);
+    cudaFree(output);
+
+    return 0;
+}
+```
+
+
+
 
 ### Error handling
 ```
@@ -1067,7 +1283,7 @@ Use _ cudaGetErrorString_ to retrieve the error message.
 	* Structure the design such that synchronization is done at block level rather than at kernel level.
 
 SM level utilization & parallelism:
-The number of threads per block is important. When SM executes an instruction $$i_{k}$$ for a warp, the next instruction $$i_{k+1}$$ of that warp may not be ready for execution for some number of clock cycles (called **latency**). Such latency may range from 11 clock cycles for the instruction ($$i_{k}$$) to complete or 200-400 clock cycles if SM need to read global memory for the input operand of $$i_{k+1}$$. To keep the SM busy. the warp scheduler will schedule another warp for execution. We call this **latency hiding**. High number of resident warps allows the warp scheduler to fully utilize the SM. However, registers will not be released until a thread is finished. Likewise, share memory has a lifecycle of a block. Hence, we need to make sure the resident warps do not consume more registers/memory than a SM can offer. To maximize utilization, we need to make sure we have a high number of resident warps with the constraints of registers/memory consumption. The size of the block threads impacts the number of resident warps. For example, if a thread needs 32 register, and if GPU assigns 2 blocks of 512 threads/block to a SM, it will need 32*2*512 registers. If we need one more register per thread, they will push the count to 33*2*512 which is higher than what a SM can offer (register spilling). This forces the compiler to use local memory which will degrade the performance.
+The number of threads per block is important. When SM executes an instruction $$i_{k}$$ for a warp, the next instruction $$i_{k+1}$$ of that warp may not be ready for execution for some number of clock cycles (called **latency**). Such latency may range from 11 clock cycles for the instruction $$i_{k}$$ to complete (instructions are pipelined so we can start another instruction in a different warp without waiting $$i_{k}$$ to complete) or 200-400 clock cycles if SM need to read global memory for the input operand of $$i_{k+1}$$. To keep the SM busy. the warp scheduler will schedule another warp for execution. We call this **latency hiding**. High number of resident warps allows the warp scheduler to fully utilize the SM. However, registers will not be released until a thread is finished. Likewise, share memory has a lifecycle of a block. Hence, we need to make sure the resident warps do not consume more registers/memory than a SM can offer. To maximize utilization, we need to make sure we have a high number of resident warps with the constraints of registers/memory consumption. The size of the block threads impacts the number of resident warps. For example, if a thread needs 32 register, and if GPU assigns 2 blocks of 512 threads/block to a SM, it will need 32*2*512 registers. If we need one more register per thread, they will push the count to 33*2*512 which is higher than what a SM can offer (register spilling). This forces the compiler to use local memory which will degrade the performance.
 
 The number of threads per block should be a multiple of the warp size to maximize utilization.
 
@@ -1149,6 +1365,7 @@ Host and device memory transfer:
 * Mapped memory by-passes explicit memory copy, it improve performance if data access is sparse or not repeating.
 
 Memory access within a warp:
+
 * When a warp executes an instruction, it coalesces all memory access to form the minimum memory loads.
 * Design the application to localize/minimize memory accesses within a warp.
 * Mis-aligned memory accesses require extra memory loading. Make sure memory access are aligned within a warp.
@@ -1156,6 +1373,7 @@ Memory access within a warp:
 * Pad a 2D array using _cudaMallocPitch_ and _cuMemAllocPitch_ if needed.
 
 Local memory:
+
 * Local memory is actually stored in global memory. (same latency as global memory)
 * Local memory is very slow comparing with shared memory.
 * Compiler tries to place variables into registers except:
@@ -1163,7 +1381,8 @@ Local memory:
 	* Large structures or arrays that consume too much or cannot fit into the register space.
 	* Use _cuobjdump_ to identify local memory, or --ptxas-options=-v during compilation for local memory size.
 	
-Constant/texture/surface memory
+Constant/texture/surface memory:
+
 * Stored in the device memory but can be cached for future hits.
 * The texture cache is optimized for 2D spatial locality, and it is designed for streaming fetches with a constant latency.
 
@@ -1172,10 +1391,48 @@ Constant/texture/surface memory
 * Trade precision (single precision vs double precision) for speed if acceptable.
 * Trade intrinsic functions vs regular functions if acceptable.
 * Avoids arithmetic instructions with low throughput.
-* Minimize divergent warps caused by branching. Design the application such that the code within a warp branches in the same way.
-* Use compiler to un-roll loop.
+* Use compiler to unroll loop implicitly.
+* Use #pragma unroll to explicitly unroll loops.
 * Use compiler flags to generate faster but less precise code:
-	* "denormalized numbers are flushed to zero" when compiling code gives better throughput.
-	* Other flags controlling precision
+	* "Denormalized numbers are flushed to zero" when compiling code gives better throughput.
+	* Other flags controlling precision.
+
+Threads in a warp can diverge to different part of the code based on the conditions in the branching. 
+```
+if (a[index]>=0)
+    a[index]++;   // Branch 1
+else 
+    a[index]--;   // Branch 2	
+```
+In the example above, a thread in a warp may branch differently. If this happens, the different executions paths have to be serialized. Design the branch condition such that the code within a warp branches in the same way. Avoid threads within a warp (threadIdx / warpSize) following different execution paths.
+
+### C language extension
+
+| Extension | meaning |
+|\_\_device\_\_ | code executed in a device and callable only from a device |
+|\_\_host\_\_ | code executed in a host and callable only from a host |
+|\_\_global\_\_ | a kernel |
+
+Variable extension
+|\_\_device\_\_ | use with other declaration for memory space in a device |
+|\_\_constant\_\_ | in constant space |
+|\_\_shared\_\_ | in share space |
+|\_\_managed\_\_ | Seen from both host and device. Implicit managed by GPU for data transfer |
+| extern \_\_shared\_\_ | in share space with size passed from the host |
+
+### NVLink
+
+NVLink improves both GPU-to-GPU communications and for GPU access to system memory.
+
+<div class="imgcap">
+<img src="/assets/cuda/ii1.png" style="border:none;width:60%">
+</div>
 
 
+### Compute Preemption 
+Compute Preemption is another new feature of the Pascal GP100 GPU architecture. It allows tasks to be preempted at instruction-level with context swapped to device memory rather than interrupted at the thread block level as in prior Maxwell/Kepler GPU architectures. Compute Preemption prevents long-running applications from either monopolizing the system computation power or being time out or killed. Programmers no longer need to change their long-running applications to play nicely with other GPU
+applications. With Compute Preemption in GP100, applications can run as long as needed while scheduled alongside other tasks. 
+
+### Atomics
+
+Kepler implements shared memory atomics using a lock/update/unlock pattern that could be expensive. Maxwell improved atomic operations by implementing native hardware support for shared memory atomic operations for 32-bit integers, and native shared memory 32-bit and 64-bit compare-and-swap (CAS). Pascal improves atomic operations using Unified Memory and NVLink. The atomicAdd() function can apply to 32 and 64-bit integer and floating-point data. 
