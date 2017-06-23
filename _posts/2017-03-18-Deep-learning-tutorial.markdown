@@ -2,6 +2,7 @@
 layout: post
 comments: true
 mathjax: true
+priority: 100
 title: “Deep learning without going down the rabbit holes.”
 excerpt: “How to learn deep learning from easy concept to complex idea? How to build insight along the way?”
 date: 2017-03-18 14:00:00

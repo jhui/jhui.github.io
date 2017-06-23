@@ -2,6 +2,7 @@
 layout: post
 comments: true
 mathjax: true
+priority: 820
 title: “TensorFlow - Reading data, threading & queues.”
 excerpt: “How threading & queue work? We later focus on how to read data into the TensorFlow.”
 date: 2017-03-08 14:00:00

@@ -2,6 +2,7 @@
 layout: post
 comments: true
 mathjax: true
+priority: 840
 title: “TensorFlow performance and advance topics”
 excerpt: “Cover TensorFlow advance topics including performance and other advance topics.”
 date: 2017-03-07 14:00:00

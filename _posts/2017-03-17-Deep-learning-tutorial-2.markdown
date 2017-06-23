@@ -2,6 +2,7 @@
 layout: post
 comments: true
 mathjax: true
+priority: 200
 title: “Deep learning without going down the rabbit holes. (Part 2)”
 excerpt: “Part 2 of the deep learning.”
 date: 2017-03-17 14:00:00

@@ -2,6 +2,7 @@
 layout: post
 comments: true
 mathjax: true
+priority: 400
 title: “RNN, LSTM and GRU tutorial”
 excerpt: “This tutorial covers the RNN, LSTM and GRU networks that are widely popular for deep learning in NLP.”
 date: 2017-03-15 12:00:00

@@ -2,6 +2,7 @@
 layout: post
 comments: true
 mathjax: true
+priority: 700
 title: “CUDA Tutorial”
 excerpt: “NVIDIA CUDA”
 date: 2017-03-06 14:00:00

@@ -2,6 +2,7 @@
 layout: post
 comments: true
 mathjax: true
+priority: 450
 title: “Soft & hard attention”
 excerpt: “How to use attention to improve deep network learning? Attention extracts relevant information selectively for more effective training.”
 date: 2017-03-15 11:00:00
