@@ -127,7 +127,7 @@ W = tf.get_variable("W", shape, initializer=tf.random_normal_initializer())
 ```
 So for the second affine_reuseable call below, *tf.get_variable* reuses the W & b variables created before.
 ```python
-with tf.variable_scope("nl1", reuse=True):
+with tf.variable_scope("n2", reuse=True):
     nn2 = affine_reuseable(x, [784, 500])
 ```
 
