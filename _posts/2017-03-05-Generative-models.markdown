@@ -240,5 +240,5 @@ We use 2 separate optimizer to train both network simultaneously:
 
 The full source code is available [here](https://github.com/jhui/machine_learning/tree/master/generative_adversarial_network).
  
- ### Credits
- Part of the source code for GAN is originated from https://github.com/kvfrans/generative-adversial and https://github.com/carpedm20/DCGAN-tensorflow.
+### Credits
+Part of the source code for GAN is originated from https://github.com/kvfrans/generative-adversial and https://github.com/carpedm20/DCGAN-tensorflow.
