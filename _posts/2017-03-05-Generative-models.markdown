@@ -240,5 +240,319 @@ We use 2 separate optimizer to train both network simultaneously:
 
 The full source code is available [here](https://github.com/jhui/machine_learning/tree/master/generative_adversarial_network).
  
+### Variational Autoencoders (VAEs)
+
+Variational autoencoders use gaussian models to generate images.  
+
+#### Gaussian distribution
+Before going into the details of VAEs, we discuss the use of gaussian distribution for data modeling. For example, we want to model the relationship between the body height and the body weight for San Francisco residents. We collect the information from 1000 adult residents and plot the data below with each red dot represents 1 person:
+
+<div class="imgcap">
+<img src="/assets/gm/auto.png" style="border:none;width:80%">
+</div>
+
+We can plot the corresponding probability density function 
+
+$$ pdf = probability(height=h, weight=w)$$ 
+
+in 3D:
+
+<div class="imgcap">
+<img src="/assets/gm/auto2.png" style="border:none;width:60%">
+</div>
+
+We can model usch probability density function using a gaussian distribution function. Let's simplify the case to only one variable first, here is a gaussian distribution function with mean $$ \mu=0 $$, standard deviation $$ \sigma=0.1$$:
+
+<div class="imgcap">
+<img src="/assets/gm/g0.png" style="border:none;width:60%">
+</div>
+
+The corresponding probability density function (pdf):
+$$
+f(x) = \frac{e^{-(x - \mu)^{2}/(2\sigma^{2}) }} {\sigma\sqrt{2\pi}}
+$$
+
+And we sample data from this gaussian distribution with mean $$ \mu $$ and standard deviation $$ \sigma $$ with the following notation.
+
+$$
+x \sim \mathcal{N}{\left(
+\mu 
+,
+\sigma
+\right)}
+$$
+
+For p variables:
+
+$$
+x = \begin{pmatrix}
+x_1 \\
+\vdots \\
+x_p
+\end{pmatrix}
+$$
+
+<div class="imgcap">
+<img src="/assets/gm/g1.png" style="border:none;width:60%">
+</div>
+
+$$
+x =
+\begin{pmatrix}
+x_1 \\
+\vdots \\
+x_p
+\end{pmatrix}
+
+\sim \mathcal{N}{\left(
+\begin{pmatrix}
+\mu_1 \\
+\vdots \\
+\mu_p
+\end{pmatrix}
+,
+\sum
+\right)}
+$$
+
+
+which $$ \sum $$ is:
+
+$$
+\sum = \begin{pmatrix}
+    E[(x_{1} - \mu_{1})(x_{1} - \mu_{1})] & E[(x_{1} - \mu_{1})(x_{2} - \mu_{2})] & \dots  & E[(x_{1} - \mu_{1})(x_{p} - \mu_{p})] \\
+    E[(x_{2} - \mu_{2})(x_{1} - \mu_{1})] & E[(x_{2} - \mu_{2})(x_{2} - \mu_{2})] & \dots  & E[(x_{2} - \mu_{2})(x_{p} - \mu_{p})] \\
+    \vdots & \vdots & \ddots & \vdots \\
+    E[(x_{p} - \mu_{p})(x_{1} - \mu_{1})] & E[(x_{p} - \mu_{p})(x_{2} - \mu_{2})] & \dots  & E[(x_{n} - \mu_{p})(x_{p} - \mu_{p})]
+\end{pmatrix}
+$$
+
+For our weight vs height example, 
+
+$$
+x = \begin{pmatrix}
+weight \\
+height 
+\end{pmatrix}
+$$
+
+
+$$
+\mu = \begin{pmatrix}
+190 \\
+70
+\end{pmatrix}
+$$
+
+$$
+\sum = \begin{pmatrix}
+    100 & 25 \\
+    25 & 50 \\
+\end{pmatrix}
+$$
+
+$$
+x \sim \mathcal{N}{\left(
+\begin{pmatrix}
+190 \\
+70
+\end{pmatrix}
+,
+\begin{pmatrix}
+    100 & 25 \\
+    25 & 50 \\
+\end{pmatrix}
+\right)}
+$$
+
+If variables $$x_1$$, $$x_2$$ are independent of each other, all non-diagonal elements will be 0. $$
+\sum = \begin{pmatrix}
+    100 & 0 \\
+    0 & 50 \\
+\end{pmatrix}
+$$
+
+and we will simplify the gaussian distribution notation as:
+$$
+x \sim \mathcal{N}{\left(
+\begin{pmatrix}
+190 \\
+70
+\end{pmatrix}
+,
+\begin{pmatrix}
+    100 \\
+    50 \\
+\end{pmatrix}
+\right)}
+$$
+
+
+#### Autoencoders
+
+In an autoencoders, we use a deep network to map the input image (for example 256x256 pixels = 256x256 = 65536 dimension) to a lower dimension **latent variables** (latent vector say 100-D  vector: $$ (x_1, x_2, \cdots x_{100}) $$). We use another deep network to decode the latent variable to restore the image. We train both encoder and decoder network to minimize the difference between the original image and the decoded image. By forcing the image to a lower dimension, we hope the network learns to encode the image by extracting core features.
+
+<div class="imgcap">
+<img src="/assets/gm/auto3.jpg" style="border:none;width:100%">
+</div>
+
+For example, we enter a 256x256 image to the encoder, we use a CNN to encode the image to 20-D latent variables $$ (x_1, x_1, ... x_{20}) = (0.1, 0, ..., -0.05) $$. We use another network to decode the latent variables into a 256x256 image. We use backpropagation with cost function comparing the decoded and input image to train both encoding and decoding network.
+
+#### VAEs
+
+For VAEs, we replace the middle part with a stochastic model using a gaussian distribution. Let's get into an example to demonstrate the flow:
+
+<div class="imgcap">
+<img src="/assets/gm/auto4.jpg" style="border:none;width:100%">
+</div>
+
+The CNN encoder does not generate the latent variables directly. Instead it generates a gaussian distribution function for each input image. If we use 20-D for our latent variables, the CNN will generate 20 $$ \mu $$ and 20 $$ \sigma $$ for each image.
+
+$$
+z = 
+\begin{pmatrix}
+z_1 \\
+\vdots \\
+z_{20}
+\end{pmatrix}
+\sim \mathcal{N}{\left(
+\begin{pmatrix}
+\mu_1 \\
+\vdots \\
+\mu_{20}
+\end{pmatrix}
+,
+\begin{pmatrix}
+\sigma_{1}\\
+\vdots\\
+\sigma_{20}\\
+\end{pmatrix}
+\right)}
+= \mathcal{N}{\left(
+\begin{pmatrix}
+0 \\
+-0.01 \\
+\vdots \\
+0.2
+\end{pmatrix}
+,
+\begin{pmatrix}
+0.05 \\
+0.01 \\
+\vdots \\
+0.02
+\end{pmatrix}
+\right)}
+$$
+
+The autoencoder in the previous section is very hard to train with not much guarantee that the network is generalize enough to make good predictions.(The network is not memorizing the training data.) 
+ In VAEs, we add a constrain to make sure:
+1. The latent variable are relative independent of each other, i.e. the 20 variables are relatively independent of each other.
+1. Image with similar $$z$$ should look similar.
+
+To achieve this, we want the gaussian distribution model generated to be as close to a normal gaussian distribution function. We penalize the cost function if the gaussian function is deviate from a normal distribution.
+
+$$
+x \sim \mathcal{N}{\left(
+0
+,
+1
+\right)}
+= \text{normal distribution}
+$$
+
+In a normal gaussian distribution, the covariance for $$ i \neq j $$ is 0. That is they are independent of each other. The normalization also helps in normalize the distance between 2 images.
+ 
+Once the CNN compute the gaussian distribution for the input image, we sample z from this distribution and feed it into the decoder.
+$$
+z = 
+\begin{pmatrix}
+z_1 \\
+\vdots \\
+z_{20}
+\end{pmatrix}
+\sim \mathcal{N}{\left(
+\begin{pmatrix}
+\mu_1 \\
+\vdots \\
+\mu_{20}
+\end{pmatrix}
+,
+\begin{pmatrix}
+\sigma_{1}\\
+\vdots\\
+\sigma_{20}\\
+\end{pmatrix}
+\right)}
+$$
+ 
+#### Encoder
+ 
+Here we have a CNN network with 2 convolution layers using leaky ReLU follow by one fully connected layer to generate 20 $$ \mu $$ and another fully connected layer for 20 $$ \sigma $$.
+```python
+def recognition(self, input_images):
+     with tf.variable_scope("recognition"):
+         h1 = lrelu(conv2d(input_images, 1, 16, "d_h1"))   # Shape: (?, 28, 28, 1) -> (?, 14, 14, 16)
+         h2 = lrelu(conv2d(h1, 16, 32, "d_h2"))            # (?, 7, 7, 32)
+         h2_flat = tf.reshape(h2, [self.batchsize, 7 * 7 * 32])  # (100, 1568)
+
+         w_mean = linear(h2_flat, self.n_z, "w_mean")      # (100, 20)
+         w_stddev = linear(h2_flat, self.n_z, "w_stddev")  # (100, 20)
+
+     return w_mean, w_stddev
+```
+
+#### Decoder
+The decoder feeds the 20 latent variables to a fully connected layer followed with 2 transpose convolution layer with ReLU. The output is then feed into a sigmoid layer.
+```python
+def generation(self, z):
+    with tf.variable_scope("generation"):
+        z_develop = linear(z, 7 * 7 * 32, scope='z_matrix')  # (100, 20) -> (100, 1568)
+        z_matrix = tf.nn.relu(tf.reshape(z_develop, [self.batchsize, 7, 7, 32]))  # (100, 7, 7, 32)
+        h1 = tf.nn.relu(conv_transpose(z_matrix, [self.batchsize, 14, 14, 16], name="g_h1"))  # (100, 14, 14, 16)
+        h2 = conv_transpose(h1, [self.batchsize, 28, 28, 1], name="g_h2")  # (100, 14, 14, 16)
+        out = tf.nn.sigmoid(h2)  # (100, 28, 28, 1)
+
+    return out     
+```
+ 
+#### Building the VAE
+
+We use the encoder to encode the input image. Use sampling to generate $$ z $$ and then decode it.
+```python
+        # Encode the image
+        z_mean, z_stddev = self.recognition(image_matrix)
+		
+        # Sampling z
+        samples = tf.random_normal([self.batchsize, self.n_z], 0, 1, dtype=tf.float32)
+        guessed_z = z_mean + (z_stddev * samples)
+
+        # Decode the image
+        self.generated_images = self.generation(guessed_z)
+        generated_flat = tf.reshape(self.generated_images, [self.batchsize, 28 * 28])
+```
+
+#### Cost and training
+
+We define a generation loss which measure the difference between the original and the decoded message using the mean square error.
+The latent loss measure the difference between gaussian function of the image from a normal distribution using KL-Divergence.
+```python
+        self.generation_loss = -tf.reduce_sum(
+            self.images * tf.log(1e-8 + generated_flat) + (1 - self.images) * tf.log(1e-8 + 1 - generated_flat), 1)
+
+        self.latent_loss = 0.5 * tf.reduce_sum(
+            tf.square(z_mean) + tf.square(z_stddev) - tf.log(tf.square(z_stddev)) - 1, 1)
+
+        self.cost = tf.reduce_mean(self.generation_loss + self.latent_loss)
+        self.optimizer = tf.train.AdamOptimizer(0.001).minimize(self.cost)
+```
+ 
+#### Result
+Here is the digits created by VAE:
+<div class="imgcap">
+<img src="/assets/gm/r2.png" style="border:none;width:50%">
+</div>
+
+
 ### Credits
-Part of the source code for GAN is originated from https://github.com/kvfrans/generative-adversial and https://github.com/carpedm20/DCGAN-tensorflow.
+Part of the source code for GAN & Variational Autoencoders is originated from https://github.com/kvfrans/generative-adversial and https://github.com/carpedm20/DCGAN-tensorflow.
