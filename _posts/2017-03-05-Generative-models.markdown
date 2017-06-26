@@ -2,7 +2,7 @@
 layout: post
 comments: true
 mathjax: true
-priority: 900
+priority: 550
 title: “Generative models - GAN, Variational Autoencoders”
 excerpt: “Generative models”
 date: 2017-03-06 14:00:00
