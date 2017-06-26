@@ -669,7 +669,7 @@ $$
 ELBO_i(\theta, \phi) = E_{q_\theta(z∣x_i) }  \lbrack  \log (p_{\theta}(x_{i}|z))  \rbrack - KL\left( q_\phi (z∣x_{i}) ∣∣ p(z)\right)
 $$
 
-The first term measured the probability of output $$x_i$$ in the decoder with $$x_i$$ as input to the encoder.  The second term is the KL divergence. $$-ELBO_i(\theta, \phi)$$ is the cost function $$.
+The first term measured the probability of output $$x_i$$ in the decoder with $$x_i$$ as input to the encoder.  The second term is the KL divergence. $$-ELBO_i(\theta, \phi)$$ is the cost function.
 
  
 #### Result
