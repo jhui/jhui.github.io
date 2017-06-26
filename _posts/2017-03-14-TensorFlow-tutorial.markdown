@@ -901,5 +901,3 @@ if __name__ == '__main__':
 
 ### Caveat
 * Some APIs like tf.split, tf.concat in v1.0 are not backward compatible with pre-v1.0 version. Some files are moved to different directories. Care must be taken between the Tensorflow version and the version that the code is written on.
-* Github example directories, including v1.0 and nightly build, contains some codes that have not ported to v1.0. However, the changes usually is not too complicated. Just some information is hard to find. Read the doc API for any signature changes.
-
