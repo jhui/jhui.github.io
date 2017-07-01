@@ -76,7 +76,7 @@ Recall a LSTM cell takes 2 input (hidden state at the previous time step and the
 We are going to modify a single step model to a LSTM model for DRAW:
 
 <div class="imgcap">
-<img src="/assets/gm/lstm.png" style="border:none;width:100%">
+<img src="/assets/gm/lstm3.png" style="border:none;width:100%">
 </div>
 
 At each time step, we are going to comput the following equations:
