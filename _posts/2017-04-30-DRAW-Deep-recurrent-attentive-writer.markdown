@@ -235,7 +235,6 @@ $$
 self.ct[t] = c_prev + dense(hidden_layer, self.n_hidden, self.img_size**2)
 ```
 
-
 ### Attention implementation
 
 The attention comes in 2 steps. In the first step, we use a fully connected (FC) network to predict the region of the attention from $$ h^{dec}_{t-1}$$ and in the second step, we represent the attention region with grid points.
@@ -341,6 +340,21 @@ def filterbank(self, gx, gy, sigma2, delta):
    return Fx, Fy
 ```
 
+The position of the 5 grid points for x and y is:
+<div class="imgcap">
+<img src="/assets/gm/eq1.png" style="border:none;width:30%">
+</div>
+
+$$
+\mu^i_x
+$$
+is the ith grid point in the x-direction.
+
+The $$ F_x[i, a] $$ (N, 5, 28) for the $$ith$$ grid point is computed as ($$ a $$ is from pixel 0 to 27): 
+<div class="imgcap">
+<img src="/assets/gm/eq2.png" style="border:none;width:30%">
+</div>
+
 Here we replace:
 
 $$
@@ -394,6 +408,37 @@ def write_attention(self, hidden_layer):
     wr = tf.matmul(Fyt, tf.matmul(w, Fx))
     wr = tf.reshape(wr, [self.N, self.img_size ** 2])
     return wr * tf.reshape(1.0 / gamma, [-1, 1])
+```
+
+### Cost function
+
+To measure the lost between the orignal images and the generated images, (generation loss):
+```python
+self.generation_loss = tf.reduce_mean(-tf.reduce_sum(
+            self.images * tf.log(1e-10 + 
+			self.generated_images) + 
+			(1 - self.images) * tf.log(1e-10 + 1 - self.generated_images), 
+			1))
+```
+
+We use the KL divergence to measure the latent loss:
+<div class="imgcap">
+<img src="/assets/gm/c2.png" style="border:none;width:30%">
+</div>
+
+<div class="imgcap">
+<img src="/assets/gm/c3.png" style="border:none;width:30%">
+</div>
+
+```python
+# Similar to the variation autoencoder, we add the KL divergence of the encoder distribution to the cost.
+kl_terms = [0] * self.T                # list of 10 elements: each element (N,)
+for t in range(self.T):
+    mu2 = tf.square(self.mu[t])        # (N, 10)
+    sigma2 = tf.square(self.sigma[t])  # (N, 10)
+    logsigma = self.logsigma[t]        # (N, 10)
+    kl_terms[t] = 0.5 * tf.reduce_sum(mu2 + sigma2 - 2 * logsigma, 1) - self.T * 0.5
+self.latent_loss = tf.reduce_mean(tf.add_n(kl_terms)) # Find mean of (N,)
 ```
 
 ### Result
