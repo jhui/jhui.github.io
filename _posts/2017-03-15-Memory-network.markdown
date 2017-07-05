@@ -7,29 +7,28 @@ title: “Memory network (MemNN) & End to end memory network (MemN2N)”
 excerpt: “Use a memory network to store knowledge for inferencing.”
 date: 2017-03-15 11:00:00
 ---
-**This is work in progress...**
 
 ### Memory network
 
-Virtual assistances are pretty good at answering a one-line query but fail badly in carrying out a conversation. Here is a verbal exchange demonstrating the challenge ahead of us with virtual assistances:
+Virtual assistances are pretty good at answering a one-line query but fail badly in carrying out a conversation. Here is a verbal exchange demonstrating the challenge ahead of us:
 
 * Me: Can you find me some restaurants?
 * Assistance: I find a few places within 0.25 mile. The first one is Caffé Opera on Lincoln Street. The second one is ...
 * Me: Can you make a reservation at the first restaurant? 
 * Assistance: Ok. Let's make a reservation for the Sushi Tom restaurant on the First Street.
 
-Why can't the virtual assistance follow my instruction to book the Caffé Opera? It is because the virtual assistance does not remember our conversation and simply response our second query without the context of the previous conversation. Therefore, the best it can do is to find a restaurant that relates to the word "First", and it finds a restaurant located on First Street. Memory networks address this issue by remembering information processed so far.
+Why can't the virtual assistance follow my instruction to book the Caffé Opera? It is because the virtual assistance does not remember our conversation and simply responses to our second query without the context of the previous conversation. Therefore, the best it can do is to find a restaurant that relates to the word "First", and it finds a restaurant located on First Street. Memory networks address this issue by remembering information processed so far.
 
 > The description on the memory networks (MemNN) is based on [Memory networks, Jason Weston etc.](https://arxiv.org/pdf/1410.3916.pdf)
 
-Consider the follow "story" statements:
+Consider the follow sequence:
 
-- Joe went to the kitchen. 
-- Fred went to the kitchen. 
-- Joe picked up the milk.
-- Joe traveled to the office. 
-- Joe left the milk. 
-- Joe went to the bathroom.
+1. Joe went to the kitchen. 
+1. Fred went to the kitchen. 
+1. Joe picked up the milk.
+1. Joe traveled to the office. 
+1. Joe left the milk. 
+1. Joe went to the bathroom.
 
 #### Storing information into the memory
 
@@ -49,9 +48,9 @@ To answer the query $$q$$ "where is the milk now?", we compute our first inferen
 
 $$ o_1 = O_1(q, m) = \underset{i=1, \dots, N}{\arg\max} s_0(q, m_{i}) $$
 
-where $$s_{0} $$ is a function that scores the match between an input $$x$$ and $$m_{i} $$, and $$ o_1 $$ is the index to the memory $$m$$ with the best match. Therefore, $$ m_{o_1} $$ is our best match in the first inference: "Joe left the milk."
+where $$s_{0} $$ is a function that scores the match between an input $$x$$ and $$m_{i} $$, and $$ o_1 $$ is the index to the memory $$m$$ with the best match. Here, $$ m_{o_1} $$ is our best match in the first inference: "Joe left the milk."
 
-Then, we make a second inference based on $$ \big[ q \text{ "where is the milk now"} , m_{o_1} \text{" Joe left the milk."} \big]$$
+Then, we make a second inference based on $$ \big[ q: \text{ "where is the milk now"} , m_{o_1}: \text{" Joe left the milk."} \big]$$
 
 $$ o_2 = O_2(x, m) = \underset{i=1, \dots, N}{\arg\max} s_o(\big[ q, m_{o_{1}} \big], m_{i}) $$
 
@@ -59,7 +58,7 @@ where $$ m_{o_2}  $$ will be "Joe traveled to the office.".
 
 We combine the query, and the inference results as $$ o $$:
 
-$$  o = \big[ q, m_{o_{1}} , m_{o_{2}}  \big] = \big[ \text{ "where is the milk now"} ,  \text{" Joe left the milk."},  \text{" Joe travelled to the office."}$$
+$$  o = \big[ q, m_{o_{1}} , m_{o_{2}}  \big] = \big[ \text{ "where is the milk now"} ,  \text{" Joe left the milk."},  \text{" Joe travelled to the office."} \big]$$
 
 To generate a final response $$ r $$ from $$o$$:
 
@@ -112,7 +111,7 @@ $$
 s_{r}(x, y) = Φ_{x}(x)^T{U_{r}}^TU_{r}Φ_{y}(y)
 $$
 
-which $$ U $$ is trained with a margin loss function.
+which $$ U_{o} $$ and $$ U_{r} $$ are trained with a margin loss function.
 
 ### Margin loss function
 
