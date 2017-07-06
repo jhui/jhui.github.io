@@ -10,7 +10,7 @@ date: 2017-03-06 14:00:00
 
 ### Discriminative models
 
-Generative models generate images from scratch. Before diving into the generative models, we look into some prior methods of generating images. In a discriminative model, we draw conclusion on something we observe. For example, we train a CNN discriminative model to classify a picture. 
+Generative models generate images from scratch. In a discriminative model, we draw conclusion on something we observe. For example, we train a CNN discriminative model to classify a picture. 
 
 $$ y = f(image) $$
 
@@ -18,135 +18,16 @@ $$ y = f(image) $$
 <img src="/assets/cnn/cnn.png" style="border:none;width:60%">
 </div>
 
-#### Class visualization
-
-Often, we want to visualize what features a network tries to learn in the classification process. First, we train a classification CNN model. Then we genearte a random image and feed forward to the network. Instead of backpropagate the gradient to train $$W$$, we backpropagate the gradient to make $$image$$ to look like the target class. i.e., use backpropagation to change the $$image$$ to increase the score of the target class. In order to do so, we change $$ \frac{\partial J}{\partial score_i} $$ manually to:
-
-$$
-\frac{\partial J}{\partial score_i}=
-    \left\{
-    \begin{array}{lr}
-      1,& i=target \\
-      0,& i \neq target 
-    \end{array}
-    \right\}
-$$
-
-, and reiterate the feed forward and backward many times. Here is the skeleton code to generate an image from a pre-trained CNN _model_ for the target class _target_y_.
-
-```phtyon
-def class_visualization(target_y, model, learning_rate, l2_reg, num_iterations):
-
-    # Generate a random image
-    X = np.random.randn(1, 3, 64, 64)
-    for t in xrange(num_iterations):
-        dX = None
-        scores, cache = model.forward(X, mode='test')
-
-        # Artifically set the dscores for our target to 1, otherwise 0.
-        dscores = np.zeros_like(scores)
-        dscores[0, target_y] = 1.0
-
-        # Backpropagate
-        dX, grads = model.backward(dscores, cache)
-        dX -= 2 * l2_reg * X
-		
-        # Change the image with the gradient descent.
-        X += learning_rate * dX
-    return X
-```
-
-To make it works better, we add clipping, jittering and blurring:
-```phtyon
-def class_visualization(target_y, model, learning_rate, l2_reg, num_iterations, blur_every, max_jitter):
-    X = np.random.randn(1, 3, 64, 64)
-    for t in xrange(num_iterations):
-        # Add the jitter
-        ox, oy = np.random.randint(-max_jitter, max_jitter + 1, 2)
-        X = np.roll(np.roll(X, ox, -1), oy, -2)
-
-        dX = None
-        scores, cache = model.forward(X, mode='test')
-
-        dscores = np.zeros_like(scores)
-        dscores[0, target_y] = 1.0
-        dX, grads = model.backward(dscores, cache)
-        dX -= 2 * l2_reg * X
-
-        X += learning_rate * dX
-
-        # Undo the jitter
-        X = np.roll(np.roll(X, -ox, -1), -oy, -2)
-
-        # As a regularizer, clip the image
-        X = np.clip(X, -data['mean_image'], 255.0 - data['mean_image'])
-
-        # As a regularizer, periodically blur the image
-        if t % blur_every == 0:
-            X = blur_image(X)
-    return X
-```
-
-
-Here is our attempt to generate a spider image starting from random noises.
-<div class="imgcap">
-<img src="/assets/gm/spider.png" style="border:none;width:30%">
-</div>
-
-#### Artistic Style Transfer
-
-Artistic style transfer applies the style of one image to another. We start with a picture as our style:
-<div class="imgcap">
-<img src="/assets/gm/starry1.jpg" style="border:none;width:40%">
-</div>
-
-and transfer the style to another image
-<div class="imgcap">
-<img src="/assets/gm/starry2.jpg" style="border:none;width:40%">
-</div>
-
-to create
-<div class="imgcap">
-<img src="/assets/gm/starry.png" style="border:none;width:40%">
-</div>
-[Image source](https://github.com/jcjohnson/neural-style)
-
-Here, we pass the first and the second image to the CNN respectively. We extract the corresponding features of those image at some layers deep down in the network. We subtract the difference and use it as the gradient for backpropagation. 
+In a previous article, we demonstrate how to generate images based on a discriminative model. Basically, we select a specific layer in a CNN, manipulate the gradient manually and backpropagate the gradient to change the image. For example, we want to change an image to make it look similar to another image. We pass the first and the second image to the CNN respectively. We extract the corresponding features of those image at some layers deep down in the network. We manually set the gradient to the difference of the feature values of the images. Then we backpropagate the gradient to make one image look closer to another one. 
 ```python
-out_feats, cache = model.forward(X, end=layer)
-dout = 2 * (out_feats - target_feats)
-dX, grads = model.backward(dout, cache)
-dX += 2 * l2_reg * np.sum(X**2, axis=0)
+for t in xrange(num_iterations):
+    out_feats, cache = model.forward(X, end=layer)
+    dout = 2 * (out_feats - target_feats)    # Manuually override the gradient by the difference of features value.
+    dX, grads = model.backward(dout, cache)
+    dX += 2 * l2_reg * np.sum(X**2, axis=0)
 
-X -= learning_rate * dX
+    X -= learning_rate * dX                  # Use Gradient descent to change the image
 ``` 
-
-#### Google DeepDream
-
-Google DeepDream uses a CNN to find and enhance features within an image. It forward feed an image to a CNN network to extract features at a particular layer. It later backpropagate the gradient by explicitly changing the gradient to its activation:
-
-$$ 
-\frac{\partial J}{\partial score_i} = activation
-$$ 
-
-This exaggerate the features at the chosen layer of the network.
-
-```python
-out, cache = model.forward(X, end=layer)
-dX, grads = model.backward(out, cache)
-X += learning_rate * dX
-```
-
-Here, we start with an image of a cat:
-<div class="imgcap">
-<img src="/assets/gm/cat2.jpg" style="border:none;width:40%">
-</div>
-
-This is the image after many iterations:
-<div class="imgcap">
-<img src="/assets/gm/cat.png" style="border:none;width:40%">
-</div>
-
 
 > We turn around a CNN network to generate realistic images through backpropagation by exaggerate certain features.
 

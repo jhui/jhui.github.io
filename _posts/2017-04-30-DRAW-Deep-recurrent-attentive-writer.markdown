@@ -2,7 +2,7 @@
 layout: post
 comments: true
 mathjax: true
-priority: 560
+priority: 555
 title: “DRAW - Deep recurrent attentive writer”
 excerpt: “A generative model to generate images using LSTM and attention.”
 date: 2017-04-30 11:00:00
