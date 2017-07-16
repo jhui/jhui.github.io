@@ -112,6 +112,8 @@ At the right, we start with a random policy which updated at every iteration. As
 
 In the example above, we assume the reward and the state transition is well known. In reality, it is not often true in particular robotics. The chess game model is well known. But some games like the Atari ping-pong, the model is not known precisely by the gamer. In the Go game, the model is well known but the state space is so huge that it is computationally impossible to calculate the value function using the methods above. With a model free example, we need to execute an action in the real environment or a simulator to find out the reward and the next transition state for that action.
 
+> Model free RL executes actions to observe rewards and state changes to calculate value functions or policy.
+
 #### Monte-Carlo learning
 We turn to sampling hoping that after playing enough games, we find the value function empirically. In Monte-Carlo, we start with a particular state and keep continue playing until the end of game.
 
@@ -368,84 +370,94 @@ Here is the algorithm
 Credit: David Silver RL course
 
 ### Value function estimator
-In the previous sections, our focus is to estamate $$\text{V or Q}$$ accurately. If the state of the system is huge, this is not practical. Deep learning has been frequently used to estimate function. So we will use a deep network to estimate the function value instead.
+In previous sections, we focus on computing $$\text{V or Q}$$ accurately through sampling experience. If the system has a very large space for the states, we need a lot of computations and memory to compute so many function values. Instead, we turn to deep learning networks to approximate them. i.e. we build a deep network to estimate $$\text{V or Q}$$.
 
-So we need to build a deep network with parameters $$w$$ to estimate $$\text{V or Q}$$. We define a cost function to compute the mean square error between the estimate and the calculated value from the samples in the episodes. We then backpropagate the gradient to change $$w$$ to create a better model to match the sampling episodes.
-
-The cost function is defined as:
+The cost function of a deep network for $$V$$ is defined as the mean square error between the network estimation and sampling experience:
 
 $$
 J(w) = E_\pi \left[ (v_\pi(s)-\hat{v}(S,w))^2 \right]
 $$
 
-which $$\hat{v}(S,w)$$ is the estimate from the deep network and $$v_\pi(s)$$ can be the estimate compute by sampling using Monte-Carlo, TD, TD(λ) or eligibility traces.
+which $$\hat{v}(S,w)$$ is the output value from the deep network and $$v_\pi(s)$$ is the calculated value using our sampling episodes. We then backpropagate the gradient of the lost function to optimize the trainable parameters of the deep network.
 
 $$
 \begin{equation}
 \begin{split}
-J(w) & = E_\pi \left[ (v_\pi(s)-\hat{v}(S,w))^2 \right] \\
+\bigtriangledown_w  J(w) & = 2 \cdot (v_\pi(s)-\hat{v}(S,w)) \bigtriangledown_w \hat{v}(S,w) \\
 \bigtriangleup w & = -\frac{1}{2} \alpha \bigtriangledown_w J(w) \\
 & = \alpha (v_\pi(s)-\hat{v}(S,w)) \bigtriangledown_w \hat{v}(S,w)
 \end{split}
 \end{equation}
 $$
   
-So we can use backpropagate to compute the gradient $$ \bigtriangledown_w \hat{v}(S,w) $$ and change $$w$$.
- 
-We can using different method to compute $$v_\pi(s)$$
+We can using different methods described before to compute $$v_\pi(s)$$ through sampling. For example, we can work with Monte-Carlo, TD or TD(λ) on $$V$$ to optimize the deep network.
 
- $$
+$$
 \begin{equation}
 \begin{split}
- \bigtriangleup w & = \alpha (G_t-\hat{v}(S_t,w)) \bigtriangledown_w \hat{v}(S_t,w) \quad \text{(Monte-Carlo)} \\
- \bigtriangleup w & = \alpha (R_{t+1} + \gamma \hat{v}(S_{t+1},w) -\hat{v}(S_t,w)) \bigtriangledown_w \hat{v}(S_t,w) \quad  \text{(TD)}\\ 
- \bigtriangleup w & = \alpha (G_t(λ)-\hat{v}(S_t,w)) \bigtriangledown_w \hat{v}(S_t,w) \quad  \text{(TD(λ))}\\
+ \bigtriangleup w & = \alpha (G_t-\hat{v}(S_t,w)) \bigtriangledown_w \hat{v}(S_t,w) & \text{Monte-Carlo} \\
+ \bigtriangleup w & = \alpha (R_{t+1} + \gamma \hat{v}(S_{t+1},w) -\hat{v}(S_t,w)) \bigtriangledown_w \hat{v}(S_t,w) \quad & \text{TD}\\ 
+ \bigtriangleup w & = \alpha (G_t(λ)-\hat{v}(S_t,w)) \bigtriangledown_w \hat{v}(S_t,w) &  \text{TD(λ)}\\
+ \delta_t & = R_{t+1} + \gamma \hat{v}(S_{t+1},w) - \hat{v}(S_t, w) &  \text{Eligibility trace} \\
+ E_t & = \gamma \lambda E_{t-1} + 1( S_t = s) \\
+\bigtriangleup w & =  \alpha \delta_t E_t
  \end{split}
  \end{equation}
  $$
 
-For control:
+Alernatively, we can use Monte-Carlo, Sarsa, Sarsa(λ) or Q-learning on $$Q$$.
 
 $$
 \begin{equation}
 \begin{split}
-\bigtriangleup w & = \alpha (G_t-\hat{q}(S_t,A_t, w)) \bigtriangledown_w \hat{q}(S_t,A_t,w) \quad \text{(Monte-Carlo)} \\
-\bigtriangleup w & = \alpha (R_{t+1} + \gamma \hat{q}(S_{t+1},A_{t+1}, w) - \hat{q}(S_t,A_t, w)) \bigtriangledown_w \hat{q}(S_t, A_t,w) \quad  \text{(Sarsa)} \\
-\bigtriangleup w & = \alpha (q_t(λ) - \hat{q}(S_t,A_t, w)) \bigtriangledown_w \hat{q}(S_t, A_t,w) \quad  \text{(Sarsa(λ))}\\
-\bigtriangleup w & = \alpha (R_{t+1} + \gamma \cdot argmax_{a'} \hat{q}(S_{t+1}, a', w) - \hat{q}(S_t,A_t, w)) \bigtriangledown_w \hat{q}(S_t, A_t,w)  \quad  \text{(Q-learning))}
+\bigtriangleup w & = \alpha (G_t-\hat{q}(S_t,A_t, w)) \bigtriangledown_w \hat{q}(S_t,A_t,w) & \text{Monte-Carlo} \\
+\bigtriangleup w & = \alpha (R_{t+1} + \gamma \hat{q}(S_{t+1},A_{t+1}, w) - \hat{q}(S_t,A_t, w)) \bigtriangledown_w \hat{q}(S_t, A_t,w) \quad  & \text{Sarsa} \\
+\bigtriangleup w & = \alpha (q_t(λ) - \hat{q}(S_t,A_t, w)) \bigtriangledown_w \hat{q}(S_t, A_t,w) &  \text{Sarsa(λ)}\\
+\bigtriangleup w & = \alpha (R_{t+1} + \gamma \cdot argmax_{a'} \hat{q}(S_{t+1}, a', w) - \hat{q}(S_t,A_t, w)) \bigtriangledown_w \hat{q}(S_t, A_t,w)  \quad &  \text{Q-learning} \\
+ \delta_t & = R_{t+1} + \gamma \hat{a}(S_{t+1}, A_{t+1}, w) - \hat{q}(S_t, A_t, w) &  \text{Eligibility trace} \\
+ E_t & = \gamma \lambda E_{t-1} + 1( S_t = s, A_t=a) \\
+\bigtriangleup w & =  \alpha \delta_t E_t
 \end{split}
 \end{equation}
 $$
 
-> We can updates $$w$$ immediately at each step of an episode. However, to have a more stable solution, we may store the new $$w$$ values separately and update it at once at the end of an episode.
+> We can updates $$w$$ immediately at each step of an episode. However, this may de-stabilize our solution. Instead, we accumulate the gradient changes and change the network parameter only after batches of episodes.
 
 #### Deep Q-learning network (DQN)
 
-> We will cover DQN briefly to demonstrate how to use an action value function estimator with Q-learning to solve RL problem. However, the Policy Gradient method discuss in next section is more popular.
+> DQN is less important comparing to the Policy gradient in the next section. Hence, we will not explain DQN in details. But it is helpful to understand how to apply deep network in approximating function values or policy.
 
-DQN uses deep learning network as the value function estimator and Q-learning to perform the gradient descent:
+DQN uses deep learning network to approximate the action value function and use Q-learning target in the gradient descent. The gradient of the lost function is defined as:
 
+<div class="imgcap">
+<img src="/assets/rl/l2.png" style="border:none;width:55%">
+</div>
+
+Gradient of the lost function:
 <div class="imgcap">
 <img src="/assets/rl/eq2.png" style="border:none;width:75%">
 </div>
 
+DQN uses ε-greedy algorithm to select an action $$ a_t $$ randomly or based on $$ argmax_a Q(s_t, a, w) $$ for the state $$s_t$$. Here, we use a deep network to compute $$ Q(s_t, a, w) $$ for the best action. We store the sequence $$ (s_t, a_t, r_{t+1}, s_{t+1}) $$ into a replay memory $$D$$. We sample batches of sequence from the replay memory to train the network. (experience replay) We compute the Q-learning target with values from the sampled experience and the $$ Q $$ values estimated by the deep network. We apply gradient descent to optimize the deep network. 
+
 <div class="imgcap">
 <img src="/assets/rl/a5.png" style="border:none;width:75%">
 </div>
-Source: [DeepMind](https://arxiv.org/abs/1312.5602)
+Source: [DeepMind](https://arxiv.org/abs/1312.5602) Eq 3 is the gradient of the lost function.
 
-DQN uses ε-greedy algorithm to select action $$ a_t $$ and store the sequence $$ (s_t, a_t, r_t{t+1}, s_{t+1}) $$ into a replay memory. We sample batches of sequence from the replay memory. (experience replay) We compute the Q-learning target using an old fixed DQN parameter $$ w^{-} $$. (Fixed Q-targets) We apply the following loss function below to train DQN.
-
+We are selecting actions using the deep network parameterize by $$w$$ while we are simultaneously optimizing those $$w$$ with gradient descent. However, this is mathematically less stable. DQN uses a fixed Q-target which the action selection is based on the older copy $$w^{-}$$ which is updated at the end of the batches of episodes.
+  
 <div class="imgcap">
-<img src="/assets/rl/l2.png" style="border:none;width:75%">
+<img src="/assets/rl/st.png" style="border:none;width:55%">
 </div>
 
-### Policy descent
+### Policy Gradient
 
-In previous sections, the algorithms focus on finding the value functions $$ \text{V or Q}$$ and derive the optimal policy from it. Some algorithms recompute the value functions of the whole state space at each iteration. Unfortunately, for a problem with a huge state space, this is not efficient. Often a lot of state space is not interesting to us. The model free control uses ε-greedy algorithm to reduce the amount of state space to search. We focus more on the action function value $$Q$$ that looks more promising to us. i.e action that either we have not explore much or actions that have high $$Q$$ value.
+In previous sections, we look at many different states and compute how good they are. Then we formulate a policy to reach those states. Alternatively, we can start with a policy and improve it based on the observation. Previous algorithms focus on finding the value functions $$ \text{V or Q}$$ and derive the optimal policy from it. Some algorithms recompute the value functions of the whole state space at each iteration. Unfortunately, for problems with a large state space, this is not efficient. The model free control improves this by using ε-greedy algorithm to reduce the amount of state space to search. It focuses on actions either not been explore much or that have high $$Q$$ value.
 
-Policy descent on the contrary focuses on finding the optimal policy $$ \pi_\theta(a \vert s)$$. We are trying to use deep network to predict the best action for a specific state. The principles are pretty simple. If certain state and action can produce good result, we make sure our deep network predict the same action. If the following shooting sequence scores a 3-point, we make sure the deep network will suggest the same action at each frame of the picture. Each frame represents a state and the action is how to move the joints and the muscle.
+Alternatively, instead of focus on the value function first. We can focus on the policy first. Policy gradient focuses on finding the optimal policy $$ \pi_\theta(a \vert s)$$ given a state $$s$$. We use deep network to predict the best action for a specific state. The principle is pretty simple. We use the deep network to tell us what action to take for a specific state. We observe the result. If it is good, we tune the network to be more confidence in making such suggestion. If it is bad, we train our network to make some other prediction.
 
+A shooting sequence can break down into many frames. With policy gradient, the deep network determines what is the best action to take at each frame to maximize the success.
 <div class="imgcap">
 <img src="/assets/rl/curry.jpg" style="border:none;width:75%">
 </div>
@@ -473,7 +485,7 @@ J(\theta) & = E_{\pi_\theta} (r) \\
 \end{equation}
 $$
 
-The term $$\log \pi_\theta(s, a)$$ should be familiar in deep learning. This is the log of a probability. i.e. the logit value in a deep network.  Usually, that is the score before we pass it to a softmax. Our objective is to maximize $$ J (\theta)$$. i.e. build a deep network making accurate predictions and those predictions make the highest total rewards. That is why $$\bigtriangledown_\theta J(\theta)$$ is depends on $$ R_{s, a} $$ and $$score_a $$ which the first one measure how good is the action and the second on how good the deep network predict that action. When $$ R_{s, a} $$ is high, we backpropagate the signal to change $$\theta$$ in the deep network to make $$score_a $$ higher. Eventually, the deep network will make accurate predictions on actions that make high total rewards.
+Our objective is to maximize the total rewards $$ J (\theta)$$. i.e. build a deep network that makes good action predictions with the highest total rewards. To do that, we compute the gradient of the cost function so we can optimize the deep network. The term $$\log \pi_\theta(s, a)$$ should be familiar in deep learning. This is the log of a probability. i.e. the logit value in a deep network.  Usually, that is the score before the softmax function. Our solution $$\bigtriangledown_\theta J(\theta)$$ depends on $$ R_{s, a} $$ and $$score_a $$. $$ R_{s, a} $$ measures how good is the action and $$score_a $$ on how confidence the deep network about the action. When $$ R_{s, a} $$ is high, we backpropagate the signal to change $$\theta$$ in the deep network to boost $$score_a $$. i.e. we encourage the network to predict actions that give good total rewards.
 
 Without proofing, the equivalent equations for multiple steps system is:
 
@@ -486,9 +498,11 @@ $$
 \end{equation}
 $$
 
+And we can use the gradient to optimize the deep network.
+
 #### Policy Gradient using Monte-Carlo
 
-We can sample $$  Q^{\pi_\theta} (s, a) $$ using Monte-Carlo. The algorithm is:
+We can sample $$  Q^{\pi_\theta} (s, a) $$ using Monte-Carlo and use the lost function gradient to train the network. The algorithm is:
 
 <div class="imgcap">
 <img src="/assets/rl/mc.png" style="border:none;width:50%">
@@ -512,13 +526,14 @@ E_{\pi_\theta} ((\bigtriangledown_\theta \log \pi_\theta(s, a)) B(S)) & = \sum_{
 \end{equation}
 $$
 
-So we proof that instead of using $$ Q^{\pi_\theta} (s, a) $$, we can use $$ Q^{\pi_\theta} (s, a) - V^{\pi_\theta}(s)$$  to optimize $$ \theta $$
+Replace $$ Q^{\pi_\theta} (s, a) $$ with $$ Q^{\pi_\theta} (s, a) - V^{\pi_\theta}(s)$$  will produce the same solution for $$ \theta $$:
 
 $$
 \begin{equation}
 \begin{split}
 E_{\pi_\theta} ((\bigtriangledown_\theta score_a ) (Q^{\pi_\theta} (s, a) - V{\pi_\theta}(s))) & = E_{\pi_\theta} ((\bigtriangledown_\theta score_a ) (Q^{\pi_\theta} (s, a))) - E_{\pi_\theta} ((\bigtriangledown_\theta score_a ) V{\pi_\theta}(s)) \\
 & = E_{\pi_\theta} ((\bigtriangledown_\theta score_a ) (Q^{\pi_\theta} (s, a))) \\
+& = \bigtriangledown_\theta J(\theta) 
 \end{split}
 \end{equation}
 $$
@@ -543,10 +558,22 @@ E_{\pi_\theta}(\delta^{\pi_\theta} \vert s, a ) & = E_{\pi_\theta} ( r + \gamma 
 \end{equation}
 $$
 
-Here are the different methods to train $$\theta$$ of the deep network using Monte-Carlo, TD, TD(λ) and eligibility trace.
+Here are the different methods to train $$\theta$$ of the deep network.
+
 <div class="imgcap">
-<img src="/assets/rl/m1.png" style="border:none;width:45%">
+<img src="/assets/rl/so1.png" style="border:none;width:50%">
 </div>
+
+And some example if score is simply computed with a linear regression:
+
+$$score =\phi(s)^T  \theta$$ 
+
+$$ \bigtriangledown_\theta \log \pi(s) = \bigtriangledown_\theta score(s) =  \bigtriangledown_\theta \phi(s)^T  \theta = \phi(s) $$
+
+<div class="imgcap">
+<img src="/assets/rl/m1.png" style="border:none;width:40%">
+</div>
+
 Source David Silver Course
 
 ### Reinforcement learning for Atari pong game
@@ -705,6 +732,7 @@ if episode_number % batch_size == 0:
       grad_buffer[k] = np.zeros_like(v)  # reset batch gradient buffer
 ```
 
+The source code can be find [here](https://github.com/jhui/machine_learning/blob/master/reinforcement_learning/ping_pong.py). 
 
 #### Policy gradient using Actor and Critic
 
