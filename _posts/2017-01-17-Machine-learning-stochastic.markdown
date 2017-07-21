@@ -493,14 +493,14 @@ $$
 
 The posterior conditional for $$p(x_1 \vert x_2) $$ is given below. This formular is particular important for the Gaussian process in the later section. For example, if we have samples of 1000 graduates with their GPAs and their salaries, we can use this theorem to predict salary given a GPA $$ P(salary \vert GPA)$$ by creating a Gaussian distribution model with our 1000 training datapoints. 
 
-[Proof of this theorem can be found here.](https://stats.stackexchange.com/questions/30588/deriving-the-conditional-distributions-of-a-multivariate-normal-distribution) We will not go into details on the proof. But with the assumption that $$x$$ is Gaussian distributed, The co-relation of $$x_1$$ and $$x_2$$ is defined by $$\mu$$ and $$\sum$$. So given the value of $$x_2$$, we can restrict the possible values of $$x_1$$ and form its distribution.
+[Proof of this theorem can be found here.](https://stats.stackexchange.com/questions/30588/deriving-the-conditional-distributions-of-a-multivariate-normal-distribution) We will not go into details on the proof. But with the assumption that $$x$$ is Gaussian distributed, The co-relation of $$x_1$$ and $$x_2$$ is defined by $$\mu$$ and $$\sum$$. So given the value of $$x_2$$, we can compute the probability distribution of $$x_1$$.
  
 <div class="imgcap">
 <img src="/assets/ml/th1.png" style="border:none;width:80%">
 </div>
 Source: Nando de Freitas UBC Machine learning class.
 
-In the equation above, we can predict $$ P(salary \vert GPA_i)$$ by creating a gaussian distribution for $$ GPA_i$$ with $$ \mu_{salary \vert GPA_{1}}  $$ and $$ \sum_{salary \vert GPA_{1}}$$. For example, with a 3.4 GPA, we can predict a graduate can earn a mean salary of $65K with a variance of $5K. The details on computing the mean and the variance will discuss next.
+In the equation above, we can predict $$ P(salary \vert GPA)$$ by creating a gaussian distribution with $$ \mu_{salary \vert GPA}  $$ $$( \mu_{1 \vert 2} $$ ) and $$ \sum_{salary \vert GPA}$$ ($$\sum_{1 \vert 2}$$). For example, with a 3.4 GPA, we can predict a graduate can earn a mean salary of $65K with a variance of $5K. The details on computing the mean and the variance will discuss next.
 
 ### Gaussian Process (GP)
 
@@ -715,7 +715,7 @@ $$
  p(f_{*} \vert f)
 $$
 
-For the training dataset, let input $$x$$ has the gaussian distribution:
+For the training dataset, let output labels $$f$$ has the gaussian distribution:
 
 $$
 \begin{split}
@@ -759,13 +759,15 @@ K & = L L^T \quad \text{(use Cholesky to decompose K)}
 \end{split}
 $$
 
+(Note, $$K$$ may be poorly condition to find the inverse. So we apply Cholesky to decompose K first.)
+
 With matrix A and vector b, we can use linear algebra to solve x.
 
 $$ 
 Ax = b
 $$
 
-Will we use the notation
+We will use the notation
 
 $$
 x = A \backslash b 
@@ -797,6 +799,8 @@ $$
 \end{split}
 $$
 
+Now, we know how to compute $$\overline{\mu}_{*}$$ and $$ \overline{\Sigma}_{*}  $$.
+
 First we are going to prepare our training data and label it with a $$\sin$$ function. The training data contains 5 datapoints. $$(x_i=-4, -3, -2, -1 \text{ and} 1)$$. 
 ```python
 Xtrain = np.array([-4, -3, -2, -1, 1]).reshape(5,1)
@@ -825,16 +829,17 @@ K_s = kernel(Xtrain, Xtest, param)                       # Shape (5, 50)
 K_ss = kernel(Xtest, Xtest, param)                       # Kss Shape (50, 50)
 ```
 
-We will use the Cholesky decomposition to compute $$ K = LL^T$$.
+We will use the Cholesky decomposition to decompose $$ K = LL^T$$.
 ```python
 L = np.linalg.cholesky(K + 0.00005*np.eye(len(Xtrain)))  # Shape (5, 5)
 ```
 
-Compute the mean output for our prediction $$\overline{\mu}_*$$. As we assumem $$ \mu_{*} = \mu = 0$$, the equation becomes:
+Compute the mean output $$\overline{\mu}_*$$ for our prediction. As we assumem $$ \mu_{*} = \mu = 0$$, the equation becomes:
 
 $$
 \begin{split}
-\overline{\mu}_{*} & = K_{ s}^T L^T \backslash ( L \backslash f )
+\overline{\mu}_{*} & = K_{ s}^T  K^{-1} f  \\
+ & = K_{ s}^T L^T \backslash ( L \backslash f )
 \end{split}
 $$
 
@@ -858,14 +863,16 @@ stdv = np.sqrt(s2)                                       # Shape (50, )
 Sample $$f_*$$ so we can plot it.
 
 $$
-f_*  \sim \overline{\mu}_{*} + L\mathcal{N}{(0, I)}
-$$
-
-$$
 \begin{split}
 \overline{\Sigma}_{*} & = K_{ss} -  K_{s}^T  K^{-1}  K_{s} \\
  \overline{\Sigma}_{*}  & = LL^T \\
 \end{split}
+$$
+
+Sample it using $$\mu$$, and $$L$$ as variance:
+
+$$
+f_*  \sim \overline{\mu}_{*} + L\mathcal{N}{(0, I)}
 $$
 
 ```python
@@ -873,7 +880,7 @@ L = np.linalg.cholesky(K_ss + 1e-6*np.eye(n) - np.dot(Lk.T, Lk))    # Shape (50,
 f_post = mu.reshape(-1,1) + np.dot(L, np.random.normal(size=(n,5))) # Shape (50, 3)
 ```
 
-We sample 3 possible output shown in orange, blue and green line. The gray area is where within 2 $$\sigma$$ of $$\mu$$. Blue dot is our training dataset. Here, at blue dot, $$sigma$$ is closer to 0. For points between the training datapoints, $$\sigma$$ increases reflect its un-certainty because it is not close to the training dataset points. When we move beyond $$x=1$$, we do not have any more training data and result in large $$\sigma$$.
+We sample 3 possible output shown in orange, blue and green line. The gray area is where within 2 $$\sigma$$ of $$\mu$$. Blue dot is our training dataset. Here, at blue dot, $$\sigma$$ is closer to 0. For points between the training datapoints, $$\sigma$$ increases reflect its un-certainty because it is not close to the training dataset points. When we move beyond $$x=1$$, we do not have any more training data and result in large $$\sigma$$.
 
 <div class="imgcap">
 <img src="/assets/ml/gp4.png" style="border:none;width:100%">
