@@ -206,11 +206,121 @@ How far the posterior will move towards to the new evidence? It depends on the s
 <img src="/assets/ml/inf4.png" style="border:none;width:100%">
 </div>
 
+### Beta distribution for prior
+
+In this section, we show how to use beta distribution to model the prior to solve the posterior in the example above.
+
+The definition of a beta distribution:
+
+$$
+\begin{align} 
+P(\theta \vert a, b) = \frac{\theta^{a-1} (1-\theta)^{b-1}} {B(a, b)}
+& \propto \theta^{a-1} (1-\theta)^{b-1}
+\end{align}
+$$
+
+For discret variable, the beta function $$B$$ is defined as:
+
+$$
+\begin{align} 
+B(a, b) & = \frac{\Gamma(a) \Gamma(b)} {\Gamma(a + b)} \\
+\Gamma(a) & = (a-1)!
+\end{align}
+$$
+
+For continuos variable, the beta function is:
+
+$$
+\begin{align} 
+B(a, b) = \int^1_0 \theta^{a-1} (1-\theta)^{b-1} d\theta
+\end{align}
+$$
+
+Here are the beta distribution for different values of a and b. For $$a=b=1$$, the probability is uniformly distributed:  
+<div class="imgcap">
+<img src="/assets/ml/c1.png" style="border:none;width:20%">
+</div>
+
+For $$a=10, b=1$$:
+<div class="imgcap">
+<img src="/assets/ml/c2.png" style="border:none;width:20%">
+</div>
+
+For $$a=1, b=10$$:
+<div class="imgcap">
+<img src="/assets/ml/c3.png" style="border:none;width:20%">
+</div>
+
+For $$a=b=0.5$$:
+<div class="imgcap">
+<img src="/assets/ml/c4.png" style="border:none;width:20%">
+</div>
+
+For $$a=2, b=3$$:
+<div class="imgcap">
+<img src="/assets/ml/c5.png" style="border:none;width:20%">
+</div>
+
+We can model the likeliness with a Binomial distribution
+
+$$
+\begin{align} 
+P(x \vert \theta) & = {N \choose x} \theta^{x} (1-\theta)^{N-x}
+\end{align}
+$$
+
+Let's apply the Bayes theorem to calculate the posterior:
+
+$$
+\begin{align} 
+P(data \vert \theta) & \propto \theta^x(1-\theta)^{N-x} \\
+P(\theta) & = \theta^{a-1} (1-\theta)^{b-1} \quad \text{ (use beta distribution) }\\
+\\
+P(\theta \vert data) & = \frac{P(data \vert \theta) \times P(\theta)}{P(data)} \\
+& \propto P(data \vert \theta) \times P(\theta) \\
+& \propto \theta^{a + x -1} (1-\theta)^{N + b -x -1} \\ 
+& = B(a+x, N + b - x)
+\end{align}
+$$
+
+If we start with a uniformed distributed prior $$P(\theta) = B(1, 1)$$ which is a good start if we do not have any prior knowledge of $$\theta$$ (say the infection rate of a decease.).
+
+<div class="imgcap">
+<img src="/assets/ml/c1.png" style="border:none;width:20%">
+</div>
+
+and we have $$ N=10, x=3 $$ (say 3 infections out of 10 samples), the posterior will be $$B(1+3, 10 + 1 - 3) = B(4, 8)$$ which has a peak at 0.3 which is the same as the maximum likeliness estimation from our sample:
+
+<div class="imgcap">
+<img src="/assets/ml/b11.png" style="border:none;width:20%">
+</div>
+
+If we start with a biased prior $$B(10, 1)$$ geared towards 100% infection:
+
+<div class="imgcap">
+<img src="/assets/ml/c2.png" style="border:none;width:20%">
+</div>
+
+and we have $$ N=10, x=3 $$, the posterior will be $$B(a+x, N + b - x) = B(10+3, 10 + 1 - 3) = B(13, 8)$$ with $$\theta$$ peak at 0.62.
+
+<div class="imgcap">
+<img src="/assets/ml/b12.png" style="border:none;width:20%">
+</div>
+
+By increase the sampling size to $$ N=100, x=30$$, the posterior move closer to the maximum likeliness. $$B(10+30, 100 + 1 - 30) = B(40, 71)$$ 
+
+<div class="imgcap">
+<img src="/assets/ml/b13.png" style="border:none;width:20%">
+</div>
+
+When we enter a new flu season, our new sampling size for the new Flu strain is small. The error can be large if we just use this small sampling data to compute the infection rate. Instead, we use prior knowledge to compute a prior for the infection rate for the last 12 months. Then we use Bayes theorem with the prior and the likeliness to compute the posterior infection probability. When data size is small, the posterior rely more on the prior but once the sampling size increases, it readjust itself to the new sample. Hence, Bayes theorem can give better prediction when sample size is small while re-adjust the prediction according to the size of the sampling data.
+
 ### Programming
 
-The source code can be find [here.](https://github.com/jhui/machine_learning/blob/master/machine_learning/bayesian_inference.py) which use PyMC3 as the Bayes inference engine.
+In the coding below, we use PyMC3 as the Bayes inference engine to compute posterior from the likeliness and the prior. Then we sample 5000 data from the posterior distribution. Since the code is self-explanatory, we encourage you to understand the concept directly from the code.
 
-Here is some coding of creating a prior and calculate the posterior afterwards. Then we sample 5000 data from the posterior distribution. We use pymc3 for the Bayes inference model. Since the code is self-explanatory, we encourage you understand the concept directly from the code.
+The source code can be find [here.](https://github.com/jhui/machine_learning/blob/master/machine_learning/bayesian_inference.py) 
+
 ```python
 # Markov chain Monte Carlo model
 # Create an evidence. 7 infection out of 10 people
@@ -244,6 +354,29 @@ with pm.Model() as model:
    # Coding in plotting the graph
    ...
 ```
+
+### Gaussian distribution
+
+We can use Gaussian distribution for the prior and the likelihood:
+
+$$
+\begin{align} 
+\text{Likelihood: } & x_i \sim \mathcal{N}(\theta, \sigma_x^2) \\
+\text{prior: } & \theta \sim \mathcal{N}(\theta_0, \sigma_\theta^2)
+\end{align}
+$$
+
+Without proof, the posterior is:
+
+$$
+\begin{align} 
+\theta & \sim \mathcal{N}(\theta^{'}, {\sigma^{'}_\theta}^2) \\
+\\
+\theta^{'} & =  {\sigma^{'}_\theta}^2 [\frac{\theta_0}{\sigma_\theta^2} + \frac{N \overline{x}}{\sigma_x^2}] \\
+{\sigma^{'}_\theta}^2 & = [\frac{1}{\sigma_\theta^2} + \frac{N}{\sigma_x^2}]^{-1} \\
+\end{align}
+$$
+
 
 
 
