@@ -18,7 +18,9 @@ $$
 
 Sometimes the result of the Bayes' theorem can surprise you . Let's say there is an un-common decease that only 0.1% of the population has it. We develop a test of 99% accuracy for positive and negative result. What is the chance that you have this decease if your test is positive. The answer is only 9% which is much smaller than you may think. The intuition is that even the test looks accurate, it generates more false positive than true positive because the decease is not common. With Bayes' theorem, we can demonstrate why it is only 9%.
 
-(Note: 'd' stands for having the decease and '+' stands for testing positive.)
+Notation:
+$$d$$ stands for having the decease and $$+$$ stands for testing positive.
+$$\neg d$$ means _not_ d.
 
 $$
 \begin{equation}
@@ -36,6 +38,7 @@ P( d \vert + ) &= \frac{P(+ \vert d) P(d)}{P(+)} \\
 \end{equation}
 $$
 
+ > Convention: $$P(x)$$ means $$P(X = x)$$. $$ P(A, B) $$ stand for $$P(A \text{ and } B)$$.
 
 Proof of the Bayes theorem:
 
@@ -52,7 +55,7 @@ P(A \vert B) &= \frac{P(B \vert A) P(A)}{P(B)}
 \end{split}
 \end{equation}
 $$
-
+ 
 ### Naive Bayes Classifier
 
 Naive Bayes Classifier classifies objects $$Y$$ given observation $$ x_1, x_2, \dots, x_n $$ based on Bayes' theorem. For example, if we draw an object from a basket, if it is red and round $$(x)$$, what is the chance that it is an apple $$(Y)$$?
@@ -65,7 +68,7 @@ P(Y \vert x_1, x_2, \dots, x_n) & = \frac{P(x_1, x_2, \dots, x_n \vert Y) P(Y)}{
 \end{equation}
 $$
  
- Assume $${x_i}$$ and $${x_j}$$ are independent of each others. (An red object does not increase the chance that it is round.) i.e.: $$  P(x_1, x_2, \dots \vert Y) = P(x_1 \vert Y) P(x_2 \vert Y) \dots $$
+ Assume $${x_i}$$ and $${x_j}$$ are independent of each others given $$ Y $$. (An red object does not increase the chance that it is round.) i.e.: $$  P(x_1, x_2, \dots \vert Y) = P(x_1 \vert Y) P(x_2 \vert Y) \dots $$
  
  $$
 \begin{equation}
@@ -119,6 +122,53 @@ $$
 
 So if an object is red, round and sweet, it is likely an apple.
 
+#### E-mail spam filter
+
+We use bag of words to construct features $$x_i$$. 
+
+| | money | inheritance | rich | quick | vicodin | free | fee | bank | illegal | alcohol | ... |
+| Message | 1 | 0 | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 1 | ... |
+
+
+$$
+\begin{split}
+P(spam \vert X_i) & \propto P(money | spam) P(inheritance | spam) P(rich | spam ) \cdots P(bank | spam ) P(spam) \\
+P(\neg spam \vert X_i) & \propto P(money | \neg spam) P(inheritance | \neg spam) P(rich | \neg spam ) \cdots P(bank | \neg spam ) P(\neg spam)
+\end{split}
+$$
+
+```
+If p(yi = ‘spam’ | xi) > p(yi = ‘not spam’ | xi), 
+	classify as spam
+```
+
+Tips:
+
+To avoid
+
+$$
+P(word \vert spam) = 0
+$$
+
+We count 
+$$
+P(word \vert spam)
+$$ as
+
+$$
+\frac{(n_{word} + β)}{(n + 2β)}
+$$
+ 
+To avoid underflow in multiple small numbers, we take the logarithm of the equation which turns those probability multiplication into additional.
+
+People may be more tolerance on false negative than false positive in classify e-mail as spam. So, instead of comparing the 
+
+$$ p(spam \vert x_i) > p(\neg spam \vert x_i) $$
+
+ We give a weight in the comparison  
+ 
+ $$ p(spam \vert x_i) > w \cdot p(\neg spam \vert x_i) \text{ which } w >1 $$
+
 ### Bayesian inference
 
 Let's go through an example in determine the infection rate ($$ \theta $$) for Flu. On the first day of the month, we got 10 Flu testing results back. We call this **evidence** $$(x)$$. For example, our new evidence shows that 4 samples are positive. $$ (x=4 \text{ out of 10}) $$.  We can conclude that ($$ \theta = 4/10 = 0.4 $$). Nevertheless we want to study further by calculating the probability of $$ x $$ given a specific $$\theta$$.
@@ -161,7 +211,7 @@ $$
 | **posterior probability**| $$P(H \vert D) $$ | The refined belief with additional given new evidence. <br> The new belief after we collect 1000 samples. |
 | **likelihood** | <nobr>$$ P(D \vert H) $$ </nobr>| The probability of the evidence given the belief. <br> The chance of have 4 positive samples out of 10 for different values of the infection rate.|
 | **prior** | <nobr>$$ P(H) $$ </nobr>| The probability of the belief prior to new evidence. <br> Our hypothesis which will later combine with new data to refine it to a posterior.|
-| **marginal probability** | <nobr>$$ P(D) $$ </nobr>| The probability of seeing that data. <br> The probability of seeing 4 positive samples under all possible infection rate values. |
+| **marginal probability** | <nobr>$$ P(D) $$ </nobr>| The probability of seeing that data. $$ \sum_x P(D, x) $$ <br> The probability of seeing 4 positive samples under all possible infection rate values. |
 
 #### Bayesian inference (continue)
 

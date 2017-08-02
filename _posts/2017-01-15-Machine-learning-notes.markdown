@@ -5,14 +5,14 @@ mathjax: true
 priority: 110000
 title: “Machine learning - Notes”
 excerpt: “Machine learning - Notes”
-date: 2017-03-08 12:00:00
+date: 2017-01-15 12:00:00
 ---
 
 ### Entropy
 
-A staff misses an all-hands meeting and ask what is he or she missing. A co-worker said nothing. It is not nothing is covered but probably just the same message over and over again. In this scenario, $$P(message_a)=1$$ and the message contains no information since it is all predictable. In information theory, entropy measures the amount of information which sometimes expresses as the number of bits to encode information. In Huffman encoding, because letters are not completely random, we can use less bits to encode text. This demonstrates that less entropy equals less random-ness. 
+A staff misses an all-hands meeting and ask what is he or she missing. A co-worker said nothing. It is not nothing is covered but probably just the same message over and over again. In this scenario, $$P(message_a)=1$$ and the message contains no information since it is all predictable. In information theory, entropy measures the amount of information which expresses as the number of bits to encode it. In Huffman encoding, since letters does not occur randomly in a text, we can use fewer bits to it.
 
-> In information theory, information and random-ness are positively correlated. High entropy equals high randomness and information.
+> In information theory, information and random-ness are positively correlated. High entropy equals high randomness and more bits to encode it.
 
 We define entropy as:
 
@@ -229,5 +229,84 @@ $$
 & = 0 \\
 \end{split}
 $$
+ 
+> Simple model has high bias. Overfitting a high complexity model causes high variance.
 
+
+### Norms
+L1-norm (Manhattan distance)
+
+$$
+\begin{split}
+L_1 & = \| x \|_1 =  \sum^d_{i=0} \vert x_i \vert  \\
+\| x - y \|_1 & =  \sum^d_{i=0} \vert x_i - y_i \vert  \\
+\end{split}
+$$
+
+L2-norm (Euclidian distance)
+
+$$
+\begin{split}
+L_2  & = \| x \|_2 = \| x \| =  \sqrt{\sum^d_{i=0} x_i^2}  \\
+L_2^2  & =  \sum^d_{i=0} x_i^2 = x^Tx  \\
+\| x - y \| & =  \sqrt{\sum^d_{i=0} (x_i - y_i)^2}  \\
+\end{split}
+$$
+
+Lp-norm
+
+$$
+\begin{split}
+L_p  & = \| x \|_p =  \sqrt[p]{\sum^d_{i=0} x_i^p}  \\
+\end{split}
+$$
+
+$$
+\begin{split}
+L_\infty (x) &  =  max(\vert x_i \vert)  \\
+\end{split}
+$$
+
+L0-norm
+
+$$
+L_0 = \begin{cases}
+                        0 \quad \text{ if } x_i = 0 \\
+                        1 \quad \text{otherwise}
+                    \end{cases}
+$$
+
+### L2 regularization
+
+$$
+\begin{split}
+J(W) & = \frac{1}{2} \| xw - y \|^2 + \frac{\lambda}{2} \| w \|^2
+& = MSE + \text{ regularization cost }
+\end{split}
+$$
+
+$$ W^*_a$$ is where regularization cost is 0 and $$ W^*_b $$ is where MSE is minimum. The optimal solution for $$J$$ is where the concentric circle meet with the eclipse.
+
+<div class="imgcap">
+<img src="/assets/ml/L2.png" style="border:none;width:35%">
+</div>
+
+This is the same as minimizing mean square error with the L2-norm constraint.
+
+L2-regularize MSE is also called **ridge regression**.
+
+### L1 regularization
+
+$$
+\begin{split}
+J(W) & = \frac{1}{2} \| xw - y \|^2 + \frac{\lambda}{2} \vert w \vert
+& = MSE + \text{ regularization cost }
+\end{split}
+$$
+
+<div class="imgcap">
+<img src="/assets/ml/L1.png" style="border:none;width:35%">
+</div>
+
+L1 regularization has a tendency to push $$w_i$$ to 0. ie L2-regularization increases the sparsity of $$w$$.
 
