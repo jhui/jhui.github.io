@@ -260,7 +260,7 @@ How far the posterior will move towards to the new evidence? It depends on the s
 
 In this section, we show how to use beta distribution to model the prior to solve the posterior in the example above.
 
-The definition of a beta distribution:
+The definition of a beta distribution is:
 
 $$
 \begin{align} 

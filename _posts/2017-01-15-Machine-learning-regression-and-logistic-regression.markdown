@@ -33,8 +33,8 @@ MSE is popular because it is easy to compute and it has a smooth differentiable 
 
 $$
 \begin{split}
-\bigtriangledown_w J & = \sum^N_{i=1} (w^T x^i - y^i) x^i \\
-\bigtriangledown_w J & = 0 \\
+\nabla_w J & = \sum^N_{i=1} (w^T x^i - y^i) x^i \\
+\nabla_w J & = 0 \\
 \implies \sum^N_{i=1} (w^T x^i - y^i) x^i & = 0 \\
 w^T &= \frac{\sum^N_{i=1} y^i x^i}{\sum^N_{i=1} \| x^i \|^2} \\
 \end{split}
@@ -94,13 +94,13 @@ J(w) & = \frac{1}{2} \| xw - y \|_2^2 \\
 \end{split}
 $$
 
-Setting $$ \bigtriangledown_w J = 0$$ to optimize $$J$$:
+Setting $$ \nabla_w J = 0$$ to optimize $$J$$:
 
 $$
 \begin{split}
-\bigtriangledown_w J = \bigtriangledown_w (w^Tx^Txw - 2 w^Tx^Ty + y^Ty) & = 0 \\
-\bigtriangledown_w (w^Tx^Txw) - 2 \bigtriangledown_w (w^Tx^Ty) + \bigtriangledown_w (y^Ty) & = 0 \\
-\bigtriangledown_w (w^T(x^Tx)w) - 2 x^Ty - 0 & = 0 \\
+\nabla_w J = \nabla_w (w^Tx^Txw - 2 w^Tx^Ty + y^Ty) & = 0 \\
+\nabla_w (w^Tx^Txw) - 2 \nabla_w (w^Tx^Ty) + \nabla_w (y^Ty) & = 0 \\
+\nabla_w (w^T(x^Tx)w) - 2 x^Ty - 0 & = 0 \\
 2 (x^Tx) w - 2 x^Ty - 0 & = 0 \\
 (x^Tx) w & =  x^Ty
 \end{split}
@@ -141,7 +141,7 @@ To avoid overfitting, we use L2-norm as a regularization to the cost function $$
 $$
 \begin{split}
 J(W) & = \frac{1}{2} \| xw - y \|^2 + \frac{\lambda}{2} w w^T \\
-\bigtriangledown_w J & = x^Txw - x^Ty + \lambda w \\
+\nabla_w J & = x^Txw - x^Ty + \lambda w \\
 \end{split}
 $$
 
@@ -149,7 +149,7 @@ Optimize $$J$$:
 
 $$
 \begin{split}
-\bigtriangledown_w J &= 0 \\
+\nabla_w J &= 0 \\
 x^Txw - x^Ty + \lambda w  &= 0 \\
 x^Txw + \lambda w  &= x^Ty 0 \\
 (x^Tx + \lambda I) w &= x^T y \\
@@ -617,6 +617,23 @@ $$
 
 
 > Softmax is the most common classifier among others. 
+
+Softmax cost function defined as the NNL:
+
+$$
+\begin{align}
+J(w) &= - \left[ \sum_{i=1}^{N}  \log p(\hat{y} = y \vert x^i, w ) \right]
+\end{align}
+$$
+
+$$
+\begin{align}
+\nabla_{score_{j}} J = \begin{cases}
+                        p - 1 \quad & \hat{y_j} = y \\
+                        p & \text{otherwise}
+                    \end{cases}
+\end{align}
+$$
 
 ### Kernel
 

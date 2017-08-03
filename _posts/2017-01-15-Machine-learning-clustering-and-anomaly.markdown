@@ -61,7 +61,7 @@ $$
 J = \sum^N_{i=1} \sum^d_{j=1}  (x^i_j - c^i_j )^2
 $$
 
-In image vector quantization, we use K-means clustering to map a RGB pixel into one of the cluster's centroid. For example, with a 8-means clustering, we have $$2^8=256$$ clusters. We map a 24 bits RGB pixel into one of the cluster's centroid RGB value.
+In image **vector quantization**, we use K-means clustering to map a RGB pixel into one of the cluster's centroid. For example, with a 8-means clustering, we have $$2^8=256$$ clusters. We map a 24 bits RGB pixel into one of the cluster's centroid RGB value.
 
 ### K-median clustering
 

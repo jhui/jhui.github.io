@@ -129,7 +129,65 @@ We can perform clustering by columns to identify products that attract similar p
 An association rule can be formed by finding $$P(T \vert S) > s$$
 
 <div class="imgcap">
-<img src="/assets/ml/re1.png" style="border:none;width:70%">
+<img src="/assets/ml/re1.png" style="border:none;width:40%">
 </div>
 
 Note: The columns here is the same as the bags of customer in the Amazon recommendation algorithm.
+
+### Content-based filtering
+
+Content-based filtering is a supervised learning which it extract features $$x_i$$ of users and products and building model to predict rating $$y_i$$ given $$x_i$$. Later, we make predictions based on this model.
+
+### Collaborative Filtering 
+
+Collaborative filtering is an unsupervised learning which we provide the product ratings from users. We make predictions based on available ratings. Here, each column represents a movie and each row represents a user.
+
+$$
+Y = \begin{bmatrix}
+    ? & 1  & 3 & 1 & 5 & ? & \dots  & 4 & 1 \\
+    2 & 4  & ? & 1 & ? & 3 & \dots  & 1 & 2\\
+    2 & 3  & 3 & ? & 5 & 1 & \dots  & ? & 1\\
+    & & \vdots & \vdots & \ddots & \vdots & \vdots & \\
+    ? & 1  & 5 & ? & 4 & ? & \dots  & 2 & 1 \\
+\end{bmatrix}
+$$
+
+With our latent factor model:
+
+$$
+y_{ij} \approx w^T_j z_i \\
+$$
+
+which $$z_i$$ is the latent features for user $$i$$, $$w_j$$ is the latent feature for movie $$j$$ and $$y_{ij}$$ is the ratings for movie $$j$$ from user $$i$$.
+
+$$
+\begin{split}
+J(W, Z) & = \sum_i \sum_j (w^T_j z_i - y_{ij})^2 + \frac{\lambda_1}{2} \| W \|^2_f + \frac{\lambda_2}{2} \| Z \|^2_f   \\
+\end{split}
+$$
+
+#### Bias
+
+We do not need to assume $$ y_ij $$ is zero centered. We can add general bias, user bias and product bias in the calculation:
+
+$$
+y_{ij} \approx w^T_j z_i + b + b_i + b_j\\
+$$
+
+#### Hybrid approach (SVDfeature)
+
+We can also add content based filtering 
+
+$$
+y_{ij} \approx w^T_j z_i + w^Tx_{ij} + b + b_i + b_j\\
+$$
+
+which $$x_{ij} $$ based on user/product features.
+
+### Other recommendation consideration
+
+* New content
+* May want to suggest something new or different
+* How long should we show the recommendation if user show or do not show interests
+* Give editorial recommendation
+* Get recommendation from friends or communities

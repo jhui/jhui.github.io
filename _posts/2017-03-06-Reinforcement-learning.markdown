@@ -383,9 +383,9 @@ which $$\hat{v}(S,w)$$ is the output value from the deep network and $$v_\pi(s)$
 $$
 \begin{equation}
 \begin{split}
-\bigtriangledown_w  J(w) & = 2 \cdot (v_\pi(s)-\hat{v}(S,w)) \bigtriangledown_w \hat{v}(S,w) \\
-\bigtriangleup w & = -\frac{1}{2} \alpha \bigtriangledown_w J(w) \\
-& = \alpha (v_\pi(s)-\hat{v}(S,w)) \bigtriangledown_w \hat{v}(S,w)
+\nabla_w  J(w) & = 2 \cdot (v_\pi(s)-\hat{v}(S,w)) \nabla_w \hat{v}(S,w) \\
+\bigtriangleup w & = -\frac{1}{2} \alpha \nabla_w J(w) \\
+& = \alpha (v_\pi(s)-\hat{v}(S,w)) \nabla_w \hat{v}(S,w)
 \end{split}
 \end{equation}
 $$
@@ -395,9 +395,9 @@ We can using different methods described before to compute $$v_\pi(s)$$ through 
 $$
 \begin{equation}
 \begin{split}
- \bigtriangleup w & = \alpha (G_t-\hat{v}(S_t,w)) \bigtriangledown_w \hat{v}(S_t,w) & \text{Monte-Carlo} \\
- \bigtriangleup w & = \alpha (R_{t+1} + \gamma \hat{v}(S_{t+1},w) -\hat{v}(S_t,w)) \bigtriangledown_w \hat{v}(S_t,w) \quad & \text{TD}\\ 
- \bigtriangleup w & = \alpha (G_t(λ)-\hat{v}(S_t,w)) \bigtriangledown_w \hat{v}(S_t,w) &  \text{TD(λ)}\\
+ \bigtriangleup w & = \alpha (G_t-\hat{v}(S_t,w)) \nabla_w \hat{v}(S_t,w) & \text{Monte-Carlo} \\
+ \bigtriangleup w & = \alpha (R_{t+1} + \gamma \hat{v}(S_{t+1},w) -\hat{v}(S_t,w)) \nabla_w \hat{v}(S_t,w) \quad & \text{TD}\\ 
+ \bigtriangleup w & = \alpha (G_t(λ)-\hat{v}(S_t,w)) \nabla_w \hat{v}(S_t,w) &  \text{TD(λ)}\\
  \delta_t & = R_{t+1} + \gamma \hat{v}(S_{t+1},w) - \hat{v}(S_t, w) &  \text{Eligibility trace} \\
  E_t & = \gamma \lambda E_{t-1} + 1( S_t = s) \\
 \bigtriangleup w & =  \alpha \delta_t E_t
@@ -410,10 +410,10 @@ Alernatively, we can use Monte-Carlo, Sarsa, Sarsa(λ) or Q-learning on $$Q$$.
 $$
 \begin{equation}
 \begin{split}
-\bigtriangleup w & = \alpha (G_t-\hat{q}(S_t,A_t, w)) \bigtriangledown_w \hat{q}(S_t,A_t,w) & \text{Monte-Carlo} \\
-\bigtriangleup w & = \alpha (R_{t+1} + \gamma \hat{q}(S_{t+1},A_{t+1}, w) - \hat{q}(S_t,A_t, w)) \bigtriangledown_w \hat{q}(S_t, A_t,w) \quad  & \text{Sarsa} \\
-\bigtriangleup w & = \alpha (q_t(λ) - \hat{q}(S_t,A_t, w)) \bigtriangledown_w \hat{q}(S_t, A_t,w) &  \text{Sarsa(λ)}\\
-\bigtriangleup w & = \alpha (R_{t+1} + \gamma \cdot argmax_{a'} \hat{q}(S_{t+1}, a', w) - \hat{q}(S_t,A_t, w)) \bigtriangledown_w \hat{q}(S_t, A_t,w)  \quad &  \text{Q-learning} \\
+\bigtriangleup w & = \alpha (G_t-\hat{q}(S_t,A_t, w)) \nabla_w \hat{q}(S_t,A_t,w) & \text{Monte-Carlo} \\
+\bigtriangleup w & = \alpha (R_{t+1} + \gamma \hat{q}(S_{t+1},A_{t+1}, w) - \hat{q}(S_t,A_t, w)) \nabla_w \hat{q}(S_t, A_t,w) \quad  & \text{Sarsa} \\
+\bigtriangleup w & = \alpha (q_t(λ) - \hat{q}(S_t,A_t, w)) \nabla_w \hat{q}(S_t, A_t,w) &  \text{Sarsa(λ)}\\
+\bigtriangleup w & = \alpha (R_{t+1} + \gamma \cdot argmax_{a'} \hat{q}(S_{t+1}, a', w) - \hat{q}(S_t,A_t, w)) \nabla_w \hat{q}(S_t, A_t,w)  \quad &  \text{Q-learning} \\
  \delta_t & = R_{t+1} + \gamma \hat{a}(S_{t+1}, A_{t+1}, w) - \hat{q}(S_t, A_t, w) &  \text{Eligibility trace} \\
  E_t & = \gamma \lambda E_{t-1} + 1( S_t = s, A_t=a) \\
 \bigtriangleup w & =  \alpha \delta_t E_t
@@ -476,24 +476,24 @@ $$
 J(\theta) & = E_{\pi_\theta} (r) \\
 & = \sum_{s \in S} d(s) \sum_{a \in A} \pi_\theta(s, a) R_{s, a} \\
 \\
-\bigtriangledown_\theta J(\theta) & = \sum_{s \in S} d(s) \sum_{a \in A} \bigtriangledown_\theta \pi_\theta(s, a) R_{s, a} \\
-& = \sum_{s \in S} d(s) \sum_{a \in A} \pi_\theta(s, a) \frac{\bigtriangledown_\theta \pi_\theta(s, a)}{\pi_\theta(s, a)} R_{s, a} \\
-& = \sum_{s \in S} d(s) \sum_{a \in A} \pi_\theta(s, a) (\bigtriangledown_\theta \log \pi_\theta(s, a) ) R_{s, a} \\
-& = E_{\pi_\theta} ((\bigtriangledown_\theta \log \pi_\theta(s, a) ) r) \\
-& = E_{\pi_\theta} ((\bigtriangledown_\theta score_a ) r)
+\nabla_\theta J(\theta) & = \sum_{s \in S} d(s) \sum_{a \in A} \nabla_\theta \pi_\theta(s, a) R_{s, a} \\
+& = \sum_{s \in S} d(s) \sum_{a \in A} \pi_\theta(s, a) \frac{\nabla_\theta \pi_\theta(s, a)}{\pi_\theta(s, a)} R_{s, a} \\
+& = \sum_{s \in S} d(s) \sum_{a \in A} \pi_\theta(s, a) (\nabla_\theta \log \pi_\theta(s, a) ) R_{s, a} \\
+& = E_{\pi_\theta} ((\nabla_\theta \log \pi_\theta(s, a) ) r) \\
+& = E_{\pi_\theta} ((\nabla_\theta score_a ) r)
 \end{split}
 \end{equation}
 $$
 
-Our objective is to maximize the total rewards $$ J (\theta)$$. i.e. build a deep network that makes good action predictions with the highest total rewards. To do that, we compute the gradient of the cost function so we can optimize the deep network. The term $$\log \pi_\theta(s, a)$$ should be familiar in deep learning. This is the log of a probability. i.e. the logit value in a deep network.  Usually, that is the score before the softmax function. Our solution $$\bigtriangledown_\theta J(\theta)$$ depends on $$ R_{s, a} $$ and $$score_a $$. $$ R_{s, a} $$ measures how good is the action and $$score_a $$ on how confidence the deep network about the action. When $$ R_{s, a} $$ is high, we backpropagate the signal to change $$\theta$$ in the deep network to boost $$score_a $$. i.e. we encourage the network to predict actions that give good total rewards.
+Our objective is to maximize the total rewards $$ J (\theta)$$. i.e. build a deep network that makes good action predictions with the highest total rewards. To do that, we compute the gradient of the cost function so we can optimize the deep network. The term $$\log \pi_\theta(s, a)$$ should be familiar in deep learning. This is the log of a probability. i.e. the logit value in a deep network.  Usually, that is the score before the softmax function. Our solution $$\nabla_\theta J(\theta)$$ depends on $$ R_{s, a} $$ and $$score_a $$. $$ R_{s, a} $$ measures how good is the action and $$score_a $$ on how confidence the deep network about the action. When $$ R_{s, a} $$ is high, we backpropagate the signal to change $$\theta$$ in the deep network to boost $$score_a $$. i.e. we encourage the network to predict actions that give good total rewards.
 
 Without proofing, the equivalent equations for multiple steps system is:
 
 $$
 \begin{equation}
 \begin{split}
-\bigtriangledown_\theta J(\theta) & = E_{\pi_\theta} ((\bigtriangledown_\theta \log \pi_\theta(s, a) ) Q^{\pi_\theta} (s, a)) \\
-& = E_{\pi_\theta} ((\bigtriangledown_\theta score_a ) Q^{\pi_\theta} (s, a))
+\nabla_\theta J(\theta) & = E_{\pi_\theta} ((\nabla_\theta \log \pi_\theta(s, a) ) Q^{\pi_\theta} (s, a)) \\
+& = E_{\pi_\theta} ((\nabla_\theta score_a ) Q^{\pi_\theta} (s, a))
 \end{split}
 \end{equation}
 $$
@@ -511,16 +511,16 @@ Source David Silver Course
 
 #### Advantage function
 
-$$ Q^{\pi_\theta} (s, a) $$ is high variance with Monte-Carlo. One value calculated from one sampling path in Monte-Carlo can have very different value in another sampling path. For example, just make a change in one move in chess can produce total different result. We try to reduce the variance by subtracting it with a baseline value $$ V(s) $$. We can proof that it produces the same solution for $$ \bigtriangledown_\theta J(\theta)$$ even we replace $$ Q^{\pi_\theta} (s, a) $$  with $$ Q^{\pi_\theta} (s, a) - V^{\pi_\theta}(s)$$ 
+$$ Q^{\pi_\theta} (s, a) $$ is high variance with Monte-Carlo. One value calculated from one sampling path in Monte-Carlo can have very different value in another sampling path. For example, just make a change in one move in chess can produce total different result. We try to reduce the variance by subtracting it with a baseline value $$ V(s) $$. We can proof that it produces the same solution for $$ \nabla_\theta J(\theta)$$ even we replace $$ Q^{\pi_\theta} (s, a) $$  with $$ Q^{\pi_\theta} (s, a) - V^{\pi_\theta}(s)$$ 
 
 Let's proof that the following term is equal to 0 first:
 
 $$
 \begin{equation}
 \begin{split}
-E_{\pi_\theta} ((\bigtriangledown_\theta \log \pi_\theta(s, a)) B(S)) & = \sum_{s \in S} d(s) \sum_{a \in A} \bigtriangledown_\theta  \pi_\theta(s, a) B(s) \\
-& = \sum_{s \in S} d(s) B(s)  \bigtriangledown_\theta \sum_{a \in A} \pi_\theta(s, a) \\
-& = \sum_{s \in S} d(s) B(s)  \bigtriangledown_\theta 1 \\
+E_{\pi_\theta} ((\nabla_\theta \log \pi_\theta(s, a)) B(S)) & = \sum_{s \in S} d(s) \sum_{a \in A} \nabla_\theta  \pi_\theta(s, a) B(s) \\
+& = \sum_{s \in S} d(s) B(s)  \nabla_\theta \sum_{a \in A} \pi_\theta(s, a) \\
+& = \sum_{s \in S} d(s) B(s)  \nabla_\theta 1 \\
 & = 0
 \end{split}
 \end{equation}
@@ -531,9 +531,9 @@ Replace $$ Q^{\pi_\theta} (s, a) $$ with $$ Q^{\pi_\theta} (s, a) - V^{\pi_\thet
 $$
 \begin{equation}
 \begin{split}
-E_{\pi_\theta} ((\bigtriangledown_\theta score_a ) (Q^{\pi_\theta} (s, a) - V{\pi_\theta}(s))) & = E_{\pi_\theta} ((\bigtriangledown_\theta score_a ) (Q^{\pi_\theta} (s, a))) - E_{\pi_\theta} ((\bigtriangledown_\theta score_a ) V{\pi_\theta}(s)) \\
-& = E_{\pi_\theta} ((\bigtriangledown_\theta score_a ) (Q^{\pi_\theta} (s, a))) \\
-& = \bigtriangledown_\theta J(\theta) 
+E_{\pi_\theta} ((\nabla_\theta score_a ) (Q^{\pi_\theta} (s, a) - V{\pi_\theta}(s))) & = E_{\pi_\theta} ((\nabla_\theta score_a ) (Q^{\pi_\theta} (s, a))) - E_{\pi_\theta} ((\nabla_\theta score_a ) V{\pi_\theta}(s)) \\
+& = E_{\pi_\theta} ((\nabla_\theta score_a ) (Q^{\pi_\theta} (s, a))) \\
+& = \nabla_\theta J(\theta) 
 \end{split}
 \end{equation}
 $$
@@ -568,7 +568,7 @@ And some example if score is simply computed with a linear regression:
 
 $$score =\phi(s)^T  \theta$$ 
 
-$$ \bigtriangledown_\theta \log \pi(s) = \bigtriangledown_\theta score(s) =  \bigtriangledown_\theta \phi(s)^T  \theta = \phi(s) $$
+$$ \nabla_\theta \log \pi(s) = \nabla_\theta score(s) =  \nabla_\theta \phi(s)^T  \theta = \phi(s) $$
 
 <div class="imgcap">
 <img src="/assets/rl/m1.png" style="border:none;width:40%">
@@ -739,7 +739,7 @@ The source code can be find [here](https://github.com/jhui/machine_learning/blob
 Policy gradient needs to know how good is an action with a specific state. $$ Q^{\pi_\theta} (s, a) $$
 
 $$
-\bigtriangledown_\theta J(\theta) = E_{\pi_\theta} ((\bigtriangledown_\theta score_a ) Q^{\pi_\theta} (s, a))
+\nabla_\theta J(\theta) = E_{\pi_\theta} ((\nabla_\theta score_a ) Q^{\pi_\theta} (s, a))
 $$
 
 In previous section, we use Monte-Carlo, TD, etc... to sample the value. However, we actually can have a second deep network to estimate this value. So we have one actor deep network to predict the policy and an critic deep network to predict the action value function. So critics learns how to evaluate how good is $$ Q(s, a) $$ and the actor deep network learns how to make good policy prediction $$ \pi_\theta(a \vert s)$$.

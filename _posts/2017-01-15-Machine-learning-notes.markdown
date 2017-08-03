@@ -2,7 +2,7 @@
 layout: post
 comments: true
 mathjax: true
-priority: 110000
+priority: 140000
 title: “Machine learning - Notes”
 excerpt: “Machine learning - Notes”
 date: 2017-01-15 12:00:00
@@ -113,8 +113,7 @@ $$
 
 #### Linear regression with gaussian distribution
 
-Using linear regression with gaussian distribution with $$ \mu = x\theta$$:
-
+We want to optimize $$\theta$$ for a linear regression model with the assumption that $$y$$ is gaussian distributed with $$ \mu = x\theta$$:
 
 $$
 y_i \sim \mathcal{N}(x_i^T\theta, \sigma^2) = x_i^T\theta + \mathcal{N}(0, \sigma_2)
@@ -131,14 +130,14 @@ p(y \vert x, \theta, \sigma) & = \prod_{i=1}^n p(y_i \vert x_i, \theta, \sigma) 
 \end{split}
 $$
 
-MLE by optimizing the log likelihood $$l$$:
+Optimize $$\theta$$ using the log likelihood $$l$$:
 
 $$
 \begin{split}
-l(\theta) & = \log(p(y \vert x, \theta, \sigma)) \\
+J(\theta) & = \log(p(y \vert x, \theta, \sigma)) \\
 & = -\frac{n}{2} \log(2 \pi \sigma^2) - \frac{1}{2 \sigma^2}(y - x \theta)^T(y - x \theta) \\
 \\
-\frac{\partial l(\theta)}{\partial \theta} & = 0 - \frac{1}{2 \sigma^2} [0 - 2 x^Ty + 2x^Tx\theta] = 0\\
+\nabla_\theta J(\theta) & = 0 - \frac{1}{2 \sigma^2} [0 - 2 x^Ty + 2x^Tx\theta] = 0\\
 \hat\theta & = (x^Tx)^{-1}x^Ty
 \end{split}
 $$
@@ -152,30 +151,38 @@ $$
 \end{split}
 $$
 
-Let's assume the cost function is: (A MSE + regularization.)
-
-$$
-J(\theta) = (y -x\theta)^T(y-x\theta) + \delta^2\theta^T\theta 
-$$
-
-The following proves that $$\hat\theta$$ is the solution for the cost function above.
-
-$$
+Solution:
+> $$ \theta^*
 \begin{split}
-\frac{\partial{J(\theta)}}{\partial \theta} & = 2 x^Tx\theta - 2x^Ty + 2 \delta^2 I \theta = 0 \\
-& = (x^Tx + \delta^2 I ) \theta = x^Ty
+= (x^Tx + \delta^2 I )^{-1}x^Ty \\
 \end{split}
 $$
 
-We can rewrite the regularization as an optimization constraint which the $$ \vert \vert \theta \vert \vert $$ needs to smaller than $$ t(\delta) $$.
+In machine learning, we often use Mean Square Error (MSE) with L2-regularization as our cost function. In fact, the L2-regularization is not a random choice. Here, we proof that solving the equation below lead us to the same solution $$\theta^*$$ above.
+
+$$
+\begin{split}
+J(\theta) &= \text{MSE } + \text{L2-regularization} \\
+&= (y -x\theta)^T(y-x\theta) + \delta^2\theta^T\theta \\
+\nabla_\theta J(\theta)  & = 2 x^Tx\theta - 2x^Ty + 2 \delta^2 I \theta = 0 \\
+\implies & (x^Tx + \delta^2 I ) \theta^* = x^Ty \\
+\theta^* &= (x^Tx + \delta^2 I )^{-1}x^Ty \\
+\end{split}
+$$
+
+As a side note, we can rewrite the regularization as an optimization constraint which the $$ \| \theta \| $$ needs to smaller than $$ t(\delta) $$.
 
 $$
 \min_{\theta^T\theta \le t(\delta)} (y-x\theta)^T(y-x\theta)
 $$
 
+<div class="imgcap">
+<img src="/assets/ml/L2.png" style="border:none;width:30%">
+</div>
+
 ### Bayesian linear regression
 
-We can also apply Bayesian inference with prior $$\mathcal{N}(\theta \vert \theta_0, V_0)$$ and likelihood $$ \mathcal{N}(y \vert x\theta, \sigma^2 I ) $$ to compute the posterior.
+To optimize a linear regression, we can also use Bayesian inference. Based on a prior belief on how $$\theta$$ may be distributed ($$\mathcal{N}(\theta \vert \theta_0, V_0)$$), we compute the posterior with the likelihood $$ \mathcal{N}(y \vert x\theta, \sigma^2 I ) $$ using Bayes' theorem:
 
 $$
 \begin{split}
@@ -234,6 +241,15 @@ $$
 
 
 ### Norms
+L0-norm (0 if x is 0, otherwise it is 1)
+
+$$
+L_0 = \begin{cases}
+                        0 \quad \text{ if } x_i = 0 \\
+                        1 \quad \text{otherwise}
+                    \end{cases}
+$$
+
 L1-norm (Manhattan distance)
 
 $$
@@ -261,39 +277,13 @@ L_p  & = \| x \|_p =  \sqrt[p]{\sum^d_{i=0} x_i^p}  \\
 \end{split}
 $$
 
+$$\text{L}_\infty$$-norm
+
 $$
 \begin{split}
 L_\infty (x) &  =  max(\vert x_i \vert)  \\
 \end{split}
 $$
-
-L0-norm
-
-$$
-L_0 = \begin{cases}
-                        0 \quad \text{ if } x_i = 0 \\
-                        1 \quad \text{otherwise}
-                    \end{cases}
-$$
-
-### L2 regularization
-
-$$
-\begin{split}
-J(W) & = \frac{1}{2} \| xw - y \|^2 + \frac{\lambda}{2} \| w \|^2
-& = MSE + \text{ regularization cost }
-\end{split}
-$$
-
-$$ W^*_a$$ is where regularization cost is 0 and $$ W^*_b $$ is where MSE is minimum. The optimal solution for $$J$$ is where the concentric circle meet with the eclipse.
-
-<div class="imgcap">
-<img src="/assets/ml/L2.png" style="border:none;width:35%">
-</div>
-
-This is the same as minimizing mean square error with the L2-norm constraint.
-
-L2-regularize MSE is also called **ridge regression**.
 
 ### L1 regularization
 
@@ -305,8 +295,200 @@ J(W) & = \frac{1}{2} \| xw - y \|^2 + \frac{\lambda}{2} \vert w \vert
 $$
 
 <div class="imgcap">
-<img src="/assets/ml/L1.png" style="border:none;width:35%">
+<img src="/assets/ml/L1.png" style="border:none;width:40%">
 </div>
 
-L1 regularization has a tendency to push $$w_i$$ to 0. ie L2-regularization increases the sparsity of $$w$$.
+L1 regularization has a tendency to push $$w_i$$ to exactly 0. Therefore, L1-regularization increases the sparsity of $$W$$.
 
+
+### L2 regularization
+
+$$
+\begin{split}
+J(W) & = \frac{1}{2} \| xw - y \|^2 + \frac{\lambda}{2} \| w \|^2
+& = MSE + \text{ regularization cost }
+\end{split}
+$$
+
+$$ W^*_a$$ is where regularization cost is 0 and $$ W^*_b $$ is where MSE is minimum. The optimal solution for $$J$$ is where the concentric circle meet with the eclipse. This is the same as minimizing mean square error with the L2-norm constraint.
+
+<div class="imgcap">
+<img src="/assets/ml/L2.png" style="border:none;width:40%">
+</div>
+
+MSE with L2-regularization is also called **ridge regression**.
+
+### Gaussian distribution/Normal distribution
+
+$$
+P(x) = \frac{1}{\sigma\sqrt{2\pi}}e^{-(x - \mu)^{2}/2\sigma^{2} } 
+$$
+
+$$
+x \sim \mathcal{N}{\left(
+\mu 
+,
+\sigma^2
+\right)}
+$$
+
+### Binomial distributions
+
+$$
+P(x;p,n) = \left( \begin{array}{c} n \\ x \end{array} \right) p^{x}(1 - p)^{n-x}
+$$
+ 
+<div class="imgcap">
+<img src="/assets/ml/bdist.png" style="border:none;width:50%">
+</div>
+Source: wiki
+
+The Gaussian distribution is the limiting case for the binomial distribution with:
+
+$$
+\begin{split}
+\mu & = n p \\
+\sigma^2 & = n p (1-p) 
+\end{split}
+$$
+
+### Poisson Distribution
+
+Assuming a rare event with an event rate $$\lambda$$, the probability of observing x events within an interval $$t$$ is:
+
+$$
+P(x) = \frac{e^{-\lambda t} (\lambda t)^x}{x!}
+$$
+
+Example: If there were 2 earthquakes per 10 years, what is the chance of having 3 earth quakes in 20 years.
+
+$$
+\begin{split}
+\lambda t & = 2 \cdot (\frac{20}{10}) = 4 \\
+P(x) & = \frac{e^{-\lambda t} (\lambda t)^x}{x!} \\
+P(3) & = \frac{e^{-4} \cdot 4^3}{3!}
+\end{split}
+$$
+
+Given:
+
+$$
+\begin{split}
+prob. & = p  = \frac{v}{N}  \\
+P(x \vert N, p) & = \frac{N!}{x! (N-x)!} p^x(1-p)^{N-x} \\
+\end{split}
+$$
+
+Proof:
+
+$$
+\begin{split}
+P(x \vert v) & = \lim_{N\to\infty} P(x|N, v) \\
+&= \lim_{N\to\infty} \frac{N!}{x! (N-x)!} (\frac{v}{N})^x(1-\frac{v}{N})^{N-x} \\
+&= \lim_{N\to\infty} \frac{N(N-1)\cdots(N-x+1)}{N^x} \frac{v^x}{x!}(1-\frac{v}{N})^N(1-\frac{v}{N})^{-x} \\
+&= 1 \cdot \frac{v^x}{x!} \cdot e^{-v} \cdot 1 & \text{Given } v \ll N \\
+&= \frac{e^{-v} v^x }{x!}   \\
+&= \frac{e^{-\lambda t} (\lambda t)^x }{x!}   & \text{Given }  v = \lambda t \\\\ 
+\end{split}
+$$
+
+### Beta distribution
+
+The definition of a beta distribution is:
+
+$$
+\begin{align} 
+P(\theta \vert a, b) = \frac{\theta^{a-1} (1-\theta)^{b-1}} {B(a, b)}
+\end{align}
+$$
+
+For discret variable, the beta function $$B$$ is defined as:
+
+$$
+\begin{align} 
+B(a, b) & = \frac{\Gamma(a) \Gamma(b)} {\Gamma(a + b)} \\
+\Gamma(a) & = (a-1)!
+\end{align}
+$$
+
+For continuos variable, the beta function is:
+
+$$
+\begin{align} 
+B(a, b) = \int^1_0 \theta^{a-1} (1-\theta)^{b-1} d\theta
+\end{align}
+$$
+
+Here are the beta distribution for different values of a and b. For $$a=b=1$$, the probability is uniformly distributed:  
+<div class="imgcap">
+<img src="/assets/ml/c1.png" style="border:none;width:20%">
+</div>
+
+For $$a=10, b=1$$:
+<div class="imgcap">
+<img src="/assets/ml/c2.png" style="border:none;width:20%">
+</div>
+
+For $$a=1, b=10$$:
+<div class="imgcap">
+<img src="/assets/ml/c3.png" style="border:none;width:20%">
+</div>
+
+For $$a=b=0.5$$:
+<div class="imgcap">
+<img src="/assets/ml/c4.png" style="border:none;width:20%">
+</div>
+
+For $$a=2, b=3$$:
+<div class="imgcap">
+<img src="/assets/ml/c5.png" style="border:none;width:20%">
+</div>
+
+### Probabilities
+
+Basic:
+
+$$
+\begin{split}
+P(A, B) &= P(B) P(A \vert B) \\
+P(A \vert B) &= \frac{P(A, B)}{P(B)} \\
+\end{split}
+$$
+
+Given 2 events $$ x_i, x_j $$ are independent:
+
+$$
+\begin{align} 
+P(x_i, x_j ) & = P(x_i) P(x_j ) \\
+P(x_i, x_j \vert y) & = P(x_i \vert y) P(x_j \vert y) \\
+\end{align} 
+$$
+
+#### Bayes' theorem
+
+$$
+\begin{split}
+P(A \vert B) & = \frac{P(B \vert A) P(A)}{P(B)} \\
+P(A \vert B) & = \frac{P(B \vert A) P(A)}{\sum^n_i P(B, A_i) } = \frac{P(B \vert A) P(A)}{\sum^n_i P(B, \vert A_i) P(A_i) }
+\end{split}
+$$
+
+#### Naive Bayes' theorem
+
+Naive Bayes' theorem assume $$ x_i$$ and $$x_j$$ are independent. i.e.
+
+$$
+\begin{align} 
+P(x_i, x_j \vert y) & = P(x_i \vert y) P(x_j \vert y) \\
+\end{align} 
+$$
+
+$$
+\begin{split}
+P(y \vert x_1, x_2, \cdots , x_n) & = \frac{P(x_1, x_2, \cdots , x_n \vert y) P(y)}{P(x_1, x_2, \cdots , x_n)} \\
+& = \frac{P(x_1 \vert y) P(x_2 \vert y) \cdots  P(x_n \vert y) P(y)}{P(x_1, x_2, \cdots , x_n)} \\
+& \propto P(x_1 \vert y) P(x_2 \vert y) \cdots  P(x_n \vert y) P(y) \\
+\end{split}
+$$
+
+We often ignore the marginal property (the denominator) in Naive Bayes theorem because it is constant and therefore not important when we are optimizing or comparing the parameters for the model.

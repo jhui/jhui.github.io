@@ -26,7 +26,7 @@ In the following diagram, $$p(X=x)$$ follows a gaussian distribution:
 </div>
 
 $$
-PDF = f(x) = \frac{e^{-(x - \mu)^{2}/(2\sigma^{2}) }} {\sigma\sqrt{2\pi}}
+PDF = f(x) = \frac{1}{\sigma\sqrt{2\pi}}e^{-(x - \mu)^{2}/2\sigma^{2} } 
 $$
 
 For example, the probability of $$x$$ equal to the mean salary for a 3.8 GPA student is:
