@@ -78,17 +78,21 @@ which reduce the rule likeliness when $$P(T)$$ is high.
 
 #### Amazon recommendation algorithm
 
-Use bag of customer to represent who brought $$item_i$$
+We need a scalable solution to handle large amount of users and products. First, we can limit the size of $$S$$ and $$T$$ to 1. Then we compute the similarity of 2 products by:
+
+* Use bag of customer to represent who brought $$item_i$$
 
 | | User 1 | User 2 | ... | User N |
 | $$X_i$$ Item i | 1 | 0 | ... | 1 |
 | $$X_j$$ Item j | 0 | 0 | ... | 1 |
 
-To measure the similarity of 2 items:
+* Measure the similarity of 2 items by:
 
 $$
 \cos(X_i, X_j) = \frac{X^T_i X_j}{\| X_i \| \| X_j \|}
 $$
+
+Then we can recommend products by soving the k-nearest neighbors using the cosine similarity as distance.
 
 ### Clustering
 
@@ -109,7 +113,7 @@ Columns in $$X$$ contains who purchase a product:
 
 $$
 X^T = \begin{bmatrix}
-    -- \text{ Users purchase product 1  }-- \\
+    -- \text{ Usersroduct 1  }-- \\
     -- \text{ Users purchase product 2  }-- \\
 	\cdots \\
     -- \text{ Users purchase product N  }-- \\
@@ -124,9 +128,9 @@ X_{ij} = \begin{cases}
         \end{cases}
 $$
 
-We can perform clustering by columns to identify products that attract similar people.
+The column $$j$$ in $$X$$ is the list of users that purchase product $$j$$. We can apply clustering to the columns to group similar products together by claiming similar products are purchased by similar people. Those clusters can become candiate of $$ T$$ and $$S$$ when we evaluate their corresponding association rule:
 
-An association rule can be formed by finding $$P(T \vert S) > s$$
+$$P(T \vert S) > s$$
 
 <div class="imgcap">
 <img src="/assets/ml/re1.png" style="border:none;width:40%">

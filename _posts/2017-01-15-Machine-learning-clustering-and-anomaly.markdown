@@ -204,6 +204,57 @@ $$
 
 Issue: The outlines contributes to the value of $$ \mu $$ and $$\sigma$$ and assume it is uni-modal. (The probability distribution function has only 1 peak.)
 
+The Gaussian probability distribution is
+
+$$
+p(x) = \frac{1}{\sigma\sqrt{2\pi}}e^{-(x - \mu)^{2}/2\sigma^{2} } 
+$$
+
+* Locate features that indicate anomaly behavior
+* Collect training dataset 
+* Calculate $$\mu_i$$ and $$\sigma_i$$ for every feature $$x_i$$
+* For a new testing data $$x = (x_1, x_2, \cdots, x_n) $$, compute the probability
+
+$$ 
+p(x) = \prod^n_{i=1} p(x_i; \mu_j, \sigma^2_i) = \prod^n_{i=1}  \frac{1}{\sigma_i\sqrt{2\pi}}e^{-(x_i - \mu_i)^{2}/2\sigma_i^{2} }
+$$
+
+* Flag the data if
+
+$$ 
+p(x) \lt \epsilon
+$$ 
+
+However, features in $$x$$ may be co-related. The diagram below shows weight and height are co-related. 
+The green zone are datapoints consider as normal. The blue dot falls within the normal height or weight of the population. But knowing the person is much taller but yet much ligher, we should flag this data as abnormal. Nevertheless, the equation above does not account for the co-relationship between variables.
+
+<div class="imgcap">
+<img src="/assets/ml/auto.png" style="border:none;width:60%">
+</div>
+
+To compensate that, we should not compute $$p(x_i; \mu_j, \sigma^2_i)$$ individually as in
+
+$$
+p(x) = \prod^n_{i=1} p(x_i; \mu_j, \sigma^2_i)
+$$
+
+Instead we need to compute the probability using a multivariate Gaussian distribution. The covariance matrix $$\Sigma$$ will compensate any co-relationship between features and make the necessary adjustments.
+
+$$
+P(x ) = \frac{1}{\sqrt{(2\pi)^n \vert \Sigma \vert}}e^{- \frac{1}{2}(x - \mu)^T \Sigma^{-1} (x - \mu)} \\
+$$
+
+$$
+\Sigma = \begin{pmatrix}
+    E[(x_{1} - \mu_{1})(x_{1} - \mu_{1})] & E[(x_{1} - \mu_{1})(x_{2} - \mu_{2})] & \dots  & E[(x_{1} - \mu_{1})(x_{p} - \mu_{p})] \\
+    E[(x_{2} - \mu_{2})(x_{1} - \mu_{1})] & E[(x_{2} - \mu_{2})(x_{2} - \mu_{2})] & \dots  & E[(x_{2} - \mu_{2})(x_{p} - \mu_{p})] \\
+    \vdots & \vdots & \ddots & \vdots \\
+    E[(x_{p} - \mu_{p})(x_{1} - \mu_{1})] & E[(x_{p} - \mu_{p})(x_{2} - \mu_{2})] & \dots  & E[(x_{n} - \mu_{p})(x_{p} - \mu_{p})]
+\end{pmatrix}
+$$
+
+which $$E$$ is the expected value function.
+
 #### Graphical outlier detection
 
 Plot data to locate outliner visually:

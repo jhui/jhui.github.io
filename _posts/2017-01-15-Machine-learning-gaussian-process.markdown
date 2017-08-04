@@ -83,10 +83,10 @@ The PDF of a multivariate Gaussian distribution is defined as:
 <img src="/assets/gm/g1.png" style="border:none;width:60%">
 </div>
 
-with covariance matrix $$ \sum $$:
+with covariance matrix $$ \Sigma $$:
 
 $$
-\sum = \begin{pmatrix}
+\Sigma = \begin{pmatrix}
     E[(x_{1} - \mu_{1})(x_{1} - \mu_{1})] & E[(x_{1} - \mu_{1})(x_{2} - \mu_{2})] & \dots  & E[(x_{1} - \mu_{1})(x_{p} - \mu_{p})] \\
     E[(x_{2} - \mu_{2})(x_{1} - \mu_{1})] & E[(x_{2} - \mu_{2})(x_{2} - \mu_{2})] & \dots  & E[(x_{2} - \mu_{2})(x_{p} - \mu_{p})] \\
     \vdots & \vdots & \ddots & \vdots \\
@@ -112,7 +112,7 @@ $$
 \end{pmatrix}
 $$
 
-What is the covariance matrix $$\sum$$ for? Each element in the covariance matrix measures how one variable is related to another.  For example, $$ E_{21} $$ measures how $$\text{height } (x_2)$$ is related with $$ \text{weight} (x_1)$$. If weight increases with height, we expect $$E_{21}$$ to be positive.
+What is the covariance matrix $$\Sigma$$ for? Each element in the covariance matrix measures how one variable is related to another.  For example, $$ E_{21} $$ measures how $$\text{height } (x_2)$$ is related with $$ \text{weight} (x_1)$$. If weight increases with height, we expect $$E_{21}$$ to be positive.
 
 $$
 E_{21} = E[(x_{2} - \mu_{2})(x_{1} - \mu_{1})] 
@@ -128,10 +128,10 @@ $$
 E_{21} = E[(x_{height} - 70)(x_{weight} - 190)] = \frac{1}{2} \left(  ( 66 - 70) \times (150 - 190)  + ( 72 - 70) \times (200 - 190)  \right)
 $$
 
-After computing all 1000 data, here is the value of $$ \sum $$:
+After computing all 1000 data, here is the value of $$ \Sigma $$:
 
 $$
-\sum = \begin{pmatrix}
+\Sigma = \begin{pmatrix}
     100 & 25 \\
     25 & 50 \\
 \end{pmatrix}
@@ -151,10 +151,10 @@ x \sim \mathcal{N}{\left(
 \right)}
 $$
 
-Positive element values in $$ \sum $$ means 2 variables are positively related. With no surprise, $$ E_{21} $$ is positive because weight increases with height. If two variables are independent of each other, the value should be 0 like:
+Positive element values in $$ \Sigma $$ means 2 variables are positively related. With no surprise, $$ E_{21} $$ is positive because weight increases with height. If two variables are independent of each other, the value should be 0 like:
 
 $$
-\sum = \begin{pmatrix}
+\Sigma = \begin{pmatrix}
     100 & 0 \\
     0 & 50 \\
 \end{pmatrix}
@@ -174,10 +174,10 @@ $$
 \Phi(a) = \int_{-\infty}^{a} \frac{e^{-(x - \mu)^{2}/(2\sigma^{2}) }} {\sigma\sqrt{2\pi}} dx
 $$
 
-and we rewrote the covariance variable $$\sum$$ into the following form:
+and we rewrote the covariance variable $$\Sigma$$ into the following form:
 
 $$
-\sum = \begin{pmatrix}
+\Sigma = \begin{pmatrix}
     \sigma^2_1 & \rho \sigma_1 \sigma_2 \\
     \rho \sigma_1 \sigma_2 & \sigma^2_2 \\
 \end{pmatrix}
@@ -186,7 +186,7 @@ $$
 
 #### Coding
 
-Here we sample data from a 2-variable gaussian distribution. From the covariance matrix, we can tell x is positively related with y as $$\sum_{21} \text{ and } \sum_{12}$$ is positive.
+Here we sample data from a 2-variable gaussian distribution. From the covariance matrix, we can tell x is positively related with y as $$\Sigma_{21} \text{ and } \Sigma_{12}$$ is positive.
 ```python
 mean = [0, 2]
 cov = [[1, 2], [3, 1]]
@@ -230,12 +230,12 @@ x = \begin{pmatrix}
 x_1\\
 x_2 
 \end{pmatrix}
-\sim \mathcal{N}{\left( \mu , \sum^2 \right)}
+\sim \mathcal{N}{\left( \mu , \Sigma^2 \right)}
 $$
 
 The posterior conditional for $$p(x_1 \vert x_2) $$ is given below. This formular is particular important for the Gaussian process in the later section. For example, if we have samples of 1000 graduates with their GPAs and their salaries, we can use this theorem to predict salary given a GPA $$ P(salary \vert GPA)$$ by creating a Gaussian distribution model with our 1000 training datapoints. 
 
-[Proof of this theorem can be found here.](https://stats.stackexchange.com/questions/30588/deriving-the-conditional-distributions-of-a-multivariate-normal-distribution) We will not go into details on the proof. But with the assumption that $$x$$ is Gaussian distributed. The co-relation of $$x_1$$ and $$x_2$$ is defined by $$\mu$$ and $$\sum$$. So given the value of $$x_2$$, we can compute the probability distribution of $$x_1$$: $$ p(x_1 \vert x_2)$$
+[Proof of this theorem can be found here.](https://stats.stackexchange.com/questions/30588/deriving-the-conditional-distributions-of-a-multivariate-normal-distribution) We will not go into details on the proof. But with the assumption that $$x$$ is Gaussian distributed. The co-relation of $$x_1$$ and $$x_2$$ is defined by $$\mu$$ and $$\Sigma$$. So given the value of $$x_2$$, we can compute the probability distribution of $$x_1$$: $$ p(x_1 \vert x_2)$$
  
 <div class="imgcap">
 <img src="/assets/ml/th1.png" style="border:none;width:80%">
@@ -251,7 +251,7 @@ The intuition of the **Gaussian Process GP** is simple. If 2 points have similar
 If a student with a GPA 3.5 earns $70K a year, another student with a GPA 3.45 should earn something very similar. In GP, we use our training dataset to build a Gaussian distribution to make prediction. For each prediction, we output a mean and a $$\sigma$$. For example, with GP, we can predict a 3.3 GPA student can earn $$\mu = $65K$$ with $$ \sigma= $5K$$ while a 2.5 GPA student can earn $$\mu = $50K$$ and $$ \sigma= $15K$$.
 $$\sigma$$ measures the un-certainty of our prediction. Because a 3.3 GPA is closer to our 3.5 GPA training data, we are more confident about the salary prediction for a 3.3 GPA student than a 2.5 GPA student.
 
-In GP, instead of computing $$\sum$$, we compute $$K$$ trying to measure the similarity between datapoint $$x^i$$ and $$x^j$$.
+In GP, instead of computing $$\Sigma$$, we compute $$K$$ trying to measure the similarity between datapoint $$x^i$$ and $$x^j$$.
 
 | K | $$x^1$$ | $$x^2$$ | ... | $$x^n$$ |
 | $$x^1$$ | 1 | $$k(x^1, x^2)$$ | | $$k(x^1, x^n)$$|
@@ -452,8 +452,8 @@ x_2
 \end{pmatrix}
 ,
 \begin{pmatrix}
-\sum_{11} & \sum_{12} \\
-\sum_{21}  & \sum_{22} \\
+\Sigma_{11} & \Sigma_{12} \\
+\Sigma_{21}  & \Sigma_{22} \\
 \end{pmatrix}
 \right)}
 $$
@@ -644,3 +644,60 @@ Here is another plot of posterior after seeing 5 evidence. The blue dot is where
 </div>
 
 Source wikipedia.
+
+### Gaussian mixture model
+
+A Gaussian mixture model is a probabilistic model that assumes all the data points are generated from a mixture of Gaussian distributions. 
+
+For K=2, we will have 2 Gaussian distributions $$ G_1 = (\mu_1, \sigma^2_1) $$ and $$ G_2 = (\mu_2, \sigma^2_2) $$. We start with a random initialization of parameters $$ \mu $$ and $$\sigma$$. 
+Gaussian mixture model tries to fit the training datapoints into $$G_1$$ and $$G_2$$ and then re-compute their parameters. The datapoints are re-fitted and the parameters are re-calculated again. The iterations continues until the solution converges.
+
+<div class="imgcap">
+<img src="/assets/ml/GM1.png" style="border:none;width:70%">
+</div>
+
+<div class="imgcap">
+<img src="/assets/ml/GM2.png" style="border:none;width:70%">
+</div>
+
+#### Expectation Maximization (EM)
+
+Details in Expectation Maximization:
+
+* Initialize the $$G1$$ and $$G2$$'s parameters $$(\mu_1, \sigma^2_1) $$ and $$ (\mu_2, \sigma^2_2)$$ with random values. Set $$P(a)=P(b)=0.5$$
+* For all the training datapoints $$ x_1, x_2, \cdots $$, compute the probability that it belongs to $$a$$ ($$G_1$$) or $$b$$ ($$G_2$$).
+
+$$
+\begin{split}
+P(x_i \vert b) & = \frac{1}{\sigma_b\sqrt{2\pi}}e^{-(x - \mu_b)^{2}/2\sigma_b^{2} } \\
+b_i & = P(b \vert x_i) = \frac{P(x_i \vert b) P(b)}{P(x_i \vert b)P(b) + P(x_i \vert a)P(a)} \\
+a_i & = P(a \vert x_i) = 1 - b_i \\
+\end{split}
+$$
+
+* Now, we recalculate the parameters for $$G_1$$ and $$G_2$$
+
+$$
+\begin{split}
+\mu_b & = \frac{ b_1 x_1 + b_2 x_2  + \cdots + b_n x_n}{b_1 + b_n + \cdots + b_n} \\
+\sigma^2_b & = \frac{ b_1(x_1 - \mu_b)^2 + \cdots + b_1(x_n - \mu_b)^2 }{b_1 + b_2 + \cdots + b_n} \\
+\mu_a & = \frac{ a_1 x_1 + a_2 x_2  + \cdots + a_n x_n}{b_1 + a_n + \cdots + a_n} \\
+\sigma^2_a & = \frac{ a_1(x_1 - \mu_a)^2 + \cdots + a_1(x_n - \mu_a)^2 }{a_1 + a_2 + \cdots + a_n} \\
+\end{split}
+$$
+
+* Recalculate the priors
+
+$$
+\begin{split}
+P(b) & = \frac{b_1 + b_2 + \cdots + b_n}{n} \\
+P(a) & = 1 - P(b) \\
+\end{split}
+$$
+
+For Gaussian Distribution with multiple variate, the probability distribution function is:
+
+$$
+P(x_i \vert b) = \frac{1}{\sqrt{(2\pi)^n \vert \Sigma_b \vert}}e^{- \frac{1}{2}(x - \mu_b)^T \Sigma_b^{-1} (x - \mu_b)} \\
+$$
+
