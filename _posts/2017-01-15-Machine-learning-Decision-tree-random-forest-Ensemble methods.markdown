@@ -3,8 +3,8 @@ layout: post
 comments: true
 mathjax: true
 priority: 130000
-title: “Machine learning - Algorithms”
-excerpt: “Machine learning - Algorithms”
+title: “Machine learning - Decision tree, Random forest, Ensemble methods and Beam searach”
+excerpt: “Machine learning - Decision tree, Random forest, Ensemble methods and Beam searach”
 date: 2017-01-15 12:00:00
 ---
 
@@ -23,30 +23,79 @@ Decision stumps:
 
 * Splitting rule based on thresholding one feature (GPA>3)
 	* Select the rule with the highest accuracy in predicting a label, or
-	* Select the rule that reduce the entropy the most
+	* Select the rule that reduce the entropy the most	
 * Greedy recursive splitting makes 1 stump at a time
 	* Can re-use features to split a tree (GPA>2.5)
 * Risk overfitting as the depth of the tree increases
 
-### K nearest neighbor (KNN)
+#### Splitting based on entropy
 
-<div class="imgcap">
-<img src="/assets/ml/knn.png" style="border:none;width:50%">
-</div>
+Entropy measure randomness. High entropy means more randomness.
 
-* Find k (say k=5) training data $$x_i$$ that are similar to x (the black dot)
-* Classify using the result of $$y_i$$ (2 pink, 3 blue)
-	* No training phase
-	* Predictions are expensive O(nd)
-	* Measure similarity
-		* L2 distance
-		* L1 distance
-		* Jaccard similarity:  $$ \frac{count(x_i, x_j)}{count(x_i \text{ or } x_j)} $$
-		* Cosine similarity
-		* Distance after dimensionality reduction
-* Curse of dimension - large space need more training data
-* Features need similar scale
-* Can argument data by translate/rotate/transform images
+$$
+H(y) = - \sum_X p(y) \log p(y)
+$$
+ 
+In decision tree, we want a split that make data most predictable. Therefore, we are going to pick a rule that have the highest drop in entropy.
+ 
+$$
+H(Engineer) - H(Engineer \vert GPA>3) \\
+$$
+
+$$
+H(Engineer) - H(Engineer \vert GPA>2.5) \\
+$$
+
+#### GIni
+
+Let's say a class have 30 students. 15 students (50%) go to an Engineering school. The class has 10 female students and 4 go to the Engineering school (40%). The class has 20 male students and 11 goes to the engineer school. 
+
+Let's calculate the Gini value based on splitting by gender:
+Gini  value is calculated as
+
+$$
+p^2 + (1-p)^2
+$$
+
+For the sub-node Female, 40% goes to the engineer school. So $$ Gini_f = 0.4 * 0.4 + 0.6 * 0.6 $$. 
+
+For the sub-node Male, 55% goes to the engineer school. So $$ Gini_m = 0.55 * 0.55 + 0.45 * 0.45 $$. 
+
+Weighted $$ Gini = (\frac{10}{30} Gini_f + \frac{20}{30} Gini_m ) $$ (10 out of 30 students are female.)
+
+We can make another calculation with another splitting rule like (GPA>3.0). The one with the highest weighted Gini should be used for the splitting.
+
+#### Chi-square
+
+Split on Gender:
+
+| Node | Engr. | Not engr. | Total | Expected* | Not Expected* | Engr. deviation | Non-engr deviation |
+| Female | 4 | 6 | 10 | 5 | 5 | -1 | 1 | 
+| Male | 11 | 9 | 20 | 10 | 10 | 1 | -1 |
+
+\* We calculate the expected value from the parent's probability distribution. From the parent node, 50% are engineerings. So the expected value for female engineer is $$ 10 * 0.5 = 5 $$. 
+
+Chi-square for Female as engineers:
+
+$$
+\text{chi-square}_{\text{female as engr}} = \frac{(actual – expected)^2} {expected^{1/2}}
+$$
+
+Chi-square for Female not as engineers:
+
+$$
+\text{chi-square}_{\text{female not as engr}} = \frac{(\text{not actual engr} – \text{not expected})^2} {\text{not expected}^{1/2}}
+$$
+
+The total chi-square is :
+
+$$
+\text{chi-square}_{\text{female as engr}} + \text{chi-square}_{\text{female not as engr}}
+ + \text{chi-square}_{\text{male as engr}}
++ \text{chi-square}_{\text{male not as engr}}
+$$
+
+The final split rule is to pick one with the highest total chi-square.
  
 ### Ensemble methods
 
@@ -111,7 +160,16 @@ Random forest is an ensemble methods by building many decision trees using boots
 * By dropping features, we can build a deeper tree before overfitting hurts us
 * Averaging the predictions to increase accuracy
 
+### Local beam search
 
+<div class="imgcap">
+<img src="/assets/ml/states.png" style="border:none;width:30%">
+</div>
 
+* Start from an initial state
+* Explore all the successors of all the states
+* If any of the state is the goal state, stop
+* Otherwise, select the best k successors (green dots) and explore all successors 
+* Re-iterate again by picking best k successors
 
 

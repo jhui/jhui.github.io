@@ -452,6 +452,7 @@ $$
 \begin{split}
 P(A, B) &= P(B) P(A \vert B) \\
 P(A \vert B) &= \frac{P(A, B)}{P(B)} \\
+P(A, B \vert C) &= P(A \vert B, C) P(B \vert C) \\ 
 \end{split}
 $$
 
@@ -470,6 +471,23 @@ $$
 \begin{split}
 P(A \vert B) & = \frac{P(B \vert A) P(A)}{P(B)} \\
 P(A \vert B) & = \frac{P(B \vert A) P(A)}{\sum^n_i P(B, A_i) } = \frac{P(B \vert A) P(A)}{\sum^n_i P(B, \vert A_i) P(A_i) }
+\end{split}
+$$
+
+Apply Bayes' theorem to conditional probability
+
+$$
+P(A \vert B, C) = \frac{P(B \vert A, C) P(A \vert C)}{ P(B \vert C)}
+$$
+
+Proof:
+
+$$
+\begin{split}
+P(A \vert B,C) & =  \frac{P(B,C \vert A) P(A)} {P(B,C)} \\
+& = \frac{P(B \vert A, C) P(C \vert A) P(A)}{P(B,C)} \\ 
+& = \frac{P(B \vert A, C) \frac{P(C \vert A) P(A)}{P(C)}}{\frac{P(B,C)}{P(C)}} \\ 
+& = \frac{P(B \vert A, C) P(A \vert C)}{ P(B \vert C)} \\
 \end{split}
 $$
 
@@ -492,3 +510,21 @@ P(y \vert x_1, x_2, \cdots , x_n) & = \frac{P(x_1, x_2, \cdots , x_n \vert y) P(
 $$
 
 We often ignore the marginal property (the denominator) in Naive Bayes theorem because it is constant and therefore not important when we are optimizing or comparing the parameters for the model.
+
+### Terms
+
+#### Term frequency–Inverse document frequency (tf-idf)
+
+tf-idf measures the frequency of a term in a document corrected by how common the term in the documents.
+
+Term frequency, Inverse document frequency:
+
+$$
+\begin{align} 
+tf(t,d) & = \text{Frequency of a term in a document} \\
+idf(t) & = \log \frac{\text{number of documents}}{\text{number of documents containing the term }} \\
+tf-idf(t, d) & = tf(t,d) \cdot idf(t) \\
+\end{align} 
+$$
+
+where n is the number of documents and the number of documents containing the term.

@@ -131,7 +131,7 @@ Notice that the solution for $$w$$ are not unique.
 MSE is also vulnerable to outlier. With an outlier, our model is shifted from the blue line to the red line which the blue line can model the training dataset better if the outlier is not there.
 
 <div class="imgcap">
-<img src="/assets/ml/L2p.png" style="border:none;width:45%">
+<img src="/assets/ml/L2p.png" style="border:none;width:35%">
 </div>
 
 ### L2 regularization with mean square error (MSE)
@@ -165,7 +165,7 @@ With L2 normalization and MSE, $$w$$ is:
 Let's visualize the solution. In the diagram below, $$ W^*_a$$ is where regularization cost is 0. i.e. all $$w_i = 0$$. $$ W^*_b $$ is where MSE is minimum. The optimal solution for $$J$$ is where the concentric circle meet with the eclipse $$W^*$$. 
 
 <div class="imgcap">
-<img src="/assets/ml/L2.png" style="border:none;width:45%">
+<img src="/assets/ml/L2.png" style="border:none;width:35%">
 </div>
 
 > This is also called **ridge regression**.
@@ -230,85 +230,6 @@ $$
 
 Note: We are not restricted to polynomial functions:  any functions including exponentials, logarithms, trigonometric functions can be applied to the basis.
 
-### Radial basis functions (RBF)
-
-A parametric model captures a model with equations and parameters. For example, a linear regression model is represented by a linear equation with parameters $$w$$.
-
-$$
-y = w^T x
-$$
-
-Even for a deep network, it follows a set of equations modeled by parameters $$w$$. If the model is too simple, our predictions will suffer regardless of the size of the training data. 
-
-In a K-nearest neighbors classifier, we locate K nearest neighbors in the training dataset and make predictions based on their output. There is little assumption on the model and the predictions improved with the size of the training dataset. Nevertheless, the solution will be non-manageable when it gets too huge.
-
-K-nearest neighbors classifier is a type of non-parametric model which we compute the similarity of a testing datapoint with the training datapoints and make predictions similar to its neighbors. adial basis functions (RBF) is a non-parametric model that takes account of all training datapoints instead of just K-nearest neighbors. The output is a weighted output of the training datapoints proportional to its similarity.
-
-In the first step, we build a matrix using all training datapoints ($$x^1, x^2, \cdots x^n$$):
-
-$$
-z = \begin{bmatrix}
-    k(\| x^1 - x^1 \|) & k(\| x^1 - x^2 \|) & \cdots & k(\| x^1 - x^n \|) \\
-    k(\| x^2 - x^1 \|) & k(\| x^2 - x^2 \|) & \cdots & k(\| x^2 - x^n \|) \\
-    \vdots & \vdots & \ddots & \vdots \\
-    k(\| x^n - x^1 \|) & k(\| x^n - x^2 \|) & \cdots & k(\| x^n - x^n \|) \\
-\end{bmatrix}
-$$
-
-which $$k$$ is a kernel function to measure similarity based on a Gaussian distribution:
-
-$$
-k(x) = e^{(- \frac{x^2}{2 \sigma^2})}
-$$
-
-and $$w$$ is calculated with $$z$$ and true value $$y$$:
-
-$$
-y = w^T z
-$$
-
-To make prediction for new datapoints $$ \hat{x} $$:
-
-$$
-\hat{x} = \begin{bmatrix}
-\hat{x^1} \\
-\hat{x^2} \\
-\cdots \\
-\hat{x^k}
-\end{bmatrix}
-$$
-
-We compute $$\hat{z}$$:
-
-$$
-\hat{z} = \begin{bmatrix}
-    k(\| \hat{x^1} - x^1 \|) & k(\| \hat{x^1} - x^2 \|) & \cdots & k(\| \hat{x^1} - x^n \|) \\
-    k(\| \hat{x^2} - x^1 \|) & k(\| \hat{x^2} - x^2 \|) & \cdots & k(\| \hat{x^2} - x^n \|) \\
-    \vdots & \vdots & \ddots & \vdots \\
-    k(\| \hat{x^k} - x^1 \|) & k(\| \hat{x^k} - x^2 \|) & \cdots & k(\| \hat{x^k} - x^n \|) \\
-\end{bmatrix}
-$$
-
-The output $$\hat{y}$$ is calculated with:
-
-$$
-\hat{y} = w^T \hat{z}
-$$
-
-If we have only one testing datapoint $$x'$$, the equation is simplified to:
-
-$$
-y = w_1 e^{(- \frac{ \| x' - x_1 \|^2}{2 \sigma^2})} + w_2 e^{(- \frac{ \| x' - x_2 \|^2}{2 \sigma^2})} + \cdots + w_n e^{(- \frac{ \| x' - x_n \|^2}{2 \sigma^2})}
-$$
-
-For example, we have 3 training datapoints $$x_1, x_2, x_3$$, each creating a bell curve $$ w_1 e^{(- \frac{ \| x' - x_1 \|^2}{2 \sigma^2})} $$ indicating much it contributes to the final output (blue dots) at $$x_i$$.
-
-<div class="imgcap">
-<img src="/assets/ml/gpp.png" style="border:none;width:70%">
-</div>
-
-With more datapoints, we can build a complex functions using this gaussian functions.
-
 
 ### L1-norm as cost functions (Robust regression) or regularization
 
@@ -372,10 +293,10 @@ Without regularization, the optimized $$w$$ is at the orange dot. With L2 regula
 
 ### Marginal loss (Hinge loss)
 
-Let's consider a problem to create a boundary to separate the green and red dots bellow. With a linear regression with MSE cost function, we create a red line to divide the green dots from the red dots. If $$ wx_i - y_i > 0$$, it is classified as green. As shown 3 green dots will be mis-classified.
+Let's consider a problem to create a boundary to separate the green and red dots below. With a linear regression with MSE cost function, we create a red line to divide the green dots from the red dots. If $$ wx_i - y_i > 0$$, it is classified as green. As shown 3 green dots will be mis-classified.
 
 <div class="imgcap">
-<img src="/assets/ml/msee.png" style="border:none;width:35%">
+<img src="/assets/ml/msee.png" style="border:none;width:40%">
 </div>
 
 MSE cannot provide an optimal solution (the blue line) because it mis-calculates the cost value. At point $$x_i$$, it should be already classified correctly but yet it contributes $$d^2$$ to its cost function. Hence, for classification problem, we need a cost function that does not penalize when a good decision is make. 
@@ -401,15 +322,50 @@ J(W) & = \sum^N_{i=1} max(0, 1 - y^i wx^i) + \frac{\lambda}{2} w w^T \\
 \end{split}
 $$
 
-The datapoint closest to the dotted lines are called support vectors. The optimal solution for SVM maximizes the margins between the support vectors. Therefore SVM creates the largest margin to separate both classes. 
+The datapoint closest to the gray lines are called support vectors. The optimal solution for SVM maximizes the margins between the support vectors. i.e. SVM creates the largest margin to separate both classes.
 
 <div class="imgcap">
-<img src="/assets/ml/svm2.png" style="border:none;width:65%">
+<img src="/assets/ml/svm2.png" style="border:none;width:40%">
 </div>
 
-We start the penalty for points where $$y^i wx^i < 1 $$. i.e. points falls within the max magin.
+We add penalty to the cost function for points where $$y^i wx^i < 1 $$. i.e. points falls within the max magin.
 <div class="imgcap">
-<img src="/assets/ml/svm3.png" style="border:none;width:65%">
+<img src="/assets/ml/svm22.png" style="border:none;width:45%">
+</div>
+
+> The cost function is defined as the amount of constraint violation.
+
+To have the lowest cost, we want $$ w \cdot x > 1 $$ with the smallest $$\| w\|$$. (Assume $$y=1$$, $$y= -1$$ behave the same way.) The cost is reduced to:
+
+$$
+\begin{split}
+J(W) & =  \sum^N_{i=1} max(0, 1 - y^i wx^i) + \frac{\lambda}{2} w w^T = \frac{\lambda}{2} \| w\| \\
+\end{split}
+$$
+
+The dot product of $$ w $$ and $$x$$ is the projection of $$w$$ on $$x$$. i.e. the green line. 
+
+<div class="imgcap">
+<img src="/assets/ml/svmpp.png" style="border:none;width:100%">
+</div>
+
+For $$ w \cdot x $$ to have the maximum value (longest green line), the optimal $$ w^{*} $$ and $$x$$ should be the same. If your draw 2 parallel boundaries passing the support vectors, like the one above on the right, the one with the maximum margin is the radius i.e. $$w^{*}$$. Hence the optimal $$w^{*}$$ provides the maximum margin for the support vectors. Therefore SVM indeed maximizes the margin.
+
+With regularization, we can prevent overfitting for outlier:
+
+$$
+\begin{split}
+J(W) & = \sum^N_{i=1} max(0, 1 - y^i wx^i) + \frac{\lambda}{2} w w^T \\
+\end{split}
+$$
+
+<div class="imgcap">
+<img src="/assets/ml/svmm.png" style="border:none;width:65%">
+</div>
+
+Having different value of regularization level controlled by $$\lambda$$, we can have very different optimal solution:
+<div class="imgcap">
+<img src="/assets/ml/svmm1.png" style="border:none;width:35%">
 </div>
 
 ### Maximum likelihood estimation
@@ -457,6 +413,93 @@ $$
  NNL = - \sum^n_{i=1}  \log P( y_i \vert x_i, w)
 $$
 
+### Linear regression with gaussian distribution
+
+We want to optimize $$\theta$$ for a linear regression model with the assumption that $$y$$ is gaussian distributed with $$ \mu = x\theta$$:
+
+$$
+y_i \sim \mathcal{N}(x_i^T\theta, \sigma^2) = x_i^T\theta + \mathcal{N}(0, \sigma_2)
+$$
+
+Likelihood:
+
+$$
+\begin{split}
+p(y \vert x, \theta, \sigma) & = \prod_{i=1}^n p(y_i \vert x_i, \theta, \sigma) \\
+& = \prod_{i=1}^n (2 \pi \sigma^2)^{-1/2}e^{- \frac{1}{2 \sigma^2}(y_i - x^T_i \theta)^2} \\
+& = (2 \pi \sigma^2)^{-n/2}e^{- \frac{1}{2 \sigma^2} \sum^n_{i=1}(y_i - x^T_i \theta)^2} \\
+& = (2 \pi \sigma^2)^{-n/2}e^{- \frac{1}{2 \sigma^2} (y - x \theta)^T(y - x \theta)} \\
+\end{split}
+$$
+
+Optimize $$\theta$$ using the log likelihood $$l$$:
+
+$$
+\begin{split}
+J(\theta) & = \log(p(y \vert x, \theta, \sigma)) \\
+& = -\frac{n}{2} \log(2 \pi \sigma^2) - \frac{1}{2 \sigma^2}(y - x \theta)^T(y - x \theta) \\
+\\
+\nabla_\theta J(\theta) & = 0 - \frac{1}{2 \sigma^2} [0 - 2 x^Ty + 2x^Tx\theta] = 0\\
+\hat\theta & = (x^Tx)^{-1}x^Ty
+\end{split}
+$$
+
+The inverse of $$x$$ may not be well conditioned. We can add a $$\delta$$ to improve the solution:
+
+$$
+\begin{split}
+\hat\theta & = (x^Tx)^{-1}x^Ty \\
+\hat\theta & = (x^Tx + \delta^2 I )^{-1}x^Ty \\
+\end{split}
+$$
+
+Solution:
+> $$ \theta^*
+\begin{split}
+= (x^Tx + \delta^2 I )^{-1}x^Ty \\
+\end{split}
+$$
+
+In machine learning, we often use Mean Square Error (MSE) with L2-regularization as our cost function. In fact, the L2-regularization is not a random choice. Here, we proof that solving the equation below lead us to the same solution $$\theta^*$$ above.
+
+$$
+\begin{split}
+J(\theta) &= \text{MSE } + \text{L2-regularization} \\
+&= (y -x\theta)^T(y-x\theta) + \delta^2\theta^T\theta \\
+\nabla_\theta J(\theta)  & = 2 x^Tx\theta - 2x^Ty + 2 \delta^2 I \theta = 0 \\
+\implies & (x^Tx + \delta^2 I ) \theta^* = x^Ty \\
+\theta^* &= (x^Tx + \delta^2 I )^{-1}x^Ty \\
+\end{split}
+$$
+
+As a side note, we can rewrite the regularization as an optimization constraint which the $$ \| \theta \| $$ needs to smaller than $$ t(\delta) $$.
+
+$$
+\min_{\theta^T\theta \le t(\delta)} (y-x\theta)^T(y-x\theta)
+$$
+
+<div class="imgcap">
+<img src="/assets/ml/L2.png" style="border:none;width:30%">
+</div>
+
+### Bayesian linear regression
+
+To optimize a linear regression, we can also use Bayesian inference. Based on a prior belief on how $$\theta$$ may be distributed ($$\mathcal{N}(\theta \vert \theta_0, V_0)$$), we compute the posterior with the likelihood $$ \mathcal{N}(y \vert x\theta, \sigma^2 I ) $$ using Bayes' theorem:
+
+$$
+\begin{split}
+p( \theta \vert x, y, \sigma^2) & \sim \mathcal{N}(\theta \vert \theta_0, V_0) \mathcal{N}(y \vert x\theta, \sigma^2 I ) = \mathcal{N}(\theta \vert \theta_n, V_n) \\
+\theta_n & = V_n V^{-1}_0 \theta_0 + \frac{1}{\sigma^2}V_nx^Ty \\
+V^{-1}_n & = V^{-1}_0 + \frac{1}{\sigma^2}x^Tx
+\end{split}
+$$
+
+Comparison between MLE linear regression and Bayesian linear regression
+<div class="imgcap">
+<img src="/assets/ml/ar.png" style="border:none;width:80%">
+</div>
+Source Nando de Freitas, UBC machine learning class.
+
 ### Logistic regression
 
 #### Logistic function (sigmoid function)
@@ -500,7 +543,7 @@ J(W) & = \sum^N_{i=1} - \log{ \frac{1}{1 + e^{-yw^Tx}} } \\
 $$
 
 <div class="imgcap">
-<img src="/assets/ml/lloss.png" style="border:none;width:70%">
+<img src="/assets/ml/lloss.png" style="border:none;width:50%">
 </div>
 (Note: Logistic loss is sometime viewed as the smooth version of the Hinge loss.)
 
@@ -635,12 +678,12 @@ $$
 \end{align}
 $$
 
-### Kernel
+### Non-linear decision boundary
 
-In the classification problem discussed before, classes are separable by a line or a plane. However this may not be the case for some problem. For example, to classify the dots below, we need to change the basis.
+In the classification problem discussed before, classes are separable by a line or a plane. How can we handle non-linear decision boundary?
 
 <div class="imgcap">
-<img src="/assets/ml/svmc.png" style="border:none;width:40%">
+<img src="/assets/ml/svmc.png" style="border:none;width:35%">
 </div>
 
 
@@ -658,9 +701,9 @@ z = \begin{bmatrix}
 \end{bmatrix}
 $$
 
-When we change the basis and plot the datapoints again, it will be easy to realize that the $$(x_1)^2$$ and $$(x_2)^2$$ plan represent the distance from the center of the cluster and therefore easier to divide by a line. 
+After the change, we plot it again. It is easy to realize that the $$(x_1)^2$$ and $$(x_2)^2$$ plane represent the distance from the center of the cluster and therefore can be divided by a plane. 
 <div class="imgcap">
-<img src="/assets/ml/svmc2.png" style="border:none;width:70%">
+<img src="/assets/ml/svmc2.png" style="border:none;width:40%">
 </div>
 
 Other polynomial basis:
@@ -673,7 +716,7 @@ z = \begin{bmatrix}
 \end{bmatrix}
 $$
 
-Recall the optimized $$w$$ for a MSE cost function with a L2 regularization is:
+Recall the optimized $$w$$ for a linear regression using MSE + L2 regularization is:
 
 $$
 \begin{split}
@@ -682,12 +725,12 @@ $$
 \end{split}
 $$
 
-We can make predictions from $$x$$ easily instead of computing $$z$$ first. ($$ \hat{z}$$ is the $$z$$ value from the testing datapoint $$\hat{x}$$.)
+To make a prediction after the change of basis:
 
 $$
 \begin{split}
 \hat{y} & = \hat{z}w \\
-&= \hat{z} z^T(zZ^T + \lambda I)^{-1}y \\
+&= \hat{z} z^T(zz^T + \lambda I)^{-1}y \\
 &= \hat{K}(K + \lambda I)^{-1}y) 
 \end{split}
 $$
@@ -696,17 +739,19 @@ which the Gram matrix ‘K’ is defined as
 
 $$
 \begin{split}
-K & = zZ^T \\
+K & = zz^T \\
 & = \begin{bmatrix}
-(Z^1)^T Z^1  & (Z^1)^T Z^2  & \cdots & (Z^1)^T Z^N \\
-(Z^2)^T Z^1  & (Z^2)^T Z^2  & \cdots & (Z^2)^T Z^N \\
+(z^1)^T z^1  & (z^1)^T z^2  & \cdots & (z^1)^T z^N \\
+(z^2)^T z^1  & (z^2)^T z^2  & \cdots & (z^2)^T z^N \\
 & \cdots \\
-(Z^N)^T Z^1  & (Z^N)^T Z^2  & \cdots & (Z^N)^T Z^N \\
+(z^N)^T z^1  & (z^N)^T z^2  & \cdots & (z^N)^T z^N \\
 \end{bmatrix} 
 \end{split}
 $$
 
-which $$K$$ contains the inner products between all training examples. $$\hat{K}$$contains the inner products between training and test example.
+which $$K$$ contains the inner products between all training examples.
+ 
+ $$\hat{K}$$contains the inner products between test example and training.
 
 Consider a degree 2 basis:
 
@@ -714,6 +759,8 @@ $$
 x^i = (x^i_1, x^i_2) \\
 x^j = (x^j_1, x^j_2) \\
 $$
+
+We change the basis to a quadratic equation:
 
 $$
 z^i = ((x^i_1)^2, \sqrt{2} x^i_1 x^i_2, (x^i_2)^2) \\
@@ -724,13 +771,194 @@ And K can be computed directly from $$xi$$
 
 $$
 \begin{split}
-z_i^T z_j &= (x^i_1)^2 (x^j_1)^2 +  \sqrt{2} x^i_1 x^i_2 \sqrt{2} x^j_1 x^j_2 + (x^i_2)^2) (x^j_2)^2 \\
+K = z_i^T z_j &= (x^i_1)^2 (x^j_1)^2 +  \sqrt{2} x^i_1 x^i_2 \sqrt{2} x^j_1 x^j_2 + (x^i_2)^2) (x^j_2)^2 \\
 &= ( x^i_1  x^j_1 + x^i_2 x^j_2)^2 \\
 &= (x^T_i x_j)^2
 \end{split}
-
 $$
 
+Hence, we can compute $$\hat{y}$$ from $$x$$ directly.
 
+$$
+\begin{split}
+\hat{y} &= \hat{K}(K + \lambda I)^{-1}y) 
+\end{split}
+$$
+
+### Parametric model vs non-parametric model
+
+A parametric model captures a model with equations and parameters. For example, a linear regression model is represented by a linear equation parameterized by $$w$$. 
+
+$$
+y = w^T x
+$$
+
+After a model is built, we make prediction directly from $$w$$ and we do not need to keep the training data. If the model is too simple, our predictions will suffer regardless of how big is the training data. 
+
+A non-parametric model uses similarity between training data and the testing data to make prediction. The training data becomes the parameters of the model. The K-nearest neighbors classifier is a typical non-parametric model. We locate K nearest neighbors in the training dataset and make predictions based on them. There is little assumption on the model and the predictions improved with the size of the training dataset. A non-parametric model however can be difficult to optimize if the training dataset is too large. 
+
+### Kernel
+
+Kernel is a non-parametric model which use similarity between training data as the input features $$f_i$$ to make predictions.
+
+$$
+\begin{split}
+f_1 && = k(x', x^1) \\
+f_2 && = k(x', x^2) \\
+\cdots \\
+f_n && = k(x', x^n) \\
+\end{split}
+$$
+
+which 
+
+$$
+k(x, x^i) = e^{(- \frac{\| x - x^i \|^2}{2 \sigma^2})}
+$$
+
+If $$x$$ is very similar to $$x^i$$, $$ k=1$$. If $$x$$ is very different from $$x^i$$, $$ k=0$$. 
+
+
+We can use any model to make prediction based on the new input features. For example, a linear model
+
+$$
+\hat{y} = \sum_{i=1}^n y_i f_i
+$$
+
+For example, if we have 3 training datapoints with $$ y^1 = 1, y^2 = -1, y^3 = 1 $$, then
+
+$$
+\hat{y} = f_1 - f_2 + f_3
+$$
+
+In classification problem
+
+$$
+\begin{equation} 
+\hat{y}=
+    \begin{cases}
+      1 & \text{if } \sum_{i=1}^n y_i f_i \geq 0 \\
+      -1 & \text{otherwise}
+    \end{cases}
+\end{equation}
+$$
+
+#### SVM with kernels
+
+Using kernels, we convert each feature $$x_i$$ into m features measuring its similarity with all the training datapoints.
+
+$$
+\begin{split}
+x^i \rightarrow \begin{bmatrix}
+    f^i_1 = k( x^i, x_1) & \\
+    f^i_2 = k( x^i, x_2) & \\
+    \cdots & \\
+    f^i_m = k( x^i, x_m) & \\
+\end{bmatrix}
+\end{split}
+$$
+
+and a Gaussian kernel with $$\sigma$$:
+
+$$
+k(x, x^i) = e^{(- \frac{\| x - x^i \|^2}{2 \sigma^2})}
+$$
+
+We use a linear regression model:
+
+$$
+\hat{y} = w f
+$$
+
+and train our model using the SVM cost function:
+
+$$
+\begin{split}
+J(W) & = \sum^m_{i=1} max(0, 1 - y^i wf^i) + \frac{\lambda}{2} \| w \|^2  \\
+\end{split}
+$$
+
+Choice of $$\lambda$$  & $$\sigma$$
+
+* Larger $$\lambda$$ means high regularization with higher bias and lower variance.
+* Larger $$\sigma$$ means we take more influence from the neighbors. i.e. higher bias and lower variance.
+
+When to use a linear model (Logistic regression or SVM with linear kernel $$y = w x$$ ) or a SVM Gaussian kernel?
+
+Note: N is the number of feature for $$x$$ and m is the number of training data
+
+| N (large) & m (small) |  Many input features and vulnerable to overfit with small amount of data | Linear model |
+| N (large) & m (large) |  Training data is too large to use kernels  | Linear model |
+| <nobr>N (small) & m (intermediate) </nobr>| Use non-linear kernel to have a more complex mode | <nobr> Non-linear kernel </nobr>|
+| N (small) & m (large) |  Training data is too large to use kernels. Add/Create new features. | Linear model |
+
+### Radial basis functions (RBF)
+
+Radial basis functions (RBF) is a non-parametric model that takes account of all training datapoints instead of just K-nearest neighbors. However, the influence decreases as the distance increase.
+
+In the first step, we build a matrix using all training datapoints ($$x^1, x^2, \cdots x^n$$):
+
+$$
+z = \begin{bmatrix}
+    k(\| x^1 - x^1 \|) & k(\| x^1 - x^2 \|) & \cdots & k(\| x^1 - x^n \|) \\
+    k(\| x^2 - x^1 \|) & k(\| x^2 - x^2 \|) & \cdots & k(\| x^2 - x^n \|) \\
+    \vdots & \vdots & \ddots & \vdots \\
+    k(\| x^n - x^1 \|) & k(\| x^n - x^2 \|) & \cdots & k(\| x^n - x^n \|) \\
+\end{bmatrix}
+$$
+
+which $$k$$ is a kernel function to measure similarity based on a Gaussian distribution:
+
+$$
+k(x) = e^{(- \frac{x^2}{2 \sigma^2})}
+$$
+
+and $$w$$ is calculated with $$z$$ and true value $$y$$:
+
+$$
+y = w^T z
+$$
+
+To make prediction for new datapoints $$ \hat{x} $$:
+
+$$
+\hat{x} = \begin{bmatrix}
+\hat{x^1} \\
+\hat{x^2} \\
+\cdots \\
+\hat{x^k}
+\end{bmatrix}
+$$
+
+We compute $$\hat{z}$$:
+
+$$
+\hat{z} = \begin{bmatrix}
+    k(\| \hat{x^1} - x^1 \|) & k(\| \hat{x^1} - x^2 \|) & \cdots & k(\| \hat{x^1} - x^n \|) \\
+    k(\| \hat{x^2} - x^1 \|) & k(\| \hat{x^2} - x^2 \|) & \cdots & k(\| \hat{x^2} - x^n \|) \\
+    \vdots & \vdots & \ddots & \vdots \\
+    k(\| \hat{x^k} - x^1 \|) & k(\| \hat{x^k} - x^2 \|) & \cdots & k(\| \hat{x^k} - x^n \|) \\
+\end{bmatrix}
+$$
+
+The output $$\hat{y}$$ is calculated with:
+
+$$
+\hat{y} = w^T \hat{z}
+$$
+
+If we have only one testing datapoint $$x'$$, the equation is simplified to:
+
+$$
+y = w_1 e^{(- \frac{ \| x' - x_1 \|^2}{2 \sigma^2})} + w_2 e^{(- \frac{ \| x' - x_2 \|^2}{2 \sigma^2})} + \cdots + w_n e^{(- \frac{ \| x' - x_n \|^2}{2 \sigma^2})}
+$$
+
+For example, we have 3 training datapoints $$x_1, x_2, x_3$$, each creating a bell curve $$ w_1 e^{(- \frac{ \| x' - x_1 \|^2}{2 \sigma^2})} $$ indicating much it contributes to the final output (blue dots) at $$x_i$$.
+
+<div class="imgcap">
+<img src="/assets/ml/gpp.png" style="border:none;width:70%">
+</div>
+
+With more datapoints, we can build a complex functions using this gaussian functions.
 
 
