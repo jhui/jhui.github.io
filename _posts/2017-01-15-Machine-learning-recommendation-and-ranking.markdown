@@ -3,8 +3,8 @@ layout: post
 comments: true
 mathjax: true
 priority: 360000
-title: “Machine learning - Recommendation, Collaborative Filtering and ranking”
-excerpt: “Machine learning - Recommendation, Collaborative Filtering, Low rank matrix factorization and ranking”
+title: “Machine learning - Recommendation, Collaborative filtering and ranking”
+excerpt: “Machine learning - Recommendation, Collaborative filtering, Low rank matrix factorization and ranking”
 date: 2017-01-15 12:00:00
 ---
 
