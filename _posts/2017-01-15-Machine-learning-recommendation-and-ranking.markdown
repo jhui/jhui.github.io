@@ -3,8 +3,8 @@ layout: post
 comments: true
 mathjax: true
 priority: 130000
-title: “Machine learning - Recommendation”
-excerpt: “Machine learning - Recommendation”
+title: “Machine learning - Recommendation and ranking”
+excerpt: “Machine learning - Recommendation and ranking”
 date: 2017-01-15 12:00:00
 ---
 
@@ -254,3 +254,117 @@ $$
 * How long should we show the recommendation if user show or do not show interests
 * Give editorial recommendation
 * Get recommendation from friends or communities
+
+### Ranking
+
+#### Probability ratio for logistic regression
+
+Logistic regression
+
+$$
+\begin{split}
+p(y_i \vert x_i, w) & = \frac{1}{1 - e^{-\frac{1}{2}y_i w^T x_i}} \\
+& \propto e^{\frac{1}{2}y_i w^T x_i} \\
+\end{split}
+$$
+
+Probability ratio for predicting $$y_i$$ over $$-y_i$$:
+
+$$
+\begin{split}
+\frac{p(y_i \vert x_i, w)}{p(- y_i \vert x_i, w)} & \geq \beta  \\
+\frac{e^{\frac{1}{2}y_i w^T x_i}}{e^{-\frac{1}{2}y_i w^T x_i}} & \geq \beta \\
+e^{y_i w^T x_i} & \geq \beta \\
+y_i w^T x_i & \geq \log(\beta) \\
+y_i w^T x_i & \geq 1 \quad \text{set } \log(\beta)=1\\
+\end{split}
+$$
+
+We can define a lost function by the amount of constraint violation:
+
+$$
+max(0, 1 - y_i w^T x_i )
+$$
+
+Note: This is the Hinge loss and we have proven it from the perspective of probability ratio and constraint violation.
+
+#### Relevance Ranking
+
+We want to rank the relevance of $$y_i$$ based on a query $$x_i$$.
+
+$$
+p(y_i = c \vert x_i, w) \propto e^{w_c^Tx_i}
+$$
+
+$$
+\begin{split}
+\frac{p(y_i \vert x_i, w)}{p(y_i = c' \vert x_i, w)} & \geq \beta\\
+w_{y_i}^Tx_i - w_{c'}^Tx_i & \geq 1\\
+\end{split}
+$$
+
+We can create a cost function based on all constraint violations as:
+
+$$
+\sum_{i=1}^n max(0, 1 - w_{y_i}^Tx_i + w_{c'}^Tx_i )
+$$
+
+Or a cost function to penalize the highest alternatives:
+
+$$
+\max_{j \neq i} (max(0, 1 - w_{y_i}^Tx_i + w_{c'}^Tx_i))
+$$
+
+#### Pairwise ranking
+
+We can rank $$x_i$$ and $$x_j$$ using probability ratio.
+
+$$
+p(x_i \vert w) \propto e^{w^Tx_i}
+$$
+
+$$
+\begin{split}
+\frac{p(x_i \vert w)}{p(x_j \vert w)} & \geq \beta \quad \text{ for } i \neq j \\
+w^Tx_i - w^Tx_j & \geq 1 \quad \text{ for all } i \neq j \\
+\end{split}
+$$
+
+We can create a cost function based on all constraint violations as:
+
+$$
+\sum_{i=1}^n max(0, 1 - w^T x_i + w^T x_j )
+$$
+
+#### Generalization
+
+We can expand our approach beyond linear regression:
+
+* Define constraint based on probability ratio
+* Minimize violation of logarithm of constraint
+
+For pairwise relevance
+
+$$
+J(w) = \sum_{y_i > y_j} max(0, 1 - \log{ p(y_i \vert w)} + \log{ p(y_j \vert w)}) + \sum^d_{j=1} - \log{p(w_j \vert \lambda) })
+$$
+
+### PageRank
+
+Random walk view
+
+* Start at a random webpage
+* Follow a random link in each iteration $$t$$
+* PageRank is the probability of landing on a page when $$ t \rightarrow \infty $$
+* Random walk may stuck in part of the graph or never reach some webpage
+
+Damped PageRank algorithm
+
+* Start at a random webpage.
+* With the probability $$\epsilon$$, go to a random webpage. Otherwise, follow a random link on the page.
+* Keep the iteration and compute the probability of landing on a page.
+
+
+
+
+

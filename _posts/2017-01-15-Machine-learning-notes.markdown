@@ -441,3 +441,14 @@ tf-idf(t, d) & = tf(t,d) \cdot idf(t) \\
 $$
 
 where n is the number of documents and the number of documents containing the term.
+
+#### Skip-gram model and Continuous Bag-of-Words model (CBOW) 
+
+Skip-gram model tries to predict each context word from its target word. For example, in the sentence:
+
+"The quick brown fox jumped over the lazy dog."
+
+The target word "fox" have 2 context words in a bigram model (2-gram). The training data (input, label) will look like: (quick, the), (quick, brown), (brown, quick), (brown, fox).
+
+The continuous bag-of-words is the opposite of Skip-gram model. It predicts the target word from the context word.
+
