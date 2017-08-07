@@ -44,7 +44,7 @@ $$
 dist = \sqrt{\sum^d_{j=1} (x^i_{j} - c^i_{j})^2 }
 $$
 
-* For points in the same cluster, compute the new centroid
+* For points in the same cluster, compute the mean as the new centroid
 
 $$
 c^i_j = \frac{1}{n_{c^i}} \sum_{m \in c^i} x^m_j
@@ -54,10 +54,10 @@ $$
 * Repeat the process in computing the new centroids and re-clustering
 * Finish when no points switch to another cluster
 
-In this diagram, we start with 3 randoms centroids. After 3 iterations of re-clustering and re-calculate, we form 3 clusters.
+In this diagram, we start with 3 randoms centroids (pink dots). First, we re-cluster all datapoints according to the centroids of the clusters. Then we recompute the new position of the centroids using mean. After 3 iterations of re-clustering and re-calculate, we form 3 clusters.
 
 <div class="imgcap">
-<img src="/assets/ml/kmeans.png" style="border:none;width:70%">
+<img src="/assets/ml/kmeans.png" style="border:none;width:100%">
 </div>
 
 We can repeat the process many times with different initial random centroids. Then we use the cost function below to select the model with the lowest cost:
@@ -93,7 +93,7 @@ $$
 
 which $$ c_{i} $$ is the centroid of the cluster $$i$$. $$c_{i_j}$$ is the $$jth$$ dimension of the centroid.
 
-Cluster assignment: Assign datapoints to the closest cluster with distance measured with the L1 norm. (instead of the L2-norm in the K-means)
+For the cluster assignment, instead of using L2-norm to measure distance,  we assign datapoints to the closest cluster with distance measured by the L1 norm.
 
 $$
 dist^i = \sum^d_{j=1} \vert x^i_j - c_{i_j} \vert  
@@ -103,7 +103,7 @@ $$
 <img src="/assets/ml/med.png" style="border:none;width:60%">
 </div>
 
-K-median clustering is less vulnerable to outliners. The green outliner on the top right will be grouped into the green cluster in a 3-median cluster instead of having itself as a separate cluster in k-means.
+K-median clustering is less vulnerable to outliners. The green outliner on the top right will be grouped into the green cluster in a 3-median cluster instead of having itself as a separate cluster in K-means.
 
 Corresponding cost function:
 
