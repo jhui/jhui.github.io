@@ -2,9 +2,9 @@
 layout: post
 comments: true
 mathjax: true
-priority: 105000
+priority: 300000
 title: “Machine learning - Gaussian Process”
-excerpt: “Machine learning (Gaussian Process)”
+excerpt: “Machine learning - Gaussian Process”
 date: 2017-01-15 12:00:00
 ---
 

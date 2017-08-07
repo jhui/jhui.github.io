@@ -2,7 +2,7 @@
 layout: post
 comments: true
 mathjax: true
-priority: 130000
+priority: 390000
 title: “Machine learning - Hidden Markov Model (HMM)”
 excerpt: “Machine learning - Hidden Markov Model (HMM)”
 date: 2017-01-15 12:00:00

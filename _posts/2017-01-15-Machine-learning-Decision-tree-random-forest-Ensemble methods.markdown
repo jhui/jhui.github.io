@@ -2,7 +2,7 @@
 layout: post
 comments: true
 mathjax: true
-priority: 130000
+priority: 400000
 title: “Machine learning - Decision tree, Random forest, Ensemble methods and Beam searach”
 excerpt: “Machine learning - Decision tree, Random forest, Ensemble methods and Beam searach”
 date: 2017-01-15 12:00:00

@@ -2,10 +2,10 @@
 layout: post
 comments: true
 mathjax: true
-priority: 100000
+priority: 370000
 title: “Machine learning - Naive bayes classifier, Bayesian inference”
 excerpt: “Machine learning (Naive Bayes and Bayesian inference)”
-date: 2017-03-08 12:00:00
+date: 2017-01-15 12:00:00
 ---
 
 ### Bayes' theorem

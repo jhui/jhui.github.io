@@ -2,7 +2,7 @@
 layout: post
 comments: true
 mathjax: true
-priority: 129000
+priority: 380000
 title: “Machine learning - Anomaly detection”
 excerpt: “Machine learning - Anomaly detection”
 date: 2017-01-15 12:00:00

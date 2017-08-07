@@ -2,7 +2,7 @@
 layout: post
 comments: true
 mathjax: true
-priority: 140000
+priority: 410000
 title: “Machine learning - Notes”
 excerpt: “Machine learning - Notes”
 date: 2017-01-15 12:00:00

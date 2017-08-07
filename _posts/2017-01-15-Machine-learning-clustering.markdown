@@ -2,9 +2,9 @@
 layout: post
 comments: true
 mathjax: true
-priority: 128000
-title: “Machine learning - Clustering”
-excerpt: “Machine learning - Clustering”
+priority: 350000
+title: “Machine learning - Clustering, Density based clustering and SOM”
+excerpt: “Machine learning - Clustering, Density based clustering and SOM”
 date: 2017-01-15 12:00:00
 ---
 ### K nearest neighbor (KNN)

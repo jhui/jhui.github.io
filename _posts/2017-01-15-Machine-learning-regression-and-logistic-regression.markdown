@@ -2,9 +2,9 @@
 layout: post
 comments: true
 mathjax: true
-priority: 130000
-title: “Machine learning - Regression and Logistic regression”
-excerpt: “Machine learning - Regression and Logistic regression”
+priority: 330000
+title: “Machine learning - Regression, Logistic regression, SVM, MAP and Kernels”
+excerpt: “Machine learning - Regression, Logistic regression, SVM, MAP and Kernels”
 date: 2017-01-15 12:00:00
 ---
 
