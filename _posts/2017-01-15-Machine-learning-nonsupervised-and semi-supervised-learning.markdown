@@ -18,21 +18,28 @@ Example of unsupervised learning;
 Clustering
 * K-means
 * Density based clustering - DBSCAN
+
 Gaussian mixture models 
-	*Expectation–maximization algorithm (EM)
+* Expectation–maximization algorithm (EM)
+
 Latent factor model/Matrix factorization
-       * Principal component analysis
-	* Singular value decomposition
-	* Non-negative matrix factorization
+* Principal component analysis
+* Singular value decomposition
+* Non-negative matrix factorization
+
 Manifold/Visualization
-	* MDS, IsoMap, t-sne
+* MDS, IsoMap, t-sne
+
 Anomaly detection
 * Gaussian model
 * Clustering
+
 Deep Networks
 * Generative Adversarial Networks
 * Restricted Boltzmann machines
+
 Self-organized map
+
 Association rule
 	
 	
