@@ -452,3 +452,29 @@ The target word "fox" have 2 context words in a bigram model (2-gram). The train
 
 The continuous bag-of-words is the opposite of Skip-gram model. It predicts the target word from the context word.
 
+#### Unsupervised learning
+
+Unsupervised learning tries to understand the relationship and the latent structure of the input data. In contrast to supervised learning, unsupervised training set contains input data but not the labels.
+
+Example of unsupervised learning;
+
+Clustering
+* K-means
+* Density based clustering - DBSCAN
+Gaussian mixture models 
+	*Expectation–maximization algorithm (EM)
+Anomaly detection
+* Gaussian model
+* Clustering
+Deep Networks
+* Generative Adversarial Networks
+*  Restricted Boltzmann machines
+Latent factor model/Matrix factorization
+       * Principal component analysis
+	* Singular value decomposition
+	* Non-negative matrix factorization
+Manifold/Visualization
+	* MDS, IsoMap, t-sne
+Self-organized map
+Association rule
+	

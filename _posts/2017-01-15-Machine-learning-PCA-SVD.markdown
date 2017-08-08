@@ -145,11 +145,13 @@ J(W, Z) & =  \| ZW - X \|^2_F \\
 \end{split}
 $$
 
+### Gradient descent 
+
 One of the method to solve PCA is to use Gradient descent to optimize the trainable parameters $$W$$ and $$Z$$ with the cost function above.
 
-#### Alternating minimization:
+### Alternating minimization:
 
-We can find PCA using the Alternating minimization:
+Alternating minimization is another method to find a solution for PCA.
 
 * Optimize ‘W’ with ‘Z’ fixed
 * Optimize ‘Z’ with ‘W’ fixed
@@ -169,9 +171,9 @@ $$
 \end{split}
 $$
 
-#### Singular value decomposition (SVD) 
+### Singular value decomposition (SVD) 
 
-SVD solves the PCA analytically. Before solving the PCA, we first learn how to do Singular value decomposition (SVD). SVD decompose a matrix with the general formula:
+Both methods above solve the PCA using empirical method. SVD solves the PCA analytically. Before discussing it in details, we discuss the Singular value decomposition first (SVD). SVD decompose a matrix into 3 matrice as:
 
 $$
 \begin{split}
@@ -526,8 +528,10 @@ The image is encoded with the latent factors:
 
 ### Non-negative matrix factorization (NMF):
 
+NMP is similar to the matrix factorization methods above with the same cost functions, except that we add an additional constraint that $$W$$ and $$Z$$ are non-negative.
+
 IN NMF,
-* W and Z are non-negative instead of orthogonal
+* $$W$$ and $$Z$$ are non-negative instead of orthogonal
 * Promote sparsity
 	* Avoiding postive & negative matrix elements cancelling each other
 	* Brain seem to use sparse representation 
