@@ -2,7 +2,7 @@
 layout: post
 comments: true
 mathjax: true
-priority: 420000
+priority: 410000
 title: “Machine learning - Nonsupervised and semi-supervised learning”
 excerpt: “Machine learning - Nonsupervised and semi-supervised learning”
 date: 2017-01-15 12:00:00
