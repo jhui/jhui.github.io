@@ -148,27 +148,25 @@ Then we can recommend products by soving the k-nearest neighbors using the cosin
 
 ### Content-based filtering
 
-Content-based filtering is a supervised learning which it extracts features $$x_i$$ for a person or a product. For example, the following is the features describing what type of movie may be.
+In movie rating, content-based filtering is a supervised learning to extract the genre of a movie and to determine how a person may rate the movie based on its genre. For example, we may define the genre of a movie as:
 
 $$ x = (romance, action, scifi) $$
 
-We can collect the marketing material of a movie and use a classifier with supervised learning to classify a pure romance movie as:
+We apply supervised learning to learn the genre of a movie say from its marketing material. For example, the genre of a romantic movie can be calculated as:
 
-$$x = (1, 0, 0) $$
+$$w_j = (1, 0, 0) $$
 
-Then we collect how a user ranks movies. Based on these information, we can create the corresponding features of a person and determine what the person likes. For example, a person may have a 0.9 chance of give high ranking to an action or a SciFi movie but no chance for romance movie. The preference $$x_i$$ for this person will be:
+Then we can learn how a person rate a movie based on the type of genre. For example, a person have a 0.9 chance of giving high marks to action or SciFi movies but no chance for romance movies. The preference $$x_i$$ for this person will be:
 
-$$x = (0, 0.9, 0.9)$$
+$$x_i = (0, 0.9, 0.9)$$
 
-Content-based filtering builds a model to predict rating or recommendation $$y$$ given $$x_i$$ of a person. In making recommendation, we suggest movies that is closet to the user's features. For ratings, we can make predictions based on.
+Content-based filtering builds a model to predict rating or recommendation $$y$$ given $$x_i$$ of a person and $$w_j$$ for a movie.
 
 $$
 y = w^T x \\
 $$
 
-which $$w$$ and $$x$$ is the features for a movie and a user respectively.
-
-Nevertheless, content-based filtering requires labels for the training data which can be expensive to collect. 
+Content-based filtering looks simple but very hard in practice. Collect labels for the training data is hard. Just using the genre to classify a movie may be over simplify on why a person like a movie. We can add more features but what to add becomes very hard.
 
 ### Collaborative Filtering 
 
@@ -184,7 +182,7 @@ Y = \begin{bmatrix}
 \end{bmatrix}
 $$
 
-In content-based filtering, we define the feature set already. $$ x = (romance, action, scifi) $$ and we recall that the rating can be computed as:
+In content-based filtering, we define the feature set $$ x = (romance, action, scifi) $$ and we recall that the rating can be computed as:
 
 $$
 y = w^T x \\
@@ -200,15 +198,39 @@ $$
 
 #### Low rank matrix factorization
 
-We are given a matrix $$Y$$ which the rows represent people and the columns represent products. Low rank matrix factorization means we decompose the matrix $$Y$$ into 2 lower rank matrices: one representing the latent features of a person and the second represent the latent features of a product.
+We are given a matrix $$Y$$ which the rows represent people and the columns represent products. Low rank matrix factorization means we decompose the matrix $$Y$$ into 2 lower rank matrices: one representing the latent features of $$n$$ person and the second represent the latent features of $$m$$ products.
 
 $$
-y \approx w^T_j z_i \\
+y_{ij} \approx w^T_j z_i \\
 $$
+
+$$
+Y = \begin{bmatrix}
+    y_{11} & y_{12} & y_{13}  & ? & ? & \dots  & y_{1m} \\
+    y_{21} & y_{22} & ?  & y_{24} & ? & \dots  & ? \\
+    & & \vdots & \vdots& \ddots & \vdots & \vdots & \\
+    y_{n1} &  ? & y_{n3}  & ? & y_{n5} & \dots  & y_{nm} \\
+\end{bmatrix} \approx 
+\begin{bmatrix}
+    z_{11} & z_{12} & z_{13}  & \dots  & z_{1k} \\
+    z_{21} & z_{22} & z_{23}  & \dots  & z_{2k} \\
+    & & \vdots & \ddots & \vdots & \\
+    z_{n1} & z_{n2} & z_{n3}  & \dots  & z_{nk} \\
+\end{bmatrix} 
+\begin{bmatrix}
+    w_{11} & w_{12} & w_{13}  & \dots  & w_{1k} \\
+    w_{21} & w_{22} & w_{23}  & \dots  & w_{2k} \\
+    & & \vdots & \ddots & \vdots & \\
+    w_{m1} & w_{m2} & w_{m3}  & \dots  & w_{mk} \\
+\end{bmatrix}^T
+$$
+
 
 In collaborative filtering
 
 * We decide the number of latent features to learn. i.e. the dimension of $$w$$ and $$z$$. More latent features helps us to build a more complex model but will be harder to train.
+* Collect data
+	* User data: User ID, Movie ID, Rating
 * Normalize the rating to be zero centered
 
 $$
@@ -246,6 +268,12 @@ We can also adopt a hybrid approach combing both Collaborative filtering and Con
 $$
 \hat{y_{ij}} = w^T_j z_i + w_{j}^Tx_{i} + b + b_i + b_j\\
 $$
+
+#### Explicit vs. implicit feedback
+
+One common approach for the collaborative filtering treats the entries in the user-product matrix as explicit preferences given by the user to a product, for example, users ratings on products. Alternatively, some implicit feedback (like views, clicks, shares etc.) are more widely available. For example in Spark MLlib, it can model collaborative filtering with explicit or implicit feedback. In implicit feedback, MLlib treats the data as the strength of user actions (such as the number of clicks). These numbers are then used in place of the explicit ratings. 
+
+The documentation to create a collaborative filtering using MLlib with explicit and implicit feedback can be found in [https://spark.apache.org/docs/latest/mllib-collaborative-filtering.html]
 
 ### Other recommendation consideration
 
