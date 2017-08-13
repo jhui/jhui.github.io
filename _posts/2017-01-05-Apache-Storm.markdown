@@ -2,7 +2,7 @@
 layout: post
 comments: true
 mathjax: true
-priority: 430000
+priority: 450000
 title: “Apache Storm”
 excerpt: “Apache Storm”
 date: 2017-01-15 12:00:00
