@@ -357,6 +357,74 @@ For $$a=2, b=3$$:
 <img src="/assets/ml/c5.png" style="border:none;width:20%">
 </div>
 
+### Histogram of gradients
+
+#### Preprocessing
+
+Crop and scale the image to a fixed size patch.
+
+<div class="imgcap">
+<img src="/assets/ml/hog.jpg" style="border:none;width:80%">
+</div>
+
+#### Calculate gradient
+
+Calculate the gradient at each pixel by subtracting its vertical or horizontal neighbors.
+
+<div class="imgcap">
+<img src="/assets/ml/grad2.png" style="border:none;width:20%">
+</div>
+
+$$
+\begin{align} 
+g_x & = I_{i, {j+1}} - I_{i, {j-1}} \\
+g_y & = I_{i+1, {j}} - I_{i-1, {j}} \\
+g &= \sqrt{ g_x^2 + g_y^2} \\
+\theta &= \arctan \frac{g_y}{g_x}
+\end{align} 
+$$
+
+The gradient angle $$\theta$$ is from 0 to 360 degree. But we will treat $$\theta$$ in the opposite direction to be the same. Therefore, our gradient angle is from 0 to 180 degree. Experiment indicates it performs better in pedestrian detection. 
+
+$$
+\begin{align} 
+\theta_1 &= \vert \arctan \frac{g_y}{g_x}  \vert  \\
+\theta_2 &=  \vert \arctan \frac{- g_y}{g_x}  \vert =  \vert - \arctan \frac{g_y}{g_x}  \vert =  \vert \arctan \frac{g_y}{g_x}  \vert  \\
+\theta_1 &= \theta_2 \\
+\end{align} 
+$$
+
+We will compute a histogram for each 8x8 image patch. The histogram has 9 bins starting with $$\theta =0 , 20, 40, 60, 80, 100, 120, 140, 160$$. For the first pixel with $$\theta=60, magnitude=10$$, we add 10 into the bin $$60$$. For the second pixel, we have $$\theta=30, magnitude=8$$, this value falls between bin $$20$$ and $$30$$. We will split it proportionally to the distance from the corresponding bin. In this case, half of the value ($$4$$) goes to bin $$20$$ and half goes to bin $$40$$. Will goes through every pixels and add values to the corresponding bins. For each 8x8 image patch, we will have an input features with 9 values.
+
+<div class="imgcap">
+<img src="/assets/ml/hog2.png" style="border:none;width:80%">
+</div>
+
+#### Normalization
+
+Images with different lighting will result in different gradients. We apply normalization so the histogram is not sensitive to lighting.
+
+For each 8x8 patch, we have 9 histogram values, we can normalized each value by the equation below. 
+
+$$
+h_i = \frac{h_i}{\sqrt{ h_1^2 + h_2^2 + \cdots + h_9^2} }
+$$
+
+It can be shown easily that even we double every $$h_i$$, the normalized value remains the same. Hence, we reduce its sensitivity to lighting. We are going to make one more improvement. Instead of normalize every patch, we normalize 4 patches with a sliding window.  In the red rectangle below, it compose of 4 patches (16x16 pixels) corresponding to 4x9 histogram values. We are going to generate 4x9 normalized features as:
+
+$$
+h_i = \frac{h_i}{\sqrt{ h_{11}^2 + \cdots + h_{19}^2 + h_{21}^2 + \cdots + h_{29}^2 + h_{31}^2 + \cdots + h_{39}^2 + h_{41}^2 + \cdots + h_{49}^2} }
+$$
+
+(for $$i = 1, 2, \cdots 36$$)
+
+Next we are sliding the windows by 8 pixels to compute another 4x9 histogram.
+
+<div class="imgcap">
+<img src="/assets/ml/hog3.png" style="border:none;width:80%">
+</div>
+
+
 ### Probabilities
 
 Basic:
