@@ -9,28 +9,29 @@ date: 2017-03-18 14:00:00
 ---
 
 ### What is deep learning (DL)?
-**Deep learning is about building a function estimator.** Historically, people explain deep learning (DL) using the neural network. Here, deep learning gains insight. Nevertheless, deep learning has outgrown this explanation. Once you realize building a deep learning network is about building a function estimator, you will unveil its real potential in Artificial Intelligence (AI).
+**Deep learning is about building a function estimator.** Historically, people explain deep learning (**DL**) using the neural network.  Nevertheless, deep learning has outgrown this explanation. Once you realize building a deep learning network is about building a function estimator, you will unveil its real potential in Artificial Intelligence (AI).
  
-Let’s build a new android named Pieter. Our first task is to teach Pieter to recognize objects visually. Can the human visual system be replaced by a big function estimator? Can we pass the pixel values to a function and classify it as a school bus, an airplane or a truck?
-
-Indeed, in our later example of visual recognition, we will build a system very similar to the following:
+Let’s build a new android named Pieter. Our first task is to teach Pieter to recognize objects. Can the human visual system be replaced by a big function estimator? Can we classify the school bus picture below correctly? 
 <div class="imgcap">
-<img src="/assets/dl/fc.jpg" style="border:none;width:80%;">
+<img src="/assets/dl/fc.jpg" style="border:none;width:90%;">
 </div>
 
-For every node, we compute:
+A deep network composes of layers of nodes. For every nodes in the first hidden layer, we compute the output of the node as:
 
 $$
 z_j = \sum_{i} W_{ij} x_{i} + b_{i}
 $$
 
+where $$ x_{i} $$ is $$ith$$ pixel of the picture. $$W_{ij}$$ and $$b_{i}$$ are parameters for the node $$j$$ in the layer $$i$$. The essence of DL is to learn these parameters from the training dataset. There are one more hidden layer and one output layer in our deep network. We use the same equation to compute a node output with inputs from the previous layer.
+
+Finally, the output node $$y_i$$ is converted to a probability between 0 and 1 using a sigmoid function. In this example, there is a 87% chance that the picture is a school bus.
+ 
 $$
 f(z_j) = \frac{1}{1 + e^{-z_j}}
 $$
 
-where $$ x_{i} $$ is the input pixel values or the inputs to a node.
 
-$$ x_{i} $$ is called the **feature** in deep learning. **A deep network extracts features in the training data to make predictions.** If one of the nodes detects the amount of yellow color, it definitely helps us to differentiate a school bus from a shuttle bus.
+$$ x_{i} $$ in our input layer is called the **feature** in DL. **A deep network extracts features in the training data to make predictions.** For example, one of the nodes may be trained to detect the yellow color. For a yellow school bus, the activation of that node should be high.
 
 > Deep learning has many scary looking equations. We will walk through examples to show how it works. Most of them are pretty simple.
 
@@ -40,14 +41,17 @@ $$
 z_j =  0.3*0.1 + 0.2*0.3 + 0.4*0.2 + 0.3*0.1  - 0.8 = -0.6
 $$
 
+If $$y_1 = 1.9$$ , the chance that the picture is a school bus is
+
 $$
-f(z) =  \frac{1}{1 + e^{-(-0.6)}} = 0.3543
+f(z) =  \frac{1}{1 + e^{-1.9}} = 0.87
 $$
 
-Each node has its own weight (W) and bias (b). From the left most layer, we compute the output of each node and feed it to the next layer. Eventually, the right most layer is the probability for each object classification (a school bus 0.88, an airplane 0.08 or a truck 0.04). In this exercise, we supply all the weight and bias values to our android Pieter. But as the term “deep learning” implies, Pieter will learn those parameters by himself by the end of this tutorial. We still miss a few pieces for the puzzle, but the network diagram and the equations shown above lay down the foundation of a deep learning network. In fact, this simple design can recognize the zip code written on a envelope with very high accuracy.
+Each node has its own weight (W) and bias (b). In this exercise, we supply all the weight and bias values to our android Pieter. But as the term “deep learning” implies, Pieter will learn those parameters by himself by the end of this tutorial. We still miss a few pieces for the puzzle, but the deep network diagram and the equations shown above lay down the foundation of a deep learning network. 
 
 #### XOR
-For the skeptics, we will build an exclusive "or" (a xor b) using a simple network like:
+
+Can a DL model a logical function? For the skeptics, we build an exclusive "or" (a xor b) function using a simple network as follows:
 <div class="imgcap">
 <img src="/assets/dl/xor.jpg" style="border:none;width:40%">
 </div>
@@ -61,9 +65,9 @@ $$
 h_j = \sigma(z) = \frac{1}{1 + e^{-z_j}}
 $$
 
-The following code implementation is self-explanatory. This demonstrates exactly how we do the weight multiplication and apply the sigmoid function. In this program, we use Numpy, a package for scientific computing with Python. It provides the many needed mathematical operations and array manipulations.
+> We provide coding to help the audience to understand the mechanism in details. Nevertheless, a full understanding of this code is not needed.
 
-> We provide coding to help the audience verify their understanding. Nevertheless, a full understanding of this code is not needed or suggested.
+In the program below, we use a Python scientific package called _numpy_ to compute the output of our network. 
 
 ```python
 import numpy as np
@@ -98,21 +102,23 @@ print(" 0 ^ 1 = %.2f" % xor(0, 1))   # 1.00
 print(" 1 ^ 0 = %.2f" % xor(1, 0))   # 1.00
 print(" 1 ^ 1 = %.2f" % xor(1, 1))   # 0.00
 ```
-The XOR output matches its expected logical values:
+
+Our network provides the XOR function as expected:
 ```
  0 ^ 0 = 0.00
  0 ^ 1 = 1.00
  1 ^ 0 = 1.00
  1 ^ 1 = 0.00
 ```
+
 #### Delta function
-Back to basic calculus, a function can be constructed with infinite narrow rectangles (a.k.a. delta function). If we construct such rectangles with a network, we can build on top of it to construct any functions.
+Back to basic calculus, a function can be constructed with infinite narrow rectangles (a.k.a. delta function). If we can construct a delta function with a network, we can construct any functions.
 
 <div class="imgcap">
 <img src="/assets/dl/delta.png" style="border:none;width:50%">
 </div>
 
-Here is the code using the same set of equations and network layout before:
+Here is the code using the same equations and network layout but with different parameters:
 ```python
 import numpy as np
 import matplotlib.pyplot as plt
@@ -138,59 +144,66 @@ y = func_estimator(x)
 plt.plot(x, y)
 plt.show()
 ```
-This code produces an output  shaped like a delta function.
+
+As shown below, this network produces a delta like function when we plot its output.
 <div class="imgcap">
 <img src="/assets/dl/delta_func.png" style="border:none;width:50%">
 </div>
 
-Implementing an XOR or a delta function is not important for deep learning (DL). Nevertheless, we demonstrate the possibilities of building a complex function estimator through a network of simple computation nodes. A three-layer network can implement a hand written recognition system for numbers with an accuracy of 95+%. **The deeper a network; the more complex it is.** For example, Microsoft ResNet (2015) for visual recognition contains 151 layers. Many modern models include 10 million tunable parameters. For many AI problems, the model needed to solve the problem is very complex. In autonomous driving, we can model a policy (turn, accelerate, or brake) to approximate what a human will do based on what they see in front of them. This policy is too difficult to model analytically. Alternatively, a deep learning network can be trained well enough to approximate the accuracy of a regular driver.
+Implementing an XOR or a delta function is not important for DL. Nevertheless, we demonstrate the possibilities of building a complex function estimator through a network of simple computation nodes. A three-layer network can recognize hand written numbers with an accuracy of 95+%. **The deeper a network; the more complex it is.** For example, Microsoft ResNet (2015) for visual recognition contains 151 layers with million trainable parameters. For many problems, the model behind them are very complex. In autonomous driving, we can model a policy (turn, accelerate, or brake) to imitate what a human do based on what they see. This policy is too difficult to model analytically. Alternatively, a deep learning network can be trained well enough to make similar actions as real drivers.
 
-> If we cannot solve a problem analytically, then train a model empirically.
+> **If we cannot solve a problem analytically, then train a model empirically.**
 
 <div class="imgcap">
 <img src="/assets/dl/drive.jpg" style="border:none;width:80%">
 </div>
 
-> Autonomous driving involves many aspects of AI. DL provides a model estimator that cannot be created analytically.
+> Autonomous driving involves many aspects of AI. DL provides a model estimator for what actions to take which cannot be created analytically.
 
 ### Build a Linear Regression Model
-**Deep learning acquires its knowledge from training data.** We will demonstrate how Pieter learns the model parameters $$W$$ by processing training data. For example, Pieter wants to expand his horizon and start online dating. He wants to determine the relationship between the number of online dates and the years of education and the monthly income. Pieter starts with a simple linear model as follows:
+**Deep learning acquires its knowledge from training data.** Pieter learns the model parameters $$W$$ by processing training data. For another example, Pieter wants to expand his horizon and start online dating. He wants to determine the relationship between the number of online dates with the years of education and the monthly income with a simple linear model as follows:
+
+$$
+dates = W_1* \text{years in school} + W_2*\text{monthly income} + b
+$$
+
+He surveys 1000 people on their income, education and their number of online dates. The output values (the number of dates) in the training dataset are called the **true values or true labels**. Pieter wants to know how people value intellectual versus his humble post-doc salary. The task for Pieter is to find the parameters $$W$$ and $$b$$ using the training data collected by him.
+
+The steps include:
+1. Take the first guess on W and b.
+2. Use the model to compute the number of dates for each sample in the training dataset.
+3. Compute the mean square error between the computed value and the true value in the dataset.
+4. Compute how the error changes with W and b.
+5. Re-adjust W & b according to this error rate change. (**Gradient descent**)
+6. Back to step 2 for N iterations.
+7. Use the last value of W & b for our model.
+
+Eventually, $$W$$ and $$b$$ converge to stable values that can be used in our model to compute the number of dates.
 
 $$
 \text {number of dates} = W_1* \text{years in school} + W_2*\text{monthly income} + bias
 $$
 
-He surveys 1000 people in different communities and collects the information on their income, education and their number of online dates. Pieter wants to know how each community values intellectual versus his humble post-doc salary. So, even though this model looks overwhelmingly simple, it serves its purpose. So, the task for Pieter is to find the parameter values W and b in this model using the training data collected by him.
-
-The steps include:
-1. Take the first guess on W and b.
-2. Use the model to predict the number of dates for each sample in the training dataset.
-3. Compute the mean square error between the computed value and the true value in the dataset.
-4. Compute how much the error will change when we change W and b.
-5. Re-adjust W & b according to this error rate change. (**Gradient descent**)
-6. Back to step 2 for N iterations.
-7. Use the last value of W & b for our model.
-
-We build a model for each community and use these models to predict how well Pieter may do in each community. In our model, we predict the number of dates for people with certain income and years of education. The corresponding values (the number of dates) in the training dataset are called the **true values or true labels**.
-
 ### Gradient descent
-**Deep learning is about learning how much it costs.** Step 2-5 is called the gradient descent in DL. We define a function to measure errors between our model and the true values. In DL, this error function is called **cost function** or **loss function**. Mean square error (MSE) is one obvious candidate.
+**Deep learning is about learning how much it costs.** Step 2-5 is called the gradient descent in DL. We need a function to measure how good our model is. In DL, it is called **cost function** or **loss function**. It measures the difference between our model and the real world. Mean square error (MSE) between the true labels and the predicted values is one obvious candidate.
 
 $$
-\text{mean square error} = J(h, y, W, b) = \frac{1}{N} \sum_i (h_i - y_i)^2
+MSE= J(h, y, W, b) = \frac{1}{N} \sum_i (h_i - y_i)^2
 $$
 
-where $$ h_i $$ is the model prediction and $$ y_i $$ is the true value for sample $$ i $$. We add all the samples and take the average. We can visualize the cost below with x-axis being $$ W_1 $$ and y-axis being $$ W_2 $$ and z-axis being the cost J. The solution of our model is to find $$ W_1 $$ and $$ W_2 $$ where the cost is lowest. We can visualize this as dropping a marble at a random point $$ (W_1, W_2) $$ and then let gravity do its work.. 
+where $$ h_i $$ is the model prediction and $$ y_i $$ is the true value for sample $$ i $$. We add all the sample errors and take the average. We can visualize the cost below with x-axis being $$ W_1 $$, y-axis being $$ W_2 $$ and z-axis being the cost $$J$$. We need to optimize $$ W_1 $$ and $$ W_2 $$ such that the cost is the lowest. The mechanism is similar to dropping a marble at a random point $$ (W_1, W_2) $$ and let gravity do its work.
 
 <div class="imgcap">
 <img src="/assets/dl/solution2.png" style="border:none;">
 </div>
 
-> Optimizing a deep network means finding all the W W , b b and other tunable parameters to minimize cost.
+There are different cost functions with different objectives and solutions. Some functions are easier to optimize and some may be less sensitive to outliers. Nevertheless, **finding a cost function is one critical factor in building a DL.**
+
+> Optimizing $$W$$ means finding these trainable parameters in minimizing cost.
 
 ### Learning rate
 
-Thinking in 3D or high dimensions is difficult, if not impossible. Try to think of DL problems in 2D first. Consider a point at (L1, L2) where we cut through the diagram along the blue and orange line then plot those curves in a 2D diagram.
+Thinking in 3D or high dimensions is difficult, if not impossible. Try to think of DL problems in 2D first. Consider a point at (L1, L2) where we cut through the diagram along the blue and orange line, then we plot those curves in a 2D diagram.
 <div class="imgcap">
 <img src="/assets/dl/solution_2d.jpg" style="border:none;">
 </div>
@@ -199,13 +212,9 @@ Thinking in 3D or high dimensions is difficult, if not impossible. Try to think 
 <img src="/assets/dl/gd.jpg" style="border:none;">
 </div>
 
-The x-axis is $$ W $$ and the y-axis is the cost. Since we are holding $$ W_{2} $$ as a constant, we can ignore it in the equation below to simplify the discussion.
+The x-axis is $$ W $$ and the y-axis is the cost. For the orange line and blue line, we hold $$ W_{2} $$ and $$ W_{1} $$ constant respectively. 
 
-$$
-J(W, b, h, y) = \frac{1}{N} \sum_i (W_1*x_i - y_i)^2
-$$
-
-**Training a model with gradients**. Since the gradient at L1 is negative, we move $$ W_1 $$ to the right to find the lowest point. But by how much? L2 has a smaller gradient than L1. So, changing $$ W2 $$ has a smaller impact on cost in comparison to L1. Obviously, we should update a parameter proportional to its impact. Therefore, adjustment for $$ (W_1, W_2) $$ is proportional to its partial gradient at that point. i.e.
+**Training a model with gradients**. To lower cost, we move $$ L_1 $$ to the right to find the lowest cost. But by how much? L2 has a smaller gradient than L1. i.e. the cost drop faster alone $$ W_1$$ than $$W_2$$. Like dropping a ball at (L1, L2), we expect the ball drops faster in the $$ W_1$$ direction. Therefore, adjustment for $$ (W_1, W_2) $$ should be proportional to its partial gradient at that point. i.e.
 
 $$
 \Delta W_i \propto \frac{\partial J}{\partial W_i} 
@@ -215,7 +224,7 @@ $$
 \text{ i.e. } \Delta W_1 \propto \frac{\partial J}{\partial W_1} \text{ and } \Delta W_2 \propto \frac{\partial J}{\partial W_2}
 $$
 
-Add a ratio value, the adjustments to $$W$$ are:
+Add a ratio value $$\alpha$$, the adjustments to $$W$$ becomes:
 
 $$
 \Delta W_i = \alpha \frac{\partial J}{\partial W_i}
@@ -225,30 +234,27 @@ $$
 W_i = W_i - \Delta W_i
 $$
 
-The variable $$ \alpha $$ is called the **learning rate**.  **A small learning rate learns slowly.** A small learning rate takes a longer time or more iterations to locate the minimum. However, as we learn in calculus, a larger step results in a larger error in the calculation. In DL, finding the right value for the learning rate is a trial and error exercise. We usually try values ranging from 1e-7 to 1 in logarithmic scale (1e-7, 5e-7, 1e-6, 5e-6, 1e-5 …), but this depends on the problem you are solving. Other parameters such as learning rate  need to be tuned. We call all these parameters **"hyperparameters"**.
+At L1, the gradient is negative and therefore we are moving $$W_1$$ to the right. The variable $$ \alpha $$ is called the **learning rate**.  **A small learning rate learns slowly.** A small learning rate changes $$W$$ slowly and takes more iterations to locate the minimum. However, the gradient is less accurate when we use a larger step. In DL, finding the right value for the learning rate is a trial and error exercise. We usually try values ranging from 1e-7 to 1 in logarithmic scale (1e-7, 5e-7, 1e-6, 5e-6, 1e-5 …), but this depends on the problem you are solving. Parameters such as learning rate need to be tuned. We call all these tunable parameters **"hyperparameters"**.
 
 A large learning step may have other serious problems. It costs $$w$$ to oscillate with increasing cost:
 <div class="imgcap">
 <img src="/assets/dl/learning_rate.jpg" style="border:none;">
 </div>
 
-We start with w = -6 (x-axis) at L1. If the gradient is huge, the learning rate is larger than a certain value and will swing $$w$$ too far to the other side (say L2) creating an even larger gradient. Eventually, rather than dropping down slowly to a minimum, $$w$$ oscillates and the cost increases. When loss keeps going upward, we need to reduce the learning rate. The following demonstrates how a learning rate of 0.8 with a steep gradient swings the cost upward instead of downward. The table traces how the oscillation of W causes the cost to go upwards from L1 to L2 and then L3.
+Let's start with w = -6 (x-axis) at L1. If the gradient is huge and the learning rate is large, $$w$$ will swing too far to the right (say L2) that may even have a larger gradient. Eventually, rather than dropping down slowly to a minimum, $$w$$ oscillates upward with higher cost. The following demonstrates how the cost moves upward instead of downward from L1 to L2.
 
 <div class="imgcap">
 <img src="/assets/dl/lr_flow.png" style="border:none;">
 </div>
 
-> We need to be careful about the scale used for the x-axis and y-axis. In the diagram above, the gradient does not look steep because we have a much smaller scale for y-axis is 0 to 150 while the x-axis is -10 to 10.
 
-**A large learning rate overshoots your target.** Here is another illustration of some real problems. When we gradually descend, we may land in an area with a steep gradient in which the $$W$$ bounces back. With this shape it is very difficult to find the minimum with a constant learning rate. Advanced methods to address this problem will be discussed later.
+**A large learning rate overshoots your target.** Here is another illustration on some real life problems. When we gradually descend on a slope, we may land in an area with a steep gradient in which bounces $$W$$ all the way back. It is very difficult to find the minimum with a constant learning rate with this kind of cost function shape. Advanced methods to address this problem will be discussed later.
 
 <div class="imgcap">
 <img src="/assets/dl/ping.jpg" style="border:none;">
 </div>
 
 This example is dramatic, but real. But in a lesser extent, instead of settling down at the bottom, $$ W $$ oscillates around the minimum slightly. If we drop a ball in the Grand Canyon, we expect it to land in the bottom. In DL, this is more difficult.
-
-> Adjusting learning rate with better optimization techniques is heavily studied and is still in active research for very complex problems.
 
 #### Naive gradient checking
 There are many ways to compute a partial derivative. One naive but important method is using the simple partial derivative definition.
@@ -274,13 +280,13 @@ We never use this method in production; however, computing partial derivative is
 
 #### Mini-batch gradient descent
 
-When computing the cost function, we can add all the errors for the entire training dataset. This takes too much time for just one update in one iteration. On the contrary, we can perform stochastic gradient descent which makes one $$W$$ update per training sample. Nevertheless, the gradient descent will follow a zip zap pattern rather than follow the curve of the cost function. This can be a problem if you land in a steep gradient area where the parameters bounce to an area with a high cost. Stochastic gradient descent takes longer and may zip zag around the minimum rather than converge to it. 
+When computing the cost function, we add all the errors for the entire training dataset. This takes too much time for just one update in one iteration. On the contrary, we can perform stochastic gradient descent which makes one $$W$$ update per training sample. Nevertheless, the gradient descent will follow a zip zap pattern rather than follow the curve of the cost function. This can get worse if you land in a steep gradient area where parameters may oscillate. Stochastic gradient descent takes longer and may zip zag around the minimum rather than settle down to its minimum. 
 
 <div class="imgcap">
 <img src="/assets/dl/solution3.png" style="border:none;">
 </div>
 
-A good compromise is to process a batch of N samples at a time. N is a tunable hyperparameter, but usually is not very critical. We can start with 64 which is subject to the memory consumptions.
+A good compromise is to process a batch of N samples at a time. N is a tunable hyperparameter, but usually not very critical. We can start with 64 subject to the memory consumptions.
 
 $$
 J = \frac{1}{N} \sum_i (W_1*x_i - y_i)^2
@@ -289,7 +295,7 @@ $$
 If the cost is very small, we may use the total cost rather than the average cost to make a more precise  in the floating point math for the derivative.
 
 ### Backpropagation
-**Backpropagate your loss to adjust W.** To compute the partial derivatives, $$ \frac{\partial J}{\partial W_i} $$, we can start from each node in the left most layer and propagate the gradient until it reaches the rightmost layer. Then, we move to the next layer and start the process again. For a deep network, this is very inefficient. To compute the partial gradient efficiently, we perform a forward pass and a backpropagation.
+**Backpropagate your loss to adjust W.** To compute the partial derivatives, $$ \frac{\partial J}{\partial W_i} $$, we can start from each node in the left most layer and propagate the gradient forward until it reaches the rightmost layer. Then, we move to the next layer and start the process again. For a deep network, this is very inefficient. To compute the partial gradient efficiently, we perform a forward pass and compute the gradient by a backpropagation.
 
 #### Forward pass
 First, we compute the cost of a forward pass:
@@ -297,9 +303,9 @@ First, we compute the cost of a forward pass:
 <img src="/assets/dl/fp.jpg" style="border:none;width:80%">
 </div>
 
-> Keep track of the naming of your input and output, its **shape** (dimension) and the equations. This is one great tip when you program DL. (N,) means a 1-D array with N elements. (N,1) means a 2-D array with N rows each containing 1 element. (N, 3, 4) means a 3-D array.
+> Keep track of the naming of your input and output as well as its **shape** (dimension) and the equations. This is one great tip when you program DL. (N,) means a 1-D array with N elements. (N,1) means a 2-D array with N rows each containing 1 element. (N, 3, 4) means a 3-D array.
 
-This method “forward” computes the equation below:
+The method _forward_ computes the forward pass for:
 
 $$
 out = W_1* X_1 + W_2*X_{2} + b
@@ -311,7 +317,7 @@ def forward(x, W, b):
     # W: Weight (2,)
     # b: bias float
     # out: (N,)
-    out = x.dot(W) + b        # Multiple X with W + b: (N, 2) * (2,) -> (N,)
+    out = x.dot(W) + b        # X * W + b: (N, 2) * (2,) -> (N,)
     return out
 ```
 
@@ -535,7 +541,7 @@ print(f"b = {b}")
 
 ### General principle in backpropagation
 
-The machine learning library provides pre-built layers with feed forward and backpropagation. Many DL class assignments spend a large amount of time in backpropagation. With vectorization and some ad hoc functions, the process is error prone, but not necessarily difficult. Let’s summarize the above steps above with some good tips.
+With vectorization and some ad hoc functions, the process can be error prone, but not necessarily difficult. Let’s summarize the above steps above with some good tips.
 
 > Draw the forward pass and backpropagation pass with clear notification of variables that we used in the program. Add functions, derivatives and the shape for easy reference.
 
@@ -577,7 +583,7 @@ $$
 \frac{\partial out}{\partial b}  = 1
 $$ 
 
-Find the total gradient with the chain rule from right to left:
+Find the gradient by applying the chain rule from right to left:
 
 $$
 \frac{\partial J}{\partial l_{k-1}} = \frac{\partial J}{\partial l_{k}} \frac{\partial l_k}{\partial l_{k-1}}  
@@ -601,7 +607,9 @@ $$
 \text{dW} = \text{dl1} \cdot \frac{\partial f_{1}}{\partial W}  
 $$ 
 
-**Know the shape (dimension) of your variables.** Put the function derivative in the diagram. Always make the shape (dimension) of the variables clear in the diagram and in the code. Use this information to build and  verify your math operations. For example, multiplying a (N, C, D) matrix with a (D, K) matrix should produce a (N, C, K) matrix. Vectorization may confuse you. Expand the equation with sub-indexes with only a couple of weights and features in order to work through the math.
+**Know the shape (dimension) of your variables.** Put the function derivative in the diagram. Always make the shape (dimension) of the variables clear in the diagram and in the code. Use this information to verify your math operations. For example, multiplying a (N, C, D) matrix with a (D, K) matrix should produce a (N, C, K) matrix. Vectorization may confuse you. Expand the equation with sub-indexes with only a couple of weights and features so you can work through the math.
+
+> Many deep learning software platforms provide pre-built layers with feed forward and backpropagation.
 
 #### More on backpropagation
 
@@ -620,7 +628,7 @@ $$
 
 ### Testing the model
 
-I strongly recommend that you think about a linear regression problem that interests you and train a simple model. A lot of issues occur in a complex model and will also show up in a simple model. With a complex model, you treat it as a black box.Many actions are purely random guesses. Working with a model designed by yourself, you create better scenarios to test your theories and develop a better insight in DL. Most tutorials have pre-cooked parameters. They teach you the easier part without having you struggle on the hard part.
+I strongly recommend you to implement a linear regression model that interests you. A lot of issues occur in a complex model will also show up in a simple model. With a complex model, you treat it as a black box. Many actions are purely random guesses. Working with a model designed by yourself, you create better scenarios to test your theories and develop a better insight in DL.
 
 So, let Pieter train the system.
 ```
@@ -629,14 +637,14 @@ iteration 200: loss=3.899e+292 W1=-3.741e+140 dW1=4.458e+147 W2=-1.849e+143 dW2=
 iteration 400: loss=inf W1=-1.39e+284 dW1=1.656e+291 W2=-6.869e+286 dW2=8.184e+293 b= -1.04e+283 db = 1.24e+290
 iteration 600: loss=nan W1=nan dW1=nan W2=nan dW2=nan b= nan db = nan
 ```
-The application overflows within 600 iterations! Since the loss and the gradient are so high, we test whether the learning rate is too high. We decrease the learning rate to 1e-8.We do not have the overflow problem, but the loss remains high.
+The application overflows within 600 iterations! Since the loss and the gradient are so high, we test whether the learning rate is too high. We decrease the learning rate to 1e-8. We do not have the overflow problem, but the loss remains high.
 ```
 iteration 90000: loss=4.3e+01 W1= 0.23 dW1=-1.3e+02 W2=0.0044 dW2= 0.25 b= 0.0045 db = -4.633
 W = [ 0.2437896   0.00434705]
 b = 0.004981262980767952
 ```
 
-We are reluctant to take actions without information. However, since the application runs fast, we will give it one more try . With 10,000,000 iterations and a learning rate of 1e-10, the loss remains very high. It will be better to trace the source of problem now.
+With 10,000,000 iterations and a learning rate of 1e-10, the loss remains very high. It will be better to trace the source of problem now.
 
 ```
 iteration 9990000: loss=3.7e+01 W1= 0.22 dW1=-1.1e+02 W2=0.0043 dW2= 0.19 b= 0.0049 db = -4.593
@@ -646,7 +654,7 @@ b = 0.004940551119084607
 
 > Tracing gradient is a powerful tool in DL debugging.
 
-Even the loss shows similar symptoms such as a bad learning rate, We suspect this is not the root cause. After some tracing, we realize the gradient is very high. We plot the cost function relative to $$W$$ to illustrate the real issue.
+Even the loss shows symptoms of a bad learning rate, We suspect this is not the root cause. After some tracing, we realize the calculated gradient is very high. We plot the cost function relative to $$W$$ to illustrate the real issue.
 
 This is a U shape curve that is different from a bowl shape curve that we used in the gradient descent explanation. 
 <div class="imgcap">
@@ -657,7 +665,7 @@ This is a U shape curve that is different from a bowl shape curve that we used i
 <img src="/assets/dl/solution.png" style="border:none;width:50%">
 </div>
 
-The y-axis is $$ W_2 $$ (monthly income) and the x-axis is $$ W_1$$ (years of education). Cost responses are more aggressive with $$ W_2 $$ than $$ W_{1} $$. Monthly income ranges from 0 to 10,000 and years of education range from 0 to 30. Obviously, the different scale in these two features causes a major difference in its gradient. Because of the different scale, we cannot have a single learning rate that works well for both of them. The solution is pretty simple with a couple line of code changes. We re-scale the income value.
+The y-axis is $$ W_2 $$ (monthly income) and the x-axis is $$ W_1$$ (years of education). Cost responses more aggressive with $$ W_2 $$ than $$ W_{1} $$. Monthly income ranges from 0 to 10,000 and years of education range from 0 to 30. Because of the different scale, we cannot have a single learning rate that works well for both of them. The solution is pretty simple with a couple line of code changes. We re-scale the income value which is now range from 0 to 10 (Unit 1,000).
 
 ```python
 def true_y(education, income):
@@ -669,7 +677,7 @@ def true_y(education, income):
 income = np.random.randint(10, size=education.shape[0]) # (N,) Generate the corresponding income.
 ```
 
- Here is the output which is close to our true model:
+ Here is the output after 90K iterations which is close to our true model:
 ```
 iteration 0: loss=518.7 W1=0.1624 dW1=-624.5 W2=0.3585 dW2=-2.585e+03 b= 0.004237 db = -42.37
 iteration 10000: loss=0.4414 W1=0.8392 dW1=0.0129 W2=0.3128 dW2=0.004501 b= 0.5781 db = -0.4719
@@ -726,8 +734,8 @@ Adding both output:
 
 Adding a non-linear function after a linear equation enriches the complexity of our model. These methods are called **activation functions**. Common functions are tanh and ReLU.
  
-#### Sigmoid
-Sigmoid is one of the earliest functions used in deep networks. Nevertheless, as an activation function, its importance has gradually been replaced by other functions like ReLU. Currently, the sigmoid function is more popular as a gating function in LSTM/GRU (an “on/off” gate) to selectively remember or forget information. The discussion of a sigmoid function often acts as a showcase of explaining issues with deep networks.
+#### Sigmoid function
+Sigmoid function is one of the earliest functions used in deep networks. Nevertheless, as an activation function, its importance has gradually been replaced by other functions like ReLU. Currently, the sigmoid function is more popular as a gating function in LSTM/GRU (an “on/off” gate) to selectively remember or forget information. The discussion of a sigmoid function often acts as a showcase of explaining issues with deep networks.
 
 <div class="imgcap">
 <img src="/assets/dl/sigmoid.png" style="border:none;width:50%">
@@ -751,13 +759,13 @@ tanh is similar to sigmoid but the output is within [-1, 1] instead of [0, 1].
 <img src="/assets/dl/tanh.png" style="border:none;width:50%">
 </div>
 
-As mention before, we want the gradient descent to follow the curve of the cost function but not in some zip zap pattern. For the sigmoid function, the output value is always positive (between 0 and 1).  According to the formula below, the sign for the gradient for $$W$$ subjects to the sign of $$  \frac {\partial J}{\partial l_{k+1}} $$ because $$X$$ is always positive in a sigmoid layer output. So the derivatives for this layer are either all positive or all negative. Instead of following the curve, all $$ W $$ in this layer move in the same direction in a zip zap pattern. 
+As mention before, we want the gradient descent to follow the curve of the cost function but not in some zip zap pattern. For the sigmoid function, the output value is always positive (between 0 and 1). According to the formula below, the sign for the gradient for $$W$$ subjects to the sign of $$  X \cdot \frac {\partial J}{\partial l_{k+1}} $$. Because $$X$$ is always positive in a sigmoid layer output, the derivatives for this layer are either all positive or all negative. 
 
 $$
 \frac {\partial l_{k}}{\partial W} = X \cdot \frac {\partial J}{\partial l_{k+1}} 
 $$
 
-Since tanh has both positive and negative outputs, tanh does not have this problem as sigmoid.
+Instead of following the curve, all $$ W $$ in this layer move in the same direction in a zip zap pattern. Since tanh has both positive and negative outputs, tanh does not have this problem as sigmoid.
 
 Numpy provides all API to implement these functions.
 ```python
@@ -790,7 +798,6 @@ y = tanh(x)
 plt.plot(x, y)
 plt.axhline(y=0, color="0.8")
 plt.show()
-
 ```
 
 ### Feed forward and backpropagation with sigmoid or ReLU
@@ -1040,7 +1047,9 @@ We plot the predicted values with the true values. (The values derived from our 
 
 > Congratulations! We just solved a problem using deep learning!
 
-The code looks simple and easy. When we solve couple visual recognition problems later, you will realize that the codes are almost the same. We prefer to keep things simple now so we can play with the model. For real problems,  we will have a couple dozen input features, and add more fully-connected layers (FC). For visual recognition, we convert the 2-D image into a 1-D array and feed it to an FC network. In practice, we add convolution layers (CNN) in front of the FC to push the accuracy higher. Fortunately, FC and CNN share many common techniques, and we will continue our discussion with simpler models.
+The code looks simple and easy. When we solve couple visual recognition problems later, you will realize that the codes are almost the same. We prefer to keep things simple now so we can play with the model. For real problems,  we will have much more input features with a few more fully-connected layers (FC). 
+
+For visual recognition, we convert the 2-D image into a 1-D array and feed it to an FC network. In practice, we add convolution layers (CNN) in front of the FC to push the accuracy higher. Fortunately, FC and CNN share many common techniques, and we will cover CNN in another article.
 
 Now, we increase the number of hidden layers back from 2 to 4. Our prediction accuracy drops. It takes more training time and tuning. When we plot it in 3D with variable income and education, some part of the 2D plain is bent instead of flat.
 <div class="imgcap">
@@ -1051,7 +1060,7 @@ Now, we increase the number of hidden layers back from 2 to 4. Our prediction ac
 <img src="/assets/dl/fc_4l2.png" style="border:none;width:60%">
 </div>
 
-When we create the training dataset, we add some noise to our true value (# of dates). When we have a complex model, it increases its capability to model the noise also. If we have a large dataset, the effect of noise should cancel out. However, if the training dataset is not big enough and the model is complex, the accuracy suffers in comparison to the simpler model. In this exercise, when we increase the model complexity, it gets more difficult to train and optimize, and the accuracy drops. In general, we start with a simple model and increase its complexity later. It is hard to tell whether we need more tuning/iterations or if it is simply not working if we jump into a complex model too soon.
+When we create the training dataset, we add some noise to our true value (# of dates). When we have a complex model, it increases its capability to model the noise also. If we have a large dataset, the effect of noise should cancel out. However, if the training dataset is not big enough, the accuracy suffers in comparison to the simpler model. In this exercise, when we increase the model complexity, it gets more difficult to train and optimize, and the accuracy drops. As a general practice, we start with a simple model and gradually increase its complexity. It is hard to start with a complex model when you have to deal with debugging and tuning at the same time. 
 
 ```python
 def sample(education, income, verbose=True):
@@ -1069,7 +1078,7 @@ For completeness, we replace our ReLU function with a sigmoid function and plot 
 <img src="/assets/dl/fc_si2.png" style="border:none;width:60%">
 </div>
 
-Below is one of the model generated. Because we start with random guess of $$ W $$, we end up with models with different ||W|| for each run.
+Below is one of the model generated. Because we start with random guess of $$ W $$, we end up with models with different $$W$$ for each run.
 ```
 Layer 1:
       [[ 1.10727659,  0.22189273,  0.13302861,  0.2646622 ,  0.2835898 ],
