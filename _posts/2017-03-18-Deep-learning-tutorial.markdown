@@ -1051,7 +1051,7 @@ The code looks simple and easy. When we solve couple visual recognition problems
 
 For visual recognition, we convert the 2-D image into a 1-D array and feed it to an FC network. In practice, we add convolution layers (CNN) in front of the FC to push the accuracy higher. Fortunately, FC and CNN share many common techniques, and we will cover CNN in another article.
 
-Now, we increase the number of hidden layers back from 2 to 4. Our prediction accuracy drops. It takes more training time and tuning. When we plot it in 3D with variable income and education, some part of the 2D plain is bent instead of flat.
+Now, we increase the number of hidden layers back from 2 to 4. Do we improve the accuracy? In fact, our prediction accuracy drops. The training takes more iterations and tuning. When we plot it in 3D with variable income and education, some part of the 2D plain is bent instead of flat.
 <div class="imgcap">
 <img src="/assets/dl/fc_4l.png" style="border:none;width:60%">
 </div>
@@ -1060,7 +1060,7 @@ Now, we increase the number of hidden layers back from 2 to 4. Our prediction ac
 <img src="/assets/dl/fc_4l2.png" style="border:none;width:60%">
 </div>
 
-When we create the training dataset, we add some noise to our true value (# of dates). When we have a complex model, it increases its capability to model the noise also. If we have a large dataset, the effect of noise should cancel out. However, if the training dataset is not big enough, the accuracy suffers in comparison to the simpler model. In this exercise, when we increase the model complexity, it gets more difficult to train and optimize, and the accuracy drops. As a general practice, we start with a simple model and gradually increase its complexity. It is hard to start with a complex model when you have to deal with debugging and tuning at the same time. 
+When we create the training dataset, we add some noise to our true value (# of dates). When we have a complex model, it increases its capability to model the noise also. If we have a large dataset, the effect of noise should cancel out. However, if the training dataset is not big enough, the accuracy suffers in comparison to the simpler model. In this exercise, when we increase the model complexity, the model is harder to train, and the accuracy drops. As a general practice, we start with a simple model and gradually increase its complexity. It is hard to start with a complex model when you have to deal with debugging and tuning at the same time. 
 
 ```python
 def sample(education, income, verbose=True):
@@ -1068,6 +1068,8 @@ def sample(education, income, verbose=True):
     noise =  dates * 0.15 * np.random.randn(education.shape[0]) # Add some noise to our true model.
     return dates + noise
 ```
+
+> If you have limited training data, a complex model hurts the accuracy.
 
 For completeness, we replace our ReLU function with a sigmoid function and plot the same diagram:
 
@@ -1078,7 +1080,7 @@ For completeness, we replace our ReLU function with a sigmoid function and plot 
 <img src="/assets/dl/fc_si2.png" style="border:none;width:60%">
 </div>
 
-Below is one of the model generated. Because we start with random guess of $$ W $$, we end up with models with different $$W$$ for each run.
+Below is one of the model generated. Because we start with a random guess of $$ W $$, we end up with models with different $$W$$ for each run. i.e. our solution is not unique.
 ```
 Layer 1:
       [[ 1.10727659,  0.22189273,  0.13302861,  0.2646622 ,  0.2835898 ],
@@ -1106,7 +1108,7 @@ Layer 4:
        [ 0.07363663]])]
 ```
 
-In the first part of the tutorial, we finish a FC network using a very simple problem. But it allows us to play with it, and learns better insight. Almost the same code and techniques applies to a real problem, so it does not hurt either. Nevertheless, training a deep network is not simple. In the second part of the tutorial, we cover the critical DL issues and its resolutions. We will also put things together with 2 visual recognition problems.
+In the first part of the tutorial, we finish a FC network solving a simple problem. It allows us to play with it, and learns better insight. Almost the same code and techniques applies to real life problems. Nevertheless, training a deep network is not simple. In the second part of the tutorial, we cover the critical DL issues and its resolutions. We will also put things together with 2 visual recognition problems.
 
 [Part 2 of the deep learning can be found here.](https://jhui.github.io/2017/03/17/Deep-learning-tutorial-2/)
 
