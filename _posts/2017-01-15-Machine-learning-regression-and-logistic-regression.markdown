@@ -246,7 +246,7 @@ $$
 Besides using L-1 as the error cost, L1-norm can be added to the cost function as a regularization, the optimal solution $$w^*$$ for the L1 regularization usually push some of the $$w_i$$ to be exactly 0. 
 
 <div class="imgcap">
-<img src="/assets/ml/l1.png" style="border:none;width:40%">
+<img src="/assets/ml/L1.png" style="border:none;width:40%">
 </div>
 
 >  L1-norm or L1 regularization promotes sparsity for $$w$$ which can be desirable to avoid overfitting in particular when we have too many input features. Alternatively, L1-norm can be used for feature selection by eliminate features with $$ w_i=0 $$.
@@ -661,17 +661,12 @@ $$
 
 > Softmax is the most common classifier among others. 
 
-Softmax cost function defined as the NNL:
+Softmax cost function defined as the NLL:
 
 $$
 \begin{align}
-J(w) &= - \left[ \sum_{i=1}^{N}  \log p(\hat{y} = y \vert x^i, w ) \right]
-\end{align}
-$$
-
-$$
-\begin{align}
-\nabla_{score_{j}} J = \begin{cases}
+J(w) &= - \left[ \sum_{i=1}^{N}  \log p(\hat{y} = y \vert x^i, w ) \right] \\
+\nabla_{score_{j}} J &= \begin{cases}
                         p - 1 \quad & \hat{y_j} = y \\
                         p & \text{otherwise}
                     \end{cases}

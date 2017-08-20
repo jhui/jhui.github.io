@@ -1108,7 +1108,7 @@ Layer 4:
        [ 0.07363663]])]
 ```
 
-In the first part of the tutorial, we finish a FC network solving a simple problem. It allows us to play with it, and learns better insight. Almost the same code and techniques applies to real life problems. Nevertheless, training a deep network is not simple. In the second part of the tutorial, we cover the critical DL issues and its resolutions. We will also put things together with 2 visual recognition problems.
+In the first part of the tutorial, we finish a FC network solving a simple problem. It allows us to play with it, and learns better insight. Almost the same code and techniques applies to real life problems. Nevertheless, training a deep network is not simple. In the second part of the tutorial, we covers those critical DL issues and find the corresponding resolutions. We will also put things together with 2 visual recognition problems.
 
 [Part 2 of the deep learning can be found here.](https://jhui.github.io/2017/03/17/Deep-learning-tutorial-2/)
 
