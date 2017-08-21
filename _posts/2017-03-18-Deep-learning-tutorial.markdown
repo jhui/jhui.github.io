@@ -276,7 +276,7 @@ def gradient_check(f, x, h=0.00001):
 f = lambda x: x**2
 print(gradient_check(f, 4))
 ```
-We never use this method in production; however, computing partial derivative is tedious and error prone. We use the naive method to verify a partial derivative implementation during development.
+We never use this method in production; however, computing partial derivative is tedious and error prone. We use the naive method to verify a partial derivative implementation during development. We compute the relative error $$\frac{error}{\text{gradient value}}$$ between the naive gradient checking and our implementation to determine the accuracy.
 
 #### Mini-batch gradient descent
 
@@ -742,7 +742,7 @@ Sigmoid function is one of the earliest functions used in deep networks. Neverth
 </div>
 
 #### ReLU
-ReLU is one of the most popular activation functions. Its popularity arrives because it works better with gradient descent. It performs better than the sigmoid function because the sigmoid node saturates easily and works less efficiently with gradient descent. (The reasons why some functions work better in gradient descent will be explained later.)
+ReLU is one of the most popular activation functions. It converges faster to the optimized solution because it is less easy to  saturated comparing with sigmoid or tanh. The gradient in saturated regions are close to 0.  Gradient descent (discuss in detail later) depends on gradient to train $$W$$. If it is too small, $$W$$ learns slowly. Also computing ReLU is simple without expensive exponential function. 
 
 $$
 y = max(0, x)
@@ -751,6 +751,24 @@ $$
 <div class="imgcap">
 <img src="/assets/dl/relu.png" style="border:none;width:50%">
 </div>
+
+> ReLU is most common comparing with other activation functions
+
+#### Leaky ReLU
+
+However, ReLU does have its disadvantage. A ReLU node can die, but worst stay dead in the flat saturated region. A dead node keep data from feeding forward and stop training $$W$$ backward in the backpropagation. Some deep network with ReLU has large amount of dead nodes if the learning rate is set too high. Leaky ReLU addresses the problem by having a slightly slopped line instead of a flat region when $$x < 0$$.
+
+<div class="imgcap">
+<img src="/assets/dl/lrelu.png" style="border:none;width:50%">
+</div>
+
+$$
+f(x) = max(\alpha x, x) 
+$$
+
+$$ \alpha$$ is a very small scalar value.
+
+In general, we use ReLU as an activation function with care on the learning rate. However, if a large amount of node is dead, we should consider using the leaky ReLU.
 
 #### tanh
 tanh is similar to sigmoid but the output is within [-1, 1] instead of [0, 1]. 

@@ -430,6 +430,11 @@ The class having the highest score will be the class predicted. The maximum marg
 <img src="/assets/ml/svm2.png" style="border:none;width:40%">
 </div>
 
+#### Softmax vs SVM 
+
+Softmax outputs probabilities which have better interpretations than scores in SVM. The value of a score or the difference between 2 score has little interpretable values. In SVM, if a datapoints is not inside a margin, it has 0 data cost. SVM cares more about in fixing wrong predictions or predictions that are not too certain. Softmax add data cost even the predictions are close. In practice, the performance between both are small.
+
+
 ### Entropy 
 
 Entropy measures the amount of information. In data compression, it represents the minimum number of bits in representing data. By definition, entropy is defined as:
@@ -1190,6 +1195,24 @@ v = mu * v - learning_rate * dw
 w += v
 ```
 
+#### Nesterov Momentum
+
+In Momentum update, we use the current location of $$w$$ to compute $$dw$$. In Nesterov Momentum, the current location is replaced with a look-ahead location: the location where the "ball" should go without taking the current location into account. Nesterov Momentum converges better than Momentum update.
+
+In the program below, instead of using location $$w$$ to compute $$dw$$, we use location $$w_ahead$$ to compute $$dw$$.
+```python
+w_ahead = w + mu * v
+v = mu * v - learning_rate * dw_ahead
+w += v
+```
+
+In practice, people use the following formula:
+```python
+v_prev = v
+v = mu * v - learning_rate * dw 
+w += -mu * v_prev + (1 + mu) * v 
+```
+
 #### Adagrad
  If the input features are not scaled correctly, it is impossible to find the right learning rate that works for all the features. This indicates the learning rate needs to be self-adapted for each tunable parameter. One way to do it is to remember how much change has made to a specific $$ W_i $$. We should reduce the rate of change for parameters that already have many updates. This mitigates the oscillation problem because it acts like a damper again. In Adagrad, we reduce the learning rate with a ratio inversely proportional to the L2 norm of all previous gradients $$dw_i$$.
   
@@ -1366,7 +1389,7 @@ def batchnorm_forward(x, gamma, beta, bn_param):
     out = gamma * xhat + beta
 ```
 
-In the training, we use the mean and variance of the current training sample. But for testing, we do not use the mean/variance of the testing data. Instead, we record a running mean & variance during the training and apply it in testing.
+In the training, we use the mean and variance of the current training sample. But for testing, we do not use the mean/variance of the testing data. Instead, we record a running mean & variance during the training and apply it in validation or testing.
 ```python
 running_mean = momentum * running_mean + (1 - momentum) * sample_mean
 running_var = momentum * running_var + (1 - momentum) * sample_var
@@ -1399,19 +1422,71 @@ Many places can go wrong when training a deep network. Here are some simple tips
 	* Handling multiple challenges in a complex network is not the way to go. Issues grow exponentially in DL.
 * Create simple scenarios to verify the network:
 	* Train with a small dataset with few iterations.
-	* Compare the loss/accuracy value with the corresponding value of a random guess. 
 	* Verify if loss drops and/or accuracies increase during training.
 	* Drop regularization - training accuracies should go up.	
-	* Overfit with a small dataset to see if the loss is small.
-* Monitor or plot out the loss closely to see its trend.
+	* Overfit with a small dataset to see if the loss is small or 0. (Turn off the regularization cost temporarily.)
+	* Compute the loss for random guesses. It should match the loss at early training when the model is no better than a random guess.
 * Keep track of the norm of W and gradient (and ratios) preferable in key layers. Looks for gradient vanishing/exploding problems.
 * Do not waste time on a large dataset with long iterations during early development.
 * Verify how trainable parameters are initialized.	
 * Always keep track of the shape of the data and document it in the code.
 * Display and verify some training samples and the predictions.
-* Plot out accuracy between validation and training to identify overfit issues.
-* Plot activation/gradient histograms for all layers. If initialization is not done correctly, many dead or saturated nodes will be seen.
 * For visualization problem, try to visualize the filters used in an early layers and where nodes are activated.
+
+#### Monitor loss
+We want to plot the cost vs iterations. Monitor the loss to see its trend:
+* If loss goes up early, the learning rate is way too high.
+* If loss drops fast and flattens very quickly, the learning rate is high.
+* If loss drops too slow, the learning rate is too slow.
+
+<div class="imgcap">
+<img src="/assets/dl/mont1.png" style="border:none;width:70%">
+</div>
+
+#### Train vs validation accuracy
+Plot out accuracy between validation and training to identify overfit issues.
+* If validation error is much lower than the training error, the model is overfit.
+
+<div class="imgcap">
+<img src="/assets/dl/mont2.png" style="border:none;width:70%">
+</div>
+
+#### Monitor Gradient descent
+
+Monitor the updates to $$W$$ ratio:
+
+$$
+\frac{\| \alpha \cdot dw \|}{\| W \|}
+$$
+
+* If the ratio is $$ > 1e-3 $$, consider lower the learning rate.
+* If the ratio is $$ < 1e-3 $$, consider increase the learning rate.
+
+Plot activation and gradient histograms for all layers.
+* Verify if you are having gradient diminishing or explode problem.
+* Identify layers that have very low gradients. 
+* Verify whether you have too many saturated nodes.
+
+#### Visualize filters and activation
+
+For visualization problem, we can visualize the $$W$$ matrix in 2D for FC network, or the filters for CNN in the first couple layers. This helps us to identify what type of features that the model is extracting. The first layer should extract simple structures like edge and color.
+
+<div class="imgcap">
+<img src="/assets/cnn/cnnfilter.png" style="border:none;width:70%">
+</div>
+
+We can locate pictures that have the highest activation for each feature map. Once again, it verifies what features are used in building the model. 
+
+In later layers, we should see more complex structures evolved:
+<div class="imgcap">
+<img src="/assets/dl/pp22.png" style="border:none;width:60%">
+</div>
+
+<div class="imgcap">
+<img src="/assets/cnn/cnnlayer_4.png" style="border:none;width:60%">
+</div>
+
+(Source from Visualizing and Understanding Convolutional Networks, Matthew D Zeiler et al.)
 
 ### Data augmentation
 
@@ -1421,7 +1496,7 @@ We have focused on the mechanics of the DL. One significant improvement for the 
 
 ### Model ensembles
 
-So far, we try to find the best models. In machine learning, we can take a vote from different decision trees to make the final prediction. This is based on the assumption that mistakes are localized. There is a smaller chance for 2 different models to make the same mistake. In DL, each training starts with random guesses and therefore the models optimized are usually not unique.  We can pick the best models after repeating the training multiple times. We take votes from those models for the final predictions. This requires us to run the program multiple times, and can be prohibitively expensive. Alternatively, we run the training once and pick the best models at the end of the training. We can have one vote per model, taking an average or use weights based on the confidence level for each prediction.
+So far, we try to find the best models. In machine learning, we can take a vote from different decision trees to make the final prediction. This is based on the assumption that mistakes are localized. There is a smaller chance for 2 different models to make the same mistake. In DL, each training starts with random guesses and therefore the models optimized are usually not unique.  We can pick the best models after repeating the training multiple times. We take votes from those models for the final predictions. This requires us to run the program multiple times, and can be prohibitively expensive. Alternatively, we run the training once and checkpoints multiple times. We pick the best models from the checkpoints. We can also use the validation phase to pick our best models to ensemble. Instead of running multiple models, we can also run a running average for our training parameters. We can have one vote per model, taking an average or use weights based on the confidence level for each prediction.
 
 ### Convolution Net (CNN) & Long short term memory (LSTM)
 
