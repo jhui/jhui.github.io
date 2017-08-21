@@ -7,8 +7,6 @@ title: “RNN, LSTM and GRU tutorial”
 excerpt: “This tutorial covers the RNN, LSTM and GRU networks that are widely popular for deep learning in NLP.”
 date: 2017-03-15 12:00:00
 ---
-**This is work in progress... The content needs major editing.**
-
 ### Recurrent Neural Network (RNN)
 
 If convolution networks are deep networks for images, recurrent networks are networks for the time sequence data, like speech or natural language. For example, both LSTM and GRU networks based on the recurrent network are popular for the natural language processing (NLP). For both Google home and Amazon Alexa, recurrent networks are heavily applied. To illustrate the core ideas, we will look into the Recurrent neural network (RNN) before explaining LSTM & GRU.

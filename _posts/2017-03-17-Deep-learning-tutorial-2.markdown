@@ -1385,7 +1385,7 @@ $$
 out = \gamma z + \beta
 $$
 
-If $$ gamma = \sigma $$ and $$ \beta = \mu $$, we can see the normalization can be undone.
+The normalization can be undone if $$ gamma = \sigma $$ and $$ \beta = \mu $$. We initialize $$\gamma = 1$$ and $$\beta =0 $$, so the input is normalized and therefore learns faster, and the parameters will be learned during the training.
 
 ```python
 def batchnorm_forward(x, gamma, beta, bn_param):
@@ -1399,8 +1399,8 @@ def batchnorm_forward(x, gamma, beta, bn_param):
     out = gamma * xhat + beta
 ```
 
-Batch normalization solves a problem called internal covariate shift. As weights are updated, the distribution of outputs at each layer changes. Batch normalization whiten data at each layer again. So we can use a higher learning rate that speed up learning.
-Batch normalization also help regularize $$W$$. Initially, BatchNorm renormalize the input to zero mean and unit variance distributions. But during training they can learn to adapt (fully or partially), or bypass the normalization.
+Batch normalization solves a problem called internal covariate shift. As weights are updated, the distribution of outputs at each layer changes. Batch normalization normalized data at each layer again. So we can use a higher learning rate that speed up learning.
+Batch normalization also help regularize $$W$$.
 
 In the training, we use the mean and variance of the current training sample. But for testing, we do not use the mean/variance of the testing data. Instead, we record a running mean & variance during the training and apply it in validation or testing.
 ```python
@@ -1415,6 +1415,19 @@ out = gamma * xhat + beta
 ```
 
 > Batch normalization is common practice to use before or after the activation functions including CNN layers.
+
+This is the code to implement batch normalization in TensorFlow:
+```python
+w_bn = tf.Variable(w_initial)
+z_bn = tf.matmul(x, w_bn)
+
+bn_mean, bn_var = tf.nn.moments(z_bn, [0])
+scale = tf.Variable(tf.ones([100]))
+beta = tf.Variable(tf.zeros([100]))
+
+bn_layer = tf.nn.batch_normalization(z_bn, bn_mean, bn_var, beta, scale, 1e-3)
+l_bn = tf.nn.relu(bn_layer)
+```
 
 
 ### Hyperparameter tuning

@@ -83,14 +83,33 @@ The right side shows images with the highest activation in some feature maps at 
 
 #### Batch normalization & ReLU
 
-After applying filters on the input, we feed them to a batch normalization layer. Initially, the batch normalization whitens data to make learning faster with the Gradient descent. Later, we apply ReLU for the non-linearity purpose. (Both Batch normalization and ReLU have discussed in a previous article.)
+After applying filters on the input, we feed them to a batch normalization layer. Initially, the batch normalization normalize data to make learning faster with the Gradient descent. Later, we apply ReLU for the non-linearity purpose. 
 
+Batch normalization applies the normalization formula to the input:
+
+$$
+z = \frac{x - \mu}{\sigma}
+$$
+
+which the mean and variance is computed from the current mini-batch data. 
+
+We feed $$z$$ to a linear equation with the trainable scalar values $$ \gamma $$ and $$ \beta$$ (1 pair for each normalized layer). 
+
+$$
+out = \gamma z + \beta
+$$
+
+The normalization can be undone if $$ gamma = \sigma $$ and $$ \beta = \mu $$. We initialize $$\gamma = 1$$ and  $$\beta =0 $$, so the input is normalized and therefore learns faster, and the parameters will be learned during the training.
+
+This is the code to implement batch normalization in TensorFlow:
 ```python
 w_bn = tf.Variable(w_initial)
 z_bn = tf.matmul(x, w_bn)
+
 bn_mean, bn_var = tf.nn.moments(z_bn, [0])
 scale = tf.Variable(tf.ones([100]))
 beta = tf.Variable(tf.zeros([100]))
+
 bn_layer = tf.nn.batch_normalization(z_bn, bn_mean, bn_var, beta, scale, 1e-3)
 l_bn = tf.nn.relu(bn_layer)
 ```
