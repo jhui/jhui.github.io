@@ -794,6 +794,8 @@ def dropout_backward(dout, cache):
   return dx
 ```
 
+> Dropout forces the decision not to dependent on few features. It behave like other regularization in constraining the magnitude of $$W$$.
+
 ### Deep learning network (Fully-connected layers) CIFAR-10
 
 Let's put together everything to solve the CIFRA-10. CIFAR-10 is a computer vision dataset for object classification. It has 60,000 32x32 color images belonging to one of 10 object classes, with 6000 images per class.
@@ -1221,6 +1223,8 @@ cache += dw**2
 w += - learning_rate * dw / (np.sqrt(cache) + 1e-7) # add a tiny value to avoid division by 0.
 ```
 
+> Parameter based methods like Adagrad reduce the learning rate for parameters according to their accumulated changes.
+
 #### RMSprop
 
 Like Adagrad, RMSprop adjusts the learning rate according to the history of the gradients. But it uses a slightly different formular with the introduction of another hyperparameter decay_rate.
@@ -1228,6 +1232,8 @@ Like Adagrad, RMSprop adjusts the learning rate according to the history of the 
 cache = decay_rate * cache + (1 - decay_rate) * dw**2
 w += - learning_rate * dx / (np.sqrt(cache) + 1e-7)
 ```
+
+> RMSprop behaves like Adagrad but have mechanism to forget older changes.
 
 #### Adam
 
@@ -1238,7 +1244,7 @@ v = beta2*v + (1-beta2)*(dw**2)
 w += - learning_rate * m / (np.sqrt(v) + 1e-7)
 ```
 
-> Adam is the most often used method now.
+> Adam combines both momentum and parameter based gradient descent. Adam is the most often used method now.
 
 Here is an example of using Adam Optimizer in TensorFlow
 ```python
@@ -1304,6 +1310,8 @@ $$
 
 where $$k$$ is a small constant.
 
+> Use the running mean and variance from training dataset to normalize validation and testing data.
+
 #### Whitening
 
 In machine learning, we can train a model faster if features are not correlated (whitened). In a dating application, someone may prefer a tall person but not too thin. If we rescale the weight and height independent of each other, the rescaled features are still co-related. From the rescaled weight, we can tell easily whether a person is heavier than the average population. But usually, we are more interested to know whether the person is thinner in the same height group which is very hard to tell from the rescaled weight alone.
@@ -1334,6 +1342,8 @@ From the covariance matrix $$ \sum $$, we can find a matrix $$W$$ to convert $$x
 <div class="imgcap">
 <img src="/assets/dl/gaussf.jpg" style="border:none;width:50%">
 </div>
+
+> Whitening un-correlates features that make training more effective.
 
 This sounds complicated, but can be done easily by Numpy linear algebra library.
 ```python
@@ -1389,6 +1399,9 @@ def batchnorm_forward(x, gamma, beta, bn_param):
     out = gamma * xhat + beta
 ```
 
+Batch normalization solves a problem called internal covariate shift. As weights are updated, the distribution of outputs at each layer changes. Batch normalization whiten data at each layer again. So we can use a higher learning rate that speed up learning.
+Batch normalization also help regularize $$W$$. Initially, BatchNorm renormalize the input to zero mean and unit variance distributions. But during training they can learn to adapt (fully or partially), or bypass the normalization.
+
 In the training, we use the mean and variance of the current training sample. But for testing, we do not use the mean/variance of the testing data. Instead, we record a running mean & variance during the training and apply it in validation or testing.
 ```python
 running_mean = momentum * running_mean + (1 - momentum) * sample_mean
@@ -1400,6 +1413,9 @@ We use this running mean and variance to normalize our testing data.
 xhat = (x - running_mean) / np.sqrt(running_var + eps)
 out = gamma * xhat + beta
 ```
+
+> Batch normalization is common practice to use before or after the activation functions including CNN layers.
+
 
 ### Hyperparameter tuning
 
@@ -1460,10 +1476,14 @@ $$
 * If the ratio is $$ > 1e-3 $$, consider lower the learning rate.
 * If the ratio is $$ < 1e-3 $$, consider increase the learning rate.
 
-Plot activation and gradient histograms for all layers.
+Plot weight, activation and gradient histograms for all layers.
 * Verify if you are having gradient diminishing or explode problem.
 * Identify layers that have very low gradients. 
 * Verify whether you have too many saturated nodes.
+
+<div class="imgcap">
+<img src="/assets/dl/hhist.png" style="border:none;width:40%">
+</div>
 
 #### Visualize filters and activation
 
@@ -1477,11 +1497,11 @@ We can locate pictures that have the highest activation for each feature map. On
 
 In later layers, we should see more complex structures evolved:
 <div class="imgcap">
-<img src="/assets/dl/pp22.png" style="border:none;width:60%">
+<img src="/assets/dl/pp22.png" style="border:none;width:50%">
 </div>
 
 <div class="imgcap">
-<img src="/assets/cnn/cnnlayer_4.png" style="border:none;width:60%">
+<img src="/assets/cnn/cnnlayer_4.png" style="border:none;width:50%">
 </div>
 
 (Source from Visualizing and Understanding Convolutional Networks, Matthew D Zeiler et al.)
@@ -1494,11 +1514,15 @@ We have focused on the mechanics of the DL. One significant improvement for the 
 
 ### Model ensembles
 
-So far, we try to find the best models. In machine learning, we can take a vote from different decision trees to make the final prediction. This is based on the assumption that mistakes are localized. There is a smaller chance for 2 different models to make the same mistake. In DL, each training starts with random guesses and therefore the models optimized are usually not unique.  We can pick the best models after repeating the training multiple times. We take votes from those models for the final predictions. This requires us to run the program multiple times, and can be prohibitively expensive. Alternatively, we run the training once and checkpoints multiple times. We pick the best models from the checkpoints. We can also use the validation phase to pick our best models to ensemble. Instead of running multiple models, we can also run a running average for our training parameters. We can have one vote per model, taking an average or use weights based on the confidence level for each prediction.
+So far, we try to find the best models. In machine learning, we can take a vote from different decision trees to make the final prediction. This is based on the assumption that mistakes are localized. There is a smaller chance for 2 different models to make the same mistake. In DL, each training starts with random guesses and therefore the models optimized are not unique.  We can pick the best models after repeating the training multiple times. We take votes from those models for the final predictions. This requires us to run the program multiple times, and can be prohibitively expensive. Alternatively, we run the training once and checkpoints multiple times. We pick the best models from the checkpoints. We can also use the validation phase to pick our best models to ensemble. Instead of running multiple models, we can also run a running average for our training parameters. We can have one vote per model, taking an average or use weights based on the confidence level for each prediction.
+
+> A lot of production system uses model ensembles to push the accuracy up for few percentage points.
 
 ### Convolution Net (CNN) & Long short term memory (LSTM)
 
-FC network is rarely used alone. Exploring all possible connections among nodes in the previous layer provides a complex model that is wasteful with small returns. A lot of information is localized. For an image, we want to extract features from neighboring pixels. CNN applies filters to explore localized features, and then apply FC to make predictions. LSTM applies time feedback loop to extract time sequence information. CNN & LSTM add complexity to the model to explore localized information. Topics here covers most of the fundermental of CNN and LSTM. Two separated articles on CNN and LSTM will explain each methods in details.
+FC network is rarely used alone. Exploring all possible connections among nodes in the previous layer provides a complex model that is wasteful with small returns. A lot of information is localized. For an image, we want to extract features from neighboring pixels. CNN applies filters to explore localized features, and then apply FC to make predictions. LSTM applies time feedback loop to extract time sequence information. CNN & LSTM add complexity to the model to explore localized information. Topics here covers most of the fundermental of CNN and LSTM. 
+
+> Two separated articles on CNN and LSTM will explain each methods in details.
 
 ### Credits
 For the CIFRA 10 example, we start with assignment 2 in the Stanford class "CS231n Convolutional Neural Networks for Visual Recognition". We start with some skeleton codes provided by the assignment and put it into our code to complete the assignment.

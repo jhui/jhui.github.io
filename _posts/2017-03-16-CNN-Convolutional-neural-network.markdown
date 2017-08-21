@@ -7,10 +7,8 @@ title: “Convolution neural networks (CNN) tutorial”
 excerpt: “Convolutional networks explore features by discover its spatial information. This tutorial will build CNN networks for visual recognition.”
 date: 2017-03-16 12:00:00
 ---
-**This is a work in progress... The content needs major editing.**
-
 ### Overview
-In a fully connected network, all nodes in a layer are fully connected to all the nodes in the previous layer. This produces a complex model to explore all possible connections among nodes. But the complexity pays a high price of how easy to train the network and how deep the network can be. For spatial data like image, this complexity provides no additional benefits since most features are localized.
+In a fully connected network, all nodes in a layer are fully connected to all the nodes in the previous layer. This produces a complex model to explore all possible connections among nodes. But the complexity pays a high price in training the network and how deep the network can be. For spatial data like image, this complexity provides no additional benefits since most features are localized.
 
 <div class="imgcap">
 <img src="/assets/cnn/ppl.jpg" style="border:none;width:30%">
@@ -43,15 +41,15 @@ However, we may encounter some problem on the edge. For example, on the top left
 
 > Padding with extra 0 is more popular because it maintains spatial dimensions and better preserve information on the edge.
 
-For a CNN, sometimes we do not move the filter only by 1 pixel. If we move the filter 2 pixels to the right, we call the "X stride" equal to 2.
+For a CNN, sometimes we do not move the filter only by 1 pixel. If we move the filter 2 pixels to the right, we say the "X stride" is equal to 2.
 <div class="imgcap">
 <img src="/assets/cnn/stride2.png" style="border:none;width:50%">
 </div>
 
-Notice that both padding and stride may change the spatial dimension of the output. A stride of 2 in X direction will reduce X-dimension by 2. Without padding, the output shrink by N pixels:
+Notice that both padding and stride may change the spatial dimension of the output. A stride of 2 in X direction will reduce X-dimension by 2. Without padding and x stride equals 2, the output shrink N pixels:
 
 $$
-N = \frac {\text{filter patch fsize} - 1} {2}
+N = \frac {\text{filter patch size} - 1} {2}
 $$
 
 ### Convolution neural network (CNN)
@@ -70,18 +68,32 @@ When we process the image, we apply filters which each generates an output that 
 #### Visualization
 CNN uses filters to extract features of an image. It would be interesting to see what kind of filters that a CNN eventually trained. This gives us some insight understanding what the CNN trying to learn. 
 
-Here are the 96 filters learned in the first convolution layer in AlexNet. A lot of these filters turns out to be edge detection filters common to human visual systems. (Source from Krizhevsky et al.)
+Here are the 96 filters learned in the first convolution layer in AlexNet. Many filters turn out to be edge detection filters common to human visual systems. (Source from Krizhevsky et al.)
 <div class="imgcap">
 <img src="/assets/cnn/cnnfilter.png" style="border:none;width:50%">
 </div>
 
-The right side is the image in the dataset that highly activates some neuron in the feature maps in layer 4. Then the image is reconstruct based on the activations in the feature maps for those images. This gives up some understanding of what the neuron is looking for.
+The right side shows images with the highest activation in some feature maps at layer 4. Then we reconstruct the images based on the activations in the feature maps. This gives up some understanding of what the our model is looking for.
 (Source from Matthew D Zeiler et al.)
 <div class="imgcap">
 <img src="/assets/cnn/cnnlayer_4.png" style="border:none;width:70%">
 </div>
 
-> If the visualization of the filters seems lossy, it may indicate we need more training iterations or we are overfitting.
+> If the visualization of the filters seems lossy, it indicates we need more training iterations or we are overfitting.
+
+#### Batch normalization & ReLU
+
+After applying filters on the input, we feed them to a batch normalization layer. Initially, the batch normalization whitens data to make learning faster with the Gradient descent. Later, we apply ReLU for the non-linearity purpose. (Both Batch normalization and ReLU have discussed in a previous article.)
+
+```python
+w_bn = tf.Variable(w_initial)
+z_bn = tf.matmul(x, w_bn)
+bn_mean, bn_var = tf.nn.moments(z_bn, [0])
+scale = tf.Variable(tf.ones([100]))
+beta = tf.Variable(tf.zeros([100]))
+bn_layer = tf.nn.batch_normalization(z_bn, bn_mean, bn_var, beta, scale, 1e-3)
+l_bn = tf.nn.relu(bn_layer)
+```
 
 #### Pooling
 
@@ -139,7 +151,7 @@ For each convolution layer, we reduce the spatial dimension while increasing the
 <img src="/assets/cnn/cnn3d.png" style="border:none;">
 </div>
 
-Here, we reduce the spatial dimension of each convolution layer through pooling or sometimes apply a filter stride size > 1.
+Here, we reduce the spatial dimension of each convolution layer through pooling or sometimes apply a filter with stride size > 1.
 <div class="imgcap">
 <img src="/assets/cnn/cnn3d4.png" style="border:none;width:50%">
 </div>
@@ -151,15 +163,14 @@ The depth of the feature map can be increased by applying more filters.
 
 The core thinking of CNN is to apply small filters to explore spatial feature. The spatial dimension will gradually decrease as we go deep into the network. On the other hand, the depth of the feature maps will increase. It will eventually reach a stage that spatial locality is less important and we can apply a FC network for final analysis.
 
-#### Google inceptions
+#### Google inceptions with 1x1 convolution
 
 In our previous discussion, the convolution filter in each layer is of the same patch size say 3x3. To increase the depth of the feature maps, we can apply more filters using the same patch size. However, in GoogleNet, it applies a different approach to increase the depth. GoogleNet uses different filter patch size for the same layer. Here we can have filters with patch size 3x3 and 1x1. Don't mistake that a 1x1 filter is doing nothing. It does not explore the spatial dimension but it explores the depth of the feature maps. For example, in the 1x1 filter below, we convert the RGB channels (depth 3) into two feature maps output. The first set of filters generates 8 features map while the second one generates two. We can concatenate them to form maps of depth 10. The inception idea is to increase the depth of the feature map by concatenating feature maps using different patch size of convolution filters and pooling. 
 <div class="imgcap">
 <img src="/assets/cnn/inception.png" style="border:none;width:60%">
 </div>
 
-#### Non-linearity and optimization
-Inceptions can be considered as one way to introduce non-linearity into the system. In many CNN, we can apply similar layers we learned from deep learning after the convolution filters. This includes batch normalization and/or ReLU before the pooling for each convolution layer.
+Inceptions can be considered as one way to introduce non-linearity into the system.
 
 #### Fully connected network
 
