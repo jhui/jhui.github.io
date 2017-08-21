@@ -617,13 +617,43 @@ This is the Softmax cost function defined as the NLL and the corresponding gradi
 $$
 \begin{align}
 J(w) &= -  \sum_{i=1}^{N}  \log p(\hat{y}^i = y^i \vert x^i, w ) \\
-\nabla_{score_{k}} J &= \begin{cases}
+\nabla_{z_i} J &= \begin{cases}
                         p - 1 \quad & \hat{y} = y \\
                         p & \text{otherwise}
                     \end{cases}
 \end{align}
 $$
 
+To proof it, we compute the Softmax gradient for one datapoint:
+
+$$
+\begin{align}
+J &= -  \log p \\
+\nabla_{z_i} J &= - \frac{1}{p} \frac{\partial p}{\partial z_i} \\
+& =
+    \begin{cases}
+      p - 1 & \text{if } i = j \\
+      p        & \text{if } i \neq j \\
+    \end{cases}
+\end{align}
+$$
+
+Because:
+
+$$
+\begin{split}
+\text{if} \; i = j : & \\
+\frac{\partial p_i}{\partial z_i} & = \frac{\partial \frac{e^{z_i}}{\Sigma_C}}{\partial z_i} \\
+&  = \frac{1}{\Sigma_C} \frac{  {\partial e^{z_i}}  } {\partial z_i} - e^{z_i} \frac{1}{ {\Sigma_C}^2 } \frac{  {\partial \Sigma_C}  } {\partial z_i} \\ 
+&  = \frac{e^{z_i}}{\Sigma_C}  - \frac{e^{z_i} e^{z_i}}{ {\Sigma_C}^2 }  = \frac{e^{z_i}\Sigma_C - e^{z_i}e^{z_i}}{\Sigma_C^2} = \frac{e^{z_i}}{\Sigma_C}\frac{\Sigma_C - e^{z_i}}{\Sigma_C} = \frac{e^{z_i}}{\Sigma_C}(1-\frac{e^{z_i}}{\Sigma_C}) \\
+& =  p_i (1 - p_i)\\
+\text{if} \; i \neq j : &\\
+\frac{\partial p_i}{\partial z_j} & = \frac{\partial \frac{e^{z_i}}{\Sigma_C}}{\partial z_j} = \frac{0 - e^{z_i}e^{z_j}}{\Sigma_C^2} = -\frac{e^{z_i}}{\Sigma_C} \frac{e^{z_j}}{\Sigma_C} \\
+& = -p_i p_j
+\end{split} 
+$$
+
+The code in calculating softmax loss:
 ```python
 def softmax_loss(x, y):
     probs = np.exp(x - np.max(x, axis=1, keepdims=True)) # Subtract from the max for better numeric stability.

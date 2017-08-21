@@ -9,16 +9,17 @@ date: 2017-03-15 12:00:00
 ---
 ### Recurrent Neural Network (RNN)
 
-If convolution networks are deep networks for images, recurrent networks are networks for the time sequence data, like speech or natural language. For example, both LSTM and GRU networks based on the recurrent network are popular for the natural language processing (NLP). For both Google home and Amazon Alexa, recurrent networks are heavily applied. To illustrate the core ideas, we will look into the Recurrent neural network (RNN) before explaining LSTM & GRU.
+If convolution networks are deep networks for images, recurrent networks are networks for speech and language. For example, both LSTM and GRU networks based on the recurrent network are popular for the natural language processing (NLP). Recurrent networks are heavily applied in Google home and Amazon Alexa. To illustrate the core ideas, we look into the Recurrent neural network (RNN) before explaining LSTM & GRU.
 
-In deep learning, we model h in a fully connected network as (where $$ X_i $$ is the input)
+In deep learning, we model h in a fully connected network as:
 
 $$
 h = f(X_i)
 $$
 
+where $$ X_i $$ is the input.
 
-For time sequence data, we also maintain a hidden state representing the features (information) in the previous time sequence. Hence, to make a word prediction at time step t in speech recognition, we take both input $$ X_t $$ and the hidden state from the previous time step $$ h_{t-1}$$ to compute $$ h_t $$:
+For time sequence data, we also maintain a hidden state representing the features in the previous time sequence. Hence, to make a word prediction at time step t in speech recognition, we take both input $$ X_t $$ and the hidden state from the previous time step $$ h_{t-1}$$ to compute $$ h_t $$:
 
 $$
 h_t = f(x_t, h_{t-1})
@@ -39,15 +40,18 @@ To give another perspective, we unroll a RNN from time step $$ t-1 $$ to $$ t+1 
 <img src="/assets/rnn/rnn_b2.png" style="border:none;width:60%;">
 </div>
 
-In a fully connected (FC) network, $$ h $$ servers as the output of the network. In RNN, $$ h $$ servers 2 purposes: the hidden state for the previous sequence data as well as making a prediction. In the following example, we multiply $$ h_t $$ with a matrix $$ W $$ to make a prediction for $$ Y $$. Through the multiplication with a matrix, $$ h_t $$ can make a prediction for the word that a user is pronouncing. 
+In RNN, $$ h $$ servers 2 purposes: the hidden state for the previous sequence data as well as making a prediction. In the following example, we multiply $$ h_t $$ with a matrix $$ W $$ to make a prediction for $$ Y $$. Through the multiplication with a matrix, $$ h_t $$ make a prediction for the word that a user is pronouncing. 
  
 <div class="imgcap">
 <img src="/assets/rnn/cap14.png" style="border:none;width:30%;">
 </div>
 
+> RNN makes prediction based on the hidden state in the previous timestep and current input. $$ h_t = f(x_t, h_{t-1})$$
+
+
 #### Create image caption using RNN
 Let's study a real example to study RNN in details. We want our system to automatically provide captions by simply reading an image.
-For example, we input a school bus image into a RNN and the RNN will produce a caption like "A yellow school bus idles near a park." 
+For example, we input a school bus image into a RNN and the RNN produces a caption like "A yellow school bus idles near a park." 
 <div class="imgcap">
 <img src="/assets/rnn/cap.png" style="border:none;">
 </div>
@@ -81,6 +85,8 @@ With $$ h_0 $$, we  compute $$ h_1 = f(h_0, X_1) $$ for time step 1.
 <img src="/assets/rnn/cap8.png" style="border:none;width:80%;">
 </div>
 
+> We use a CNN to extract image features. Multiple it with a trainable matrix for the initial hidden state $$h_0$$.
+
 #### Code in computing h0
 
 Define the shape of CNN image features (N, 512) and h (N, 512):
@@ -105,20 +111,25 @@ Compute $$ h_0 $$ by multiply the image features with $$ W_{proj} $$.
 h0 = features.dot(W_proj) + b_proj
 ```
 
+> We initialize $$h_0 = W_{proj} \cdot x_{cnn}+ b$$ .
+
 #### Map words to RNN
-Our training data contains both the images and captions. It also has a dictionary which maps a vocabulary word to an integer. Caption words in the dataset are stored as word indexes using the dictionary. For example, the caption "A yellow school bus idles near a park." can be stored as "1 5 3401 3461 78 5634 87 5 111 2" which 1 represents the "start" of a caption, 5 represents 'a', 3401 represents 'yellow', ...  and 2 represents the "end" of a caption.
+Our training data contains both the images and captions (the true labels). It also has a dictionary which maps a vocabulary word to an integer index. Caption words in the dataset are stored as word indexes using the dictionary. For example, the caption "A yellow school bus idles near a park." can be represented as "1 5 3401 3461 78 5634 87 5 111 2" which 1 represents the "start" of a caption, 5 represents 'a', 3401 represents 'yellow', ...  and 2 represents the "end" of a caption.
 
-> In this tutorial, we called the captions provided in the training dataset: true caption.
+The RNN does not use the word index. The word index does not contain information about the semantic relationship between words. We map a word to a higher dimensional space such that we can encode semantic relationship between words. For example, if we encode the word "father" as (0.2, 0.3, 0.1, ...) we should expect the word "mother" to be close by say (0.3, 0.3, 0.1, ...). The vector distance between the word "Paris" and "France" should be similar to the one between "Seoul" and "Korea". The encoding method _word2vec_ provides a mechanism to convert a word to a higher dimensional space. We use a word embedding lookup table $$ W_{embed} $$ to convert a word index to a vector of length wordvec_dim. This embedding table is trained together with the caption creating network instead of training them independently (end-to-end training).
 
-However, the RNN does not use the word index directly. The word index does not contain information about the semantic relationship between words. We need to map a word to a high dimensional space such that we can encode semantic relationship between words. For example, if we encode the word "father" as (0.2, 0.3, 0.1, ...) we should expect the word "mother" to be close by say (0.3, 0.3, 0.1, ...). Or the vector distance between the word "Paris" and "France" should be similar to the one between "Seoul" and "Korea". word2vec provides a mechanism to convert a word to a higher dimensional space which is trainable. We use a word embedding lookup table $$ W_{embed} $$ to convert a word index to a vector with length wordvec_dim. The RNN will take this vector $$ X_t $$ and $$ h_{t-1} $$ to compute $$ h_t $$
+> We train the word embedding table together with the caption creation network. 
+
+
+The RNN will take this vector $$ X_t $$ and $$ h_{t-1} $$ to compute $$ h_t $$
 
 <div class="imgcap">
 <img src="/assets/rnn/cap9.png" style="border:none;width:45%;">
 </div>
 
->  The W for word2vec works more like a 1D lookup table than a matrix we use in a deep network.
+>  _word2vec_ encodes words to higher dimensional space that provides semantic relationships that we can manipulate as vectors.
 
-When we create the training data, we convert words to the corresponding word index using a vocabulary dictionary. In runtime, we map the word index to a word vector.
+When we create the training data, we encodes words to the corresponding word index using a vocabulary dictionary. The encoded data will then be saved. During training, we read the saved dataset and use _word2vec_ to convert the word index to a word vector.
 <div class="imgcap">
 <img src="/assets/rnn/encode.png" style="border:none;width:70%;">
 </div>
@@ -157,8 +168,9 @@ def word_embedding_forward(x, W):
   cache = (V, x)
   return out, cache  
 ```
+ 
+> Use $$W_{embed}$$ to convert a word to a word vector. 
   
-
 #### RNN
 <div class="imgcap">
 <img src="/assets/rnn/score.png" style="border:none;width:40%;">
@@ -168,7 +180,16 @@ We pass the word vector
 $$
 X_0
 $$
-into the RNN. The output of the RNN 
+into the RNN cell to compute the next hidden state $$h_{t}$$:
+
+$$
+\begin{align}
+state & = W_x x_t + W_h h_{t-1} + b \\
+h_{t} &= \tanh(state) \\
+\end{align}
+$$
+
+The output of the RNN 
 $$
 h_1
 $$
@@ -176,15 +197,13 @@ is then multiply with
 $$
 W_{vocab}
 $$
-to generate scores for each word in the vocabulary. For example, if we have 10004 words in the vocabulary, it will generate 10004 scores predicting how likely each word will be the next word in the caption. With the true caption in the training dataset and the scores computed, we calculate the softmax loss of the RNN so we can use it for the gradient descent. 
+to generate scores for each word in the vocabulary. For example, if we have 10004 words in the vocabulary, it generates 10004 scores predicting the likeliness of each word to be the next word in the caption. With the true caption in the training dataset and the scores computed, we calculate the softmax loss of the RNN. We apply gradient descent to optimize the trainable parameters.
 <div class="imgcap">
 <img src="/assets/rnn/score_1.png" style="border:none;">
 </div>
 
-> We provide implementation codes for readers that prefer concrete details. Nevertheless, fully understanding of the code is not needed or suggested.
-
 We compute $$ h_t $$ 
-by feeding the RNN with $$ X_t $$ and $$ h_{t-1} $$.
+by feeding the RNN cell with $$ X_t $$ and $$ h_{t-1} $$.
 We then map $$ h_t $$ to scores which are used to compute the softmax cost.
 ```python
 # h: (N, 16, hidden_dim)
@@ -200,38 +219,58 @@ loss, dscores = temporal_softmax_loss(scores, captions_out, mask)
 
 #### rnn_forward
 
-"rnn forward" is the RNN implementation that compute $$ h_t $$
+"rnn forward" is the RNN layer that compute $$h_1, h_2, \cdots, h_t $$
+
 ```python
 h, cache_rnn = rnn_forward(x, h0, Wx, Wh, b)
 ```
 
 <div class="imgcap">
-<img src="/assets/rnn/cap13.png" style="border:none;width:40%;">
+<img src="/assets/rnn/cap13.png" style="border:none;width:50%;">
 </div>
 
-rnn_forward unroll the RNN by T time steps and compute $$ h_t $$ by calling "rnn_step_forward". At each step, it takes $$ h{t-1} $$ from the previous step and use the true captions provided by the training set to compute $$ X_t $$.  i.e., we do not use the highest score word from previous time step as input. We always use the true caption from our training dataset during training since the whole purpose is to lower the prediction error of our RNN for the true captions (supervised labels).
+rnn_forward unroll the RNN by T time steps and compute $$ h_t $$ by calling the RNN cell "rnn_step_forward". At each step, it takes $$ h_{t-1} $$ from the previous step and use the true captions provided by the training set to lookup $$ X_t $$.  Note, we use the true label instead of the highest score word from previous time step as input.
 
 ```python
 def rnn_forward(x, h0, Wx, Wh, b):
+  """
+    x: the true caption
+  """	
   h, cache = None, None
   N, T, D = x.shape
+  
+  # H is the dimension of the hidden state
   H = h0.shape[1]
+
+  # h hold all the hidden states in all T steps
   h = np.zeros((N, T, H))
+  
   state = {}
   state[-1] = h0
+  
   cache_step = [None] * T
 
+  # Unroll T steps
   for t in range(T):
+    # Get the true label at t	  
     xt = x[:, t, :]
+    # Compute one RNN step
     state[t], cache_step[t] = rnn_step_forward(xt, state[t-1], Wx, Wh, b)
+    # Store the hidden state for time step t
     h[:, t, :] = state[t]
 
   cache = (cache_step, D)
   return h, cache
 ```
 
-In each RNN time step, we multiply $$ h_{t-1} $$ with $$ W_h $$ and $$ x_{t} $$ with $$ W_x $$ to generate 
-$$ h_t $$
+In each RNN time step, we compute:
+
+$$
+\begin{align}
+state & = W_x x_t + W_h h_{t-1} + b \\
+h_{t} &= \tanh(state) \\
+\end{align}
+$$
 
 ```python
 def rnn_step_forward(x, prev_h, Wx, Wh, b):
@@ -243,16 +282,16 @@ def rnn_step_forward(x, prev_h, Wx, Wh, b):
   return next_h, cache
 ```    
 
+> We unroll RNN for T steps, each computing $$ \tanh(Wx + b)$$.
+
 #### Scores
 
-After finding $$ h_t $$, we compute the scores by multiply
+After finding $$ h_t $$, we compute the scores by:
+
 $$
-W_{vocab}
+score = W_{vocab} * h_t
 $$
-with
-$$
-h_t
-$$
+
 ```python
  def temporal_affine_forward(x, w, b):
    N, T, D = x.shape
@@ -262,9 +301,28 @@ $$
    return out, cache
 ```
 
+> We compute score to locate the next most likely caption word.
+
 #### Softmax cost
 
-For each word in the vocabulary (1004 words), we predict the probability of those words to be the next caption word. With these scores, we can apply the deep learning technique to compute the softmax loss which is used in the gradient descent to optimize our RNN.
+For each word in the vocabulary (1004 words), we predict their probabilities of being the next caption word using softmax. Without changing the result, we subtract it with the maximum score for better numeric stability.
+
+$$
+softmax(z) = \frac{e^{z_i}}{\sum e^{z_c}} =  \frac{e^{z_i - m}}{\sum e^{z_c  - m}}  
+$$
+
+We then compute the softmax loss (negative log likelihood) and the gradient.
+
+$$
+\begin{align}
+J(w) &= -  \sum_{i=1}^{N}  \log p(\hat{y}^i = y^i \vert x^i, w ) \\
+\nabla_{z_i} J &= \begin{cases}
+                        p - 1 \quad & \hat{y} = y \\
+                        p & \text{otherwise}
+                    \end{cases}
+\end{align}
+$$
+
 ```python
 def temporal_softmax_loss(x, y, mask):
   N, T, V = x.shape
@@ -273,10 +331,15 @@ def temporal_softmax_loss(x, y, mask):
   y_flat = y.reshape(N * T)
   mask_flat = mask.reshape(N * T)
   
+  # We compute the softmax. We minus the score with a max for better numerical stability.
   probs = np.exp(x_flat - np.max(x_flat, axis=1, keepdims=True))
   probs /= np.sum(probs, axis=1, keepdims=True)
+  
+  # Compute the softmax loss: negative log likelihood aka cross entropy loss
   loss = -np.sum(mask_flat * np.log(probs[np.arange(N * T), y_flat])) / N
-  dx_flat = probs.copy()
+
+  # Compute the gradient
+  dx_flat = probs.copy()  
   dx_flat[np.arange(N * T), y_flat] -= 1
   dx_flat /= N
   dx_flat *= mask_flat[:, None]
@@ -286,7 +349,6 @@ def temporal_softmax_loss(x, y, mask):
   return loss, dx
 ```
     
-
 #### Time step 0
 
 Here, we recap how we calculate 
@@ -359,6 +421,8 @@ from the image features and use the true caption "start" to make a prediction $$
     return loss, grads
 ```
 
+> Use softmax cost to train the network.
+
 #### Making prediction
 
 To generate captions automatically, we will use the CNN to generate image features and map it to $$ h_0 $$ with $$ W_{proj} $$.
@@ -367,7 +431,7 @@ To generate captions automatically, we will use the CNN to generate image featur
 </div>
 
 At time step 1, we feed the RNN with the input "start" to get the word vector $$ X_1 $$. The RNN computes the value $$ h_1$$
-which later multiplies with $$ W_{vocab} $$ to generate scores for each word in the vocabulary (1004). We make the first-word prediction by select the one with the highest score (say, "A"). Unlikely training, we use the word with the highest score as the next time step input. With $$ h_1 $$ and the highest score word "A" in time step 1, we go through the RNN step again and made the second prediction "bus" at time step 2. 
+which later multiplies with $$ W_{vocab} $$ to generate scores for each word in the vocabulary. We select the word with the highest score for the first word in the caption (say, "A"). Unlikely training, we use this word as the next time step input. With $$ h_1 $$ and the highest score word "A" in time step 1, we go through the RNN step again and made the second prediction "bus" at time step 2. 
 	
 <div class="imgcap">
 <img src="/assets/rnn/cap7.png" style="border:none;width:70%;">
@@ -441,64 +505,68 @@ Finally here is the final detail flows:
 
 $$ h_t $$ in RNN serves 2 purpose:
 * Make an output prediction, and
-* Be a hidden state remembering the features in the sequence data process so far.
+* A hidden state representing the data sequence processed so far.
 
-$$ h_t $$ actually serves 2 different purposes. LSTM breaks $$ h_t $$ into 2 according to the roles above ($$ h_t $$ and $$ C $$). The hidden state of the LSTM cell will now be $$ C $$.
+LSTM splits these 2 roles into 2 separate variables $$ h_t $$ and $$ C $$. The hidden state of the LSTM cell is now $$ C $$.
 
 <div class="imgcap">
 <img src="/assets/rnn/lstm.png" style="border:none;width:50%;">
 </div>
 
-#### LSTM gates
-In LSTM, we want a mechanism to selectively allow what information to remember and what information to forget. Therefore we construct different gates with a value between 0 to 1, and multiple it with the information we want to remember or to forget. For example, a gate with 0 means forgets everything and a gate with 1 means remember everything.
+Here are the LSTM equations:
 
-$$ 
-\text{value} = \text{gate} \cdot \text{value}
-$$
-
-In LSTM, we have 3 different gates but all with the same form:
+There are 3 gates controlling what information will pass through:
 
 $$
-gate = g(X_t, h_{t-1}) = \sigma (W_{x} X_t + W_{h} h_{t-1} + b) 
+\begin{split}
+gate_{forget} &= \sigma (W_{fx} X_t + W_{fh} h_{t-1} + b_f) \\
+gate_{input} &= \sigma (W_{ix} X_t + W_{ih} h_{t-1} + b_i) \\
+gate_{out} &= \sigma (W_{ox} X_t + W_{oh} h_{t-1} + b_o) \\
+\end{split}
 $$
 
-which $$ \sigma $$ is the sigmoid function behaves like an on/off switch.
+3 equations to update the cell state and the hidden state:
 
-> All gates have different sets of W and b. But people feel lost in the LSTM equations without realizing its simplicity. So we just assume they all take a different set of W and b for now.
+$$
+\begin{split}
+\tilde{C} & = \tanh (W_{cx} X_t + W_{ch} h_{t-1} + b_c)  \\
+C_t & = gate_{forget} \cdot C_{t-1} + gate_{input} \cdot \tilde{C} \\
+h_t & = gate_{out} \cdot \tanh (C_t) \\
+\end{split}
+$$
+ 
+#### Gates
 
+There are 3 gates in LSTM. All gates are function of $$x_t$$ and $$h_{t-1}$$
+
+$$
+gate = \sigma (W_{x} X_t + W_{h} h_{t-1} + b) \\
+$$
+
+* $$gate_{forget}$$ controls what part of the previous cell state will be kept.
+* $$gate_{input}$$ controls what part of the new computed information will be added to the cell state $$C$$.
+* $$gate_{out} $$ controls what part of the cell state will exposed as the hidden state.
+ 
 #### Updating C
+
+The key part in LSTM is to update the cell state $$C$$.
+
 <div class="imgcap">
 <img src="/assets/rnn/lstm2.png" style="border:none;width:20%;">
 </div>
 
-To update C, the hidden state of a LSTM cell, we construct 2 gates:
-* forget gate: a gate to forget the previous hidden-state information $$ C_{t-1} $$.
-* input gate: a gate to remember what information in $$ \tilde{C} $$ we want to remember.
+To do that, we need to compute a new proposal $$\tilde{C}$$ just based in $$X_t$$ and $$h_{t-1}$$:
 
 $$
-gate_{forget} = \sigma (W_{x} X_t + W_{h} h_{t-1} + b) 
+\tilde{C} = \tanh (W_{cx} X_t + W_{ch} h_{t-1} + b_c)  \\
 $$
 
-$$
-gate_{input} = \sigma (W_{x} X_t + W_{h} h_{t-1} + b) 
-$$
-
-In RNN, the mechanism to update $$ h_t $$ is pretty simple:
+The new state $$C_t$$ is form by forgetting part of the previous cell state while add part of the new proposal $$\tilde{C}$$ to the cell state:
 
 $$
-h_t = f(X_t, h_{t-1})
-$$
-
-But in LSTM, there are 2 steps.
-* Compute what information $$ \tilde{C} $$ may generate in time step t
-* Use the forget and input gate to remember and forget what information to keep and what to forget 
-
-$$
-\tilde{C} = \tanh (W_{x} X_t + W_{h} h_{t-1} + b) 
-$$
-
-$$
-C_t = gate_{forget} \cdot C_{t-1} + gate_{input} \cdot \tilde{C}
+\begin{split}
+C_t & = gate_{forget} \cdot C_{t-1} + gate_{input} \cdot \tilde{C} \\
+\end{split}
 $$
 
 #### Update h
@@ -506,40 +574,11 @@ $$
 <img src="/assets/rnn/lstm1.png" style="border:none;width:20%;">
 </div>
 
-To update $$ h_{t} $$, we compute an output gate and compute the new $$ h_t $$
-
-$$
-gate_{out} = \sigma (W_{x} X_t + W_{h} h_{t-1} + b) 
-$$
+To update $$ h_{t} $$, we use the output gate to control what cell state to export as $$h_t$$
  
  $$
  h_t = gate_{out} \cdot \tanh (C_t)
  $$
- 
-#### LSTM Equations
-
-It seems there are a lot of equations and indexing in LSTM. But actually, it is fairly simple. Whenever you need to compute a gate or a new cell state, you multiple $$ X_t $$ and $$ h_{t-1} $$ with the following formula. 
- 
-$$
-W_{x} X_t + W_{h} h_{t-1} + b
-$$
-
-If it is a gate, use the sigmoid function to turn it to an "on/off" gate. If it is a state, use $$ \tanh $$. 
-
-Through this mechanism:
-* We produce a candidate state $$\tilde{C}$$ for new information produced at time step t.
-* 2 gates to compute $$ C $$ and 
-* 1 gate for output.
-
-Finally we update the hidden state $$ C $$ and make a output $$ h_t $$.
-
-$$
-C_t = g_{forget} \cdot C_{t-1} + g_{input} \cdot \tilde{C}
-$$
-  
-$$
-h_t = g_{out} \cdot \tanh (C_t)
-$$ 
  
 #### Image captures with LSTM
 Now we change our previous code and swap the RNN out with a LSTM.
@@ -592,31 +631,34 @@ def lstm_step_forward(x, prev_h, prev_c, Wx, Wh, b):
   return next_h, next_c, cache
 ```
 
+> LSTM composes of the Cell state and Hidden state. We use 3 gates to control what information will be passed through. We calculate new cell state by keep part of the original while adding new information. Then we expose part of the $$C_t$$ as $$h_t$$. 
+
 ### Gated Recurrent Units (GRU)
 
-Compare with LSTM, GRU does not maintain a hidden state $$ C $$ and use 2 gates instead of 3.
-
-Similar to LSTM, GRU needs to compute something similar to $$ \tilde{C} $$ which is the new information produced at time step $$ t $$. Instead of using $$ h_{t-1} $$ directly, we apply a remember gate to $$ h_{t-1} $$ to see what information to keep before applying the matrix multiplication.
-
+Compare with LSTM, GRU does not maintain a cell state $$ C $$ and use 2 gates instead of 3. 
+ 
 $$
-gate_r = \sigma (W_{x} X_t + W_{h} h_{t-1} + b) 
+\begin{split}
+gate_r &= \sigma (W_{rx} X_t + W_{rh} h_{t-1} + b) \\
+gate_{update} &= \sigma (W_{ux} X_t + W_{uh} h_{t-1} + b) 
+\end{split}
 $$ 
 
-$$
-\tilde{h_{t}} = \tanh (W_{x} X_t + W_{h} \cdot (gate_r \cdot h_{t-1}) + b)
-$$
-
-In GRU, it combines both input gate and forget gate into one update gate since those 2 gates look like just the opposite of each other ($$ g_r = 1 - g_f  $$).
-
-$$
-gate_{update} = \sigma (W_{x} X_t + W_{h} h_{t-1} + b) 
-$$ 
-
-Finally, to compute $$ h_t $$
+The new hidden state is compute as:
 
 $$
 h_t = (1 - gate_{update}) \cdot h_{t-1} +  gate_{update} \cdot \tilde{h_{t}}
 $$
+
+As seen, we use the compliment of $$gate_{update}$$ instead of creating a new gate to control what we want to keep from the $$h_{t-1}$$.
+
+The new proposed $$\tilde{h_{t}}$$ is calculated as:
+
+$$
+\tilde{h_{t}} = \tanh (W_{hx} X_t + W_{hh} \cdot (gate_r \cdot h_{t-1}) + b)
+$$
+
+We use $$gate_r$$ to control what part of $$h_{t-1}$$ we need to compute a new proposal.
 
 ### Credits
 For the RNN/LSTM case study, we use the image caption assignment (assignment 3) in the Stanford class "CS231n Convolutional Neural Networks for Visual Recognition". We start with the skeleton codes provided by the assignment and put it into our code to complete the assignment code.
