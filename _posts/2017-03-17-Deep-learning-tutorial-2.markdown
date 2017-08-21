@@ -1421,17 +1421,15 @@ Many places can go wrong when training a deep network. Here are some simple tips
 	* Increasing accuracy should not be the first priority.
 	* Handling multiple challenges in a complex network is not the way to go. Issues grow exponentially in DL.
 * Create simple scenarios to verify the network:
+	* Compute the loss for random guesses. It should match the loss at early training when the model is no better than a random guess.
 	* Train with a small dataset with few iterations.
 	* Verify if loss drops and/or accuracies increase during training.
 	* Drop regularization - training accuracies should go up.	
 	* Overfit with a small dataset to see if the loss is small or 0. (Turn off the regularization cost temporarily.)
-	* Compute the loss for random guesses. It should match the loss at early training when the model is no better than a random guess.
-* Keep track of the norm of W and gradient (and ratios) preferable in key layers. Looks for gradient vanishing/exploding problems.
 * Do not waste time on a large dataset with long iterations during early development.
 * Verify how trainable parameters are initialized.	
 * Always keep track of the shape of the data and document it in the code.
 * Display and verify some training samples and the predictions.
-* For visualization problem, try to visualize the filters used in an early layers and where nodes are activated.
 
 #### Monitor loss
 We want to plot the cost vs iterations. Monitor the loss to see its trend:
