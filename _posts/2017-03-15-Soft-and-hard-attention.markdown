@@ -7,8 +7,6 @@ title: “Soft & hard attention”
 excerpt: “How to use attention to improve deep network learning? Attention extracts relevant information selectively for more effective training.”
 date: 2017-03-15 11:00:00
 ---
-**This is a work in progress...**
-
 ### Generate image captions
 
 In cognitive science, selective attention illustrates how we restrict our attention to particular objects in the surroundings. It helps us focus, so we can tune out irrelevant information and concentrate on what really matters. We can apply this attention mechanism in solving many deep learning problems. For example, we focus on different areas of the image when generating an image caption. In the image below, we first pay attention to the closest man that walking towards us. We continue exploring the details or shift attentions according to the questions that we want to answer. Eventually, we may generate a caption like: "A man holding a couple plastic containers is walking down an intersection towards me." Selective attention demonstrates objects or pixels are not treated equally. Attention in deep learning localizes information in making predictions. The picture below demonstrates the relationship between the attention area and the words we generate.
@@ -17,7 +15,7 @@ In cognitive science, selective attention illustrates how we restrict our attent
 <img src="/assets/att/attention.jpg" style="border:none;;">
 </div>
 
-To generate an image caption with deep learning, we start the caption with a "start" token and generate (predict) one word at a time. We predict the next caption word based on the last predicted word and the image:
+To generate an image caption with deep learning, we start the caption with a "start" token and generate one word at a time. We predict the next caption word based on the last predicted word and the image:
 
 $$
 \text{next word} = f(image, \text{last word})
@@ -35,8 +33,6 @@ $$
 
 which $$ x $$ is the image, and $$ h_{t} $$ is the RNN hidden state to predict the "next word" at time step $$ t $$. 
 
-> In layman term, $$ h_{t} $$ represents the caption that we generate so far.
-
 We continue the process until we predict the "end" token. As the selective attention may suggest, this model is over-generalized, and we should replace the image with a more focus attention area.
 
 $$
@@ -53,7 +49,7 @@ Before we discuss attention, we will have a quick review of the image caption us
 <img src="/assets/att/rnn.png" style="border:none;width:80%;">
 </div>
 
->  $$ x $$ are the image features extracted from an image using a CNN. From the LSTM perspective, $$ x $$ represents the image. When we reference the "image" in this article, we mean $$x$$ rather than the raw image pixels.
+>  $$ x $$ are the image features extracted from an image using a CNN. From the LSTM perspective, $$ x $$ represents the image. When we reference the "image" in this article, we mean the image features $$x$$ rather than the raw image pixels.
 
 ### Attention
 
@@ -110,7 +106,7 @@ The following is the complete flow of the LSTM model using attentions.
 
 ### Soft attention
 
-We implement attention with soft attention or hard attention. In soft attention, instead of using the image $$ x $$ as an input to the LSTM, we input weighted image features accounted for attention. Before going into details, we can visualize the weighted features to illustrate the difference.
+We implement attention with soft attention or hard attention. In soft attention, instead of using the image $$ x $$ as an input to the LSTM, we input weighted image features accounted for attention. Before going into details, we can visualize the weighted features to illustrate the difference. Areas with higher attention are brighter in the picture.
 
 <div class="imgcap">
 <img src="/assets/att/attention2.png" style="border:none;;">
@@ -144,6 +140,8 @@ Finally, we use $$Z$$ to replace $$ x $$ as the LSTM input.
 <div class="imgcap">
 <img src="/assets/att/soft.png" style="border:none;width:70%;">
 </div>
+
+> We compute scores $$\tanh(W_{c} h_{t-1} + W_{x} x_{i})$$ for each area. Use the corresponding softmax values to computed a weighted input from the input features.
 
 ### Hard attention
 
