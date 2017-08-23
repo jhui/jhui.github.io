@@ -262,8 +262,7 @@ Every SM has a **shared memory** accessible by all threads in the same block. Ea
 <img src="/assets/cuda/m1.png" style="border:none;width:60%">
 </div>
 
-Each SM has a L1 cache for global memory references. All SMs share a second L2 cache. Access to the shared memory is in the TB/s. Global memory is an order of magnitude slower. Each GPS has a constant memory for read only with shorter latency and higher throughput.
-
+Local, Global, Constant, and Texture memory all reside off chip. Local, Constant, and Texture are all cached. Each SM has a L1 cache for global memory references. All SMs share a second L2 cache. Access to the shared memory is in the TB/s. Global memory is an order of magnitude slower. Each GPS has a constant memory for read only with shorter latency and higher throughput. Texture memory is read only.
 
 | Type | Read/write | Speed |
 |---|---|---|
@@ -273,6 +272,16 @@ Each SM has a L1 cache for global memory references. All SMs share a second L2 c
 | Shared memory | read/write | fast |
 | Local memory | read/write | used when it does not fit in to registers <br> part of global memory <br>slow but cached |
 | Registers | read/write | fast |
+
+> Local memory is just thread local global memory. It is much slower than either registers or shared memory.
+
+Speed (Fast to slow):
+1. Register file
+1. Shared Memory
+1. Constant Memory
+1. Texture Memory
+1. (Tie) Local Memory and Global Memory
+
 
 | Declaration | Memory | Scope | Lifetime |
 | int v | register | thread | thread |
@@ -284,7 +293,106 @@ Each SM has a L1 cache for global memory references. All SMs share a second L2 c
 When threads in a warp load data from global memory, the system detects whether they are
 consecutive. It combines consecutive accesses into one single access to DRAM.
 
-#### constant memory
+#### Shared memory
+Shared memory is on-chip and is much faster than local and global memory. Shared memory latency is roughly 100x lower than uncached global memory latency. Threads can access data in shared memory loaded from global memory by other threads within the same thread block. Memory access can be controlled by thread synchronization to avoid race condition (__syncthreads). Shared memory can be uses as user-managed data caches and high parallel data reductions.
+
+Static shared memory:
+```c
+#include 
+
+__global__ void staticReverse(int *d, int n)
+{
+  __shared__ int s[64];
+  int t = threadIdx.x;
+  int tr = n-t-1;
+  s[t] = d[t];
+  // Will not conttinue until all threads completed.
+  __syncthreads();
+  d[t] = s[tr];
+}
+
+int main(void)
+{
+  const int n = 64;
+  int a[n], r[n], d[n];
+
+  for (int i = 0; i < n; i++) {
+    a[i] = i;
+    r[i] = n-i-1;
+    d[i] = 0;
+  }
+
+  int *d_d;
+  cudaMalloc(&d_d, n * sizeof(int)); 
+
+  // run version with static shared memory
+  cudaMemcpy(d_d, a, n*sizeof(int), cudaMemcpyHostToDevice);
+  staticReverse<<<1,n>>>(d_d, n);
+  cudaMemcpy(d, d_d, n*sizeof(int), cudaMemcpyDeviceToHost);
+  for (int i = 0; i < n; i++) 
+    if (d[i] != r[i]) printf("Error: d[%d]!=r[%d] (%d, %d)n", i, i, d[i], r[i]);
+}
+```
+
+> The __syncthreads() is light weighted and a block level synchronization barrier.  __syncthreads() ensures all threads have completed before continue.
+
+
+Dynamic Shared Memory:
+```c
+#include 
+
+__global__ void dynamicReverse(int *d, int n)
+{
+  // Dynamic shared memory	
+  extern __shared__ int s[];
+  int t = threadIdx.x;
+  int tr = n-t-1;
+  s[t] = d[t];
+  __syncthreads();
+  d[t] = s[tr];
+}
+
+int main(void)
+{
+  const int n = 64;
+  int a[n], r[n], d[n];
+
+  for (int i = 0; i < n; i++) {
+    a[i] = i;
+    r[i] = n-i-1;
+    d[i] = 0;
+  }
+
+  int *d_d;
+  cudaMalloc(&d_d, n * sizeof(int)); 
+
+  // run dynamic shared memory version
+  cudaMemcpy(d_d, a, n*sizeof(int), cudaMemcpyHostToDevice);
+  dynamicReverse<<<1,n,n*sizeof(int)>>>(d_d, n);
+  cudaMemcpy(d, d_d, n * sizeof(int), cudaMemcpyDeviceToHost);
+  for (int i = 0; i < n; i++) 
+    if (d[i] != r[i]) printf("Error: d[%d]!=r[%d] (%d, %d)n", i, i, d[i], r[i]);
+}
+```
+
+Shared memory are accessable by multiple threads. To reduce potential bottleneck, shared memory is divided into logical banks. Successive sections of memory are assigned to successive banks. Each bank services only one thread request at a time, multiple simultaneous accesses from different threads to the same bank result in a bank conflict (the accesses are serialized).
+
+Shared memory banks are organized such that successive 32-bit words are assigned to successive banks and the bandwidth is 32 bits per bank per clock cycle. For devices of compute capability 1.x, the warp size is 32 threads and the number of banks is 16. There will be 2 requests for the warp: one for the first half and second for the second half. For devices of compute capability 2.0, the warp size is 32 threads and the number of banks is also 32. So for the best case, we need only 1 request.
+
+For devices of compute capability 3.x,  the bank size can be configured by cudaDeviceSetSharedMemConfig() to either four bytes (default) or eight bytes. 8-bytes avoids shared memory bank conflicts when accessing double precision data.
+
+#### Share memory size configuration
+
+On devices of compute capability 2.x and 3.x, each multiprocessor has 64KB of on-chip memory that can be partitioned between L1 cache and shared memory.
+
+For devices of compute capability 2.x, there are two settings:
+
+* 48KB shared memory and 16KB L1 cache, (default)
+* and 16KB shared memory and 48KB L1 cache. 
+
+This can be configured during runtime API from the host for all kernels using cudaDeviceSetCacheConfig() or on a per-kernel basis using cudaFuncSetCacheConfig(). 
+
+#### Constant memory
 
 SM aggressively cache constant memory which results in short latency.
 ```c
@@ -482,7 +590,7 @@ Other synchronization methods:
 ### Thread hierarchy
 In pervious example, the thread index $$threadIdx.x$$ is 1-dimensional. To access multiple dimensional matrices easier, CUDA also support multiple dimensional thread index.
 
-The following code add two 2-D matrices with 1 thread block of NxN threads. $$treadIdx.x$$ and $$treadIdx.y$$ represents a 2-dimensional index for easy 2-D matrix access.
+The following code add two 2-D matrices with 1 thread block of NxN threads. $$threadIdx.x$$ and $$threadIdx.y$$ represents a 2-dimensional index for easy 2-D matrix access.
 ```c
 __global__ void MatAdd(float A[N][N], float B[N][N],
                        float C[N][N])
