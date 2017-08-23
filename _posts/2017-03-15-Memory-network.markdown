@@ -3,7 +3,7 @@ layout: post
 comments: true
 mathjax: true
 priority: 600
-title: “Memory network (MemNN) & End to end memory network (MemN2N)”
+title: “Memory network (MemNN) & End to end memory network (MemN2N), Dynamic memory network”
 excerpt: “Use a memory network to store knowledge for inferencing.”
 date: 2017-03-15 11:00:00
 ---
