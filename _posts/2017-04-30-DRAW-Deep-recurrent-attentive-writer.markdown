@@ -88,7 +88,7 @@ $$
 $$
 
 $$
-r_t = \left[ x_t, \hat{x_{t}} \right]
+r_t = \left[ x, \hat{x_{t}} \right]
 $$
 
 $$
@@ -113,28 +113,114 @@ $$
 c_t = c_{t-1} + linear(h^{dec}_t)
 $$
 
-To prepare the input of the encoder:
+#### Encoder
 
-<div class="imgcap">
-<img src="/assets/gm/e1.png" style="border:none;width:30%">
-</div>
+The encoder have 4 inputs: 
 
-with the encoder:
+* The original image $$x$$ and the residual image $$\hat{x_t} = x - \sigma(c_{t-1})$$.
+* The hidden states of the encoder and decoder $$h^{enc}_{t-1},  h^{dec}_{t-1}$$ from the previous timestep.
 
 $$
 h^{enc}_t = RNN^{enc} (h^{enc}_{t-1}, [ r_t, h^{dec}_{t-1} ] )
 $$
 
-We perform:
+<div class="imgcap">
+<img src="/assets/gm/e1.png" style="border:none;width:30%">
+</div>
+
+Original image & residual image:
 ```python
 c_prev = tf.zeros((self.N, 784)) if t == 0 else self.ct[t - 1]  # (N, 784)
-
 x_hat = x - tf.sigmoid(c_prev)  # residual: (N, 784)
 r = tf.concat([x,x_hat], 1)     
+```
 
+Using LSTM and 2 FC for Encoder:
+
+<div class="imgcap">
+<img src="/assets/gm/e2.png" style="border:none;width:30%">
+</div>
+
+The encoder computes the hidden states and the Gaussian distribution of the latent variable $$z$$:
+```python
 self.mu[t], self.logsigma[t], self.sigma[t], enc_state = self.encode(enc_state, 
                                                          tf.concat([r, h_dec_prev], 1))
 ```
+
+
+```python
+def encode(self, prev_state, image):
+   # update the RNN with image
+   with tf.variable_scope("encoder", reuse=self.share_parameters):
+       hidden_layer, next_state = self.lstm_enc(image, prev_state)
+
+   # map the RNN hidden state to latent variables
+   # Generate the means using a FC layer
+   with tf.variable_scope("mu", reuse=self.share_parameters):
+       mu = dense(hidden_layer, self.n_hidden, self.n_z)
+
+   # Generate the sigma using a FC layer
+   with tf.variable_scope("sigma", reuse=self.share_parameters):
+       logsigma = dense(hidden_layer, self.n_hidden, self.n_z)
+       sigma = tf.exp(logsigma)
+   return mu, logsigma, sigma, next_state
+```
+
+```python
+self.lstm_enc = tf.nn.rnn_cell.LSTMCell(self.n_hidden, state_is_tuple=True)  # encoder Op
+```
+
+#### Sampling z and decode
+
+
+$$
+\begin{split}
+z_{t} & \sim Q(Z_t | h^{enc}_t ) \\
+h^{dec}_t & = RNN^{dec} (h^{dec}_{t-1}, z_{t} ) \\
+\end{split}
+$$
+
+<div class="imgcap">
+<img src="/assets/gm/e3.png" style="border:none;width:30%">
+</div>
+
+```python
+# Sample from the distribution returned from the encoder to get z.
+z = self.sample(self.mu[t], self.sigma[t], self.distrib)
+
+# Get the hidden decoder state and the cell state using the a LSTM decoder.
+h_dec, dec_state = self.decode_layer(dec_state, z)
+```
+
+The decoder composes of a LSTM cell.
+```
+def decode_layer(self, prev_state, latent):
+    # update decoder RNN with latent var
+    with tf.variable_scope("decoder", reuse=self.share_parameters):
+       hidden_layer, next_state = self.lstm_dec(latent, prev_state)
+
+    return hidden_layer, next_state
+```
+
+```python
+self.lstm_dec = tf.nn.rnn_cell.LSTMCell(self.n_hidden, state_is_tuple=True)  # decoder Op
+```
+
+
+#### Output image
+
+The output combines the previous output $$c_{t-1}$$ with the output from FC layer.
+
+$$
+c_t = c_{t-1} + linear(h^{dec}_t)
+$$
+
+```python
+# Calculate the output image at step t using attention with the decoder state as input.
+self.ct[t] = c_prev + dense(hidden_layer, self.n_hidden, self.img_size**2)
+```
+
+#### 
 
 To demonstrate how it is constructed, here is the code up to the encoder written in TensorFlow with the following steps:
 1. Read the MNist data.
@@ -142,9 +228,8 @@ To demonstrate how it is constructed, here is the code up to the encoder written
 1. Construct a placeholder for the image.
 1. Construct the encoder and decoder operation.
 1. Construct the initial state (zero state) for the encoder and decoder.
-1. Create a multiple time steps LSTM.
-1. Construct the encoder at each time step.
-
+1. Unroll LSTM into T steps.
+1. Construct the encoder and decoder node at each time step.
 
 ```python
 class Draw():
@@ -200,39 +285,30 @@ class Draw():
             # Using LSTM cell to encode the input with the encoder state
             # We use the attention input r and the previous decoder state as the input to the LSTM cell.
             self.mu[t], self.logsigma[t], self.sigma[t], enc_state = self.encode(enc_state, tf.concat([r, h_dec_prev], 1))
+
+            # Sample from the distribution returned from the encoder to get z.
+            z = self.sample(self.mu[t], self.sigma[t], self.distrib)
+
+            # Get the hidden decoder state and the cell state using the a LSTM decoder.
+            h_dec, dec_state = self.decode_layer(dec_state, z)
+
+            # Calculate the output image at step t using attention with the decoder state as input.
+            self.ct[t] = c_prev + self.write_attention(h_dec)
+
+            # Update previous hidden state
+            h_dec_prev = h_dec
+            self.share_parameters = True  # from now on, share variables
+
+        # Output the final output in the final timestep as the generated images
+        self.generated_images = tf.nn.sigmoid(self.ct[-1])			
 ```
 
-Sampling z:
+#### Final image
 
-$$
-z_{t} \sim Q(Z_t | h^{enc}_t )
-$$
-
+Output the final image:
 ```python
-# Sample from the distribution returned from the encoder to get z.
-z = self.sample(self.mu[t], self.sigma[t], self.distrib)
-```
-
-Decoder:
-
-$$
-h^{dec}_t = RNN^{dec} (h^{dec}_{t-1}, z_{t} )
-$$
-
-```python
-# Get the hidden decoder state and the cell state using the a LSTM decoder.
-h_dec, dec_state = self.decode_layer(dec_state, z)
-```
-
-Compute output image:
-
-$$
-c_t = c_{t-1} + linear(h^{dec}_t)
-$$
-
-```python
-# Calculate the output image at step t using attention with the decoder state as input.
-self.ct[t] = c_prev + dense(hidden_layer, self.n_hidden, self.img_size**2)
+# Output the final output in the final timestep as the generated images
+self.generated_images = tf.nn.sigmoid(self.ct[-1])			
 ```
 
 ### Attention implementation
@@ -258,6 +334,8 @@ In the code below, we call _self.attn_window_ to predict the center of the atten
 <div class="imgcap">
 <img src="/assets/gm/gau.png" style="border:none;width:40%">
 </div>
+
+>  Draw use a FC network to compute a center point, sigma, distance for the grids.
 
 ```python
 def read_attention(self, x, x_hat, h_dec_prev):

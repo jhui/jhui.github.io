@@ -143,15 +143,17 @@ with tf.variable_scope("discriminator") as scope:
 
 We computed the lost function for the discriminator using the cross entropy for both real and generated images.
 ```python
-d_loss_real = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits=D_logit, labels=tf.ones_like(D_logit)))
-d_loss_fake = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits=D_fake_logit, labels=tf.zeros_like(D_fake_logit)))
-
+d_loss_real = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(
+                 logits=D_logit, labels=tf.ones_like(D_logit)))
+d_loss_fake = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(
+                 logits=D_fake_logit, labels=tf.zeros_like(D_fake_logit)))
 d_loss = d_loss_real + d_loss_fake
 ```
 
 We compute the lost function for the generator by using the logits of the generated images from the discriminator. Then, we backpropagate the gradient to train the $$W$$ such that it can later create more realistic images.
 ```python
-g_loss = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits=D_fake_logit, labels=tf.ones_like(D_fake_logit)))
+g_loss = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(
+                 logits=D_fake_logit, labels=tf.ones_like(D_fake_logit)))
 ```
 
 We use 2 separate optimizer to train both network simultaneously:
@@ -571,6 +573,10 @@ $$
 ELBO(λ) =   \log (p(x)) - KL\left( q_\lambda (z∣x) ∣∣ p(z∣x)\right)
 $$
 
+Since KL-divergence is always positive, $$\log (p(x)) = KL + ELBO(λ) > ELBO(λ) $$, therefore ELBO is called the evidence lowest bound.
+
+For a datapoint $$i$$, the equation above is the same as below. We can expand $$p(x_{i} \vert z)$$ with Bayes theorem and apply some logarithm manipulation.
+
 $$
 ELBO_i(\lambda) = E_{q_\lambda(z∣x_i) }  \lbrack  \log (p(x_{i}|z))  \rbrack - KL\left( q_\lambda (z∣x_{i}) ∣∣ p(z)\right)
 $$
@@ -582,6 +588,29 @@ ELBO_i(\theta, \phi) = E_{q_\theta(z∣x_i) }  \lbrack  \log (p_{\theta}(x_{i}|z
 $$
 
 The first term measured the probability of output $$x_i$$ in the decoder with $$x_i$$ as input to the encoder.  The second term is the KL divergence.
+
+#### KL-divergence of 2 Gaussian distributions
+
+Let:
+
+$$
+p(x) = N(\mu_1, \sigma_1) \\
+q(x) = N(\mu_2, \sigma_2)
+$$
+
+$$
+\begin{align}
+KL(p, q) &= \int \left[\log( p(x)) - log( q(x)) \right] p(x) dx \\
+& = E_1 \left[ -\frac{1}{2} \log(2\pi) - \log(\sigma_1) - \frac{1}{2} \left(\frac{x-\mu_1}{\sigma_1}\right)^2 + \frac{1}{2}\log(2\pi) + \log(\sigma_2) + \frac{1}{2} \left(\frac{x-\mu_2}{\sigma_2}\right)^2  \right] \\
+&=E_{1} \left\{\log\left(\frac{\sigma_2}{\sigma_1}\right) + \frac{1}{2} \left[ \left(\frac{x-\mu_2}{\sigma_2}\right)^2 - \left(\frac{x-\mu_1}{\sigma_1}\right)^2 \right]\right\} \\
+& =\log\left(\frac{\sigma_2}{\sigma_1}\right) + \frac{1}{2\sigma_2^2} E_1 \left\{(X-\mu_2)^2\right\} - \frac{1}{2\sigma_1^2} E_1 \left\{(X-\mu_1)^2\right\} \\
+& =\log\left(\frac{\sigma_2}{\sigma_1}\right) + \frac{1}{2\sigma_2^2} E_1 \left\{(X-\mu_2)^2\right\} - \frac{1}{2} \quad \text{ because } E_1 \left\{(X-\mu_1)^2\right\} = \sigma_1^2\\
+Note: & (X - \mu_2)^2 = (X-\mu_1+\mu_1-\mu_2)^2 = (X-\mu_1)^2 + 2(X-\mu_1)(\mu_1-\mu_2) + (\mu_1-\mu_2)^2 \\
+KL(p, q) & = \log\left(\frac{\sigma_2}{\sigma_1}\right) + \frac{1}{2\sigma_2^2}
+\left[E_1\left\{(X-\mu_1)^2\right\} + 2(\mu_1-\mu_2)E_1\left\{X-\mu_1\right\} + (\mu_1-\mu_2)^2\right] - \frac{1}{2} \\
+& = \log\left(\frac{\sigma_2}{\sigma_1}\right) + \frac{\sigma_1^2 + (\mu_1-\mu_2)^2}{2\sigma_2^2} - \frac{1}{2} \\
+\end{align}
+$$
 
  
 #### Result

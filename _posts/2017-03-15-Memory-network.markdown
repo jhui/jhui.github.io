@@ -385,15 +385,65 @@ class MemN2N(object):
 
 The full source code is in [github](https://github.com/jhui/machine_learning/tree/master/MemN2N) with original code based on https://github.com/carpedm20/MemN2N-tensorflow.
 
+### Dynamic memory network
 
+[Source](https://arxiv.org/pdf/1506.07285.pdf)
 
+<div class="imgcap">
+<img src="/assets/mem/dmm.png" style="border:none;width:100%;">
+</div>
 
+#### Sentence
 
+Sentence is processed by a GRU which the last hidden state is used for the memory module.
 
+#### Question module
 
+$$
+\begin{split}
+q_t & = GRU(v_t, q_{t-1})\\
+\end{split}
+$$
 
+#### Episodic memory module
 
+$$
+\begin{split}
+h^t_i & = g^t_i GRU(s_i, h^t_{i-1}) + (1-g^t_i) h^t_{i-1} \\
+\end{split}
+$$
 
+which $$s_i$$ is the sentence $$i$$. $$h^t_i$$ is the hidden state at time step t after after processing sentence $$i$$. The last hidden state of $$h^t_i$$ is $$m^{'}$$.
+
+#### Gate
+
+$$g^t_i$$ is the gate control on what new information is added to $$h^t$$. It is open if it is relevant to the question or memory $$m^{'}$$. We first form a new feature set by concatenating:
+
+$$
+\begin{split}
+z^t_i &=[s_i \circ q, s_i \circ m^{t-1}, \vert s_i - q \vert, \vert s_i - m^{t-1}\vert ] \\
+\end{split}
+$$
+
+The gate is computed as:
+
+$$
+\begin{split}
+Z ^t_i &= W^2 \tanh (W^1 z^t_i + b^1) + b^2 \\ 
+g^t_i &= \frac{exp(Z^t_i)}{\sum_k exp(Z^t_k)} \\
+\end{split}
+$$
+
+#### Answer module
+
+After $$m^{'}$$ is computed, the relevant facts are summarized in another GRU. If the summary is not sufficient to answer the question, we move to $$t+1$$ in the memory module.
+
+$$
+\begin{split}
+a_t &= GRU([y_{t-1}], a_{t-1}) \\
+y_t &= softmax(W^a a_t) \\
+\end{split}
+$$
 
 
 

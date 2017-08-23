@@ -283,6 +283,7 @@ for style_layer in STYLE_LAYERS: # (relu1_1, relu2_1, relu3_1, relu4_1, relu5_1)
     style_loss += style_weight * style_blend_weights[i] * reduce(tf.add, style_losses)
 ```
 
+#### Noise loss
 We add a extra cost with the purpose of reducing noise in the image. We shift the image by one pixel in both vertical or horizontal direction. By comparing the original and the shifted image, we add a L2 cost which will penalize if the generated result images are noisy.
 ```python
 # Total variation denoising: Add cost to penalize neighboring pixel is very different.
