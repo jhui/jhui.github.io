@@ -87,7 +87,7 @@ $$
 
 ### Maximum Likelihood Estimation
 
-Maximum Likelihood Estimation (MLE) is the same as minimize KL Divergence:
+**Maximum Likelihood Estimation (MLE) is the same as minimize KL Divergence.**
 
 $$
 \begin{split}
@@ -492,6 +492,32 @@ $$
 
 We often ignore the marginal property (the denominator) in Naive Bayes theorem because it is constant and therefore not important when we are optimizing or comparing the parameters for the model.
 
+### Nash Equilibrium
+
+In game theory, the Nash Equilibrium is when no player will change its actions after considering all possible actions of opponents. i.e. if we reveal every actions of all players and no one will change their strategy for a better gain, the Nash equilibrium is reached. A game can have 0, 1 or multiple Nash Equilibria. 
+
+#### The Prisoner's Dilemma
+
+In the prisoner's dilemma problem, police arrests 2 suspects but only have evidence to charger them for a lesser crime with 1 month jail time. But if one of them confess, the other party will receive a 12 months jail time and the one confess will be released. Yet, if both confess, both will receive a jail time of 6 months.
+
+<div class="imgcap">
+<img src="/assets/ml/nash.png" style="border:none;width:80%">
+</div>
+
+For Mary, if she thinks Peter will keep quiet, her best action will be confess to receive no jail time instead of 1 month.
+
+<div class="imgcap">
+<img src="/assets/ml/nash2.png" style="border:none;width:80%">
+</div>
+
+On the other hand, if she thinks Peter will confess, her best action will be confess also to get 6 months jail time.
+<div class="imgcap">
+<img src="/assets/ml/nash3.png" style="border:none;width:80%">
+</div>
+
+In either cases, she should confess. Similarly, Peter should confess also. Therefore (-6, -6) is the Nash Equilibrium even (-1, -1) is the least jail time combined. Why (-1, -1) is not a Nash Equilibrium? Because if Mary knows Peter will keep quiet, she can switch to confess and get a lesser sentence which Peter will response by confessing the crime also. (Providing that Peter and Mary cannot co-ordinate their actions.)
+
+
 ### Terms
 
 #### Term frequency–Inverse document frequency (tf-idf)
@@ -546,3 +572,8 @@ Manifold/Visualization
 Self-organized map
 Association rule
 	
+
+
+
+
+  
