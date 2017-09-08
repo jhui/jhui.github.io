@@ -545,7 +545,8 @@ $$
 <div class="imgcap">
 <img src="/assets/ml/lloss.png" style="border:none;width:50%">
 </div>
-(Note: Logistic loss is sometime viewed as the smooth version of the Hinge loss.)
+
+> Logistic loss is sometime viewed as the smooth version of the Hinge loss.
 
 Logistic loss with L2 regularization:
 
