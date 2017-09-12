@@ -409,7 +409,7 @@ $$
 \begin{split}
 L_I (G, Q) & = E_{c \sim P(c),x \sim G(z,c)} [log Q(c \vert x)] + H(c) \\
 &= \mathbb{E}_{x \sim G(z,c)} [  \mathbb{E}_{c^{'} \sim P(c \vert x)} [log Q(c^{'} \vert x)]] + H(c) \\
-& leq I(c; G(z, c)) \\
+& \leq I(c; G(z, c)) \\
 \end{split}
 $$
 
