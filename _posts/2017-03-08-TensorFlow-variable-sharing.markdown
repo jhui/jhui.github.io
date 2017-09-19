@@ -2,8 +2,8 @@
 layout: post
 comments: true
 priority: 830
-title: “TensorFlow variables, variable sharing and scoping.”
-excerpt: “Explain the Tensor variables, name sharing & scoping without the confusion.”
+title: “TensorFlow variables, saving/restore”
+excerpt: “TensorFlow variables, saving/restore”
 date: 2017-03-08 12:00:00
 ---
 ### Variables
@@ -37,44 +37,64 @@ with tf.Session() as sess:
   print(b)
 ```
 
-#### Save a Checkpoint
-Variables can be saved to a disk during and after training and be restored for prediction or analyze later.
+####Save a Checkpoint
+
+Variables can be saved to a disk during training. It can be reloaded to continue the training or to make inferences.
+
 ```python
-### Save and restore variables
-counter = tf.Variable(0, name="counter")
+# Create some variables 
+v1 = tf.get_variable("v1", shape=[3], initializer = tf.zeros_initializer)
+v2 = tf.get_variable("v2", shape=[5], initializer = tf.zeros_initializer)
 
-increment = tf.assign(counter , counter + 1)
-
-# Saver
-saver = tf.train.Saver()
-
+# Create the op
+inc_v1 = v1.assign(v1+1)
+dec_v2 = v2.assign(v2-1)
 init_op = tf.global_variables_initializer()
+
+# Add ops to save and restore all the variables.
+saver = tf.train.Saver()
 
 with tf.Session() as sess:
   sess.run(init_op)
-  for _ in range(10):
-      sess.run(increment)
+  inc_v1.op.run()
+  dec_v2.op.run()
 
   # Save the variables to disk.
   save_path = saver.save(sess, "/tmp/model.ckpt")
-
-  # Restore
-  saver.restore(sess, "/tmp/model.ckpt")
-
-  count = sess.run(counter)
-  print(count)
 ```
-Save and restore:
+
+Restore:
+
 ```python
-  # Save the variables to disk.
-  save_path = saver.save(sess, "/tmp/model.ckpt")
+# Create some variables. 
+# We do not need to provide initializer or init_op if it is restored from a checkpoint.
+v1 = tf.get_variable("v1", shape=[3])
+v2 = tf.get_variable("v2", shape=[5])
 
-  # Restore
+saver = tf.train.Saver()
+
+with tf.Session() as sess:
+  # Restore variables from disk.
   saver.restore(sess, "/tmp/model.ckpt")
+
+  # Check the values of the variables
+  print("v1 : %s" % v1.eval())
+  print("v2 : %s" % v2.eval())
 ```
+
 To save a subset of variables only.
+
 ```python
-saver = tf.train.Saver({"my_counter": counter})
+v1 = tf.get_variable("v1", [3], initializer = tf.zeros_initializer)
+v2 = tf.get_variable("v2", [5], initializer = tf.zeros_initializer)
+
+# Save only v2
+saver = tf.train.Saver({"v2": v2})
+
+with tf.Session() as sess:
+  # Initialize v1 since the saver will not.
+  v1.initializer.run()
+  saver.restore(sess, "/tmp/model.ckpt")
 ```
 
 ### Variable sharing
