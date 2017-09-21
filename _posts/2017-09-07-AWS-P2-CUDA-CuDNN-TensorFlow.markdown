@@ -381,6 +381,8 @@ Note, whenever we logout from a session, we need to set the env again.
 source activate tf
 ```
 
+> It is important to **source activate tf** to the correct environment before running the TensorFlow app.
+ 
 All and the current env. can be found by:
 ```
 (tf) $ conda info --envs
@@ -418,6 +420,8 @@ The TensorFlow library wasn't compiled to use AVX instructions, but these are av
 The TensorFlow library wasn't compiled to use AVX2 instructions, but these are available on your machine and could speed up CPU computations.
 The TensorFlow library wasn't compiled to use FMA instructions, but these are available on your machine and could speed up CPU computations.
 ```
+
+>  However, in our GAN application, we do not see significant performance improvement. (Details later) 
 
 Here, we are building TensorFlow manually. Checkout TensorFlow if not done already. (This is done in previous steps. )
 ```sh
@@ -585,6 +589,11 @@ Mount the drive to the new directory
 sudo mount /dev/xvdf /home/ubuntu/gan
 ```
 
+Change the directory ownership
+```
+sudo chown -R ubuntu:ubuntu /home/ubuntu/gan 
+```
+
 Verify
 ```
 $ df -h
@@ -617,6 +626,14 @@ Replace the UUID with the one for your ESB and add the line below to the file
 UUID=abe58d1a-8037-477d-9034-777e1b31fa35 /home/ubuntu/gan ext4 noatime,defaults 0 0
 ```
 
-
 > Note: consult with your system admin for the mount options and flags.
+
+### Performance comparison
+
+No doubt, a machine with GPU runs a TensorFlow application much faster. Our TensorFlow application Generative adversary network GAN runs 25 times faster in the P2 instance than a local Mac machine. However, this is a poor comparison because our 4-year old Mac has a slower CPU. Nevertheless, the speed improvement is significant since we need to run our GAN application overnight in P2 to even show some reasonable result. Running GAN on a machine without GPU is not feasible.
+
+Does it worth to build a custom environment rather than using the Amazon Deep Learning AMI? Amazon deep learning AMI creates an environment in minutes with all the important packages. But it charges extra per hour for the software. To build our own custom system, we can use the latest version of CUDA, CuDNN and Python libraries. But un-expected issues will often pop up that will take time to resolve. The first built may take hours to finish. But once an AMI is built, there are not much difference to create a new instance. Does it worth it to rebuilt the TensorFlow code with the CPU optimization for the computer? Our GAN application uses CNN. ReLU, fully connected network heavily. From end to end, we see no speed improvement. We suspect most important tasks are done in the GPU which the CPU optimization does not make an impact. Nevertheless, we do realize the variable initialization and checkpoint saving is much faster in our custom build. But it is not frequent enough to make a difference. It is still in-conclusive on whether a custom TensorFlow build is faster. In our situration, it is not significant for our GAN application.
+
+
+
 
