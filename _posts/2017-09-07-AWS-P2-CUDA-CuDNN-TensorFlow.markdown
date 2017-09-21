@@ -582,7 +582,7 @@ Create a new directory for your application and data.
 ```sh
 mkdir /home/ubuntu/gan
 ```
-Note: If you want to have multiple applications to run in this instance, you should create a directory like "/mnt/home" instead.
+Note: If you want to have multiple applications to run in this instance, you should create a directory like "/data" instead.
 
 Mount the drive to the new directory
 ```sh
