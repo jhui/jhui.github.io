@@ -538,3 +538,85 @@ sudo nvidia-smi -ac 2505,875           # Set GPU clock speed to the highest
 
 This AMI is available publicly as ami-5db19338 on us-east-2 region (Ohio).
 
+### Attach a EBS for permanent data
+
+In the AWS console, we create a new volume under the elastic block store.
+
+<div class="imgcap">
+<img src="/assets/tensorflow/esb1.png" style="border:none;width:70%">
+</div>
+
+Then we attached the EBS to our instance.
+<div class="imgcap">
+<img src="/assets/tensorflow/esb2.png" style="border:none;width:80%">
+</div>
+
+Login to the instance and verify the new EBS is available.
+```
+$ lsblk
+NAME    MAJ:MIN RM SIZE RO TYPE MOUNTPOINT
+xvda    202:0    0  30G  0 disk
+└─xvda1 202:1    0  30G  0 part /
+xvdf    202:80   0  20G  0 disk
+```
+
+> Our new drive is called xvdf above.
+
+Check if it is empty. (If the output is "/dev/xvdf: data", it is empty. )
+```
+$ sudo file -s /dev/xvdf
+/dev/xvdf: data
+```
+
+
+Format the drive **if it is empty**. WARNING: This will erase data on xvdf.
+```
+sudo mkfs -t ext4 /dev/xvdf
+```
+
+Create a new directory for your application and data. 
+```sh
+mkdir /home/ubuntu/gan
+```
+Note: If you want to have multiple applications to run in this instance, you should create a directory like "/mnt/home" instead.
+
+Mount the drive to the new directory
+```sh
+sudo mount /dev/xvdf /home/ubuntu/gan
+```
+
+Verify
+```
+$ df -h
+Filesystem      Size  Used Avail Use% Mounted on
+udev             30G     0   30G   0% /dev
+tmpfs           6.0G  8.9M  6.0G   1% /run
+/dev/xvda1       30G   16G   14G  54% /
+tmpfs            30G     0   30G   0% /dev/shm
+tmpfs           5.0M     0  5.0M   0% /run/lock
+tmpfs            30G     0   30G   0% /sys/fs/cgroup
+tmpfs           6.0G     0  6.0G   0% /run/user/1000
+/dev/xvdf        20G   44M   19G   1% /home/ubuntu/gan
+```
+
+To enable auto-mount on reboot, we need to locate the UUID for the new EBS.
+```
+$ sudo cp /etc/fstab /etc/fstab.bak
+$ sudo blkid
+/dev/xvda1: LABEL="cloudimg-rootfs" UUID="5ba6ba49-ee5b-42b0-93f7-2f2b89fc1c71" TYPE="ext4" PARTUUID="ac6c9084-01"
+/dev/xvdf: UUID="abe58d1a-8037-477d-9034-777e1b31fa35" TYPE="ext4"
+```
+
+Edit the automunt file.
+```
+sudo vi /etc/fstab
+```
+
+Replace the UUID with the one for your ESB and add the line below to the file
+```
+UUID=abe58d1a-8037-477d-9034-777e1b31fa35 /home/ubuntu/gan ext4 noatime,defaults 0 0
+```
+
+
+> Note: consult with your system admin for the mount options and flags.
+
