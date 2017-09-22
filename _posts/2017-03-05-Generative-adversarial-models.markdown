@@ -3,23 +3,23 @@ layout: post
 comments: true
 mathjax: true
 priority: 550
-title: “Generative adversarial models, improving GAN, InfoGAN”
-excerpt: “Generative adversarial models, improving GAN, InfoGAN”
+title: “Generative adversarial nets (GAN) , DCGAN, InfoGAN”
+excerpt: “Generative adversarial nets, improving GAN, DCGAN, InfoGAN”
 date: 2017-03-06 14:00:00
 ---
 
 
 ### Discriminative models
 
-Generative models generate images from scratch. In a discriminative model, we draw conclusion on something we observe. For example, we train a CNN discriminative model to classify a picture. 
+In a discriminative model, we draw conclusion on something we observe. For example, we train a CNN discriminative model to classify an image. 
 
 $$ y = f(image) $$
 
 <div class="imgcap">
 <img src="/assets/cnn/cnn.png" style="border:none;width:60%">
 </div>
-
-In a previous article, we demonstrate how to generate images based on a discriminative model. Basically, we select a specific layer in a CNN, manipulate the gradient manually and backpropagate the gradient to change the image. For example, we want to change an image to make it look similar to another image. We pass the first and the second image to the CNN respectively. We extract the corresponding features of those image at some layers deep down in the network. We manually set the gradient to the difference of the feature values of the images. Then we backpropagate the gradient to make one image look closer to another one. 
+ 
+In a previous article on style transfer, we demonstrate how to generate images based on a discriminative model. Basically, we select a specific layer in a CNN, manipulate the gradient manually and backpropagate the gradient to change the image. For example, we want to change an image to make it look similar to another image. We pass the first and the second image to the CNN respectively. We extract the corresponding features of those image at some layers deep down in the network. We manually set the gradient to the difference of the feature values of the images. Then we backpropagate the gradient to make one image look closer to another one. 
 ```python
 for t in xrange(num_iterations):
     out_feats, cache = model.forward(X, end=layer)
@@ -34,15 +34,26 @@ for t in xrange(num_iterations):
 
 ### Generative models
 
-In a discriminative model, we draw conclusion on something we observe: 
+Discriminative models starts with an image and draw conclusion on something we observe: 
 
 $$ y = f(image) $$
 
-A generative model generates data that we observe:
+In previous articles, we train a CNN to extract features of our training dataset. Then we start with a noisy image and use backpropagation to make content transfer back to the image. 
+
+$$
+image \rightarrow z \rightarrow image^{'} 
+$$
+
+Generative models work in the opposite direction. We starts with some latent representations and generate the image. For example, we generate images that resemble a bedroom directly. 
 
 $$ image = G(z) $$
 
-For example, in a generative model, we ask the model to generate an image that resemble a bedroom. In previous sections, we train a CNN to extract features of our training dataset. Then we iteratively and selectively backpropagate features to generate images. In the following sections, we adopt a more direct approach in generating image.
+
+In this article, we adopt a more direct approach to generate image.
+
+$$
+z \rightarrow image
+$$
 
 > z can sometimes realize as the latent variables of an image.
 
@@ -53,7 +64,7 @@ Generative adversarial networks compose of 2 deep networks:
 * Generator: A deep network generates realistic images.
 * Discriminator: A deep network distinguishes real images from computer generated images.
 
-We often compare these GAN networks with a counterfeiter (generator) and a bank (discriminator). Currency are labeled as real or counterfeit to train the bank in identifying fake money. However, the same training signal for the bank is repurposed for training the counterfeiter to print better counterfeit. If done correctly, we can lock both parties into competition that eventually the counterfeit is undistinguishable from real money.
+We often compare these GAN networks as a counterfeiter (generator) and a bank (discriminator). Currency are labeled as real or counterfeit to train the bank in identifying fake money. However, the same training signal for the bank is repurposed for training the counterfeiter to print better counterfeit. If done correctly, we can lock both parties into competition that eventually the counterfeit is undistinguishable from real money.
 
 ### Generator
 
@@ -66,7 +77,7 @@ $$
 The generator produces images with distribution $$p_{model}(x)$$ while the real images have distribution $$ p_{data}(x) $$. 
 
 
-We can model the discriminator as a classification problem with one data feed coming from real images while another data feed from the generator. The cost function determines how well that can classify real and computer generated images. We want the probability to be 1 for real image and 0 for computer generated image:
+We can model the discriminator as a classification problem with one data feed coming from real images while another data feed from the generator. The cost function $$J^D$$ determines how well that can classify real and computer generated images. We want the probability to be 1 for real image and 0 for computer generated image.
 
 $$
 J^D(θ^D, θ^G) = − \frac{1}{2} \mathbb{E}_{x \sim p_{data}} log D(x) − \frac{1}{2} \mathbb{E}_{z} log  (1 − D (G(z)))
@@ -87,8 +98,7 @@ $$
 <img src="/assets/gm/gan1.png" style="border:none;width:60%">
 </div>
 
-The discriminator (dashed blue line) estimates $$D^{*}(x) = \frac{p_{data}(x)}{p_{data}(x) + p_{model}(x)} $$ Whenever the discriminator's output is high, $$p_{model}(x)$$ is too low, and whenever the
-the discriminator's output is small, the model density is too high. The generator can produce a better model by following the discriminator uphill. i.e. Move G(z) value slightly in the direction that increases D(G(z)).
+The discriminator (dashed blue line) estimates $$D^{*}(x) = \frac{p_{data}(x)}{p_{data}(x) + p_{model}(x)} $$. Whenever the discriminator’s output is high, pmodel(x)pmodel(x) is too low, and whenever the the discriminator’s output is small, the model density is too high. The generator can produce a better model by following the discriminator uphill. i.e. Move G(z) value slightly in the direction that increases D(G(z)).
 
 ### Zero-sum game (MiniMax)
 
@@ -116,7 +126,7 @@ $$
 
 ### Maximum likelihood game
 
-We can treat GAN as a maximum likelihood game.
+We may treat GAN as a maximum likelihood game.
 
 $$
 θ^{∗} = \arg \min_θ D_{KL} (p_{data}(x) \| \| p_{model}(x; θ))
@@ -323,7 +333,6 @@ $$
 
 The discriminator processes each datapoint independently and there is no mechanism to encourage the generator to create more diversify images (the generator may collapse to very similar output). In minibatch discrimination, we add information about its co-relationship with other images as input to the discriminator.
 
-
 $$f$$ be the feature vector of datapoint $$i$$ in the intermediate layer of the discriminator. $$T$$ is another tensor to train.
 
 $$
@@ -376,9 +385,11 @@ VBN is expensive and will be used only in the generator network.
 
 ### InfoGAN
 
-In MNIST dataset, it will be good to have a latent variable representing the class of the digit (0-9), another variable for the digit's angle and one for the stroke thickness. In InfoGAN, the noise vector is decomposed into $$z$$ as the source of noise and $$c$$ for the latent code representing the semantic features of the datapoints.
+In MNIST dataset, it will be good to have a latent variable representing the class of the digit (0-9), another variable for the digit's angle and one for the stroke thickness. In InfoGAN, we have $$c$$ for the latent code representing the semantic features of the datapoints and the noise vector $$z$$ as the source of noise for the latent variables. InfoGAN discovers these latent factors in an unsupervised way.
 
-InfoGAN discovers these latent factors in an unsupervised way.
+$$
+V_{GAN}(D, G) \equiv   \mathbb{E}_{x \sim p_{data}} log D(x) + \mathbb{E}_{z \sim p_z(z)} log  (1 − D (G(z)))
+$$
 
 In information theory, the mutual information between $$X$$ and $$Y$$ is $$I(X; Y )$$. It measures how much we will know $$X$$ if we know $$Y$$ or vice versa. If $$X$$ and $$Y$$ are independent, $$I(X; Y )=0$$ 
 
@@ -386,10 +397,28 @@ $$
 I(X; Y ) = H(X) − H(X \vert Y) = H(Y) − H(Y \vert X) 
 $$
 
-Given $$ x \sim P_G(x)$$, we want $$P_G(c \vert x) $$ to have a small entropy. We want to solve the minmax of
+which $$H$$ is the entropy.
+
+Given $$ x \sim P_G(x)$$, we want $$P_G(c \vert x) $$ to have a small entropy. InfoGAN want to solve the minmax of
 
 $$
-\min_G \max_D V_I (D, G) = V (D, G) − λ I(c; G(z, c)) 
+\min_G \max_D V_{infoGAN} (D, G) = V_{GAN} (D, G) − λ I( c | x = G(z, c)) 
+$$
+
+To compute $$ I(c \vert x = G(z, c)) $$, we need:
+
+* To approximate $$ p(c \vert x) $$ with a function $$ Q(c \vert x) $$ (Variation Maximization) and
+* Share the deep network of $$Q$$ with the discriminator $$D$$.
+
+#### Variation Maximization of mutual information
+
+$$
+\begin{split}
+& \mathbb{E}_{x \sim G(z,c), c \sim p(c \vert x} ) [log p(c \vert x) ]  \\
+&= \mathbb{E}_{x \sim G(z,c), c \sim p(c \vert x} ) [log Q(c, x) ] + \mathbb{E}_{x \sim G(z,c), c \sim p(c \vert x} ) [log \frac{p(c \vert x)}{Q(c, x)}  ] \\
+&= \mathbb{E}_{x \sim G(z,c), c \sim p(c \vert x} ) [log Q(c, x) ] + \mathbb{E}_{x \sim G(z,c), c \sim p(c \vert x} ) [ D_{KL}(p(c \vert x)) \vert \vert Q(c, x)  ] \\
+& \geq \mathbb{E}_{x \sim G(z,c), c \sim p(c \vert x} ) [log Q(c, x) ]  \quad \text{since KL is always positive} \\
+\end{split}
 $$
 
 To find the lower bound of $$I$$:
@@ -397,9 +426,8 @@ To find the lower bound of $$I$$:
 $$
 \begin{split}
 I(c; G(z, c)) & = H(c) − H(c \vert G(z, c)) \\
-&= \mathbb{E}_{x \sim G(z,c)} [\mathbb{E}_{c^{'} \sim P(c \vert x)} [log P(c^{'} \vert x)]] + H(c) \\
-&= \mathbb{E}_{x \sim G(z,c)} [ [D_{KL}(P(· \vert x) \vert \vert Q(· \vert x)) +  \mathbb{E}_{c^{'} \sim P(c \vert x)} [log Q(c^{'} \vert x)]] + H(c) \\
-& \geq \mathbb{E}_{x \sim G(z,c)} [  \mathbb{E}_{c^{'} \sim P(c \vert x)} [log Q(c^{'} \vert x)]] + H(c) 
+&= \mathbb{E}_{x \sim G(z,c)} [\mathbb{E}_{c \sim P(c \vert x)} [log P(c \vert x)]] + H(c) \\
+& \geq \mathbb{E}_{x \sim G(z,c)} [  \mathbb{E}_{c \sim P(c \vert x)} [log Q(c \vert x)]] + H(c) 
 \end{split}
 $$
 
@@ -413,12 +441,12 @@ L_I (G, Q) & = E_{c \sim P(c),x \sim G(z,c)} [log Q(c \vert x)] + H(c) \\
 \end{split}
 $$
 
-which $$Q$$ is the auxiliary distribution parameterized as a deep network. $$Q$$ and $$D$$ share all CNN layers with one fully connected layer dedicated to output $$Q(c \vert x)$$. For categorical latent code $$c_i$$, it applies softmax to represent $$ Q(c_i \vert x)$$. For continuous latent code $$c_j$$ , InfoGAN treats it as a Gaussian distribution.
+which $$Q$$ is a function approximator which share with the deep network with $$D$$. $$Q$$ and $$D$$ share all CNN layers but with one fully connected layer dedicated to output $$Q(c \vert x)$$. For latent code $$c_i$$, it applies softmax to represent $$ Q(c_i \vert x)$$. For continuous latent code $$c_j$$ , InfoGAN treats it as a Gaussian distribution. Maximize $$L_I$$ equivalent to maximizing the mutual information and minimize the function approximator error.
  
-Minmax to optimize:
+InfoGan minmax the following equation:
 
 $$
-\min_{G,Q} \max_D V_{InfoGAN}(D, G, Q) = V (D, G) − λL_I (G, Q) 
+\min_{G,Q} \max_D V_{InfoGAN}(D, G, Q) = V_{GAN} (D, G) − λL_I (G, Q) 
 $$
 
 ###  Mode collapse
