@@ -363,73 +363,103 @@ self.optimizer = tf.train.AdamOptimizer(0.001).minimize(self.cost)
  
 ### Cost function in detail
 
-KL divergence measures the difference of 2 distributions. By definition, KL divergence is defined as: 
+In VAE, we want to model the data distribution $$p(x)$$ with an encoder $$ q_ϕ(z \vert x)$$ , a decoder $$p_θ(x  \vert z) $$ and a latent variable model $$p(z)$$ through the VAE objective function:
 
 $$
-KL\left(q||p\right) = \sum_{x} q(x) \log (q(x)/p(x)) 
+\log p(x) \approx \mathbb{E}_q [   \log p_θ (x \vert z)] - D_{KL} [q_ϕ (z \vert x) \Vert p(z)]   \\
 $$
 
-$$
-KL\left( q||p \right) = E_q[log (q(x))−log (p(x))]
-$$
-
-$$ q_\lambda (z∣x) $$ is the distribution of $$ z $$ predicted by our deep network. We want it to match the true distribution $$ p(z∣x) $$. We want the distribution approximate from the deep network has little divergence from the true distribution. i.e. we want to find $$ \lambda $$ with the smallest KL divergence.
+To draw this conclusion, we start with the KL divergence which measures the difference of 2 distributions. By definition, KL divergence is defined as: 
 
 $$
-KL\left( q_\lambda (z∣x) ∣∣ p(z∣x)\right) = E_q \lbrack \log q_λ (z∣x) \rbrack - E_q \lbrack \log p (z∣x) \rbrack 
+\begin{align}
+D_{KL}\left(q \Vert p\right) & = \sum_{x} q(x) \log (\frac{q(x)}{p(x)}) \\ 
+& = \mathbb{E}_q[log (q(x))−log (p(x))] \\
+\end{align}
+$$
+
+
+Apply it with:
+
+$$
+\begin{align}
+D_{KL}[q(z \vert x) \Vert p(z \vert x)] &= \mathbb{E}[\log q(z \vert x) - \log p(z \vert x)] \\
+\end{align}
+$$
+
+
+Let $$ q_\lambda (z \vert x) $$ be the distribution of $$ z $$ predicted by our encoder deep network. We want it to match the true distribution $$ p(z \vert x) $$. We want the distribution approximated by the deep network has little divergence from the true distribution. i.e. we want to optimize $$ \lambda $$ with the smallest KL divergence.
+
+$$
+D_{KL} [ q_λ (z \vert x) \Vert p(z \vert x) ] = \mathbb{E}_q [ \log q_λ (z \vert x)  - \mathbb{E}_q  \log p (z \vert x) ]
 $$
 
 Apply:
 
 $$
-p(z|x) = \frac{p(x,z)}{p(x)}
+p(z \vert x) = \frac{p(x \vert z) p(z)}{p(x)}
 $$
 
 $$
-KL\left( q_\lambda (z∣x) ∣∣ p(z∣x)\right) = E_q \lbrack \log q_λ (z∣x) \rbrack - E_q \lbrack \log p (x,z) \rbrack + \log (p(x))
+\begin{align}
+D_{KL} [ q_\lambda (z \vert x) \Vert p(z \vert x)  ] & = \mathbb{E}_q [ \log q_λ (z \vert x) - \log \frac{ p (x \vert z) p(z)}{p(x)}  ] \\
+& = \mathbb{E}_q [ \log q_λ (z \vert x)  - \log p (x \vert z) - \log p(z)  + \log p(x)]   \\
+& = \mathbb{E}_q [ \log q_λ (z \vert x)  - \log p (x \vert z) - \log p(z) ] + \log p(x) \\
+ D_{KL} [ q_\lambda (z \vert x) \Vert p(z \vert x)  ]  - \log p(x) & = \mathbb{E}_q [ \log q_λ (z \vert x)  - \log p (x \vert z) - \log p(z) ] \\
+ \log p(x) - D_{KL} [ q_\lambda (z \vert x) \Vert p(z \vert x)  ]  & = \mathbb{E}_q [   \log p (x \vert z) - ( \log q_λ (z \vert x) - \log p(z)) ] \\
+&=  \mathbb{E}_q [   \log p (x \vert z)] - \mathbb{E}_q [ \log q_λ (z \vert x) - \log p(z)) ] \\
+&=  \mathbb{E}_q [   \log p (x \vert z)] - D_{KL} [q_λ (z \vert x) \Vert p(z)] \\
+\end{align}
 $$
 
 Define the term ELBO (Evidence lower bound) as:
 
 $$
-ELBO(λ) =   - ( E_q \lbrack \log q_λ (z∣x) \rbrack - E_q \lbrack \log p (x,z) \rbrack )
+\begin{align}
+ELBO(λ) & =  \mathbb{E}_q [   \log p (x \vert z)] - D_{KL} [q_λ (z \vert x) \Vert p(z)] \\
+\log p(x) - D_{KL} [ q_\lambda (z \vert x) \Vert p(z \vert x)  ] & = ELBO(λ)  \\
+\end{align}
 $$
 
-$$
-KL\left( q_\lambda (z∣x) ∣∣ p(z∣x)\right) = - ELBO(λ) + \log (p(x))
-$$
-
-To minimize the KL-divergence. we want to find $$ \lambda $$ to maximize $$ ELBO(λ)$$. (Since $$ log (p(x)) $$ is not dependent on $$ \lambda $$, we skip the term $$\log (p(x))$$.)
-
-Back to the equation:
+We call ELBO the evidence lower bound because:
 
 $$
-KL\left( q_\lambda (z∣x) ∣∣ p(z∣x)\right) = - ELBO(λ) + \log (p(x))
+\begin{align}
+\log p(x) - D_{KL} [ q_\lambda (z \vert x) \Vert p(z \vert x)  ] & = ELBO(λ) \\
+\log p(x) & \geqslant ELBO(λ) \quad \text{since KL is always positive} \\
+\end{align}
 $$
 
-$$
-ELBO(λ) =   \log (p(x)) - KL\left( q_\lambda (z∣x) ∣∣ p(z∣x)\right)
-$$
+Here, we define our VAE objective function
 
-Since KL-divergence is always positive, $$\log (p(x)) = KL + ELBO(λ) > ELBO(λ) $$, therefore ELBO is called the evidence lowest bound.
+> $$ \log p(x) - D_{KL} [ q_\lambda (z \vert x) \Vert p(z \vert x)  ] = \mathbb{E}_q [   \log p (x \vert z)] - D_{KL} [q_λ (z \vert x) \Vert p(z)]  $$
 
-For a datapoint $$i$$, the equation above is the same as below. We can expand $$p(x_{i} \vert z)$$ with Bayes theorem and apply some logarithm manipulation.
 
-$$
-ELBO_i(\lambda) = E_{q_\lambda(z∣x_i) }  \lbrack  \log (p(x_{i}|z))  \rbrack - KL\left( q_\lambda (z∣x_{i}) ∣∣ p(z)\right)
-$$
+Instead of the distribution $$p(x)$$, we can model the data $$x$$ with $$ \log p(x) $$. With the error term, $$D_{KL} [ q_\lambda (z \vert x) \Vert p(z \vert x)  ]$$, we can establish a lower bound $$ELBO$$ for $$ \log p(x) $$ which in practice is good enough in modeling the data distribution. In the VAE objective function, maximize our model probability $$ \log p(x) $$ is the same as maximize $$ \log p (x \vert z)]$$ while minimize the divergence of $$D_{KL} [q_λ (z \vert x) \Vert p(z)] $$. 
 
-Let $$\theta$$ be the parameter for the encode network and $$\phi$$ for the decoder network:
+Maximizing $$\log p (x \vert z)$$ can be done by building a decoder network and maximize its likelihood. So with an encoder $$ q_ϕ(z \vert x)$$ , a decoder $$p_θ(x  \vert z) $$, our objective become optimizing:
 
 $$
-ELBO_i(\theta, \phi) = E_{q_\theta(z∣x_i) }  \lbrack  \log (p_{\theta}(x_{i}|z))  \rbrack - KL\left( q_\phi (z∣x_{i}) ∣∣ p(z)\right)
+ELBO(\theta, \phi) = E_{q_\theta(z \vert x) }  [  \log (p_{\theta}(x_{i}|z))  ] - D_{KL} [ q_\phi (z \vert x) \Vert p(z) ]
 $$
 
-The first term measured the probability of output $$x_i$$ in the decoder with $$x_i$$ as input to the encoder.  The second term is the KL divergence.
+We can apply a constrain to $$ p(z) $$ such that we can evaluate $$D_{KL} [ q_\phi (z \vert x) \Vert p(z) ]$$ easily. In AVE, we use  $$ p(z) = \mathcal{N} (0, 1) $$. For optimal solution, we want $$ q_\phi (z \vert x) $$ to be as close as $$\mathcal{N} (0, 1) $$.
+
+In VAE, we model $$ q_\phi (z \vert x) $$ as $$ \mathcal{N} (\mu, \Sigma)$$
+
+$$
+\begin{align}
+D_{KL} [ q_\phi (z \vert x) \Vert p(z) ] &= D_{KL}[N(\mu, \Sigma) \Vert N(0, 1)] \\
+& = \frac{1}{2} \, ( \textrm{tr}(\Sigma) + \mu^T\mu - k - \log \, \det(\Sigma) ) \\
+& = \frac{1}{2} \, ( \sum_k \Sigma + \sum_k \mu^2 - \sum_k 1 - \log \, \prod_k \Sigma ) \\
+& = \frac{1}{2} \, ( \sum_k \Sigma(X) + \sum_k \mu^2(X) - \sum_k 1 - \sum_k \log \Sigma(X) ) \\
+& = \frac{1}{2} \, \sum_k ( \Sigma + \mu^2 - 1 - \log \Sigma )
+\end{align}
+$$
 
 ### KL-divergence of 2 Gaussian distributions
 
-Let:
+Here is an exercise in computing the KL divergence of 2 simple gaussian distributions:
 
 $$
 p(x) = N(\mu_1, \sigma_1) \\
