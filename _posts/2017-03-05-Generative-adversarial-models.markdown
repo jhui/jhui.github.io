@@ -329,6 +329,23 @@ d_optim = tf.train.AdamOptimizer(learningrate, beta1=beta1).minimize(d_loss, var
 g_optim = tf.train.AdamOptimizer(learningrate, beta1=beta1).minimize(g_loss, var_list=g_vars)
 ```
 
+
+Generate samples from our learned model:
+```
+n_sample = 16
+
+Z_sample = sample_Z(n_sample, Z_dim)
+y_sample = np.zeros(shape=[n_sample, y_dim])
+y_sample[:, 7] = 1   # Only generate the digit 7
+
+samples = sess.run(G_sample, feed_dict={Z: Z_sample, y:y_sample})
+```
+
+Here is the model generated "7":
+<div class="imgcap">
+<img src="/assets/gm/089.png" style="border:none;width:40%">
+</div>
+
 The full source code is available [here](https://github.com/jhui/machine_learning/tree/master/generative_adversarial_network).
 
 ### Feature mapping
@@ -395,41 +412,126 @@ VBN is expensive and will be used only in the generator network.
 * Model size: In practice, the discriminator is deeper and sometimes has more filters per layer than the generator.
 * Train with labels: Introduce labeling in the generator or having discriminator to recognize specific classes always help image quality.
 
-### CGAN
+### Conditional Generative Adversarial Nets (CGAN)
 
-In MNIST dataset, it will be good to have a latent variable representing the class of the digit (0-9). Even better, we can have another variable for the digit's angle and one for the stroke thickness. In GAN, the input of the encoder and the decoder are:
-
-$$
-G(z)
-D(x)
-$$ 
-
-In CGAN, we explicitly define $$y$$ as an additional input to the encoder and the decoder
+In the MNIST dataset, it will be nice to have a latent variable representing the class of the digit (0-9). Even better, we can have another variable for the digit's angle and one for the stroke thickness. In GAN, the input of the encoder and the decoder are:
 
 $$
-G(z, y)
-D(x, y)
+G(z) \\
+D(x) \\
 $$ 
 
-For MNIST, we may explicitly define additional latent variables like the category (label) of $$x$$ (class 1,2 ... or 9) and/or use a Gaussian distribution for a continuous variable like the digit's angle and the stroke thickness.
+In CGAN, we explicitly define $$y$$ (the class, the digit's angle, stroke thickness etc ...) as an additional input to the encoder and the decoder
 
+$$
+G(z, y) \\
+D(x, y) \\
+$$ 
+
+
+Define the placeholder for $$x, y$$ and $$z$$. We explicitly use a 1-hot vector of the label (0-9) as y.
+```python
+X_dim = mnist.train.images.shape[1]   # x (image) dimension
+y_dim = mnist.train.labels.shape[1]   # y dimensions = label dimension = 10
+Z_dim = 100                           # z (latent variables) dimension
+
+X = tf.placeholder(tf.float32, shape=[None, X_dim])     # (-1, 784)
+y = tf.placeholder(tf.float32, shape=[None, y_dim])     # (-1, 10) y: Use a one-hot vector for label 
+Z = tf.placeholder(tf.float32, shape=[None, Z_dim])     # (-1, 100) z
+```
+
+Create the generator and discriminator TensorFlow operations. $$ G(z,y)$$ and $$ D(x, y) $$.
+```python
+G_sample = generator(Z, y)
+D_real, D_logit_real = discriminator(X, y)
+D_fake, D_logit_fake = discriminator(G_sample, y)
+```
+
+
+Concatenate $$z$$ and $$y$$ as input to the generator $$ G(z, y)$$. Code for the generator:
 ```python
 def generator(z, y):
-    # Concatenate z and y
-    data = tf.concat(concat_dim=1, values=[z, y])
-	...   
-	   
-def discriminator(self, x, y):
-    data = tf.concat(concat_dim=1, values=[x, y])
-	...		
-```	
+    # Concatenate z and y as input
+    inputs = tf.concat(axis=1, values=[z, y])
+    G_h1 = tf.nn.relu(tf.matmul(inputs, G_W1) + G_b1)
+    ...
+```
 
+The code for the generator:
+```python
+h_dim = 128
+
+""" Generator Net model """
+G_W1 = tf.Variable(he_init([Z_dim + y_dim, h_dim]))
+G_b1 = tf.Variable(tf.zeros(shape=[h_dim]))
+
+G_W2 = tf.Variable(he_init([h_dim, X_dim]))
+G_b2 = tf.Variable(tf.zeros(shape=[X_dim]))
+
+def generator(z, y):
+    # Concatenate z and y as input
+    inputs = tf.concat(axis=1, values=[z, y])
+    G_h1 = tf.nn.relu(tf.matmul(inputs, G_W1) + G_b1)
+    G_log_prob = tf.matmul(G_h1, G_W2) + G_b2
+    G_prob = tf.nn.sigmoid(G_log_prob)
+
+    return G_prob
 ```
-X, y = mnist.train.next_batch(batch_size)
-Z = sample(batch, Z_dim)
-sess.run([...], feed_dict={X: X, Z: z, y:y})
+
+The code for the discriminator:
+```python
+""" Discriminator Net model """
+D_W1 = tf.Variable(he_init([X_dim + y_dim, h_dim]))
+D_b1 = tf.Variable(tf.zeros(shape=[h_dim]))
+
+D_W2 = tf.Variable(he_init([h_dim, 1]))
+D_b2 = tf.Variable(tf.zeros(shape=[1]))
+
+def discriminator(x, y):
+    inputs = tf.concat(axis=1, values=[x, y])
+    D_h1 = tf.nn.relu(tf.matmul(inputs, D_W1) + D_b1)
+    D_logit = tf.matmul(D_h1, D_W2) + D_b2
+    D_prob = tf.nn.sigmoid(D_logit)
+
+    return D_prob, D_logit
+```
+
+Cost function for the discriminator and the generator:
+```python
+D_loss_real = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits=D_logit_real, 
+                             labels=tf.ones_like(D_logit_real)))   # True label is 1 for real data
+D_loss_fake = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits=D_logit_fake, 
+                             labels=tf.zeros_like(D_logit_fake)))  # True label is 0
+D_loss = D_loss_real + D_loss_fake
+
+G_loss = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits=D_logit_fake, 
+                             labels=tf.ones_like(D_logit_fake)))   # True label is 1
+```
+
+Create the optimizer for the discriminator and the generator:
+```
+D_solver = tf.train.AdamOptimizer().minimize(D_loss, var_list=theta_D)
+G_solver = tf.train.AdamOptimizer().minimize(G_loss, var_list=theta_G)
+```
+
+Reading $$x$$ and $$y$$ and sampling $$z$$ for execution:
+```
+def sample_Z(m, n):
+    return np.random.uniform(-1., 1., size=[m, n])
+
 ...
+
+X_data, y_data = mnist.train.next_batch(batch_size)
+...
+
+Z_sample = sample_Z(batch_size, Z_dim)
+_, D_loss_curr = sess.run([D_solver, D_loss], 
+                          feed_dict={X: X_data, Z: Z_sample, y:y_data})
+_, G_loss_curr = sess.run([G_solver, G_loss], 
+                          feed_dict={Z: Z_sample, y:y_data})
 ```
+
+The full source code is in [here](https://github.com/jhui/machine_learning/tree/master/cgan) which is modified from [wiseodd](https://github.com/wiseodd/generative-models/blob/master/GAN/conditional_gan/cgan_tensorflow.py).
 
 ### InfoGAN
 
