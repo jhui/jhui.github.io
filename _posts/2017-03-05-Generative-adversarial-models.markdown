@@ -329,23 +329,6 @@ d_optim = tf.train.AdamOptimizer(learningrate, beta1=beta1).minimize(d_loss, var
 g_optim = tf.train.AdamOptimizer(learningrate, beta1=beta1).minimize(g_loss, var_list=g_vars)
 ```
 
-
-Generate samples from our learned model:
-```
-n_sample = 16
-
-Z_sample = sample_Z(n_sample, Z_dim)
-y_sample = np.zeros(shape=[n_sample, y_dim])
-y_sample[:, 7] = 1   # Only generate the digit 7
-
-samples = sess.run(G_sample, feed_dict={Z: Z_sample, y:y_sample})
-```
-
-Here is the model generated "7":
-<div class="imgcap">
-<img src="/assets/gm/089.png" style="border:none;width:40%">
-</div>
-
 The full source code is available [here](https://github.com/jhui/machine_learning/tree/master/generative_adversarial_network).
 
 ### Feature mapping
@@ -530,6 +513,22 @@ _, D_loss_curr = sess.run([D_solver, D_loss],
 _, G_loss_curr = sess.run([G_solver, G_loss], 
                           feed_dict={Z: Z_sample, y:y_data})
 ```
+
+Generate samples from our learned model:
+```
+n_sample = 16
+
+Z_sample = sample_Z(n_sample, Z_dim)
+y_sample = np.zeros(shape=[n_sample, y_dim])
+y_sample[:, 7] = 1   # Only generate the digit 7
+
+samples = sess.run(G_sample, feed_dict={Z: Z_sample, y:y_sample})
+```
+
+Here is the model generated "7":
+<div class="imgcap">
+<img src="/assets/gm/089.png" style="border:none;width:40%">
+</div>
 
 The full source code is in [here](https://github.com/jhui/machine_learning/tree/master/cgan) which is modified from [wiseodd](https://github.com/wiseodd/generative-models/blob/master/GAN/conditional_gan/cgan_tensorflow.py).
 
