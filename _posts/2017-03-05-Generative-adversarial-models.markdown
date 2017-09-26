@@ -534,7 +534,148 @@ The full source code is in [here](https://github.com/jhui/machine_learning/tree/
 
 ### InfoGAN
 
-In InfoGAN, we have $$c$$ for the latent code representing the semantic features of the datapoints and the noise vector $$z$$ as the source of noise for the latent variables. InfoGAN discovers these latent factors in an unsupervised way instead of explicitly define it in CGAN. 
+In CGAN's MNIST, we read the labels of the images and explicitly pass it into the generator and discriminator as $$y$$.
+
+$$
+G(z, y)  \\
+D(x, y)
+$$
+
+In InfoGAN, the generator and the discriminator are:
+
+$$
+G(z, c) \\
+D(x)
+$$
+
+which $$c$$ is the latent code representing the semantic features of the datapoints and the noise vector $$z$$ is the source of noise for the latent variables similar to CGAN. In InfoGAN, $$c$$ will be learned from $$x$$ in a deep net instead of initialized it explicitly with labels in CGAN.
+
+Creating a generator and a discriminator
+```python
+X = tf.placeholder(tf.float32, shape=[None, 784])
+Z = tf.placeholder(tf.float32, shape=[None, 16])
+c = tf.placeholder(tf.float32, shape=[None, 10])
+
+G_sample = generator(Z, c)
+D_real = discriminator(X)
+D_fake = discriminator(G_sample)
+```
+
+Generator operations
+```python
+G_W1 = tf.Variable(he_init([26, 256]))
+G_b1 = tf.Variable(tf.zeros(shape=[256]))
+
+G_W2 = tf.Variable(he_init([256, 784]))
+G_b2 = tf.Variable(tf.zeros(shape=[784]))
+
+theta_G = [G_W1, G_W2, G_b1, G_b2]
+
+def generator(z, c):
+    """
+    :param z: (-1, 16)
+    :param c: (-1, 10)
+    """
+    inputs = tf.concat(axis=1, values=[z, c])
+    G_h1 = tf.nn.relu(tf.matmul(inputs, G_W1) + G_b1)
+    G_log_prob = tf.matmul(G_h1, G_W2) + G_b2
+    G_prob = tf.nn.sigmoid(G_log_prob)
+
+    return G_prob
+```
+
+Discriminator operations
+```python
+D_W1 = tf.Variable(he_init([784, 128]))
+D_b1 = tf.Variable(tf.zeros(shape=[128]))
+
+D_W2 = tf.Variable(he_init([128, 1]))
+D_b2 = tf.Variable(tf.zeros(shape=[1]))
+
+theta_D = [D_W1, D_W2, D_b1, D_b2]
+
+def discriminator(x):
+    """
+    :param x: (-1, 784)
+    """
+    D_h1 = tf.nn.relu(tf.matmul(x, D_W1) + D_b1)
+    D_logit = tf.matmul(D_h1, D_W2) + D_b2
+    D_prob = tf.nn.sigmoid(D_logit)
+
+    return D_prob
+```
+
+> Unlike CGAN, $$c$$ is learned from a deep net instead of explicitly define it.
+
+One naive approach is to create a new deep net $$Q$$ to approximate $$c$$ given $$x$$.
+
+```python
+# p(c|x) 
+Q_W1 = tf.Variable(he_init([784, 128]))
+Q_b1 = tf.Variable(tf.zeros(shape=[128]))
+
+Q_W2 = tf.Variable(he_init([128, 10]))
+Q_b2 = tf.Variable(tf.zeros(shape=[10]))
+
+theta_Q = [Q_W1, Q_W2, Q_b1, Q_b2]
+
+def Q(x):
+    """
+    :param x: (-1, 784)
+    """
+    Q_h1 = tf.nn.relu(tf.matmul(x, Q_W1) + Q_b1)
+    Q_prob = tf.nn.softmax(tf.matmul(Q_h1, Q_W2) + Q_b2)
+
+    return Q_prob
+```
+
+Creating the generator and discriminator:
+```python
+X = tf.placeholder(tf.float32, shape=[None, 784])
+Z = tf.placeholder(tf.float32, shape=[None, 16])
+c = tf.placeholder(tf.float32, shape=[None, 10])
+
+G_sample = generator(Z, c)
+D_real = discriminator(X)
+D_fake = discriminator(G_sample)
+Q_c_given_x = Q(G_sample)
+```
+
+And the optimizer:
+```python
+theta_G = [G_W1, G_W2, G_b1, G_b2]
+theta_Q = [Q_W1, Q_W2, Q_b1, Q_b2]
+theta_Q = [Q_W1, Q_W2, Q_b1, Q_b2]
+
+D_solver = tf.train.AdamOptimizer().minimize(D_loss, var_list=theta_D)
+G_solver = tf.train.AdamOptimizer().minimize(G_loss, var_list=theta_G)
+Q_solver = tf.train.AdamOptimizer().minimize(Q_loss, var_list=theta_G + theta_Q)
+```
+
+Training:
+```python
+def sample_Z(batch_size, z_dim):
+    return np.random.uniform(-1., 1., size=[batch_size, z_dim])
+
+def sample_c(batch_size):
+    return np.random.multinomial(1, 10 * [0.1], size=batch_size)
+
+X_data, _ = mnist.train.next_batch(batch_size)
+Z_noise = sample_Z(batch_size, Z_dim)
+c_noise = sample_c(batch_size)
+
+_, D_loss_curr = sess.run([D_solver, D_loss],
+                              feed_dict={X: X_data, Z: Z_noise, c: c_noise})
+
+_, G_loss_curr = sess.run([G_solver, G_loss],
+                              feed_dict={Z: Z_noise, c: c_noise})
+
+sess.run([Q_solver], feed_dict={Z: Z_noise, c: c_noise})
+```
+
+The full source code is in [here](https://github.com/jhui/machine_learning/tree/master/infoGAN/infogan_naive.py) which is modified from [wiseodd](https://github.com/wiseodd/generative-models/blob/master/GAN/infogan/infogan_tensorflow.py).
+
+#### Cost function
 
 In information theory, the mutual information between $$X$$ and $$Y$$ is $$I(X; Y )$$. It measures how much we will know $$X$$ if we know $$Y$$ or vice versa. If $$X$$ and $$Y$$ are independent, $$I(X; Y )=0$$ 
 
@@ -553,13 +694,10 @@ $$
 with
 
 $$
-V_{GAN}(D, G) \equiv   \mathbb{E}_{x \sim p_{data}} log D(x) + \mathbb{E}_{z \sim p_z(z)} log  (1 − D (G(z)))
+V_{GAN}(D, G) \equiv   \mathbb{E}_{x \sim p_{data}} log D(x) + \mathbb{E}_{z \sim p_z(z)} log  (1 − D (G(z, c)))
 $$
 
-To compute $$ I(c \vert x = G(z, c)) $$, we need:
-
-* To approximate $$ p(c \vert x) $$ with a function $$ Q(c \vert x) $$ (Variation Maximization) and
-* Share the deep network of $$Q$$ with the discriminator $$D$$.
+To compute $$ I(c \vert x = G(z, c)) $$, we need to approximate $$ p(c \vert x) $$ with a function $$ Q(c \vert x) $$ (Variation Maximization) 
 
 #### Variation Maximization of mutual information
 
@@ -592,29 +730,33 @@ L_I (G, Q) & = E_{c \sim P(c),x \sim G(z,c)} [\log Q(c \vert x)] + H(c) \\
 \end{split}
 $$
 
-which $$Q$$ is a function approximator which share with the deep network with $$D$$. $$Q$$ and $$D$$ share all CNN layers but with one fully connected layer dedicated to output $$Q(c \vert x)$$. For latent code $$c_i$$, it applies softmax to represent $$ Q(c_i \vert x)$$. For continuous latent code $$c_j$$ , InfoGAN treats it as a Gaussian distribution. Maximize $$L_I$$ equivalent to maximizing the mutual information and minimize the function approximator error.
- 
-InfoGan minmax the following equation:
+which $$Q$$ is a function approximator for $$p(c \vert x)$$. InfoGan minmax the following equation:
 
 $$
 \min_{G,Q} \max_D V_{InfoGAN}(D, G, Q) = V_{GAN} (D, G) − λL_I (G, Q) 
 $$
 
+
+Compute $$ V_{GAN} (D, G) $$ in TensorFlow:
+
+```python
+D_loss = -tf.reduce_mean(tf.log(D_real + 1e-8) + tf.log(1 - D_fake + 1e-8))
+G_loss = -tf.reduce_mean(tf.log(D_fake + 1e-8))
 ```
-for it in range(10000):
-    x, _ = mnist.train.next_batch(batch_size)
-    Z = sample(batch_size, z_dim)
-    c = sample(batch_size)
 
-    """ Optimize Discriminator """
-    sess.run([d_loss], feed_dict={X: x, Z: z, c: c})
-
-    """ Optimize Generator """
-    sess.run([g_loss], feed_dict={Z: z, c: c})
-
-    """ Optimize Q """
-    sess.run([q_solver], feed_dict={Z: Z, c: c})
+Compute $$ L_I (G, Q) $$ in TensorFlow:
+```python
+cross_ent = tf.reduce_mean(-tf.reduce_sum(tf.log(Q_c_given_x + 1e-8) * c, 1))
+ent = tf.reduce_mean(-tf.reduce_sum(tf.log(c + 1e-8) * c, 1))
+Q_loss = cross_ent + ent
 ```
+
+In InfoGAN, we do not create a separate $$Q$$ net. Instead, $$Q$$ and $$D$$ share all CNN layers in the discriminator but with one fully connected layer dedicated to output $$Q(c \vert x)$$. For latent code $$c_i$$, it applies softmax to represent $$ Q(c_i \vert x)$$. For continuous latent code $$c_j$$ , InfoGAN treats it as a Gaussian distribution. Maximize $$L_I$$ equivalent to maximizing the mutual information and minimize the function approximator error.
+
+<div class="imgcap">
+<img src="/assets/gm/info.png" style="border:none;width:50%">
+</div>
+
 
 	
 ###  Mode collapse
