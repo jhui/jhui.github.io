@@ -18,7 +18,7 @@ $$ y = f(image) $$
 <img src="/assets/cnn/cnn.png" style="border:none;width:60%">
 </div>
 
-#### Class visualization
+### Class visualization
 
 Often, we want to visualize what features a network tries to learn in the classification process. First, we train a classification CNN model. Then we genearte a random image and feed forward to the network. Instead of backpropagate the gradient to train $$W$$, we backpropagate the gradient to make $$image$$ to look like the target class. i.e., use backpropagation to change the $$image$$ to increase the score of the target class. In order to do so, we change $$ \frac{\partial J}{\partial score_i} $$ manually to:
 
@@ -93,7 +93,7 @@ Here is our attempt to generate a spider image starting from random noises.
 <img src="/assets/gm/spider.png" style="border:none;width:30%">
 </div>
 
-#### Artistic Style Transfer
+### Artistic Style Transfer
 
 Artistic style transfer applies the style of one image to another. We start with a picture as our style image
 <div class="imgcap">
@@ -166,13 +166,13 @@ We first load the parameters of a pre-trained VGG-19 network.
 vgg_weights, vgg_mean_pixel = vgg.load_net(network)         # Load the VGG-19 parameters
 ```
 
-We build operations in TensorFlow to extract content features for the content images from layer "relu4_2" and "relu5_2" using the VGG-19 model.
+We create a placeholder for the image. Load the weights (parameters) for the VGG-19 model with _vgg.net_preloaded_. Create an operation to subtract the image from the mean pixel. The we create operators to compute the content feature from layer "relu4_2" and "relu5_2" using the VGG-19 model.
 ```python
 g = tf.Graph()
 with g.as_default(), g.device('/cpu:0'), tf.Session() as sess:
     image = tf.placeholder('float', shape=shape)
 	
-    # Load VGG-19 the model {'conv1_1': Tensor..., relu1_1: Tensor...}
+    # Load VGG-19 model {'conv1_1': Tensor..., relu1_1: Tensor...}
     net = vgg.net_preloaded(vgg_weights, image, pooling)     
 	         
     # (1, 533, 400, 3) subtract with the mean pixel	 
@@ -196,7 +196,7 @@ G(x_1, x_2, \dots, x_n) = \begin{pmatrix}
 \end{pmatrix} %]]>
 $$
 
-which $$\lt x_i, x_j \gt$$ is the inner product of 2 vectors. This Gram matrix measures the relationships between features. For example, how certain strokes may related with each other or with some color. We compute the Gram matrices for the style image and the result image. We want both Gram matrices to be as close as possible.
+which $$\lt x_i, x_j \gt$$ is the inner product of 2 vectors. Dot product measures the similarity of 2 features: it reaches the maximum if they are the same or zero if they are not related. This Gram matrix measures the relationships between features. For example, how certain strokes may related with each other or with some color. We compute the Gram matrices for the style image and the result image. We want both Gram matrices to be as close as possible.
 ```python
 g = tf.Graph()
 with g.as_default(), g.device('/cpu:0'), tf.Session() as sess:
@@ -205,9 +205,9 @@ with g.as_default(), g.device('/cpu:0'), tf.Session() as sess:
     image = tf.placeholder('float', shape=style_shapes[i])            
     net = vgg.net_preloaded(vgg_weights, image, pooling)
     style_pre = np.array([vgg.preprocess(styles[i], vgg_mean_pixel)])
-	VGG-19
     for layer in STYLE_LAYERS:  # ('relu1_1', 'relu2_1', 'relu3_1', 'relu4_1', 'relu5_1')
-        features = net[layer].eval(feed_dict={image: style_pre})      # For relu1_1 layer (1, 316, 400, 64)
+        # For relu1_1 layer, features: (1, 316, 400, 64)
+        features = net[layer].eval(feed_dict={image: style_pre})      
         features = np.reshape(features, (-1, features.shape[3]))      # (126400, 64)
         gram = np.matmul(features.T, features) / features.size        # (64, 64) Gram matrix
         style_features[layer] = gram
@@ -215,14 +215,19 @@ with g.as_default(), g.device('/cpu:0'), tf.Session() as sess:
 
 #### Result image
 
-We build another VGG-19 model for the result image. We randomize an initial image with Gaussian Distribution with the same $$\sigma$$ as the content image.
+We randomize an initial image with Gaussian Distribution with the same $$\sigma$$ as the content image.
+
+```python
+# Generate a random image with SD the same as the content image.
+noise = np.random.normal(size=shape, scale=np.std(content) * 0.1) 
+initial = tf.random_normal(shape) * 0.256
+```
+
+We build another VGG-19 model for the result image. 
 ```python
 with tf.Graph().as_default():
-    # Generate a random image (result image) with SD the same as the content image.	
     initial = np.array([vgg.preprocess(initial, vgg_mean_pixel)])
     initial = initial.astype('float32')
-    noise = np.random.normal(size=shape, scale=np.std(content) * 0.1)
-    initial = (initial) * initial_content_noise_coeff + (tf.random_normal(shape) * 0.256) * (1.0 - initial_content_noise_coeff)
 	
     image = tf.Variable(initial)
     net = vgg.net_preloaded(vgg_weights, image, pooling)
@@ -246,11 +251,11 @@ content_layers_weights['relu5_2'] = 1.0 - content_weight_blend
 content_loss = 0
 content_losses = []
 for content_layer in CONTENT_LAYERS:       # {'relu4_2', 'relu5_2'}
-     # Use MSE as content losses
-     content_losses.append(content_layers_weights[content_layer] * 
-	                content_weight * 
-				   (2 * tf.nn.l2_loss(net[content_layer] - content_features[content_layer]) 
-						/ content_features[content_layer].size))
+   # Use MSE as content losses
+   content_losses.append(content_layers_weights[content_layer] * 
+	       content_weight * 
+	       (2 * tf.nn.l2_loss(net[content_layer] - content_features[content_layer]) 
+				  / content_features[content_layer].size))
      content_loss += reduce(tf.add, content_losses)
 ```
 
@@ -279,7 +284,8 @@ for style_layer in STYLE_LAYERS: # (relu1_1, relu2_1, relu3_1, relu4_1, relu5_1)
     style_gram = style_features[style_layer]    
 	       
     # Style loss is the MSE for the difference of the 2 Gram matrix
-    style_losses.append(style_layers_weights[style_layer] * 2 * tf.nn.l2_loss(gram - style_gram) / style_gram.size)
+    style_losses.append(style_layers_weights[style_layer] 
+          * 2 * tf.nn.l2_loss(gram - style_gram) / style_gram.size)
     style_loss += style_weight * style_blend_weights[i] * reduce(tf.add, style_losses)
 ```
 
@@ -305,18 +311,10 @@ Now we train the network:
 train_step = tf.train.AdamOptimizer(learning_rate, beta1, beta2, epsilon).minimize(loss)
 
 # optimization
-best_loss = float('inf')
-best = None
 with tf.Session() as sess:
      sess.run(tf.global_variables_initializer())
      for i in range(iterations):
          train_step.run()
-         last_step = (i == iterations - 1)
-         # For every iteration, we return the (i, img_out) as the next element return in an iterator
-         yield (
-              (None if last_step else i),
-                img_out
-         )
 ```
 
 The full source code is in [Github](https://github.com/jhui/machine_learning/tree/master/neural-style). The source code is originated from https://github.com/anishathalye/neural-style/.

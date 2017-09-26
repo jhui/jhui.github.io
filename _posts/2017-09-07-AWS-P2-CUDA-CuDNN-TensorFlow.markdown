@@ -430,10 +430,10 @@ $ git clone https://github.com/tensorflow/tensorflow.git
 ```
 
 
-Switch to v1.3.0
+Switch to v1.3.1
 ```sh
 $ cd ~/tensorflow
-$ git checkout v1.3.0
+$ git checkout v1.3.1
 ```
 
 Install bazel (the build tool)
@@ -499,11 +499,6 @@ Install libcupti-dev
 sudo apt-get install libcupti-dev 
 ```
 
-We encounter a known checksum problem with the release. We expect it to be fixed very soon if it is not done already. Run the following command without the "#".  We add "#" such that you do not run it by accident. Use it ONLY if you encounter a checksum error.
-```
-# sed -ri "/^\W+sha256 = \"[^\"]+\"\W+$/d" tensorflow/workspace.bzl
-```
-
 
 Build TensorFlow (Will take an 1 hour)
 ```sh
@@ -517,7 +512,7 @@ bazel-bin/tensorflow/tools/pip_package/build_pip_package ~/
 cd
 ls -al *.whl
 pip uninstall tensorflow-gpu
-pip install tensorflow-1.3.0-cp36-cp36m-linux_x86_64.whl
+pip install tensorflow-1.3.1-cp36-cp36m-linux_x86_64.whl
 ```
 
 ```

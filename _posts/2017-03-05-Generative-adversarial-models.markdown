@@ -673,7 +673,7 @@ _, G_loss_curr = sess.run([G_solver, G_loss],
 sess.run([Q_solver], feed_dict={Z: Z_noise, c: c_noise})
 ```
 
-The full source code is in [here](https://github.com/jhui/machine_learning/tree/master/infoGAN/infogan_naive.py) which is modified from [wiseodd](https://github.com/wiseodd/generative-models/blob/master/GAN/infogan/infogan_tensorflow.py).
+The full source code is in [here](https://github.com/jhui/machine_learning/blob/master/infoGAN/naive_infogan/infogan_naive.py) which is modified from [wiseodd](https://github.com/wiseodd/generative-models/blob/master/GAN/infogan/infogan_tensorflow.py).
 
 #### Cost function
 
@@ -698,6 +698,7 @@ V_{GAN}(D, G) \equiv   \mathbb{E}_{x \sim p_{data}} log D(x) + \mathbb{E}_{z \si
 $$
 
 To compute $$ I(c \vert x = G(z, c)) $$, we need to approximate $$ p(c \vert x) $$ with a function $$ Q(c \vert x) $$ (Variation Maximization) 
+
 
 #### Variation Maximization of mutual information
 
@@ -751,13 +752,157 @@ ent = tf.reduce_mean(-tf.reduce_sum(tf.log(c + 1e-8) * c, 1))
 Q_loss = cross_ent + ent
 ```
 
-In InfoGAN, we do not create a separate $$Q$$ net. Instead, $$Q$$ and $$D$$ share all CNN layers in the discriminator but with one fully connected layer dedicated to output $$Q(c \vert x)$$. For latent code $$c_i$$, it applies softmax to represent $$ Q(c_i \vert x)$$. For continuous latent code $$c_j$$ , InfoGAN treats it as a Gaussian distribution. Maximize $$L_I$$ equivalent to maximizing the mutual information and minimize the function approximator error.
+In InfoGAN, we do not create a separate $$Q$$ net. Instead, $$Q$$ and $$D$$ share all CNN layers in the discriminator but with one fully connected layer dedicated to output $$Q(c \vert x)$$ from $$x_{fake}$$. For latent code $$c_i$$, it applies softmax to represent $$ Q(c_i \vert x)$$. For continuous latent code $$c_j$$ , InfoGAN treats it as a Gaussian distribution. Maximize $$L_I$$ equivalent to maximizing the mutual information and minimize the function approximator error.
 
 <div class="imgcap">
 <img src="/assets/gm/info.png" style="border:none;width:50%">
 </div>
 
+The generator takes in $$z$$ and $$c$$ (compose of 1-hot vector for 10 label and 2 continuous c) as input to generate a 28x28 image.  
+```python
+def build_generator(self):
+    self.G_W1 = tf.Variable(self.xavier_init([self.z_dim + self.c_cat + self.c_cont, 1024]))
+    self.G_b1 = tf.Variable(tf.zeros([1024]))
+    self.G_W2 = tf.Variable(self.xavier_init([1024, 7 * 7 * 128]))
+    self.G_b2 = tf.Variable(tf.zeros([7 * 7 * 128]))
+    self.G_W3 = tf.Variable(self.xavier_init([4, 4, 64, 128]))
+    self.G_W4 = tf.Variable(self.xavier_init([4, 4, 1, 64]))
 
+    G_layer1 = tf.nn.relu(tf.matmul(self.z_c, self.G_W1) + self.G_b1) # (-1, 26), (26, 1024) -> (-1, 1024)
+    G_layer1 = tf.layers.batch_normalization(G_layer1, training=self.training)
+
+    G_layer2 = tf.nn.relu(tf.matmul(G_layer1, self.G_W2) + self.G_b2) # (7 x 7 x 128)
+    G_layer2 = tf.layers.batch_normalization(G_layer2, training=self.training)
+    G_layer2 = tf.reshape(G_layer2, [-1, 7, 7, 128])                  # (-1, 7, 7, 128)
+
+    # (-1, 7, 7, 128), (4, 4, 64, 128) -> (-1, 14, 14, 64)
+    G_layer3 = tf.nn.conv2d_transpose(G_layer2, self.G_W3, [tf.shape(G_layer2)[0], 14, 14, 64], [1, 2, 2, 1],
+                                          'SAME')
+    G_layer3 = tf.nn.relu(G_layer3)
+
+    # (-1, 14, 14, 64), (4, 4, 1, 64) -> (-1, 28, 28, 1)
+    G_layer4 = tf.nn.conv2d_transpose(G_layer3, self.G_W4, [tf.shape(G_layer3)[0], 28, 28, 1], [1, 2, 2, 1], 'SAME')
+    G_layer4 = tf.nn.sigmoid(G_layer4)
+    G_layer4 = tf.reshape(G_layer4, [-1, 28 * 28])
+
+    # (-1, 28 * 28)
+    self.G = G_layer4
+```
+
+Building $$Q$$ on top of the discriminator 
+```python
+def build_discriminator_and_Q(self):
+    ...
+    D_fake_layer4 = tf.nn.sigmoid(tf.matmul(D_fake_layer3, self.D_W4) + self.D_b4)
+    ...
+		
+    # (-1, 1024), (1024, 128) -> (-1, 128)
+    Q_layer4 = tf.matmul(D_fake_layer3, self.Q_W4) + self.Q_b4
+    Q_layer4 = tf.layers.batch_normalization(Q_layer4, training=self.training)
+    Q_layer4 = self.leaky_relu(Q_layer4)
+
+    # (-1, 128), (128, 12) -> (-1, 12)
+    Q_layer5 = tf.matmul(Q_layer4, self.Q_W5) + self.Q_b5
+    Q_layer5_cat = tf.nn.softmax(Q_layer5[:, :self.c_cat])  # (-1, 10)
+    Q_layer5_cont = tf.nn.sigmoid(Q_layer5[:, self.c_cat:]) # (-1, 2)
+    Q_c_given_x = tf.concat([Q_layer5_cat, Q_layer5_cont], axis=1) # (-1, 12)
+```
+
+Full code for the discriminator and Q:
+```python
+def build_discriminator_and_Q(self):
+    self.D_W1 = tf.Variable(self.xavier_init([4, 4, 1, 64]))
+    self.D_W2 = tf.Variable(self.xavier_init([4, 4, 64, 128]))
+    self.D_W3 = tf.Variable(self.xavier_init([7 * 7 * 128, 1024]))
+    self.D_b3 = tf.Variable(tf.zeros([1024]))
+    self.D_W4 = tf.Variable(self.xavier_init([1024, 1]))
+    self.D_b4 = tf.Variable(tf.zeros([1]))
+    self.Q_W4 = tf.Variable(self.xavier_init([1024, 128]))
+    self.Q_b4 = tf.Variable(tf.zeros([128]))
+    self.Q_W5 = tf.Variable(self.xavier_init([128, self.c_cat + self.c_cont]))
+    self.Q_b5 = tf.Variable(tf.zeros([self.c_cat + self.c_cont]))
+
+    # (-1, 784), (4, 4, 1, 64) -> (-1, 14, 14, 64)
+    D_real_layer1 = tf.nn.conv2d(tf.reshape(self.X, [-1, 28, 28, 1]), self.D_W1, [1, 2, 2, 1], 'SAME')
+    D_real_layer1 = self.leaky_relu(D_real_layer1)
+
+    # (-1, 14, 14, 64), (4, 4, 64, 128) -> (-1, 7, 7, 128) -> (-1, 7*7*128)
+    D_real_layer2 = tf.nn.conv2d(D_real_layer1, self.D_W2, [1, 2, 2, 1], 'SAME')
+    D_real_layer2 = self.leaky_relu(D_real_layer2)
+    D_real_layer2 = tf.layers.batch_normalization(D_real_layer2, training=self.training)
+    D_real_layer2 = tf.reshape(D_real_layer2, [-1, 7 * 7 * 128])
+
+    # (-1, 6272), (6271, 1024) -> (-1, 1024)
+    D_real_layer3 = tf.matmul(D_real_layer2, self.D_W3) + self.D_b3
+    D_real_layer3 = self.leaky_relu(D_real_layer3)
+    D_real_layer3 = tf.layers.batch_normalization(D_real_layer3, training=self.training)
+
+    # (-1, 1024), (1024, 1) -> (-1, 1)
+    D_real_layer4 = tf.nn.sigmoid(tf.matmul(D_real_layer3, self.D_W4) + self.D_b4)
+
+    D_fake_layer1 = tf.nn.conv2d(tf.reshape(self.G, [-1, 28, 28, 1]), self.D_W1, [1, 2, 2, 1], 'SAME')
+    D_fake_layer1 = self.leaky_relu(D_fake_layer1)
+
+    D_fake_layer2 = tf.nn.conv2d(D_fake_layer1, self.D_W2, [1, 2, 2, 1], 'SAME')
+    D_fake_layer2 = self.leaky_relu(D_fake_layer2)
+    D_fake_layer2 = tf.layers.batch_normalization(D_fake_layer2, training=self.training)
+    D_fake_layer2 = tf.reshape(D_fake_layer2, [-1, 7 * 7 * 128])
+
+    D_fake_layer3 = self.leaky_relu(tf.matmul(D_fake_layer2, self.D_W3) + self.D_b3)
+    D_fake_layer3 = tf.layers.batch_normalization(D_fake_layer3, training=self.training)
+
+    D_fake_layer4 = tf.nn.sigmoid(tf.matmul(D_fake_layer3, self.D_W4) + self.D_b4)
+
+    # (-1, 1024), (1024, 128) -> (-1, 128)
+    Q_layer4 = tf.matmul(D_fake_layer3, self.Q_W4) + self.Q_b4
+    Q_layer4 = tf.layers.batch_normalization(Q_layer4, training=self.training)
+    Q_layer4 = self.leaky_relu(Q_layer4)
+
+    # (-1, 128), (128, 12) -> (-1, 12)
+    Q_layer5 = tf.matmul(Q_layer4, self.Q_W5) + self.Q_b5
+    Q_layer5_cat = tf.nn.softmax(Q_layer5[:, :self.c_cat])  # (-1, 10)
+    Q_layer5_cont = tf.nn.sigmoid(Q_layer5[:, self.c_cat:]) # (-1, 2)
+    Q_c_given_x = tf.concat([Q_layer5_cat, Q_layer5_cont], axis=1) # (-1, 12)
+
+    self.D_real = D_real_layer4
+    self.D_fake = D_fake_layer4
+    self.Q_c_given_x = Q_c_given_x
+```
+
+Cost function:
+```
+self.G_loss = -tf.reduce_mean(tf.log(self.D_fake + 1e-8))
+self.D_loss = -tf.reduce_mean(tf.log(self.D_real + 1e-8) + tf.log(1 - self.D_fake + 1e-8))
+
+cond_ent = tf.reduce_mean(-tf.reduce_sum(tf.log(self.Q_c_given_x + 1e-8) * self.c, axis=1))
+ent = tf.reduce_mean(-tf.reduce_sum(tf.log(self.c + 1e-8) * self.c, axis=1))
+self.Q_loss = cond_ent + ent
+```
+
+Training:
+```python
+def z_sampler(self, dim1):
+    return np.random.normal(-1, 1, size=[dim1, self.z_dim])
+
+def c_cat_sampler(self, dim1):
+    return np.random.multinomial(1, [0.1] * self.c_cat, size=dim1)
+
+def c_cont_sampler(self, dim1):
+    return np.random.uniform(0, 1, size=[dim1, self.c_cont])
+
+batch_xs, _ = self.mnist.train.next_batch(self.batch_size)
+feed_dict = {self.X: batch_xs, \
+                    self.z: self.z_sampler(self.batch_size), \
+                    self.c_i: self.c_cat_sampler(self.batch_size), \
+                    self.c_j: self.c_cont_sampler(self.batch_size), \
+                    self.training: True}
+...
+_, D_loss = self.sess.run([self.D_optim, self.D_loss], feed_dict=feed_dict)
+_, G_loss = self.sess.run([self.G_optim, self.G_loss], feed_dict=feed_dict)
+_, Q_loss = self.sess.run([self.Q_optim, self.Q_loss], feed_dict=feed_dict)
+```
+
+The full source code is in [here](https://github.com/jhui/machine_learning/tree/master/infoGAN/infogan1) which is modified from [Kim](https://github.com/1202kbs/InfoGAN-Tensorflow).
 	
 ###  Mode collapse
 
