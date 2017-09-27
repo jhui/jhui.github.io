@@ -1,7 +1,7 @@
 ---
 layout: post
 comments: true
-priority: 810
+priority: 820
 title: “TensorBoard - Visualize your learning.”
 excerpt: “TensorBoard make your machine learning visualization easy.”
 date: 2017-03-12 12:00:00

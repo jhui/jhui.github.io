@@ -3,8 +3,8 @@ layout: post
 comments: true
 mathjax: true
 priority: 840
-title: “TensorFlow performance and advance topics”
-excerpt: “Cover TensorFlow advance topics including performance and other advance topics.”
+title: “TensorFlow performance, GPU and advance topics”
+excerpt: “Cover TensorFlow advance topics including performance, GPU and other advance topics.”
 date: 2017-03-07 14:00:00
 ---
 ### Performance
@@ -190,7 +190,8 @@ sess.close()
 # Const_1: (Const): /job:localhost/replica:0/task:0/cpu:0
 # Const: (Const): /job:localhost/replica:0/task:0/cpu:0
 ```
-To run m1, m2 and product op node on specific device CPU 0.
+
+To run m1, m2 and product op node on the specific device _CPU 0_.
 ```python
 import tensorflow as tf
 
@@ -206,11 +207,23 @@ print(sess.run(product))
 
 sess.close()
 ```
+
+Run operations on different device:
+```python
+with tf.device('/cpu:0'):
+  # Pinned to the CPU.
+  img = tf.decode_jpeg(tf.read_file("img.jpg"))
+
+with tf.device('/gpu:0'):
+  result = tf.matmul(weights, img)
+```
+  
 Using multiple GPUs
 ```python
 for d in ['/gpu:1', '/gpu:2']:
   with tf.device(d):
      ...
+	 
 with tf.device('/cpu:0'):
      ...
 ```
@@ -223,6 +236,40 @@ sess = tf.Session(config=tf.ConfigProto(
       allow_soft_placement=True, log_device_placement=True))
 ```
 
+### Operations and tensors
+
+TensorFlow API constructs new tf.Operation (node) and tf.Tensor (edge) objects and add them to a tf.Graph instance. 
+
+* _tf.constant(10.0)_ adds a tf.Operation to the default graph that produces the value 10.0, and returns a tf.Tensor that represents the value of the constant. 
+* _tf.matmul(a, b) creates a tf.Operation that multiplies the values of tf.Tensor objects $$a$$ and $$b$$ and returns a tf.Tensor for the multiplication result.
+* v = tf.Variable(0) creates a tf.Operation that store a writeable tensor value that persists between tf.Session.run calls. The tf.Variable object wraps this operation, and can be used as a tensor to read the current value.  
+* tf.train.Optimizer.minimize will add operations and tensors that calculate gradients and return a tf.Operation that apply those gradient changes to a set of variables.
+
+TensorFlow will create a new tf.Tensor each time when a tensor-like object (numpy.ndarray or list) is passed as parameters. It will run out of memory if the object is used multiple times in constructing nodes. To avoid this, call tf.convert_to_tensor on the tensor-like object once and use the returned tf.Tensor instead.
 
 
+### Meta-data of session
 
+To collect meta-data of a session:
+```python
+import tensorflow as tf
+
+y = tf.matmul([[15.0, -3.0], [3.0, 4.0]], tf.random_uniform([2, 2]))
+
+with tf.Session() as sess:
+  # Define options for the `sess.run()` call.
+  options = tf.RunOptions()
+  options.output_partition_graphs = True
+  options.trace_level = tf.RunOptions.FULL_TRACE
+
+  # Define a container for the returned metadata.
+  metadata = tf.RunMetadata()
+
+  sess.run(y, options=options, run_metadata=metadata)
+
+  # Print the subgraphs that executed on each device.
+  print(metadata.partition_graphs)
+
+  # Print the timings of each operation that executed.
+  print(metadata.step_stats)
+```
