@@ -3,8 +3,8 @@ layout: post
 comments: true
 mathjax: true
 priority: 800
-title: “TensorFlow overview”
-excerpt: “TensorFlow is a very powerful platform for Machine Learning. I will go over some of the basic in this tutorial.”
+title: “TensorFlow Basic”
+excerpt: “TensorFlow is a very powerful platform for Machine Learning. This tutorial goes over some of the basic of TensorFlow.”
 date: 2017-03-14 14:00:00
 ---
 
@@ -403,6 +403,62 @@ if __name__ == "__main__":
     main()
 ```
 
+### Custom model for Estimator
+
+Implement a model_fn to create a custom model used in an estimator.
+```python
+import numpy as np
+import tensorflow as tf
+
+def model_fn(features, labels, mode):
+  # Model
+  W = tf.get_variable("W", [1], dtype=tf.float64)
+  b = tf.get_variable("b", [1], dtype=tf.float64)
+  y = W * features['x'] + b
+
+  loss = tf.reduce_sum(tf.square(y - labels))
+
+
+  global_step = tf.train.get_global_step()
+  optimizer = tf.train.GradientDescentOptimizer(0.01)
+  train = tf.group(optimizer.minimize(loss),
+                   tf.assign_add(global_step, 1))
+
+  return tf.estimator.EstimatorSpec(
+      mode=mode,
+      predictions=y,
+      loss=loss,
+      train_op=train)
+
+estimator = tf.estimator.Estimator(model_fn=model_fn)
+
+x_train = np.array([1., 2., 3., 4.])
+y_train = np.array([0., -1., -2., -3.])
+
+x_eval = np.array([2., 5., 8., 1.])
+y_eval = np.array([-1.01, -4.1, -7, 0.])
+
+input_fn = tf.estimator.inputs.numpy_input_fn(
+    {"x": x_train}, y_train, batch_size=4, num_epochs=None, shuffle=True)
+
+train_input_fn = tf.estimator.inputs.numpy_input_fn(
+    {"x": x_train}, y_train, batch_size=4, num_epochs=1000, shuffle=False)
+
+eval_input_fn = tf.estimator.inputs.numpy_input_fn(
+    {"x": x_eval}, y_eval, batch_size=4, num_epochs=1000, shuffle=False)
+
+# Training
+estimator.train(input_fn=input_fn, steps=1000)
+
+
+train_metrics = estimator.evaluate(input_fn=train_input_fn)
+eval_metrics = estimator.evaluate(input_fn=eval_input_fn)
+
+print("train metrics: %r"% train_metrics)
+print("eval metrics: %r"% eval_metrics)
+```
+
+
 ### Solving MNist
 
 <div class="imgcap">
@@ -412,11 +468,6 @@ if __name__ == "__main__":
 The MNIST dataset contains handwritten digits with examples shown as above. It has a training set of 60,000 examples and a test set of 10,000 examples. The following python file from TensorFlow [mnist_softmax.py](https://github.com/tensorflow/tensorflow/blob/master/tensorflow/examples/tutorials/mnist/mnist_softmax.py) train a linear classifier for MNist digit recognition. The following model reaches an accuracy of **92%**.
 
 ```python
-"""A very simple MNIST classifier.
-See extensive documentation at
-http://tensorflow.org/tutorials/mnist/beginners/index.md
-"""
-
 import argparse
 import sys
 
@@ -433,23 +484,13 @@ def main(_):
 
   # Create the model
   x = tf.placeholder(tf.float32, [None, 784])
-  W = tf.get_variable("W", [784, 10], initializer=tf.zeros_initializer)
-  b = tf.get_variable("b", [10], initializer=tf.zeros_initializer)
-
+  W = tf.Variable(tf.zeros([784, 10]))
+  b = tf.Variable(tf.zeros([10]))
   y = tf.matmul(x, W) + b
 
   # Define loss and optimizer
   y_ = tf.placeholder(tf.float32, [None, 10])
 
-  # The raw formulation of cross-entropy,
-  #
-  #   tf.reduce_mean(-tf.reduce_sum(y_ * tf.log(tf.nn.softmax(y)),
-  #                                 reduction_indices=[1]))
-  #
-  # can be numerically unstable.
-  #
-  # So here we use tf.nn.softmax_cross_entropy_with_logits on the raw
-  # outputs of 'y', and then average across the batch.
   cross_entropy = tf.reduce_mean(
       tf.nn.softmax_cross_entropy_with_logits(labels=y_, logits=y))
   train_step = tf.train.GradientDescentOptimizer(0.5).minimize(cross_entropy)
@@ -457,7 +498,7 @@ def main(_):
   sess = tf.InteractiveSession()
   tf.global_variables_initializer().run()
   # Train
-  for _ in range(10000):
+  for _ in range(1000):
     batch_xs, batch_ys = mnist.train.next_batch(100)
     sess.run(train_step, feed_dict={x: batch_xs, y_: batch_ys})
 
@@ -497,14 +538,6 @@ y = tf.matmul(x, W) + b
 
 We use cross-entropy as the cost functions:
 ```python
-  # The raw formulation of cross-entropy,
-  #
-  #   tf.reduce_mean(-tf.reduce_sum(y_ * tf.log(tf.nn.softmax(y)),
-  #                                 reduction_indices=[1]))
-  #
-  # However, the method approach may be numerical unstable.
-  #
-  # Therefore we replace it with an equivalent stable version.
   cross_entropy = tf.reduce_mean(
       tf.nn.softmax_cross_entropy_with_logits(labels=y_, logits=y))
 ```
@@ -517,118 +550,239 @@ Now we replace the model using deep learning techniques. This example contains 2
 <img src="/assets/tensorflow/fc.png" style="border:none; width:80%;">
 </div>
 
+For each hidden layer:
+```python
+with tf.name_scope('hidden1'):   # Create a name scope for hidden layer 1
+    weights = tf.Variable(       # Create a variable for weights initialized with truncated normal distribution
+        tf.truncated_normal([IMAGE_PIXELS, hidden1_units],
+                            stddev=1.0 / math.sqrt(float(IMAGE_PIXELS))),
+                            name='weights')
+    biases = tf.Variable(tf.zeros([hidden1_units]), name='biases') # Create avaraible for the biases
+    hidden1 = tf.nn.relu(tf.matmul(images, weights) + biases)      # Matrix multiplication followed by a RELU
+```
 
+Cost function using cross entropy.
+```python
+def loss(logits, labels):
+  labels = tf.to_int64(labels)
+  cross_entropy = tf.nn.sparse_softmax_cross_entropy_with_logits(
+      labels=labels, logits=logits, name='xentropy')
+  return tf.reduce_mean(cross_entropy, name='xentropy_mean')
+```
+
+Training and evaluation:
+```
+def training(loss, learning_rate):
+  # Add a scalar summary for the snapshot loss.
+  tf.summary.scalar('loss', loss)
+
+  optimizer = tf.train.GradientDescentOptimizer(learning_rate)
+  global_step = tf.Variable(0, name='global_step', trainable=False)
+  train_op = optimizer.minimize(loss, global_step=global_step)
+  return train_op
+
+def evaluation(logits, labels):
+  correct = tf.nn.in_top_k(logits, labels, 1)
+  return tf.reduce_sum(tf.cast(correct, tf.int32))
+```
+
+The full code for defining the model:
+```python
+import math
+import tensorflow as tf
+
+NUM_CLASSES = 10
+IMAGE_SIZE = 28
+IMAGE_PIXELS = IMAGE_SIZE * IMAGE_SIZE
+
+def inference(images, hidden1_units, hidden2_units):
+  # Hidden 1
+  with tf.name_scope('hidden1'):
+    weights = tf.Variable(
+        tf.truncated_normal([IMAGE_PIXELS, hidden1_units],
+                            stddev=1.0 / math.sqrt(float(IMAGE_PIXELS))),
+                            name='weights')
+    biases = tf.Variable(tf.zeros([hidden1_units]),
+                         name='biases')
+    hidden1 = tf.nn.relu(tf.matmul(images, weights) + biases)
+  # Hidden 2
+  with tf.name_scope('hidden2'):
+    weights = tf.Variable(
+        tf.truncated_normal([hidden1_units, hidden2_units],
+                            stddev=1.0 / math.sqrt(float(hidden1_units))),
+        name='weights')
+    biases = tf.Variable(tf.zeros([hidden2_units]),
+                         name='biases')
+    hidden2 = tf.nn.relu(tf.matmul(hidden1, weights) + biases)
+  # Linear
+  with tf.name_scope('softmax_linear'):
+    weights = tf.Variable(
+        tf.truncated_normal([hidden2_units, NUM_CLASSES],
+                            stddev=1.0 / math.sqrt(float(hidden2_units))),
+        name='weights')
+    biases = tf.Variable(tf.zeros([NUM_CLASSES]),
+                         name='biases')
+    logits = tf.matmul(hidden2, weights) + biases
+  return logits
+
+def loss(logits, labels):
+  labels = tf.to_int64(labels)
+  cross_entropy = tf.nn.sparse_softmax_cross_entropy_with_logits(
+      labels=labels, logits=logits, name='xentropy')
+  return tf.reduce_mean(cross_entropy, name='xentropy_mean')
+
+def training(loss, learning_rate):
+  # Add a scalar summary for the snapshot loss.
+  tf.summary.scalar('loss', loss)
+
+  optimizer = tf.train.GradientDescentOptimizer(learning_rate)
+  global_step = tf.Variable(0, name='global_step', trainable=False)
+  train_op = optimizer.minimize(loss, global_step=global_step)
+  return train_op
+
+def evaluation(logits, labels):
+  correct = tf.nn.in_top_k(logits, labels, 1)
+  return tf.reduce_sum(tf.cast(correct, tf.int32))
+```
+
+Here is the main program:
 ```python
 import argparse
+import os
 import sys
-
-from tensorflow.examples.tutorials.mnist import input_data
+import time
 
 import tensorflow as tf
-import numpy as np
 
+from tensorflow.examples.tutorials.mnist import input_data
+from tensorflow.examples.tutorials.mnist import mnist
+
+# Basic model parameters as external flags.
 FLAGS = None
+
+def placeholder_inputs(batch_size):
+  images_placeholder = tf.placeholder(tf.float32, shape=(batch_size, mnist.IMAGE_PIXELS))
+  labels_placeholder = tf.placeholder(tf.int32, shape=(batch_size))
+  return images_placeholder, labels_placeholder
+
+def fill_feed_dict(data_set, images_pl, labels_pl):
+  images_feed, labels_feed = data_set.next_batch(FLAGS.batch_size, FLAGS.fake_data)
+  feed_dict = {images_pl: images_feed, labels_pl: labels_feed,}
+  return feed_dict
+
+def do_eval(sess, eval_correct, images_placeholder, labels_placeholder, data_set):
+  true_count = 0
+  steps_per_epoch = data_set.num_examples // FLAGS.batch_size
+  num_examples = steps_per_epoch * FLAGS.batch_size
+  for step in range(steps_per_epoch):
+    feed_dict = fill_feed_dict(data_set, images_placeholder, labels_placeholder)
+    true_count += sess.run(eval_correct, feed_dict=feed_dict)
+  precision = float(true_count) / num_examples
+  print('  Num examples: %d  Num correct: %d  Precision @ 1: %0.04f' % (num_examples, true_count, precision))
+
+def run_training():
+  data_sets = input_data.read_data_sets(FLAGS.input_data_dir, FLAGS.fake_data)
+
+  with tf.Graph().as_default():
+    images_placeholder, labels_placeholder = placeholder_inputs(FLAGS.batch_size)
+
+    logits = mnist.inference(images_placeholder, FLAGS.hidden1, FLAGS.hidden2)
+    loss = mnist.loss(logits, labels_placeholder)
+
+    train_op = mnist.training(loss, FLAGS.learning_rate)
+    eval_correct = mnist.evaluation(logits, labels_placeholder)
+
+    saver = tf.train.Saver()
+    init = tf.global_variables_initializer()
+
+    summary = tf.summary.merge_all()
+
+    sess = tf.Session()
+	
+    summary_writer = tf.summary.FileWriter(FLAGS.log_dir, sess.graph)
+
+    sess.run(init)
+
+    for step in range(FLAGS.max_steps):
+      start_time = time.time()
+
+      feed_dict = fill_feed_dict(data_sets.train, images_placeholder, labels_placeholder)
+
+      _, loss_value = sess.run([train_op, loss], feed_dict=feed_dict)
+
+      duration = time.time() - start_time
+
+      if step % 100 == 0:
+        print('Step %d: loss = %.2f (%.3f sec)' % (step, loss_value, duration))
+        summary_str = sess.run(summary, feed_dict=feed_dict)
+        summary_writer.add_summary(summary_str, step)
+        summary_writer.flush()
+
+      if (step + 1) % 1000 == 0 or (step + 1) == FLAGS.max_steps:
+        checkpoint_file = os.path.join(FLAGS.log_dir, 'model.ckpt')
+        saver.save(sess, checkpoint_file, global_step=step)
+
+        print('Training Data Eval:')
+        do_eval(sess, eval_correct, images_placeholder, labels_placeholder, data_sets.train)
+				
+        print('Validation Data Eval:')
+        do_eval(sess, eval_correct, images_placeholder, labels_placeholder, data_sets.validation)
+				
+        print('Test Data Eval:')
+        do_eval(sess, eval_correct, images_placeholder, labels_placeholder, data_sets.test)
 
 
 def main(_):
-  # Import data
-  mnist = input_data.read_data_sets(FLAGS.data_dir, one_hot=True)
+  if tf.gfile.Exists(FLAGS.log_dir):
+    tf.gfile.DeleteRecursively(FLAGS.log_dir)
+  tf.gfile.MakeDirs(FLAGS.log_dir)
+  run_training()
 
-  ### Building a model
-  # Create a fully connected network with 2 hidden layers
-  # Initialize the weight with a normal distribution.
-  x = tf.placeholder(tf.float32, [None, 784])
-
-  W1 = tf.get_variable("W1", [784, 256], initializer=tf.truncated_normal_initializer(stddev=np.sqrt(2.0 / 784)))
-  b1 = tf.get_variable("b1", [256], initializer=tf.constant_initializer(0.0))
-  W2 = tf.get_variable("W2", [256, 100], initializer=tf.truncated_normal_initializer(stddev=np.sqrt(2.0 / 256)))
-  b2 = tf.get_variable("b2", [100], initializer=tf.constant_initializer(0.0))
-  W3 = tf.get_variable("W3", [100, 10], initializer=tf.truncated_normal_initializer(stddev=np.sqrt(2.0 / 100)))
-  b3 = tf.get_variable("b3", [10], initializer=tf.constant_initializer(0.0))
-
-  # 2 hidden layers using relu (z = max(0, x)) as an activation function.
-  h1 = tf.nn.relu(tf.matmul(x, W1) + b1)
-  h2 = tf.nn.relu(tf.matmul(h1, W2) + b2)
-  y = tf.matmul(h2, W3) + b3
-
-  # Define loss and optimizer
-  labels = tf.placeholder(tf.float32, [None, 10])
-
-  # Use a cross entropy cost fuction with a L2 regularization.
-  lmbda = tf.placeholder(tf.float32)
-  cross_entropy = tf.reduce_mean(
-      tf.nn.softmax_cross_entropy_with_logits(labels=labels, logits=y) +
-         lmbda * (tf.nn.l2_loss(W1) + tf.nn.l2_loss(W2) + tf.nn.l2_loss(W3)))
-  train_step = tf.train.AdamOptimizer(learning_rate=0.001).minimize(cross_entropy)
-
-  init = tf.global_variables_initializer()
-  with tf.Session() as sess:
-      sess.run(init)
-      # Train
-      for _ in range(10000):
-        batch_xs, batch_ys = mnist.train.next_batch(100)
-        sess.run(train_step, feed_dict={x: batch_xs, labels: batch_ys, lmbda:5e-5})
-
-      # Test trained model
-      correct_prediction = tf.equal(tf.argmax(y, 1), tf.argmax(labels, 1))
-      accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
-      print(sess.run(accuracy, feed_dict={x: mnist.test.images,
-                                          labels: mnist.test.labels}))
 
 if __name__ == '__main__':
   parser = argparse.ArgumentParser()
-  parser.add_argument('--data_dir', type=str, default='/tmp/tensorflow/mnist/input_data',
-                      help='Directory for storing input data')
+  parser.add_argument('--learning_rate', type=float, default=0.01, help='Initial learning rate.')
+  parser.add_argument('--max_steps', type=int, default=2000, help='Number of steps to run trainer.')
+  parser.add_argument('--hidden1', type=int, default=128, help='Number of units in hidden layer 1.')
+  parser.add_argument('--hidden2', type=int, default=32, help='Number of units in hidden layer 2.')
+  parser.add_argument('--batch_size', type=int, default=100, help='Batch size.  Must divide evenly into the dataset sizes.')
+  parser.add_argument('--input_data_dir', type=str, default=os.path.join(os.getenv('TEST_TMPDIR', '/tmp'),  'tensorflow/mnist/input_data'), help='Directory to put the input data.')
+  parser.add_argument('--log_dir', type=str, default=os.path.join(os.getenv('TEST_TMPDIR', '/tmp'), 'tensorflow/mnist/logs/fully_connected_feed'), help='Directory to put the log data.')
+  parser.add_argument('--fake_data', default=False, help='If true, uses fake data for unit testing.', action='store_true')
+
   FLAGS, unparsed = parser.parse_known_args()
   tf.app.run(main=main, argv=[sys.argv[0]] + unparsed)
-
-# 0.9797
 ```
 
-We create a model with 2 fully connected hidden layers with a linear classifier. We also use RELU function as the activation function for our hidden layers.
-
-$$
-a = max(0, z)
-$$
-
+Collecting data for TensorBoard
+In mnist.py:
 ```python
-### Building a model
-# Create a fully connected network with 2 hidden layers
-# Initialize the weight with a normal distribution.
-x = tf.placeholder(tf.float32, [None, 784])
-W1 = tf.get_variable("W1", [784, 256], initializer=tf.truncated_normal_initializer(stddev=np.sqrt(2.0 / 784)))
-b1 = tf.get_variable("b1", [256], initializer=tf.constant_initializer(0.0))
-W2 = tf.get_variable("W2", [256, 100], initializer=tf.truncated_normal_initializer(stddev=np.sqrt(2.0 / 256)))
-b2 = tf.get_variable("b2", [100], initializer=tf.constant_initializer(0.0))
-W3 = tf.get_variable("W3", [100, 10], initializer=tf.truncated_normal_initializer(stddev=np.sqrt(2.0 / 100)))
-b3 = tf.get_variable("b3", [10], initializer=tf.constant_initializer(0.0))
-
-# 2 hidden layers using relu (z = max(0, x)) as an activation function.
-h1 = tf.nn.relu(tf.matmul(x, W1) + b1)
-h2 = tf.nn.relu(tf.matmul(h1, W2) + b2)
-y = tf.matmul(h2, W3) + b3
+def training(loss, learning_rate):
+  ...
+  tf.summary.scalar('loss', loss)
+  ...
 ```
 
-
-We initialize the weight with a normal distribution with standard deviation inverse proportional to the input size.
 ```python
-W1 = tf.get_variable("W1", [784, 256], initializer=tf.truncated_normal_initializer(stddev=np.sqrt(2.0 / 784)))
-W2 = tf.get_variable("W2", [256, 100], initializer=tf.truncated_normal_initializer(stddev=np.sqrt(2.0 / 256)))
-W3 = tf.get_variable("W3", [100, 10], initializer=tf.truncated_normal_initializer(stddev=np.sqrt(2.0 / 100)))
-```
+def run_training():
+    ...
+    loss = mnist.loss(logits, labels_placeholder)
+    train_op = mnist.training(loss, FLAGS.learning_rate)
+	
+    summary = tf.summary.merge_all()
+    sess = tf.Session()
+    summary_writer = tf.summary.FileWriter(FLAGS.log_dir, sess.graph)
 
+    ...
+    for step in range(FLAGS.max_steps):
+      ...
+      _, loss_value = sess.run([train_op, loss], feed_dict=feed_dict)
+      ...
 
-We add a L2 regularization to the cross entropy lost with regularization factor set to 5e-5.  We also adopted an improved version of gradient descent (Adam optimizer).
-```python
-  # Use a cross entropy cost fuction with a L2 regularization.
-  lmbda = tf.placeholder(tf.float32)
-  cross_entropy = tf.reduce_mean(
-      tf.nn.softmax_cross_entropy_with_logits(labels=labels, logits=y) +
-         lmbda * (tf.nn.l2_loss(W1) + tf.nn.l2_loss(W2) + tf.nn.l2_loss(W3)))
-  train_step = tf.train.AdamOptimizer(learning_rate=0.001).minimize(cross_entropy)
-```
-```python
-sess.run(train_step, feed_dict={x: batch_xs, labels: batch_ys, lmbda:5e-5})
+      if step % 100 == 0:
+        summary_str = sess.run(summary, feed_dict=feed_dict)
+        summary_writer.add_summary(summary_str, step)
+        summary_writer.flush()  
 ```
 
 Further accuracy improvement can be achieved by:
@@ -778,6 +932,126 @@ Further possible accuracy improvement:
 * Add batch normalization.
 * Whitening of the input image.
 * Further tuning of the learning rate and dropout parameter.
+
+Here is another CNN implementation example from the TensorFlow distribution:
+```python
+import argparse
+import sys
+import tempfile
+
+from tensorflow.examples.tutorials.mnist import input_data
+
+import tensorflow as tf
+
+FLAGS = None
+
+
+def deepnn(x):
+  with tf.name_scope('reshape'):
+    x_image = tf.reshape(x, [-1, 28, 28, 1])
+
+  with tf.name_scope('conv1'):
+    W_conv1 = weight_variable([5, 5, 1, 32])
+    b_conv1 = bias_variable([32])
+    h_conv1 = tf.nn.relu(conv2d(x_image, W_conv1) + b_conv1)
+
+  with tf.name_scope('pool1'):
+    h_pool1 = max_pool_2x2(h_conv1)
+
+  with tf.name_scope('conv2'):
+    W_conv2 = weight_variable([5, 5, 32, 64])
+    b_conv2 = bias_variable([64])
+    h_conv2 = tf.nn.relu(conv2d(h_pool1, W_conv2) + b_conv2)
+
+  with tf.name_scope('pool2'):
+    h_pool2 = max_pool_2x2(h_conv2)
+
+  with tf.name_scope('fc1'):
+    W_fc1 = weight_variable([7 * 7 * 64, 1024])
+    b_fc1 = bias_variable([1024])
+
+    h_pool2_flat = tf.reshape(h_pool2, [-1, 7*7*64])
+    h_fc1 = tf.nn.relu(tf.matmul(h_pool2_flat, W_fc1) + b_fc1)
+
+  with tf.name_scope('dropout'):
+    keep_prob = tf.placeholder(tf.float32)
+    h_fc1_drop = tf.nn.dropout(h_fc1, keep_prob)
+
+  with tf.name_scope('fc2'):
+    W_fc2 = weight_variable([1024, 10])
+    b_fc2 = bias_variable([10])
+
+    y_conv = tf.matmul(h_fc1_drop, W_fc2) + b_fc2
+  return y_conv, keep_prob
+
+
+def conv2d(x, W):
+  return tf.nn.conv2d(x, W, strides=[1, 1, 1, 1], padding='SAME')
+
+
+def max_pool_2x2(x):
+  return tf.nn.max_pool(x, ksize=[1, 2, 2, 1],
+                        strides=[1, 2, 2, 1], padding='SAME')
+
+
+def weight_variable(shape):
+  initial = tf.truncated_normal(shape, stddev=0.1)
+  return tf.Variable(initial)
+
+
+def bias_variable(shape):
+  initial = tf.constant(0.1, shape=shape)
+  return tf.Variable(initial)
+
+
+def main(_):
+  mnist = input_data.read_data_sets(FLAGS.data_dir, one_hot=True)
+
+  x = tf.placeholder(tf.float32, [None, 784])
+
+  y_ = tf.placeholder(tf.float32, [None, 10])
+
+  y_conv, keep_prob = deepnn(x)
+
+  with tf.name_scope('loss'):
+    cross_entropy = tf.nn.softmax_cross_entropy_with_logits(labels=y_,
+                                                            logits=y_conv)
+  cross_entropy = tf.reduce_mean(cross_entropy)
+
+  with tf.name_scope('adam_optimizer'):
+    train_step = tf.train.AdamOptimizer(1e-4).minimize(cross_entropy)
+
+  with tf.name_scope('accuracy'):
+    correct_prediction = tf.equal(tf.argmax(y_conv, 1), tf.argmax(y_, 1))
+    correct_prediction = tf.cast(correct_prediction, tf.float32)
+  accuracy = tf.reduce_mean(correct_prediction)
+
+  graph_location = tempfile.mkdtemp()
+  print('Saving graph to: %s' % graph_location)
+  train_writer = tf.summary.FileWriter(graph_location)
+  train_writer.add_graph(tf.get_default_graph())
+
+  with tf.Session() as sess:
+    sess.run(tf.global_variables_initializer())
+    for i in range(20000):
+      batch = mnist.train.next_batch(50)
+      if i % 100 == 0:
+        train_accuracy = accuracy.eval(feed_dict={
+            x: batch[0], y_: batch[1], keep_prob: 1.0})
+        print('step %d, training accuracy %g' % (i, train_accuracy))
+      train_step.run(feed_dict={x: batch[0], y_: batch[1], keep_prob: 0.5})
+
+    print('test accuracy %g' % accuracy.eval(feed_dict={
+        x: mnist.test.images, y_: mnist.test.labels, keep_prob: 1.0}))
+
+if __name__ == '__main__':
+  parser = argparse.ArgumentParser()
+  parser.add_argument('--data_dir', type=str,
+                      default='/tmp/tensorflow/mnist/input_data',
+                      help='Directory for storing input data')
+  FLAGS, unparsed = parser.parse_known_args()
+  tf.app.run(main=main, argv=[sys.argv[0]] + unparsed)
+```
 
 ### Reshape Numpy
 Find the shape of a Numpy array and reshape it.
