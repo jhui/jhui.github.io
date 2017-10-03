@@ -641,6 +641,13 @@ D_fake = discriminator(G_sample)
 Q_c_given_x = Q(G_sample)
 ```
 
+The loss function for Q is defined as:
+```
+cross_ent = tf.reduce_mean(-tf.reduce_sum(tf.log(Q_c_given_x + 1e-8) * c, 1))
+ent = tf.reduce_mean(-tf.reduce_sum(tf.log(c + 1e-8) * c, 1))
+Q_loss = cross_ent + ent
+```
+
 And the optimizer:
 ```python
 theta_G = [G_W1, G_W2, G_b1, G_b2]
@@ -758,17 +765,17 @@ In InfoGAN, we do not create a separate $$Q$$ net. Instead, $$Q$$ and $$D$$ shar
 <img src="/assets/gm/info.png" style="border:none;width:50%">
 </div>
 
-The generator takes in $$z$$ and $$c$$ (compose of 1-hot vector for 10 label and 2 continuous c) as input to generate a 28x28 image.  
+The generator takes in $$z$$ and $$c$$ (compose of 1-hot vector for 10 label) as input to generate a 28x28 image.  
 ```python
 def build_generator(self):
-    self.G_W1 = tf.Variable(self.xavier_init([self.z_dim + self.c_cat + self.c_cont, 1024]))
+    self.G_W1 = tf.Variable(self.xavier_init([self.z_dim + self.c_cat, 1024]))
     self.G_b1 = tf.Variable(tf.zeros([1024]))
     self.G_W2 = tf.Variable(self.xavier_init([1024, 7 * 7 * 128]))
     self.G_b2 = tf.Variable(tf.zeros([7 * 7 * 128]))
     self.G_W3 = tf.Variable(self.xavier_init([4, 4, 64, 128]))
     self.G_W4 = tf.Variable(self.xavier_init([4, 4, 1, 64]))
 
-    G_layer1 = tf.nn.relu(tf.matmul(self.z_c, self.G_W1) + self.G_b1) # (-1, 26), (26, 1024) -> (-1, 1024)
+    G_layer1 = tf.nn.relu(tf.matmul(self.z_c, self.G_W1) + self.G_b1) # (-1, 24), (24, 1024) -> (-1, 1024)
     G_layer1 = tf.layers.batch_normalization(G_layer1, training=self.training)
 
     G_layer2 = tf.nn.relu(tf.matmul(G_layer1, self.G_W2) + self.G_b2) # (7 x 7 x 128)
@@ -803,7 +810,7 @@ def build_discriminator_and_Q(self):
 
     # (-1, 128), (128, 12) -> (-1, 12)
     Q_layer5 = tf.matmul(Q_layer4, self.Q_W5) + self.Q_b5
-    Q_layer5_cat = tf.nn.softmax(Q_layer5[:, :self.c_cat])  # (-1, 10)
+    _c_given_x = tf.nn.softmax(Q_layer5[:, :self.c_cat])  # (-1, 10)
     Q_layer5_cont = tf.nn.sigmoid(Q_layer5[:, self.c_cat:]) # (-1, 2)
     Q_c_given_x = tf.concat([Q_layer5_cat, Q_layer5_cont], axis=1) # (-1, 12)
 ```
@@ -887,14 +894,10 @@ def z_sampler(self, dim1):
 def c_cat_sampler(self, dim1):
     return np.random.multinomial(1, [0.1] * self.c_cat, size=dim1)
 
-def c_cont_sampler(self, dim1):
-    return np.random.uniform(0, 1, size=[dim1, self.c_cont])
-
 batch_xs, _ = self.mnist.train.next_batch(self.batch_size)
 feed_dict = {self.X: batch_xs, \
                     self.z: self.z_sampler(self.batch_size), \
                     self.c_i: self.c_cat_sampler(self.batch_size), \
-                    self.c_j: self.c_cont_sampler(self.batch_size), \
                     self.training: True}
 ...
 _, D_loss = self.sess.run([self.D_optim, self.D_loss], feed_dict=feed_dict)
