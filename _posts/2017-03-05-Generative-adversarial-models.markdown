@@ -906,6 +906,22 @@ _, Q_loss = self.sess.run([self.Q_optim, self.Q_loss], feed_dict=feed_dict)
 ```
 
 The full source code is in [here](https://github.com/jhui/machine_learning/tree/master/infoGAN/infogan1) which is modified from [Kim](https://github.com/1202kbs/InfoGAN-Tensorflow).
+
+$$c$$ can be categorical or continuous. To compute the loss for $$Q$$ when $$c$$ is continuous.
+	
+```
+if fix_std:
+    std_contig = tf.ones_like(mean_contig)   # We use standard deviation = 1
+else:
+    # We use the Q network to predict the SD
+    std_contig = tf.sqrt(tf.exp(out[:, num_categorical + num_continuous:num_categorical + num_continuous * 2]))
+
+epsilon = (x - mean) / (std_contig + TINY)
+loss_q_continous = tf.reduce_sum(
+      - 0.5 * np.log(2 * np.pi) - tf.log(std_contig + TINY) - 0.5 * tf.square(epsilon),
+            reduction_indices=1,
+  )
+```	
 	
 ###  Mode collapse
 
