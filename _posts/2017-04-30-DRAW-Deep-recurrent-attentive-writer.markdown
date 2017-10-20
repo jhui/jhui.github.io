@@ -220,8 +220,6 @@ $$
 self.ct[t] = c_prev + dense(hidden_layer, self.n_hidden, self.img_size**2)
 ```
 
-#### 
-
 To demonstrate how it is constructed, here is the code up to the encoder written in TensorFlow with the following steps:
 1. Read the MNist data.
 1. Set up the configuration for the LSTM cell.
