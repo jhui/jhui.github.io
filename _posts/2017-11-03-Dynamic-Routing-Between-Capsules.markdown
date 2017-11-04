@@ -259,7 +259,7 @@ def squash(vectors, axis=-1):
     return scale * vectors
 ```
 
-#### DigitCaps
+#### DigitCaps with dynamic routing
 ```python
 class CapsuleLayer(layers.Layer):
     """
