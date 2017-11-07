@@ -413,7 +413,7 @@ In either cases, she should confess. Similarly, Peter should confess also. There
 It measures how distinguishable two or more distributions are from each other.
 
 $$
-\JSD{X || Y} = \H{\frac{X + Y}{2}} - \frac{\H{X} + \H{Y}}{2}
+JSD{X || Y} = H(\frac{X + Y}{2}) - \frac{H(X) + H(Y)}{2}
 $$
 	
 
