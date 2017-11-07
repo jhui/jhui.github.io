@@ -122,6 +122,8 @@ Here is the pseudo code:
 
 [Source Sara Sabour, Nicholas Frosst, Geoffrey Hinton](https://arxiv.org/pdf/1710.09829.pdf) 
 
+> Routing a capsule to the next layer capsule based on such similarity is called Routing-by-agreement.
+
 In max pool, we only keep the most dominating (max) features. Capsules maintain a weighted sum of features from the previous layer. Hence, it is more suitable in detecting overlapping features. (for example detecting multiple overlapping digits in the handwriting)
 
 ### Loss function (Margin loss)
