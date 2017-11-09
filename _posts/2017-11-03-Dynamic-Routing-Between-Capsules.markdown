@@ -46,7 +46,7 @@ Instead of reusing the term neurons, we use the term **capsules** to indicate th
 
 ### Viewpoint and style invariant
 
-Another challenge for deep learning is to handle viewpoint and style variant. MNist dataset contains 55,000 training data. i.e. 5,500 samples per digits. It is un-imaginable that children read this large amount of sample to learn digits. In many visualization problems, we argument data with different orientation, perspective (viewpoint) or style (stroke size) to build a more generalized model. With pose information as part of the information extracted by capsules, we may build a more effective viewpoint and style invariant model that require less training data.
+Another challenge for deep learning is to handle viewpoint and style variant. MNist dataset contains 55,000 training data. i.e. 5,500 samples per digits. It is un-imaginable that children read this large amount of sample to learn digits. In many visualization problems, we argument data with different perspective (viewpoint) or style (lighting condition). With pose information as part of the information extracted by capsules, we may build a more effective viewpoint and style invariant model that require less training data.
 
 ### Capsule
 
