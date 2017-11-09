@@ -185,7 +185,7 @@ With capsules, the signal of a capsule is routed to its parents according to the
 <img src="/assets/capsule/face7.jpg" style="border:none;width:45%;">
 </div>
 
-> New routing algorithms are under active research to group capsules to the layer above more effectively.
+> New routing algorithms, as shown in Matrix capsules with EM routing, are under active research to group capsules to the layer above more effectively.
 
 ### Loss function (Margin loss)
 
