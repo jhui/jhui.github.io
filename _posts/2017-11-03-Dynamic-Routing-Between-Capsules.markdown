@@ -185,6 +185,8 @@ With capsules, the signal of a capsule is routed to its parents according to the
 <img src="/assets/capsule/face7.jpg" style="border:none;width:45%;">
 </div>
 
+> New routing algorithms are under active research to group capsules to the layer above more effectively.
+
 ### Loss function (Margin loss)
 
 To detect multiple digits in a picture, Capsules use a separate margin loss, $$L_c$$ for each category $$c$$:
