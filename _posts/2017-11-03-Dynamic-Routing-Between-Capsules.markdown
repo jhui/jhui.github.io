@@ -18,7 +18,7 @@ In deep learning, the activation level of a neuron is often interpreted as the l
 <img src="/assets/capsule/fc.jpg" style="border:none;width:70%;">
 </div>
 
-If we pass the famous Picasso's "Portrait of woman in d`hermine pass" into a CNN classifier, the classifier may mistaken it as a real human face. CNN is good at detecting features but badly at exploring the spatial perspective, size and orientation between features. 
+If we pass the famous Picasso's "Portrait of woman in d`hermine pass" into a CNN classifier, the classifier may mistaken it as a real human face. CNN is good at detecting features but far less effective at exploring the spatial perspective, size and orientation between features. 
 
 <div class="imgcap">
 <img src="/assets/capsule/picasso.jpg" style="border:none;width:40%;">
