@@ -175,13 +175,15 @@ Here is the pseudo code:
 
 > Routing a capsule to the capsule in the layer above based on such similarity is called Routing-by-agreement.
 
-With capsules, we hope the layers eventually establish a **parse tree** that form a hierarchy of feature structure like a face is composed of eyes, a nose and a mouth. (parts-whole relationship)
+There is another short coming using the max pool in CNN. In max pool, we only keep the most dominating (max) features. Capsules maintain a weighted sum of features from the previous layer. Hence, it is more suitable in detecting overlapping features. (for example detecting multiple overlapping digits in the handwriting)
+
+### Intuition on Iterative dynamic Routing
+
+With capsules, the signal of a capsule is routed to its parents according to the relevancy. We hope those layers eventually establish a **parse tree** that form a hierarchy of feature structure like a face is composed of eyes, a nose and a mouth. (parts-whole relationship)
 
 <div class="imgcap">
 <img src="/assets/capsule/face7.jpg" style="border:none;width:45%;">
 </div>
-
-There is another short coming using the max pool in CNN. In max pool, we only keep the most dominating (max) features. Capsules maintain a weighted sum of features from the previous layer. Hence, it is more suitable in detecting overlapping features. (for example detecting multiple overlapping digits in the handwriting)
 
 ### Loss function (Margin loss)
 
