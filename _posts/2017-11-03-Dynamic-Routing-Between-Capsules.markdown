@@ -18,35 +18,35 @@ In deep learning, the activation level of a neuron is often interpreted as the l
 <img src="/assets/capsule/fc.jpg" style="border:none;width:70%;">
 </div>
 
-If we pass the Picasso's "Portrait of woman in d`hermine pass" into a CNN classifier, the classifier may mistaken it as a real human face. CNN is good at detecting features but far less effective at exploring the spatial perspective, size and orientation between features. 
+If we pass the Picasso's "Portrait of woman in d`hermine pass" into a CNN classifier, how likely that the classifier may mistaken it as a real human face? CNN is good at detecting features but far less effective at exploring the spatial relationships among features (perspective, size, orientation).
 
 <div class="imgcap">
 <img src="/assets/capsule/picasso.jpg" style="border:none;width:40%;">
 </div>
 
-For example, the following picture may fool a CNN model in believing that this a good human face  sketch.
+For example, the following picture may fool a simple CNN model in believing that this a good sketch of a human face.
 
 <div class="imgcap">
 <img src="/assets/capsule/face2.jpg" style="border:none;width:20%;">
 </div>
 
-A CNN model extracts the features correctly for the neurons in the lower layer, but wrongly activates the neurons in the layer above for the face detection because the spatial orientation, separation and size information is lost when the signal is propagate upwards.
+A CNN model extracts the features correctly for the neurons in the lower layer, but can wrongly activate the neurons in the layer above for the face detection in a simple CNN model.
 
 <div class="imgcap">
 <img src="/assets/capsule/face4.jpg" style="border:none;width:60%;">
 </div>
 
-Now, we imagine that each neuron contains the likelihood as well as properties of the features. For example, it outputs a vector like (likelihood, orientation, size). Then the neuron for the face detection will have much lower activation once we realize that the neurons that contribute the most signal to this parent neuron do not agree on size and orientation.
+Now, we imagine that each neuron contains the likelihood as well as properties of the features. For example, it outputs a vector containing [likelihood, orientation, size]. Then the neuron for the face detection will have much lower activation once the model realizes that the neurons that contribute the most signal to this parent neuron do not agree on size and orientation.
 
 <div class="imgcap">
 <img src="/assets/capsule/face5.jpg" style="border:none;width:60%;">
 </div>
 
-Instead of reusing the term neurons, we use the term **capsules** to indicate that capsules output a vector instead of a single scaler value.
+Instead of using the term neurons, the technical paper uses the term **capsules** to indicate that capsules output a vector instead of a single scaler value.
 
 ### Viewpoint and style invariant
 
-Another challenge for deep learning is to handle viewpoint and style variant. MNist dataset contains 55,000 training data. i.e. 5,500 samples per digits. It is un-imaginable that children read this large amount of sample to learn digits. In many visualization problems, we collect data with different perspective (viewpoint) or style (stroke size). With pose information as part of the information extracted by capsules, we may build a more effective viewpoint and style invariant model that require less labeled data.
+A CNN model with more convolution layers and deeper feature maps may mitigate or resolve this issue. In addition, we generalize the model by training it with datapoints in different viewpoint variant (orientation, perspective) and style variant (stroke width, font type). MNist dataset contains 55,000 training data. i.e. 5,500 samples per digits. It is unlikely that children need to read this large amount of samples to learn digits. With feature property as part of the information extracted by capsules, we _may_ generalize the model better without an over extensive amount of labeled data for different classes and variants.
 
 ### Capsule
 
@@ -91,7 +91,7 @@ For a capsule, the input $$u_i$$ and the output $$v_j$$ of a capsule are vectors
 <img src="/assets/capsule/fc2.jpg" style="border:none;width:35%;">
 </div>
 
-We apply a transformation matrix $$W_{ij}$$ to the capsule output $$ u_i $$ of the pervious layer. For example, if $$u_i$$ is a k-D vector, we can apply a $$m \times k $$ matrix to transform it to a m-D $$\hat{u}_{j \vert i}$$. Then we compute a weighted sum (with weights $$c_{ij}$$) $$\hat{u}_{j \vert i}$$ of all the capsules from the previous layer.
+We apply a **transformation matrix** $$W_{ij}$$ to the capsule output $$ u_i $$ of the pervious layer. For example, with a $$m \times k $$ matrix, we transform a k-D $$u_i$$ to a m-D $$\hat{u}_{j \vert i}$$. ($$ (m \times k) \text{  } x \text{  } (k \times 1) \implies m \times 1$$) Then we compute a weighted sum (with weights $$c_{ij}$$).
 
 $$
 \begin{split}
@@ -102,7 +102,7 @@ $$
 
 $$c_{ij}$$ are **coupling coefficients** that are trained by the iterative dynamic routing process (discussed next) and $$ \sum_{i} c_{ij}$$ are designed to sum to one.
 
-Instead of applying a ReLU function, we apply a squashing function. 
+Instead of applying a ReLU function, we apply a squashing function to scale the vector between 0 and unit length. 
 
 $$
 \begin{split}
@@ -121,7 +121,13 @@ $$
 
 ### Iterative dynamic Routing
 
-The coupling coefficients $$ c_{ij} $$ determines the relevancy of a capsule in activating another capsule in the layer above. After apply a transformation matrix $$W_{ij}$$ to the previous capsule output $$u_i$$, we compute the **prediction vector** $$\hat{u}_{j \vert i}$$. 
+In deep learning, we use backpropagation to train model parameters. $$ W_{ij} $$ in capsules are trained with backpropagation. Nevertheless, the coupling coefficients $$c_{ij}$$ are calculated with an iterative dynamic routing method.
+
+<div class="imgcap">
+<img src="/assets/capsule/face6.jpg" style="border:none;width:65%;">
+</div>
+
+The **prediction vector** $$\hat{u}_{j \vert i}$$ is computed as:
 
 $$
 \begin{split}
@@ -129,7 +135,18 @@ $$
 \end{split}
 $$
 
-The similarity of the prediction vector with the capsule output $$v_j$$ corresponds to the relevancy of $$u_i$$ in activating $$v_i$$. In short, how much a capsule output should contribute to the capsule in the layer above after a transformation of its properties. The higher the similarity, the larger the coupling coefficients $$ c_{ij} $$ should be. Such similarity is measured using the scalar product and we adjust a relevancy score $$ b_{ij} $$ according to the similarity. 
+which $$ u_i $$ is the activity vector for the capsule $$i$$ in the layer below.
+
+The **activity vector** $$v_j$$ for the capsule $$j$$  in the layer above is computed as:
+
+$$
+\begin{split}
+s_j & = \sum_i c_{ij}  \hat{u}_{j|i} \\
+v_{j} & = \frac{\| s_{j} \|^2}{ 1 + \| s_{j} \|^2} \frac{s_{j}}{ \| s_{j} \|}  \\
+\end{split}
+$$
+
+Intuitively, prediction vector $$\hat{u}_{j \vert i}$$ is the prediction (contribution or vote) from the capsule $$i$$ on the output of the capsule $$j$$ above. If the activity vector has close similarity with the prediction vector, we conclude that capsule $$i$$ is highly related with the capsule $$j$$. Such similarity is measured using the scalar product of the prediction and activity vector.  We adjust a relevancy score $$ b_{ij} $$ iteratively according to the similarity. 
 
 $$
 \begin{split}
@@ -138,13 +155,15 @@ b_{ij} & ←  b_{ij} + similarity \\
 \end{split}
 $$
 
-The coupling coefficients $$ c_{ij} $$ is finally calculated as:
+We iterate the equations above $$r$$ times (default 3 times) before computed the coupling coefficients $$ c_{ij} $$ as the softmax of $$ b_{ij} $$:
 
 $$
-c_{ij} = \frac{\exp{b_{ij}}} {\sum_k \exp{b_{ik}} }
+\begin{split}
+\hat{u}_{j|i} &= W_{ij} u_i \\
+s_j & = \sum_i c_{ij}  \hat{u}_{j|i} \\
+c_{ij} & = \frac{\exp{b_{ij}}} {\sum_k \exp{b_{ik}} } \\
+\end{split}
 $$
-
-This dynamic routing mechanism ensure that the output of a capsule gets route to an appropriate capsule in the layer above. A capsule prefers to send its output to the capsules in the layer above whose activity vectors have a big scalar product (similarity) with the prediction coming from that capsule.
 
 Here is the pseudo code:
 
@@ -156,7 +175,13 @@ Here is the pseudo code:
 
 > Routing a capsule to the capsule in the layer above based on such similarity is called Routing-by-agreement.
 
-In max pool, we only keep the most dominating (max) features. Capsules maintain a weighted sum of features from the previous layer. Hence, it is more suitable in detecting overlapping features. (for example detecting multiple overlapping digits in the handwriting)
+With capsules, we hope the layers eventually establish a **parse tree** that form a hierarchy of feature structure like a face is composed of eyes, a nose and a mouth. (parts-whole relationship)
+
+<div class="imgcap">
+<img src="/assets/capsule/face7.jpg" style="border:none;width:45%;">
+</div>
+
+There is another short coming using the max pool in CNN. In max pool, we only keep the most dominating (max) features. Capsules maintain a weighted sum of features from the previous layer. Hence, it is more suitable in detecting overlapping features. (for example detecting multiple overlapping digits in the handwriting)
 
 ### Loss function (Margin loss)
 
