@@ -8,9 +8,9 @@ excerpt: “A simple tutorial in understanding Capsules, Dynamic routing and Cap
 date: 2017-11-03 11:00:00
 ---
 
-This article covers the technical paper by Sara Sabour, Nicholas Frosst and Geoffrey Hinton on [Dynamic Routing between Capsules](https://arxiv.org/pdf/1710.09829.pdf). The source code implementation is originated from [XifengGuo](https://github.com/XifengGuo/CapsNet-Keras) using Keras with Tensorflow. In this article, we will first describe the basic concept and later apply it in CapsNet to detect digits in MNist.
+This article covers the technical paper by Sara Sabour, Nicholas Frosst and Geoffrey Hinton on [Dynamic Routing between Capsules](https://arxiv.org/pdf/1710.09829.pdf). The source code implementation is originated from [XifengGuo](https://github.com/XifengGuo/CapsNet-Keras) using Keras with Tensorflow. In this article, we will describe the basic concept first and later apply it with CapsNet to detect digits in MNist.
 
-### Capsule
+### CNN challenges
 
 In deep learning, the activation level of a neuron is often interpreted as the likelihood of detecting a specific feature. 
 
@@ -18,7 +18,40 @@ In deep learning, the activation level of a neuron is often interpreted as the l
 <img src="/assets/capsule/fc.jpg" style="border:none;width:70%;">
 </div>
 
-A capsule is a group of neurons that not only capture the likelihood but also the parameters of the specific feature.
+If we pass the famous Picasso's "Portrait of woman in d`hermine pass" into a CNN classifier, the classifier may mistaken it as a real human face. CNN is good at detecting features but badly at exploring the spatial perspective, size and orientation between features. 
+
+<div class="imgcap">
+<img src="/assets/capsule/picasso.jpg" style="border:none;width:40%;">
+</div>
+
+For example, the following picture may fool a CNN model in believing that this a good human face  sketch.
+
+<div class="imgcap">
+<img src="/assets/capsule/face2.jpg" style="border:none;width:20%;">
+</div>
+
+A CNN model extracts the features correctly for the neurons in the lower layer, but wrongly activates the neurons above for the face detection because the spatial orientation and size information is lost when the signal is propagate upwards.
+
+<div class="imgcap">
+<img src="/assets/capsule/face4.jpg" style="border:none;width:60%;">
+</div>
+
+Now, we imagine that each neuron contains the likelihood as well as properties of the features. For example, it outputs a vector like (likelihood, orientation, size). Then the neuron for the face detection will have much lower activation once we realize that the neurons that contribute the most signal to this parent neuron do not agree on size and orientation.
+
+<div class="imgcap">
+<img src="/assets/capsule/face5.jpg" style="border:none;width:60%;">
+</div>
+
+Instead of reusing the term neurons, we use the term **capsules** to indicate that capsules output a vector instead of a single scaler value.
+
+With capsule,
+
+* Enough spatial information is retained to calculate the activation more accurately.
+* Group lower level features into a parse tree (like the one above) to form a higher level feature: aka "form the whole from the parts". (part-whole relationship)
+
+### Capsule
+
+A capsule is a group of neurons that not only capture the likelihood but also the parameters of the specific feature. 
 
 For example, the first row below indicates the probabilities of detecting the number "7" by a neuron. A 2-D capsule is formed by combining 2 neurons. This capsule outputs a 2-D vector in detecting the number "7". For the first image in the second row, it outputs a vector $$ v = (0, 0.9)$$. The magnitude of the vector $$ \| v \| = \sqrt{ 0^2 + 0.9^2 } = 0.9 $$ corresponds to the probability of detecting "7".
 
@@ -89,7 +122,7 @@ $$
 
 ### Iterative dynamic Routing
 
-The coupling coefficients $$ c_{ij} $$ determines the relevancy of a capsule in activating another capsule in the next layer. After apply a transformation matrix $$W_{ij}$$ to the previous capsule output $$u_i$$, we compute the **prediction vector** $$\hat{u}_{j \vert i}$$. 
+The coupling coefficients $$ c_{ij} $$ determines the relevancy of a capsule in activating another capsule in the layer above. After apply a transformation matrix $$W_{ij}$$ to the previous capsule output $$u_i$$, we compute the **prediction vector** $$\hat{u}_{j \vert i}$$. 
 
 $$
 \begin{split}
@@ -97,7 +130,7 @@ $$
 \end{split}
 $$
 
-The similarity of the prediction vector with the capsule output $$v_j$$ corresponds to the relevancy of $$u_i$$ in activating $$v_i$$. In short, how much a capsule output should contribute to the next layer capsule output after a transformation of its properties. The higher the similarity, the larger the coupling coefficients $$ c_{ij} $$ should be. Such similarity is measured using the scalar product and we adjust a relevancy score $$ b_{ij} $$ according to the similarity. 
+The similarity of the prediction vector with the capsule output $$v_j$$ corresponds to the relevancy of $$u_i$$ in activating $$v_i$$. In short, how much a capsule output should contribute to the capsule in the layer above after a transformation of its properties. The higher the similarity, the larger the coupling coefficients $$ c_{ij} $$ should be. Such similarity is measured using the scalar product and we adjust a relevancy score $$ b_{ij} $$ according to the similarity. 
 
 $$
 \begin{split}
@@ -112,7 +145,7 @@ $$
 c_{ij} = \frac{\exp{b_{ij}}} {\sum_k \exp{b_{ik}} }
 $$
 
-This dynamic routing mechanism ensure that the output of a capsule gets route to an appropriate capsule in the next layer. A capsule prefers to send its output to the next layer capsules whose activity vectors have a big scalar product (similarity) with the prediction coming from that capsule.
+This dynamic routing mechanism ensure that the output of a capsule gets route to an appropriate capsule in the layer above. A capsule prefers to send its output to the capsules in the layer above whose activity vectors have a big scalar product (similarity) with the prediction coming from that capsule.
 
 Here is the pseudo code:
 
@@ -122,7 +155,7 @@ Here is the pseudo code:
 
 [Source Sara Sabour, Nicholas Frosst, Geoffrey Hinton](https://arxiv.org/pdf/1710.09829.pdf) 
 
-> Routing a capsule to the next layer capsule based on such similarity is called Routing-by-agreement.
+> Routing a capsule to the capsule in the layer above based on such similarity is called Routing-by-agreement.
 
 In max pool, we only keep the most dominating (max) features. Capsules maintain a weighted sum of features from the previous layer. Hence, it is more suitable in detecting overlapping features. (for example detecting multiple overlapping digits in the handwriting)
 
