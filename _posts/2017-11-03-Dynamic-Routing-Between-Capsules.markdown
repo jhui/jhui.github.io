@@ -18,7 +18,7 @@ In deep learning, the activation level of a neuron is often interpreted as the l
 <img src="/assets/capsule/fc.jpg" style="border:none;width:70%;">
 </div>
 
-If we pass the famous Picasso's "Portrait of woman in d`hermine pass" into a CNN classifier, the classifier may mistaken it as a real human face. CNN is good at detecting features but far less effective at exploring the spatial perspective, size and orientation between features. 
+If we pass the Picasso's "Portrait of woman in d`hermine pass" into a CNN classifier, the classifier may mistaken it as a real human face. CNN is good at detecting features but far less effective at exploring the spatial perspective, size and orientation between features. 
 
 <div class="imgcap">
 <img src="/assets/capsule/picasso.jpg" style="border:none;width:40%;">
@@ -30,7 +30,7 @@ For example, the following picture may fool a CNN model in believing that this a
 <img src="/assets/capsule/face2.jpg" style="border:none;width:20%;">
 </div>
 
-A CNN model extracts the features correctly for the neurons in the lower layer, but wrongly activates the neurons above for the face detection because the spatial orientation and size information is lost when the signal is propagate upwards.
+A CNN model extracts the features correctly for the neurons in the lower layer, but wrongly activates the neurons in the layer above for the face detection because the spatial orientation, separation and size information is lost when the signal is propagate upwards.
 
 <div class="imgcap">
 <img src="/assets/capsule/face4.jpg" style="border:none;width:60%;">
@@ -44,10 +44,9 @@ Now, we imagine that each neuron contains the likelihood as well as properties o
 
 Instead of reusing the term neurons, we use the term **capsules** to indicate that capsules output a vector instead of a single scaler value.
 
-With capsule,
+### Viewpoint and style invariant
 
-* Enough spatial information is retained to calculate the activation more accurately.
-* Group lower level features into a parse tree (like the one above) to form a higher level feature: aka "form the whole from the parts". (part-whole relationship)
+Another challenge for deep learning is to handle viewpoint and style variant. MNist dataset contains 55,000 training data. i.e. 5,500 samples per digits. It is un-imaginable that children read this large amount of sample to learn digits. In many visualization problems, we argument data with different orientation, perspective (viewpoint) or style (stroke size) to build a more generalized model. With pose information as part of the information extracted by capsules, we may build a more effective viewpoint and style invariant model that require less training data.
 
 ### Capsule
 
