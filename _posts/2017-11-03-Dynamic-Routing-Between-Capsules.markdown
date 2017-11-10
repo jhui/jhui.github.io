@@ -30,7 +30,7 @@ For example, the following picture may fool a simple CNN model in believing that
 <img src="/assets/capsule/face2.jpg" style="border:none;width:20%;">
 </div>
 
-A CNN model extracts the features correctly for the neurons in the lower layer, but can wrongly activate the neurons in the layer above for the face detection in a simple CNN model.
+A CNN model extracts the features correctly for the neurons in the lower layer, but can wrongly activate the neurons in the layer above for the face detection.
 
 <div class="imgcap">
 <img src="/assets/capsule/face4.jpg" style="border:none;width:60%;">
@@ -46,11 +46,13 @@ Instead of using the term neurons, the technical paper uses the term **capsules*
 
 ### Viewpoint and style invariant
 
-A CNN model with more convolution layers and deeper feature maps may mitigate or resolve this issue. In addition, we generalize the model by training it with datapoints in different viewpoint variant (orientation, perspective) and style variant (stroke width, font type). MNist dataset contains 55,000 training data. i.e. 5,500 samples per digits. It is unlikely that children need to read this large amount of samples to learn digits. With feature property as part of the information extracted by capsules, we _may_ generalize the model better without an over extensive amount of labeled data for different classes and variants.
+To handle different viewpoint variant (orientation, perspective) and style variant (skin tone, stroke width, font type), we build a CNN with more layers and deeper feature maps. To avoid overfitting, we train the model with data cover different variant combinations. MNist dataset contains 55,000 training data. i.e. 5,500 samples per digits. However, it is unlikely that children need to read this large amount of samples to learn digits. Our existing deep learning models including CNN seem inefficient in utilizing datapoints.
+
+> With feature property as part of the information extracted by capsules, we _may_ generalize the model better without an over extensive amount of labeled data for different variants.
 
 ### Capsule
 
-A capsule is a group of neurons that not only capture the likelihood but also the parameters of the specific feature. 
+> A capsule is a group of neurons that not only capture the likelihood but also the parameters of the specific feature. 
 
 For example, the first row below indicates the probabilities of detecting the number "7" by a neuron. A 2-D capsule is formed by combining 2 neurons. This capsule outputs a 2-D vector in detecting the number "7". For the first image in the second row, it outputs a vector $$ v = (0, 0.9)$$. The magnitude of the vector $$ \| v \| = \sqrt{ 0^2 + 0.9^2 } = 0.9 $$ corresponds to the probability of detecting "7".
 
@@ -91,7 +93,7 @@ For a capsule, the input $$u_i$$ and the output $$v_j$$ of a capsule are vectors
 <img src="/assets/capsule/fc2.jpg" style="border:none;width:35%;">
 </div>
 
-We apply a **transformation matrix** $$W_{ij}$$ to the capsule output $$ u_i $$ of the pervious layer. For example, with a $$m \times k $$ matrix, we transform a k-D $$u_i$$ to a m-D $$\hat{u}_{j \vert i}$$. ($$ (m \times k) \text{  } x \text{  } (k \times 1) \implies m \times 1$$) Then we compute a weighted sum (with weights $$c_{ij}$$).
+We apply a **transformation matrix** $$W_{ij}$$ to the capsule output $$ u_i $$ of the pervious layer. For example, with a $$m \times k $$ matrix, we transform a k-D $$u_i$$ to a m-D $$\hat{u}_{j \vert i}$$. ($$ (m \times k) \text{  } x \text{  } (k \times 1) \implies m \times 1$$) Then we compute a weighted sum $$s_j$$ with weights $$c_{ij}$$.
 
 $$
 \begin{split}
@@ -121,7 +123,7 @@ $$
 
 ### Iterative dynamic Routing
 
-In deep learning, we use backpropagation to train model parameters. $$ W_{ij} $$ in capsules are trained with backpropagation. Nevertheless, the coupling coefficients $$c_{ij}$$ are calculated with an iterative dynamic routing method.
+In deep learning, we use backpropagation to train model parameters. The transformation matrix $$ W_{ij} $$ in capsules are trained with backpropagation. Nevertheless, the coupling coefficients $$c_{ij}$$ are calculated with an iterative dynamic routing method.
 
 <div class="imgcap">
 <img src="/assets/capsule/face6.jpg" style="border:none;width:65%;">
@@ -146,26 +148,26 @@ v_{j} & = \frac{\| s_{j} \|^2}{ 1 + \| s_{j} \|^2} \frac{s_{j}}{ \| s_{j} \|}  \
 \end{split}
 $$
 
-Intuitively, prediction vector $$\hat{u}_{j \vert i}$$ is the prediction (contribution or vote) from the capsule $$i$$ on the output of the capsule $$j$$ above. If the activity vector has close similarity with the prediction vector, we conclude that capsule $$i$$ is highly related with the capsule $$j$$. Such similarity is measured using the scalar product of the prediction and activity vector.  We adjust a relevancy score $$ b_{ij} $$ iteratively according to the similarity. 
+Intuitively, prediction vector $$\hat{u}_{j \vert i}$$ is the prediction (contribution or vote) from the capsule $$i$$ on the output of the capsule $$j$$ above. If the activity vector has close similarity with the prediction vector, we conclude that capsule $$i$$ is highly related with the capsule $$j$$. Such similarity is measured using the scalar product of the prediction and activity vector.  We adjust a relevancy score $$ b_{ij} $$ iteratively ($$r$$ default to 3 iterations) according to the similarity:
 
 $$
 \begin{split}
-similarity & = \hat{u}_{j \vert i} \cdot v_j \\
-b_{ij} & ←  b_{ij} + similarity \\
+& b_{ij} = 0 & \\
+& \text{for r iterations do} &\\
+& \quad \quad similarity = \hat{u}_{j \vert i} \cdot v_j \\
+& \quad \quad b_{ij} ←  b_{ij} + similarity \\
 \end{split}
 $$
 
-We iterate the equations above $$r$$ times (default 3 times) before computed the coupling coefficients $$ c_{ij} $$ as the softmax of $$ b_{ij} $$:
+The coupling coefficients $$ c_{ij} $$ is computed as the softmax of $$ b_{ij} $$:
 
 $$
 \begin{split}
-\hat{u}_{j|i} &= W_{ij} u_i \\
-s_j & = \sum_i c_{ij}  \hat{u}_{j|i} \\
 c_{ij} & = \frac{\exp{b_{ij}}} {\sum_k \exp{b_{ik}} } \\
 \end{split}
 $$
 
-Here is the pseudo code:
+Here is the pseudo code for the dynamic routing:
 
 <div class="imgcap">
 <img src="/assets/capsule/alg.jpg" style="border:none;width:90%;">
@@ -173,23 +175,78 @@ Here is the pseudo code:
 
 [Source Sara Sabour, Nicholas Frosst, Geoffrey Hinton](https://arxiv.org/pdf/1710.09829.pdf) 
 
-> Routing a capsule to the capsule in the layer above based on such similarity is called Routing-by-agreement.
+> Routing a capsule to the capsule in the layer above based on relevancy is called **Routing-by-agreement**.
 
-There is another short coming using the max pool in CNN. In max pool, we only keep the most dominating (max) features. Capsules maintain a weighted sum of features from the previous layer. Hence, it is more suitable in detecting overlapping features. (for example detecting multiple overlapping digits in the handwriting)
+There is a short coming using the max pool in CNN. In max pool, we only keep the most dominating (max) features. Capsules maintain a weighted sum of features from the previous layer. Hence, it is more suitable in detecting overlapping features. For example detecting multiple overlapping digits in the handwriting:
 
-### Intuition on Iterative dynamic Routing
+<div class="imgcap">
+<img src="/assets/capsule/over.jpg" style="border:none">
+</div>
 
-With capsules, the signal of a capsule is routed to its parents according to the relevancy. We hope those layers eventually establish a **parse tree** that form a hierarchy of feature structure like a face is composed of eyes, a nose and a mouth. (parts-whole relationship)
+### Significant of Iterative dynamic routing and capsules
+
+In deep learning, we use backpropagation to train the model's parameters based on a cost function. Those parameters (weights) control how signal is routed from one layer to another. If the weight between 2 nodes is zero, the activation of a neuron is not propagated to that node.
+
+Iterative dynamic routing provides an alternative of how signal is routed based on feature parameters rather than one size fit all cost function. By utilizing the feature parameters, we can theoretically group capsules better to form a higher level structure. For example, the capsule layers may eventually behaves as a **parse tree** that explore the parts-whole relationship. (for example, a face is composed of eyes, a nose and a mouth)
 
 <div class="imgcap">
 <img src="/assets/capsule/face7.jpg" style="border:none;width:45%;">
 </div>
 
-> New routing algorithms, as shown in Matrix capsules with EM routing, are under active research to group capsules to the layer above more effectively.
+In a second paper on capsules Matrix capsules with EM routing, a [likeliness, 4x4 pose matrix] capsule is proposed rather than a k-D vector capsule. The iterative dynamic routing is replaced with an Expectation–maximization routing (EM routing) to group capsules based on multiple Gaussian distributions. Without going into details, the new capsules try to extract pose information of a feature (location and orientation information) such that the EM routing can detect high level features regardless of the viewpoint variants. The pose information of the eyes, mouth and ear changes similarly under different viewpoints. With EM routing, we can detect a face easier without extensive training data on different viewpoints.
+
+There are active researches on what information should be captured in the capsules and new routing algorithm to group or route signals from one layer to another. 
+
+> New capsules and routing algorithm will hopefully build higher level structures much easier and much effectively with less training data.
+
+### CapsNet architecture
+
+Finally, we apply capsules to build the CapsNet to classify the MNist digits. The following is the architecture using CapsNet.
+
+<div class="imgcap">
+<img src="/assets/capsule/arch1.jpg" style="border:none;width:70%;">
+</div>
+
+Image is feed into the ReLU Conv1 which is a standard convolution layer. It applies 256 9x9 kernels to generate an output with 256 channels (feature maps). With stride 1 and no padding, the spatial dimension is reduced to 20x20. ( 28-9+1=20) 
+
+It is then feed into PrimaryCapsules which is a modified convolution layer supporting capsules. It generates a 8-D vector instead of a scalar. PrimaryCapsules used 8x32 kernels to generate 32 8-D capsules. (i.e. 8 output neurons are grouped together to form a capsule) PrimaryCapsules uses 9x9 kernels with stride 2 and no padding to reduce the spatial dimension from 20x20 to 6x6 ( $$\frac{20-9+1}{2} = 6 $$). In PrimaryCapsules, we have 32x6x6 capsules. 
+
+It is then feed into DigiCaps which apply a transformation matrix $$W_{ij} $$ with shape 16x8 to convert the 8-D capsule to a 16-D capsule for each class $$j$$ (from 1 to 10).
+
+$$
+\begin{split}
+\hat{u}_{j|i} &= W_{ij} u_i \\
+\end{split}
+$$
+
+The final output $$v_j$$ for class $$j$$ is computed as:
+
+$$
+\begin{split}
+s_j & = \sum_i c_{ij}  \hat{u}_{j|i} \\
+v_{j} & = \frac{\| s_{j} \|^2}{ 1 + \| s_{j} \|^2} \frac{s_{j}}{ \| s_{j} \|}  \\
+\end{split}
+$$
+
+Because there are 10 classes, the shape of DigiCaps is 10x16 (10 16-D vector.) Each vector $$v_j$$ acts as the capsule for class $$j$$. The probability of the image to be classify as $$j$$ is computed by $$\| v_j \|$$. In our example, the true label is 7 and $$v_7$$ is the latent representation of our input. With a 2 hidden fully connected layers, we can reconstruct the 28x28 image from $$v_7$$.
+
+Here is the summary of each layers:
+
+| Layer Name | Apply | Output shape |
+| --- | --- | --- | --- |
+| Image | Raw image array |  28x28x1|
+| ReLU Conv1 | Convolution layer with 9x9 kernels output 256 channels, stride 1, no padding with ReLU  | 20x20x256 |
+| PrimaryCapsules | Convolution capsule layer with 9x9 kernel output 32x6x6 8-D capsule, stride 2, no padding  | 6x6x32x8 |
+| DigitCaps | Capsule output computed from a $$W_{ij} $$ (16x8 matrix) between $$u_i$$ and $$v_j$$ ($$i$$ from 1 to 32x6x6 and $$j$$ from 1 to 10). | 10x16 |
+| FC1 | Fully connected with ReLU | 512 |
+| FC2 | Fully connected with ReLU | 1024 |
+| Output image | Fully connected with sigmoid | 784 (28x28) | 
+
+> Our capsule layers use convolution kernels to explore locality information.
 
 ### Loss function (Margin loss)
 
-To detect multiple digits in a picture, Capsules use a separate margin loss, $$L_c$$ for each category $$c$$:
+In our example, we want to detect multiple digits in a picture. Capsules use a separate margin loss $$L_c$$ for each category $$c$$ digit present in the picture:
 
 $$
 L_c = T_c max(0, m^+ − \|vc\|)^2 + λ (1 − T_c) max(0, \|vc\| − m^−)^2
@@ -212,42 +269,7 @@ def margin_loss(y_true, y_pred):
     return K.mean(K.sum(L, 1))
 ```
 
-### CapsNet architecture
-
-CapsNet applies capsules to classify the MNist digits. The following is the architecture using CapsNet.
-
-<div class="imgcap">
-<img src="/assets/capsule/arch1.jpg" style="border:none;width:70%;">
-</div>
-
-Image is feed into the ReLU Conv1 which is a standard convolution layer. It applies 256 9x9 kernels (stride 1, no padding) to generate an output with 256 channels (feature maps). Without padding, the spatial dimension is reduced to 20x20 ( 28-9+1=20) It is then feed into PrimaryCapsules which is a modified convolution layer supporting capsules. In a regular convolution layer, we use k-kernels to create an output with k channels. PrimaryCapsules used 8x32 kernels to generate 32 8-D capsules. (i.e. 8 output neurons are grouped to form a capsule) PrimaryCapsules uses 9x9 kernels (stride 2, no padding) to reduce the spatial dimension from 20x20 to 6x6 ( $$\frac{20-9+1}{2} = 6 $$). In PrimaryCapsules, we have 32x6x6 capsules. We apply a transformation matrix $$W_{ij} $$ with shape 16x8 to convert each capsule (shape: 8x1) to a 16-D capsule (vector) for each class $$j$$ (from 1 to 10).
-
-$$
-\begin{split}
-\hat{u}_{j|i} &= W_{ij} u_i \\
-\end{split}
-$$
-
-The final output $$v_j$$ for class $$j$$ is computed as:
-
-$$
-\begin{split}
-s_j & = \sum_i c_{ij}  \hat{u}_{j|i} \\
-v_{j} & = \frac{\| s_{j} \|^2}{ 1 + \| s_{j} \|^2} \frac{s_{j}}{ \| s_{j} \|}  \\
-\end{split}
-$$
-
-Because there are 10 classes, the shape of DigiCaps will be 10x16 (10 16-D vector.) Each vector $$v_j$$ acts as the capsule for class $$j$$. The probability of the image to be classify as $$j$$ is computed by $$\| v_j \|$$. In our example, $$ v_7$$ is the latent representation of the input image with the true label 7. Using $$v_7$$ and fully connected networks, we can reconstruct the 28x28 image. 
-
-| Layer Name | Apply | Output shape |
-| --- | --- | --- | --- |
-| Image | Raw image array |  28x28x1|
-| ReLU Conv1 | Convolution layer with 9x9 kernels output 256 channels, stride 1, no padding with ReLU  | 20x20x256 |
-| PrimaryCapsules | Convolution capsule layer with 9x9 kernel output 32x6x6 8-D capsule, stride 2, no padding  | 6x6x32x8 |
-| DigitCaps | Capsule output computed from a $$W_{ij} $$ (16x8 matrix) between $$u_i$$ and $$v_j$$ ($$i$$ from 1 to 32x6x6 and $$j$$ from 1 to 10). | 10x16 |
-| FC1 | Fully connected with ReLU | 512 |
-| FC2 | Fully connected with ReLU | 1024 |
-| Output image | Fully connected with sigmoid | 784 (28x28) | 
+### CapsNet model
 
 Here is the Keras code in creating the CapsNet model:
 ```python
@@ -272,7 +294,7 @@ def CapsNet(input_shape, n_class, num_routing):
 	                    kernel_size=9, strides=2, padding='valid')
 
     # DigitCaps: Capsule layer. Routing algorithm works here.
-    digitcaps = CapsuleLayer(num_capsule=n_class, dim_vector=16, 
+    digitcaps = DigiCaps(num_capsule=n_class, dim_vector=16, 
 	        num_routing=num_routing, name='digitcaps')(primarycaps)
 
     # The length of the capsule's output vector 
@@ -292,7 +314,7 @@ def CapsNet(input_shape, n_class, num_routing):
     return models.Model([x, y], [out_caps, x_recon])
 ```
 
-Length of the capsule's output vector $$\| v\| $$ which correspond to the probability of it belong to a class. (For example, $$ \| v_7 \| $$ is the probability of the input image is a 7.)
+The length of the capsule's output vector $$\| v_j \| $$ corresponds to the probability that it belong to the class $$j$$. For example, $$ \| v_7 \| $$ is the probability of the input image belongs to 7.
 ```python
 class Length(layers.Layer):
     def call(self, inputs, **kwargs):
@@ -303,7 +325,7 @@ class Length(layers.Layer):
 			
 #### PrimaryCapsules
 
-PrimaryCapsules outputs 32x6x6 8-D capsules.
+PrimaryCapsules converts 20x20 256 channels into 32x6x6 8-D capsules.
 ```python
 def PrimaryCap(inputs, dim_vector, n_channels, kernel_size, strides, padding):
     """
@@ -320,7 +342,7 @@ def PrimaryCap(inputs, dim_vector, n_channels, kernel_size, strides, padding):
 
 #### Squash function
 
-Squash function behaves like a sigmoid function to squash a vector between a 0 vector and an unit vector.
+Squash function behaves like a sigmoid function to squash a vector such that its length falls between 0 and 1.
 
 $$
 \begin{split}
@@ -344,21 +366,21 @@ def squash(vectors, axis=-1):
 
 #### DigitCaps with dynamic routing
 
-Create a capsule layer (DigitCaps) with 10 (n_class) 16-D (dim_vector) capsules:
+DigitCaps converts the capsules in PrimaryCapsules to 10 capsules each making a prediction for class $$j$$. The following is the code in creating 10 (n_class) 16-D (dim_vector) capsules:
 ```python
 # num_routing is default to 3
-digitcaps = CapsuleLayer(num_capsule=n_class, dim_vector=16, 
+digitcaps = DigiCaps(num_capsule=n_class, dim_vector=16, 
                   num_routing=num_routing, name='digitcaps')(primarycaps)
 ```
 
-CapsuleLayer is just a simple extension of a dense layer. Instead of taking a scalar and output a scalar, it takes a vector and output a vector:
+DigitCaps is just a simple extension of a dense layer. Instead of taking a scalar and output a scalar, it takes a vector and output a vector:
 
 * input shape = (None, input_num_capsule (32), input_dim_vector(8) )
 * output shape = (None, num_capsule (10), dim_vector(16) ) 
 
-Here is the CapsuleLayer and we will detail some part of the code for explanation later.
+Here is the DigiCaps and we will detail some part of the code for explanation later.
 ```python
-class CapsuleLayer(layers.Layer):
+class DigiCaps(layers.Layer):
     """
     The capsule layer. 
  	
@@ -368,14 +390,14 @@ class CapsuleLayer(layers.Layer):
     """
     def __init__(self, num_capsule, dim_vector, num_routing=3,
                  kernel_initializer='glorot_uniform',
-                 bias_initializer='zeros',
+                 b_initializer='zeros',
                  **kwargs):
-        super(CapsuleLayer, self).__init__(**kwargs)
+        super(DigiCaps, self).__init__(**kwargs)
         self.num_capsule = num_capsule    # 10
         self.dim_vector = dim_vector      # 16
         self.num_routing = num_routing    # 3
         self.kernel_initializer = initializers.get(kernel_initializer)
-        self.bias_initializer = initializers.get(bias_initializer)
+        self.b_initializer = initializers.get(b_initializer)
 
     def build(self, input_shape):
         "The input Tensor should have shape=[None, input_num_capsule, input_dim_vector]"		
@@ -391,9 +413,9 @@ class CapsuleLayer(layers.Layer):
 
         # Coupling coefficient. 
         # The redundant dimensions are just to facilitate subsequent matrix calculation.
-        self.bias = self.add_weight(shape=[1, self.input_num_capsule, self.num_capsule, 1, 1],
-                                    initializer=self.bias_initializer,
-                                    name='bias',
+        self.b = self.add_weight(shape=[1, self.input_num_capsule, self.num_capsule, 1, 1],
+                                    initializer=self.b_initializer,
+                                    name='b',
                                     trainable=False)
         self.built = True
 
@@ -414,17 +436,17 @@ class CapsuleLayer(layers.Layer):
         # Routing algorithm
         assert self.num_routing > 0, 'The num_routing should be > 0.'
         for i in range(self.num_routing):
-            c = tf.nn.softmax(self.bias, dim=2)  # dim=2 is the num_capsule dimension
+            c = tf.nn.softmax(self.b, dim=2)  # dim=2 is the num_capsule dimension
             # outputs.shape=[None, 1, num_capsule, 1, dim_vector]
             outputs = squash(K.sum(c * inputs_hat, 1, keepdims=True))
 
-            # last iteration needs not compute bias which will not be passed to the graph any more anyway.
+            # last iteration needs not compute b which will not be passed to the graph any more anyway.
             if i != self.num_routing - 1:
-                self.bias += K.sum(inputs_hat * outputs, -1, keepdims=True)
+                self.b += K.sum(inputs_hat * outputs, -1, keepdims=True)
         return K.reshape(outputs, [-1, self.num_capsule, self.dim_vector])
 ```
 
-_build_ declares the self.W parameters representing the transform matrix W and self.bias representing the coupling coefficient. 
+_build_ declares the self.W parameters representing the transform matrix W and self.b representing the $$b_{ij}$$. 
 ```python
     def build(self, input_shape):
         "The input Tensor should have shape=[None, input_num_capsule, input_dim_vector]"		
@@ -440,9 +462,9 @@ _build_ declares the self.W parameters representing the transform matrix W and s
 
         # Coupling coefficient. 
         # The redundant dimensions are just to facilitate subsequent matrix calculation.
-        self.bias = self.add_weight(shape=[1, self.input_num_capsule, self.num_capsule, 1, 1],
-                                    initializer=self.bias_initializer,
-                                    name='bias',
+        self.b = self.add_weight(shape=[1, self.input_num_capsule, self.num_capsule, 1, 1],
+                                    initializer=self.b_initializer,
+                                    name='b',
                                     trainable=False)
         self.built = True
 ```
@@ -458,7 +480,7 @@ $$
 The code first expand the dimension of $$u_i$$ and then multiple it with $$w$$. Nevertheless, the simple dot product implementation of $$ W_{ij} u_i $$ (commet out below) is replaced by tf.scan for better speed performance.
 
 ```python
-class CapsuleLayer(layers.Layer):
+class DigiCaps(layers.Layer):
     ...
 
     def call(self, inputs, training=None):
@@ -496,7 +518,7 @@ Here is the code to implement the following Iterative dynamic Routing pseudo cod
 </div>
 
 ```python
-class CapsuleLayer(layers.Layer):
+class DigiCaps(layers.Layer):
     ...
     def call(self, inputs, training=None):
         ...
@@ -504,18 +526,18 @@ class CapsuleLayer(layers.Layer):
         assert self.num_routing > 0, 'The num_routing should be > 0.'
 		
         for i in range(self.num_routing):  # Default: loop 3 times
-            c = tf.nn.softmax(self.bias, dim=2)  # dim=2 is the num_capsule dimension
+            c = tf.nn.softmax(self.b, dim=2)  # dim=2 is the num_capsule dimension
 			
             # outputs.shape=[None, 1, num_capsule, 1, dim_vector]
             outputs = squash(K.sum(c * inputs_hat, 1, keepdims=True))
 
-            # last iteration needs not compute bias which will not be passed to the graph any more anyway.
+            # last iteration needs not compute b which will not be passed to the graph any more anyway.
             if i != self.num_routing - 1:
-                self.bias += K.sum(inputs_hat * outputs, -1, keepdims=True)
+                self.b += K.sum(inputs_hat * outputs, -1, keepdims=True)
         return K.reshape(outputs, [-1, self.num_capsule, self.dim_vector])
 ```
 
-#### Decoder
+#### Image reconstruction
 
 We use the true label to select $$ v_j $$ to reconstruct the image during training. Then we feed $$v_j$$ through 3 fully connected layers to re-generate the original image. 
 
