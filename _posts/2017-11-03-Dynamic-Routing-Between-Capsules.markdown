@@ -237,7 +237,7 @@ Here is the summary of each layers:
 | Image | Raw image array |  28x28x1|
 | ReLU Conv1 | Convolution layer with 9x9 kernels output 256 channels, stride 1, no padding with ReLU  | 20x20x256 |
 | PrimaryCapsules | Convolution capsule layer with 9x9 kernel output 32x6x6 8-D capsule, stride 2, no padding  | 6x6x32x8 |
-| DigitCaps | Capsule output computed from a $$W_{ij} $$ (16x8 matrix) between $$u_i$$ and $$v_j$$ ($$i$$ from 1 to 32x6x6 and $$j$$ from 1 to 10). | 10x16 |
+| DigiCaps | Capsule output computed from a $$W_{ij} $$ (16x8 matrix) between $$u_i$$ and $$v_j$$ ($$i$$ from 1 to 32x6x6 and $$j$$ from 1 to 10). | 10x16 |
 | FC1 | Fully connected with ReLU | 512 |
 | FC2 | Fully connected with ReLU | 1024 |
 | Output image | Fully connected with sigmoid | 784 (28x28) | 
@@ -293,7 +293,7 @@ def CapsNet(input_shape, n_class, num_routing):
     primarycaps = PrimaryCap(conv1, dim_vector=8, n_channels=32, 
 	                    kernel_size=9, strides=2, padding='valid')
 
-    # DigitCaps: Capsule layer. Routing algorithm works here.
+    # DigiCap: Capsule layer. Routing algorithm works here.
     digitcaps = DigiCaps(num_capsule=n_class, dim_vector=16, 
 	        num_routing=num_routing, name='digitcaps')(primarycaps)
 
@@ -364,23 +364,23 @@ def squash(vectors, axis=-1):
     return scale * vectors
 ```
 
-#### DigitCaps with dynamic routing
+#### DigiCaps with dynamic routing
 
-DigitCaps converts the capsules in PrimaryCapsules to 10 capsules each making a prediction for class $$j$$. The following is the code in creating 10 (n_class) 16-D (dim_vector) capsules:
+DigiCaps converts the capsules in PrimaryCapsules to 10 capsules each making a prediction for class $$j$$. The following is the code in creating 10 (n_class) 16-D (dim_vector) capsules:
 ```python
 # num_routing is default to 3
-digitcaps = DigiCaps(num_capsule=n_class, dim_vector=16, 
+digitcaps = DigiCap(num_capsule=n_class, dim_vector=16, 
                   num_routing=num_routing, name='digitcaps')(primarycaps)
 ```
 
-DigitCaps is just a simple extension of a dense layer. Instead of taking a scalar and output a scalar, it takes a vector and output a vector:
+DigiCap is just a simple extension of a dense layer. Instead of taking a scalar and output a scalar, it takes a vector and output a vector:
 
 * input shape = (None, input_num_capsule (32), input_dim_vector(8) )
 * output shape = (None, num_capsule (10), dim_vector(16) ) 
 
 Here is the DigiCaps and we will detail some part of the code for explanation later.
 ```python
-class DigiCaps(layers.Layer):
+class DigiCap(layers.Layer):
     """
     The capsule layer. 
  	
@@ -392,7 +392,7 @@ class DigiCaps(layers.Layer):
                  kernel_initializer='glorot_uniform',
                  b_initializer='zeros',
                  **kwargs):
-        super(DigiCaps, self).__init__(**kwargs)
+        super(DigiCap, self).__init__(**kwargs)
         self.num_capsule = num_capsule    # 10
         self.dim_vector = dim_vector      # 16
         self.num_routing = num_routing    # 3
@@ -480,7 +480,7 @@ $$
 The code first expand the dimension of $$u_i$$ and then multiple it with $$w$$. Nevertheless, the simple dot product implementation of $$ W_{ij} u_i $$ (commet out below) is replaced by tf.scan for better speed performance.
 
 ```python
-class DigiCaps(layers.Layer):
+class DigiCap(layers.Layer):
     ...
 
     def call(self, inputs, training=None):
@@ -518,7 +518,7 @@ Here is the code to implement the following Iterative dynamic Routing pseudo cod
 </div>
 
 ```python
-class DigiCaps(layers.Layer):
+class DigiCap(layers.Layer):
     ...
     def call(self, inputs, training=None):
         ...
