@@ -165,7 +165,7 @@ c_{ij} & = \frac{\exp{b_{ij}}} {\sum_k \exp{b_{ik}} } \\
 \end{split}
 $$
 
-Nevertheless, $$ b_{ij} $$ is updated in multiple iterations (typically in 3 iterations). Here is the pseudo code for the dynamic routing:
+Nevertheless, $$ b_{ij} $$ is updated iteratively in multiple iterations (typically in 3 iterations). Here is the pseudo code for the dynamic routing:
 
 <div class="imgcap">
 <img src="/assets/capsule/alg.jpg" style="border:none;width:90%;">
