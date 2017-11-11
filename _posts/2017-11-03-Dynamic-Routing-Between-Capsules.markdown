@@ -148,14 +148,12 @@ v_{j} & = \frac{\| s_{j} \|^2}{ 1 + \| s_{j} \|^2} \frac{s_{j}}{ \| s_{j} \|}  \
 \end{split}
 $$
 
-Intuitively, prediction vector $$\hat{u}_{j \vert i}$$ is the prediction (contribution or vote) from the capsule $$i$$ on the output of the capsule $$j$$ above. If the activity vector has close similarity with the prediction vector, we conclude that capsule $$i$$ is highly related with the capsule $$j$$. Such similarity is measured using the scalar product of the prediction and activity vector.  We adjust a relevancy score $$ b_{ij} $$ iteratively ($$r$$ default to 3 iterations) according to the similarity:
+Intuitively, prediction vector $$\hat{u}_{j \vert i}$$ is the prediction (contribution or vote) from the capsule $$i$$ on the output of the capsule $$j$$ above. If the activity vector has close similarity with the prediction vector, we conclude that capsule $$i$$ is highly related with the capsule $$j$$. Such similarity is measured using the scalar product of the prediction and activity vector.  We compute a relevancy score $$ b_{ij} $$ according to the similarity:
 
 $$
 \begin{split}
-& b_{ij} = 0 & \\
-& \text{for r iterations do} &\\
-& \quad \quad similarity = \hat{u}_{j \vert i} \cdot v_j \\
-& \quad \quad b_{ij} ←  b_{ij} + similarity \\
+similarity = \hat{u}_{j \vert i} \cdot v_j \\
+b_{ij} ←  similarity \\
 \end{split}
 $$
 
@@ -167,7 +165,7 @@ c_{ij} & = \frac{\exp{b_{ij}}} {\sum_k \exp{b_{ik}} } \\
 \end{split}
 $$
 
-Here is the pseudo code for the dynamic routing:
+Nevertheless, $$ b_{ij} $$ is updated in multiple iterations (typically in 3 iterations). Here is the pseudo code for the dynamic routing:
 
 <div class="imgcap">
 <img src="/assets/capsule/alg.jpg" style="border:none;width:90%;">
