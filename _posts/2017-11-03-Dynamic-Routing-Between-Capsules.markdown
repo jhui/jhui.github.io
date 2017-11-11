@@ -8,7 +8,7 @@ excerpt: “A simple tutorial in understanding Capsules, Dynamic routing and Cap
 date: 2017-11-03 11:00:00
 ---
 
-This article covers the technical paper by Sara Sabour, Nicholas Frosst and Geoffrey Hinton on [Dynamic Routing between Capsules](https://arxiv.org/pdf/1710.09829.pdf). The source code implementation is originated from [XifengGuo](https://github.com/XifengGuo/CapsNet-Keras) using Keras with Tensorflow. In this article, we will describe the basic concept first and later apply it with CapsNet to detect digits in MNist.
+This article covers the technical paper by Sara Sabour, Nicholas Frosst and Geoffrey Hinton on [Dynamic Routing between Capsules](https://arxiv.org/pdf/1710.09829.pdf). The source code implementation is originated from [XifengGuo](https://github.com/XifengGuo/CapsNet-Keras) using Keras with Tensorflow. In this article, we will describe the basic concept first and later apply it with the Capsule network _CapsNet_ to detect digits in MNist.
 
 ### CNN challenges
 
@@ -18,7 +18,7 @@ In deep learning, the activation level of a neuron is often interpreted as the l
 <img src="/assets/capsule/fc.jpg" style="border:none;width:70%;">
 </div>
 
-If we pass the Picasso's "Portrait of woman in d`hermine pass" into a CNN classifier, how likely that the classifier may mistaken it as a real human face? CNN is good at detecting features but far less effective at exploring the spatial relationships among features (perspective, size, orientation).
+If we pass the Picasso's "Portrait of woman in d`hermine pass" into a CNN classifier, how likely that the classifier may mistaken it as a real human face? CNN is good at detecting features but less effective at exploring the spatial relationships among features (perspective, size, orientation).
 
 <div class="imgcap">
 <img src="/assets/capsule/picasso.jpg" style="border:none;width:40%;">
