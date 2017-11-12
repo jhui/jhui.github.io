@@ -29,7 +29,7 @@ For example, the following picture may fool a simple CNN model in believing that
 <div class="imgcap">
 <img src="/assets/capsule/face2.jpg" style="border:none;width:20%;">
 </div>
-[Image edited from here.](http://sharenoesis.com/article/draw-face/84)
+[source](http://sharenoesis.com/article/draw-face/84)
 
 A CNN model extracts the features correctly for the neurons in the lower layer, but can wrongly activate the neurons in the layer above for the face detection.
 
