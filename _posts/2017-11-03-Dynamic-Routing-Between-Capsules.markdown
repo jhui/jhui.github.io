@@ -103,7 +103,7 @@ s_j & = \sum_i c_{ij}  \hat{u}_{j|i} \\
 \end{split}
 $$
 
-$$c_{ij}$$ are **coupling coefficients** that are trained by the iterative dynamic routing process (discussed next) and $$ \sum_{i} c_{ij}$$ are designed to sum to one.
+$$c_{ij}$$ are **coupling coefficients** that are trained by the iterative dynamic routing process (discussed next) and $$ \sum_{j} c_{ij}$$ are designed to sum to one.
 
 Instead of applying a ReLU function, we apply a squashing function to scale the vector between 0 and unit length. 
 
