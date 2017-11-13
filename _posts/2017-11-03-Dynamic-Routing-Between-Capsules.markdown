@@ -255,7 +255,7 @@ Here is the summary of each layers:
 In our example, we want to detect multiple digits in a picture. Capsules use a separate margin loss $$L_c$$ for each category $$c$$ digit present in the picture:
 
 $$
-L_c = T_c \max{0, m^+ − \|vc\|)^2 + λ (1 − T_c) max(0, \|vc\| − m^−}^2
+L_c = T_c \max{0, m^+ − \|vc\|}^2 + λ (1 − T_c) \max{0, \|vc\| − m^−}^2
 $$
 
 which $$T_c = 1$$ if an object of class $$c$$ is present. $$m^+ = 0.9$$ and $$m^− = 0.1$$. The λ down-weighting (default 0.5) stops the initial learning from shrinking the activity
