@@ -55,7 +55,7 @@ To handle different viewpoint variant (orientation, perspective) and style varia
 
 > A capsule is a group of neurons that not only capture the likelihood but also the parameters of the specific feature. 
 
-For example, the first row below indicates the probabilities of detecting the number "7" by a neuron. A 2-D capsule is formed by combining 2 neurons. This capsule outputs a 2-D vector in detecting the number "7". For the first image in the second row, it outputs a vector $$ v = (0, 0.9)$$. The magnitude of the vector $$ \| v \| = \sqrt{ 0^2 + 0.9^2 } = 0.9 $$ corresponds to the probability of detecting "7".
+For example, the first row below indicates the probabilities of detecting the number "7" by a neuron. A 2-D capsule is formed by combining 2 neurons. This capsule outputs a 2-D vector in detecting the number "7". For the first image in the second row, it outputs a vector $$ v = (0, 0.9)$$. The magnitude of the vector $$ \| v \| = \sqrt{ 0^2 + 0.9^2 } = 0.9 $$ corresponds to the probability of detecting "7". The second image of each row looks more like a "1" than a "7". Therefore its corresponding likelihood or vector as "7" is smaller but with the same orientation.
 
 <div class="imgcap">
 <img src="/assets/capsule/cap1.jpg" style="border:none;width:60%;">
