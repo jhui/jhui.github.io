@@ -94,7 +94,7 @@ For a capsule, the input $$u_i$$ and the output $$v_j$$ of a capsule are vectors
 <img src="/assets/capsule/fc2.jpg" style="border:none;width:35%;">
 </div>
 
-We apply a **transformation matrix** $$W_{ij}$$ to the capsule output $$ u_i $$ of the pervious layer. For example, with a $$m \times k $$ matrix, we transform a k-D $$u_i$$ to a m-D $$\hat{u}_{j \vert i}$$. ($$ (m \times k) \text{  } x \text{  } (k \times 1) \implies m \times 1$$) Then we compute a weighted sum $$s_j$$ with weights $$c_{ij}$$.
+We apply a **transformation matrix** $$W_{ij}$$ to the capsule output $$ u_i $$ of the pervious layer. For example, with a $$m \times k $$ matrix, we transform a k-D $$u_i$$ to a m-D $$\hat{u}_{j \vert i}$$. ($$ (m \times k) \text{  } \times \text{  } (k \times 1) \implies m \times 1$$) Then we compute a weighted sum $$s_j$$ with weights $$c_{ij}$$.
 
 $$
 \begin{split}
@@ -153,8 +153,7 @@ Intuitively, prediction vector $$\hat{u}_{j \vert i}$$ is the prediction (contri
 
 $$
 \begin{split}
-similarity = \hat{u}_{j \vert i} \cdot v_j \\
-b_{ij} ←  similarity \\
+b_{ij} ← \hat{u}_{j \vert i} \cdot v_j \\
 \end{split}
 $$
 
@@ -166,7 +165,15 @@ c_{ij} & = \frac{\exp{b_{ij}}} {\sum_k \exp{b_{ik}} } \\
 \end{split}
 $$
 
-Nevertheless, $$ b_{ij} $$ is updated iteratively in multiple iterations (typically in 3 iterations). Here is the pseudo code for the dynamic routing:
+Moreover, $$ b_{ij} $$ is updated iteratively in multiple iterations (typically in 3 iterations). 
+
+$$
+\begin{split}
+b_{ij} ← b_{ij} + \hat{u}_{j \vert i} \cdot v_j \\
+\end{split}
+$$
+
+Here is the final pseudo code for the dynamic routing:
 
 <div class="imgcap">
 <img src="/assets/capsule/alg.jpg" style="border:none;width:90%;">
@@ -248,7 +255,7 @@ Here is the summary of each layers:
 In our example, we want to detect multiple digits in a picture. Capsules use a separate margin loss $$L_c$$ for each category $$c$$ digit present in the picture:
 
 $$
-L_c = T_c max(0, m^+ − \|vc\|)^2 + λ (1 − T_c) max(0, \|vc\| − m^−)^2
+L_c = T_c \max{0, m^+ − \|vc\|)^2 + λ (1 − T_c) max(0, \|vc\| − m^−}^2
 $$
 
 which $$T_c = 1$$ if an object of class $$c$$ is present. $$m^+ = 0.9$$ and $$m^− = 0.1$$. The λ down-weighting (default 0.5) stops the initial learning from shrinking the activity
@@ -565,7 +572,7 @@ class Mask(layers.Layer):
 
 #### Reconstruction loss
 
-A reconstruction loss $$ \| image - \text{reconstructed image} \|$$ is added to the loss function. It trains the network to capture the critical properties into the capsule. However, the reconstruction loss is multiple by a regularization factor (0.0005) so it does not dominate over the marginal loss.
+A reconstruction loss $$ \| \text{image} - \text{reconstructed image} \|$$ is added to the loss function. It trains the network to capture the critical properties into the capsule. However, the reconstruction loss is multiple by a regularization factor (0.0005) so it does not dominate over the marginal loss.
 
 ### What capsule is learning?
 
