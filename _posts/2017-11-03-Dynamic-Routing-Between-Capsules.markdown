@@ -200,6 +200,7 @@ Iterative dynamic routing provides an alternative of how signal is routed based 
 </div>
 
 In a second paper on capsules _Matrix capsules with EM routing_, a [likeliness, 4x4 pose matrix] matrix capsule is proposed (rather than a k-D vector capsule) with a new Expectation-maximization routing (EM routing). The objective of the EM routing is to group capsules to form a part-whole relationship like the parse tree above. A higher level feature (a face) is detected by looking for agreement between votes from the capsules one layer below.
+The probability that a capsule is assigned to a whole is based on the proximity of the vote coming from that part to the votes coming from other capsules that are assigned to the whole. 
 
 In machine learning, we use EM to cluster datapoints into different Gaussian distributions. For example, we cluster the datapoints below into two clusters modeled by two gaussian distributions.
 
