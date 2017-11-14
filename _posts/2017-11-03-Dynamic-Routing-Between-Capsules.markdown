@@ -208,8 +208,7 @@ In machine learning, we use EM to cluster datapoints into different Gaussian dis
 <img src="/assets/ml/GM2.png" style="border:none;width:60%;">
 </div>
  
-The capsules extract pose information of a feature and then transform it with a matrix. Even the viewpoint may change, the pose matrices belonging to the same high level structure (a face) will change in a co-ordinate way such that any
-agreement between votes from different parts will persist. Hence, we can detect features that are viewpoint invariant (regardless of looking at a face from the front or slightly from the side) With EM routing, we should detect a face easier without over extensive training data with different viewpoints.
+The capsules extract pose information of a feature and then transform it with a matrix. Even the viewpoint may change, the pose matrices belonging to the same high level structure (a face) will change in a co-ordinate way such that any agreement between votes from different parts will remain. Hence, we can detect features that are viewpoint invariant (regardless of looking at a face from the front or slightly from the side) With EM routing, we should detect a face easier without over extensive training data with different viewpoints.
 
 > New capsules and routing algorithm will hopefully build higher level structures much easier and much effectively with less training data.
 
