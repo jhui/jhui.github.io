@@ -200,18 +200,16 @@ Iterative dynamic routing provides an alternative of how signal is routed based 
 </div>
 
 In a second paper on capsules _Matrix capsules with EM routing_, a [likeliness, 4x4 pose matrix] matrix capsule is proposed (rather than a k-D vector capsule) with a new Expectation-maximization routing (EM routing). The objective of the EM routing is to group capsules to form a part-whole relationship like the parse tree above. A higher level feature (a face) is detected by looking for agreement between votes from the capsules one layer below.
-The probability that a capsule is assigned to a whole is based on the proximity of the vote coming from that part to the votes coming from other capsules that are assigned to the whole. 
+The probability that a capsule is assigned to a whole is based on the proximity of the vote coming from that capsule to the votes coming from other capsules that are assigned to the whole. 
 
 In machine learning, we use EM to cluster datapoints into different Gaussian distributions. For example, we cluster the datapoints below into two clusters modeled by two gaussian distributions.
 
 <div class="imgcap">
-<img src="/assets/capsule/em.gif" style="border:none;width:45%;">
+<img src="/assets/ml/GM2.png" style="border:none;width:60%;">
 </div>
-
-(Image source wikipedia)
  
 The capsules extract pose information of a feature (location and orientation information) and then transform it with a matrix. Even the viewpoint may change, the pose matrices belonging to the same high level structure (a face) will change in a co-ordinate way such that any
-agreement between votes from different parts will persist. Hence, we can detect features that are viewpoint invariant (regardless of looking at a face from the front or slightly from the side) With EM routing, we should detect a face easier without extensive training data on different viewpoints.
+agreement between votes from different parts will persist. Hence, we can detect features that are viewpoint invariant (regardless of looking at a face from the front or slightly from the side) With EM routing, we should detect a face easier without over extensive training data with different viewpoints.
 
 > New capsules and routing algorithm will hopefully build higher level structures much easier and much effectively with less training data.
 
