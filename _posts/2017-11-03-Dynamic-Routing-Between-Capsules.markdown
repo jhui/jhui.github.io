@@ -24,7 +24,7 @@ If we pass the Picasso's "Portrait of woman in d`hermine pass" into a CNN classi
 <img src="/assets/capsule/picasso.jpg" style="border:none;width:40%;">
 </div>
 
-For example, the following picture may fool a simple CNN model in believing that this a good sketch of a human face.
+For example, the following picture may fool a _simple_ CNN model in believing that this a good sketch of a human face.
 
 <div class="imgcap">
 <img src="/assets/capsule/face2.jpg" style="border:none;width:20%;">
@@ -193,15 +193,24 @@ There is a short coming using the max pool in CNN. In max pool, we only keep the
 
 In deep learning, we use backpropagation to train the model's parameters based on a cost function. Those parameters (weights) control how signal is routed from one layer to another. If the weight between 2 nodes is zero, the activation of a neuron is not propagated to that node.
 
-Iterative dynamic routing provides an alternative of how signal is routed based on feature parameters rather than one size fit all cost function. By utilizing the feature parameters, we can theoretically group capsules better to form a higher level structure. For example, the capsule layers may eventually behaves as a **parse tree** that explore the parts-whole relationship. (for example, a face is composed of eyes, a nose and a mouth)
+Iterative dynamic routing provides an alternative of how signal is routed based on feature parameters rather than one size fit all cost function. By utilizing the feature parameters, we can theoretically group capsules better to form a high level structure. For example, the capsule layers may eventually behaves as a **parse tree** that explore the part-whole relationship. (for example, a face is composed of eyes, a nose and a mouth)
 
 <div class="imgcap">
 <img src="/assets/capsule/face7.jpg" style="border:none;width:45%;">
 </div>
 
-In a second paper on capsules Matrix capsules with EM routing, a [likeliness, 4x4 pose matrix] capsule is proposed rather than a k-D vector capsule. The iterative dynamic routing is replaced with an Expectation–maximization routing (EM routing) to group capsules based on multiple Gaussian distributions. Without going into details, the new capsules try to extract pose information of a feature (location and orientation information) such that the EM routing can detect high level features regardless of the viewpoint variants. The pose information of the eyes, mouth and ear changes similarly under different viewpoints. With EM routing, we can detect a face easier without extensive training data on different viewpoints.
+In a second paper on capsules _Matrix capsules with EM routing_, a [likeliness, 4x4 pose matrix] matrix capsule is proposed (rather than a k-D vector capsule) with a new Expectation-maximization routing (EM routing). The objective of the EM routing is to group capsules to form a part-whole relationship like the parse tree above. A higher level feature (a face) is detected by looking for agreement between votes from the capsules one layer below.
 
-There are active researches on what information should be captured in the capsules and new routing algorithm to group or route signals from one layer to another. 
+In machine learning, we use EM to cluster datapoints into different Gaussian distributions. For example, we cluster the datapoints below into two clusters modeled by two gaussian distributions.
+
+<div class="imgcap">
+<img src="/assets/capsule/em.gif" style="border:none;width:45%;">
+</div>
+
+(Image source wikipedia)
+ 
+The capsules extract pose information of a feature (location and orientation information) and then transform it with a matrix. Even the viewpoint may change, the pose matrices belonging to the same high level structure (a face) will change in a co-ordinate way such that any
+agreement between votes from different parts will persist. Hence, we can detect features that are viewpoint invariant (regardless of looking at a face from the front or slightly from the side) With EM routing, we should detect a face easier without extensive training data on different viewpoints.
 
 > New capsules and routing algorithm will hopefully build higher level structures much easier and much effectively with less training data.
 
