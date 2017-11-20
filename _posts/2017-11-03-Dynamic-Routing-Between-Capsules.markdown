@@ -218,7 +218,7 @@ The transformation of an adversary will pull the vote of the mouth away from the
 <img src="/assets/capsule/adv4.jpg" style="border:none;width:40%;">
 </div>
 
-(Note: this is just a demonstration of the concept, not the visualization of the actual poses or votes.)
+(Note: this is a demonstration of my interpretation of the transformation, not the visualization of the actual poses or votes.)
 
 > New capsules and routing algorithm will hopefully build higher level structures much easier and much effectively with less training data.
 
