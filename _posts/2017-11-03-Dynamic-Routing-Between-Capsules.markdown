@@ -207,18 +207,7 @@ In machine learning, we use EM to cluster datapoints into different Gaussian dis
 <img src="/assets/ml/GM2.png" style="border:none;width:60%;">
 </div>
  
-The matrix capsules extract pose information of a feature and then transform it with a trasformation matrix to a vote. This transformation potentially separates un-related features into different regions. The transformation matrix is viewpoint invariant. We do not need different transformation matrices for different viewpoints. Even the viewpoint may change, the pose matrices (or votes) corresponding to the same high level structure (a face) will change in a co-ordinate way such that a cluster with the same capsules can be detected just in a slightly shifted area. Hence, the EM routing groups related capsules regardless of the viewpoint. Unlike CNN which the weight for a neuron can be viewpoint dependent, the transformation matrix is viewpoint independent which may require less data to train. In additional, the transformation matrices will be trained to generate votes sensitive to the spatial relationship of features. (the mouth is below the eyes and the nose) Adversaries with the wrong spatial relationship will not fool a capsule network that easily.
-
-<div class="imgcap">
-<img src="/assets/capsule/adv3.jpg" style="border:none;width:60%;">
-</div>
-
-The transformation of an adversary will pull the vote of the mouth away from the others.
-<div class="imgcap">
-<img src="/assets/capsule/adv4.jpg" style="border:none;width:60%;">
-</div>
-
-(Note: this is a demonstration of my interpretation of the transformation, not the visualization of the actual poses or votes.)
+The matrix capsules extract pose information of a feature and then transform it with a trasformation matrix to a vote. This transformation potentially separates un-related features into different regions. The transformation matrix is viewpoint invariant. We do not need different transformation matrices for different viewpoints. Even the viewpoint may change, the pose matrices (or votes) corresponding to the same high level structure (a face) will change in a co-ordinate way such that a cluster with the same capsules can be detected just in a slightly shifted area. Hence, the EM routing groups related capsules regardless of the viewpoint. Unlike CNN which the weight for a neuron can be viewpoint dependent, the transformation matrix is viewpoint independent which may require less data to train.
 
 > New capsules and routing algorithm will hopefully build higher level structures much easier and much effectively with less training data.
 

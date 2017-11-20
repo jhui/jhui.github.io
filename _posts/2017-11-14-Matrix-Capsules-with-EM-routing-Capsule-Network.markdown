@@ -190,8 +190,13 @@ The architect of using Matrix capsule:
 <img src="/assets/capsule/cape.png" style="border:none;width:80%">
 </div>
 
-The explanation is similar to CapsNet in the [previous capsule article](https://jhui.github.io/2017/11/03/Dynamic-Routing-Between-Capsules/). Please refer to the original paper or the previous capsule for details.
+ReLU Conv1 is a regular convolution layer with a 5x5 filter and a stride of 2 outputting 32 channels ($$A=32$$ feature maps) using ReLU activation.
 
+We apply a 1x1 filter to transform the 32 channels into 32 ($$B=32$$) primary capsules which contain a 4x4 pose matrix and 1 scalar for the activation. Therefore it takes $$ A \times B \times (4 \times 4 + 1) $$ 1x1 filters.
+
+It then follows by a convolution capsule layer ConvCaps1 with a 3x3 filters ($$K=3$$) and a stride of 2. ConvCaps1 is very similar to a regular convolution layer with the exception that it takes capsules as input and output capsules. ConvCaps2 is similar to ConvCaps1 except that ConvCaps2 has a stride of 1. ConvCaps2 connects to the Class Capsules which have one capsule per class. (5 classes $$E=5$$) 
+
+In CNN, a filter is shared in generate each filter map. So it detects a specific feature regardless of the location in the image. In Class Capsules, the transformation matrix is shared in extracting the same capsule feature. (e.g. face) It also adds the scaled x, y coordinate of the center of the receptive field of each capsule to the first two elements of the vote. This is called **Coordinate Addition**. This helps the transformations to produce those two elements that represent the position of the feature relative to the center of the capsule’s receptive field.
 
 
 
