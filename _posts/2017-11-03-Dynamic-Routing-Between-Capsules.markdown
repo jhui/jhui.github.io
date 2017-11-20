@@ -37,7 +37,7 @@ A simple CNN model can extract the features for nose, eyes and mouth correctly b
 <img src="/assets/capsule/face4.jpg" style="border:none;width:60%;">
 </div>
 
-Now, we imagine that each neuron contains the likelihood as well as properties of the features. For example, it outputs a vector containing [likelihood, orientation, size]. Then the neuron for the face detection will have much lower activation once the model realizes that the neurons that contribute the most signal to this parent neuron do not agree on size and orientation.
+Now, we imagine that each neuron contains the likelihood as well as properties of the features. For example, it outputs a vector containing [likelihood, orientation, size]. With this spatial information, we can detect the in-consistence in the orientation and size among the nose, eyes and ear features and therefore output a much lower activation for the face detection.
 
 <div class="imgcap">
 <img src="/assets/capsule/face5.jpg" style="border:none;width:60%;">
@@ -47,7 +47,7 @@ Instead of using the term neurons, the technical paper uses the term **capsules*
 
 ### Viewpoint and style invariant
 
-Don't mistaken that CNN cannot explore spatial relationships. With more layers, more features maps and smaller filter size, CNN is feasible in detecting or rejecting features in different combinations of variants. (viewpoint variants like orientation, perspective, and style variants like skin tone, stroke width, font type) Nevertheless this approach tends to memorize the dataset rather than generalize a solution. To avoid overfitting, we use a large training dataset to cover different variant combinations. It also requires negative samples to avoid adversaries. MNist dataset contains 55,000 training data. i.e. 5,500 samples per digits. However, it is unlikely that children need to read this large amount of samples to learn digits. Our existing deep learning models including CNN seem inefficient in utilizing datapoints.
+Don't mistaken that CNN cannot explore spatial relationships. With more convolution layers, more features maps and smaller filter size, CNN is feasible in detecting or rejecting features in different combinations of variants. (viewpoint variants like orientation, perspective, and style variants like skin tone, stroke width, font type) Nevertheless this approach tends to memorize the dataset rather than generalize a solution. To avoid overfitting, we use a large training dataset to cover different variant combinations. It also requires negative samples to avoid adversaries. MNist dataset contains 55,000 training data. i.e. 5,500 samples per digits. However, it is unlikely that children need to read this large amount of samples to learn digits. Our existing deep learning models including CNN seem inefficient in utilizing datapoints.
 
 > With feature property as part of the information extracted by capsules, we _may_ generalize the model better without an over extensive amount of labeled data for different variants.
 
@@ -113,7 +113,7 @@ v_{j} & = \frac{\| s_{j} \|^2}{ 1 + \| s_{j} \|^2} \frac{s_{j}}{ \| s_{j} \|}  \
 \end{split}
 $$
 
-It shrinks small vectors to zero and long vectors to unit vectors.
+It shrinks small vectors to zero and long vectors to unit vectors. Therefore the likelihood of each capsule is bounded between zero and one.
 
 $$
 \begin{split}
@@ -124,13 +124,13 @@ $$
 
 ### Iterative dynamic Routing
 
-In deep learning, we use backpropagation to train model parameters. The transformation matrix $$ W_{ij} $$ in capsules are trained with backpropagation. Nevertheless, the coupling coefficients $$c_{ij}$$ are calculated with an iterative dynamic routing method.
+In deep learning, we use backpropagation to train model parameters. The transformation matrix $$ W_{ij} $$ in capsules are still trained with backpropagation. Nevertheless, the coupling coefficients $$c_{ij}$$ are calculated with a new iterative dynamic routing method.
 
 <div class="imgcap">
 <img src="/assets/capsule/face6.jpg" style="border:none;width:65%;">
 </div>
 
-The **prediction vector** $$\hat{u}_{j \vert i}$$ is computed as:
+The **prediction vector** $$\hat{u}_{j \vert i}$$ is computed as (with the transformation matrix):
 
 $$
 \begin{split}
@@ -149,7 +149,7 @@ v_{j} & = \frac{\| s_{j} \|^2}{ 1 + \| s_{j} \|^2} \frac{s_{j}}{ \| s_{j} \|}  \
 \end{split}
 $$
 
-Intuitively, prediction vector $$\hat{u}_{j \vert i}$$ is the prediction (contribution or vote) from the capsule $$i$$ on the output of the capsule $$j$$ above. If the activity vector has close similarity with the prediction vector, we conclude that capsule $$i$$ is highly related with the capsule $$j$$. Such similarity is measured using the scalar product of the prediction and activity vector.  We compute a relevancy score $$ b_{ij} $$ according to the similarity:
+Intuitively, prediction vector $$\hat{u}_{j \vert i}$$ is the prediction (**vote**) from the capsule $$i$$ on the output of the capsule $$j$$ above. If the activity vector has close similarity with the prediction vector, we conclude that capsule $$i$$ is highly related with the capsule $$j$$. (For example, the eye capsule is highly related to the face capsule.) Such similarity is measured using the scalar product of the prediction and activity vector.  Therefore, the similarity takes into account on both likeliness and the feature properties. (instead of just likeliness in neurons) We compute a relevancy score $$ b_{ij} $$ according to the similarity:
 
 $$
 \begin{split}
@@ -165,7 +165,7 @@ c_{ij} & = \frac{\exp{b_{ij}}} {\sum_k \exp{b_{ik}} } \\
 \end{split}
 $$
 
-Moreover, $$ b_{ij} $$ is updated iteratively in multiple iterations (typically in 3 iterations). 
+To make $$b_{ij}$$ more accurate , it is updated iteratively in multiple iterations (typically in 3 iterations). 
 
 $$
 \begin{split}
@@ -189,17 +189,17 @@ There is a short coming using the max pool in CNN. In max pool, we only keep the
 <img src="/assets/capsule/over.jpg" style="border:none">
 </div>
 
-### Significant of Iterative dynamic routing and capsules
+### Significant of Iterative dynamic routing with capsules
 
-In deep learning, we use backpropagation to train the model's parameters based on a cost function. Those parameters (weights) control how signal is routed from one layer to another. If the weight between 2 nodes is zero, the activation of a neuron is not propagated to that node.
+In deep learning, we use backpropagation to train the model's parameters based on a cost function. Those parameters (weights) control how signal is routed from one layer to another. If the weight between 2 neurons is zero, the activation of a neuron is not propagated to that neuron.
 
-Iterative dynamic routing provides an alternative of how signal is routed based on feature parameters rather than one size fit all cost function. By utilizing the feature parameters, we can theoretically group capsules better to form a high level structure. For example, the capsule layers may eventually behaves as a **parse tree** that explore the part-whole relationship. (for example, a face is composed of eyes, a nose and a mouth)
+Iterative dynamic routing provides an alternative of how signal is routed based on feature parameters rather than one size fit all cost function. By utilizing the feature parameters, we can theoretically group capsules better to form a high level structure. For example, the capsule layers may eventually behaves as a **parse tree** that explore the part-whole relationship. (for example, a face is composed of eyes, a nose and a mouth) The iterative dynamic routing controls how much a signal is propagate upward to the capsules above with information on the likeliness and the feature's properties.
 
 <div class="imgcap">
 <img src="/assets/capsule/face7.jpg" style="border:none;width:45%;">
 </div>
 
-In a second paper on capsules _Matrix capsules with EM routing_, a [likeliness, 4x4 pose matrix] matrix capsule is proposed (rather than a k-D vector capsule) with a new Expectation-maximization routing (EM routing). The objective of the EM routing is to group capsules to form a part-whole relationship like the parse tree above. A higher level feature (a face) is detected by looking for agreement between votes from the capsules one layer below.
+The iterative dynamic routing with capsules is just one showcase in demonstrating the routing-by-agreement. In a second paper on capsules _Matrix capsules with EM routing_, a [likeliness, 4x4 pose matrix] matrix capsule is proposed (rather than a k-D vector capsule) with a new Expectation-maximization routing (EM routing). The objective of the EM routing is to group capsules to form a part-whole relationship like the parse tree above. A higher level feature (a face) is detected by looking for agreement between votes from the capsules one layer below.
 The probability that a capsule is assigned to a whole is based on the proximity of the vote coming from that capsule to the votes coming from other capsules that are assigned to the whole. 
 
 In machine learning, we use EM to cluster datapoints into different Gaussian distributions. For example, we cluster the datapoints below into two clusters modeled by two gaussian distributions.
