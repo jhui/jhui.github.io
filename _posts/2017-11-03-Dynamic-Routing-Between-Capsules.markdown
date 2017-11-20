@@ -207,7 +207,7 @@ In machine learning, we use EM to cluster datapoints into different Gaussian dis
 <img src="/assets/ml/GM2.png" style="border:none;width:60%;">
 </div>
  
-The matrix capsules extract pose information of a feature and then transform it with a trasformation matrix to a vote. This transformation separates un-related features into different regions. Even the viewpoint may change, the pose matrices belonging to the same high level structure (a face) will change in a co-ordinate way such that a cluster with the same capsules can be detected just in slightly shifted area. Hence, the EM routing groups related capsules regardless of the viewpoint. The transformation matrix can be trained in theory with less variants of the training data comparing with a CNN model.
+The matrix capsules extract pose information of a feature and then transform it with a trasformation matrix to a vote. This transformation separates un-related features into different regions. Even the viewpoint may change, the pose matrices belonging to the same high level structure (a face) will change in a co-ordinate way such that a cluster with the same capsules can be detected just in slightly shifted area. Hence, the EM routing groups related capsules regardless of the viewpoint. (much lower requirement of training the model with different viewpoints) The transformation matrix can be trained in theory with less variants of the training data comparing with a CNN model.
 
 > New capsules and routing algorithm will hopefully build higher level structures much easier and much effectively with less training data.
 
