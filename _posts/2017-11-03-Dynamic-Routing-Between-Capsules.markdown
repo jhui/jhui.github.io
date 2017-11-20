@@ -29,9 +29,9 @@ For example, the following picture may fool a _simple_ CNN model in believing th
 <div class="imgcap">
 <img src="/assets/capsule/face2.jpg" style="border:none;width:20%;">
 </div>
-[Image source](http://sharenoesis.com/article/draw-face/84)
+[(image source)](http://sharenoesis.com/article/draw-face/84)
 
-A CNN model extracts the features correctly for the neurons in the lower layer, but can wrongly activate the neurons in the layer above for the face detection.
+A simple CNN model can extract the features for nose, eyes and mouth correctly but will wrongly activate the neuron for the face detection. Without realize the mis-match in spatial orientation and size, the activation for the face detection will be too high.
 
 <div class="imgcap">
 <img src="/assets/capsule/face4.jpg" style="border:none;width:60%;">
@@ -47,7 +47,7 @@ Instead of using the term neurons, the technical paper uses the term **capsules*
 
 ### Viewpoint and style invariant
 
-Don't mistaken that CNN cannot explore spatial relationships. CNN can use more layers and feature maps in detecting or rejecting features in different combinations of variants. (viewpoint variants like orientation, perspective, and style variants like skin tone, stroke width, font type) Nevertheless this approach tends to memorize the dataset rather than generalize a solution. This approach requires far more training datapoints to cover different variant combinations. It also requires negative samples to avoid adversaries. MNist dataset contains 55,000 training data. i.e. 5,500 samples per digits. However, it is unlikely that children need to read this large amount of samples to learn digits. Our existing deep learning models including CNN seem inefficient in utilizing datapoints.
+Don't mistaken that CNN cannot explore spatial relationships. With more layers, more features maps and smaller filter size, CNN is feasible in detecting or rejecting features in different combinations of variants. (viewpoint variants like orientation, perspective, and style variants like skin tone, stroke width, font type) Nevertheless this approach tends to memorize the dataset rather than generalize a solution. To avoid overfitting, we use a large training dataset to cover different variant combinations. It also requires negative samples to avoid adversaries. MNist dataset contains 55,000 training data. i.e. 5,500 samples per digits. However, it is unlikely that children need to read this large amount of samples to learn digits. Our existing deep learning models including CNN seem inefficient in utilizing datapoints.
 
 > With feature property as part of the information extracted by capsules, we _may_ generalize the model better without an over extensive amount of labeled data for different variants.
 
