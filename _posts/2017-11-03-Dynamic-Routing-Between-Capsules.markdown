@@ -199,7 +199,7 @@ Iterative dynamic routing provides an alternative of how signal is routed based 
 <img src="/assets/capsule/face7.jpg" style="border:none;width:45%;">
 </div>
 
-The iterative dynamic routing with capsules is just one showcase in demonstrating the routing-by-agreement. In a second paper on capsules _Matrix capsules with EM routing_, a [likeliness, 4x4 pose matrix] matrix capsule is proposed (rather than a k-D vector capsule) with a new Expectation-maximization routing (EM routing). The objective of the EM routing is to group capsules to form a part-whole relationship like the parse tree above with the EM clustering technique. A higher level feature (a face) is detected by looking for agreement between votes from the capsules one layer below. Instead of using the scalar product to find the similarity, we use EM to cluster capsules that have close proximity of the corresponding votes.
+The iterative dynamic routing with capsules is just one showcase in demonstrating the routing-by-agreement. In a second paper on capsules _Matrix capsules with EM routing_, a [likeliness, 4x4 pose matrix] matrix capsule is proposed (rather than a k-D vector capsule) with a new Expectation-maximization routing (EM routing). The objective of the EM routing is to group capsules to form a part-whole relationship like the parse tree above with a clustering technique (EM). A higher level feature (a face) is detected by looking for agreement between votes from the capsules one layer below. Instead of using the scalar product to find the similarity, we use EM to cluster capsules that have close proximity of the corresponding votes.
 
 In machine learning, we use EM to cluster datapoints into different Gaussian distributions. For example, we cluster the datapoints below into two clusters modeled by two gaussian distributions.
 
@@ -207,7 +207,7 @@ In machine learning, we use EM to cluster datapoints into different Gaussian dis
 <img src="/assets/ml/GM2.png" style="border:none;width:60%;">
 </div>
  
-The matrix capsules extract pose information of a feature and then transform it with a matrix to a vote. Even the viewpoint may change, the pose matrices belonging to the same high level structure (a face) will change in a co-ordinate way such that any agreement between votes from different parts will remain. Hence, we can detect features that are viewpoint invariant (regardless of looking at a face from the front or slightly from the side) With EM routing, we should detect a face easier without over extensive training data with different viewpoints.
+The matrix capsules extract pose information of a feature and then transform it with a trasformation matrix to a vote. This transformation separates un-related features into different regions. Even the viewpoint may change, the pose matrices belonging to the same high level structure (a face) will change in a co-ordinate way such that a cluster with the same capsules can be detected just in slightly shifted area. The transformation matrix should be easier to train with less training data comparing with CNN.
 
 > New capsules and routing algorithm will hopefully build higher level structures much easier and much effectively with less training data.
 
