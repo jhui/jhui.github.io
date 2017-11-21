@@ -56,7 +56,8 @@ A neuron in deep learning captures the likeliness of a feature. The matrix capsu
 (Source from the Matrix capsules with EM routing paper)
 
 
-For example, the second row images below represent the same object above them with differen viewpoints. In matrix capsule, the pose matrix captures the viewpoint of the object.
+For example, the second row images below represent the same object above them with differen viewpoints. In matrix capsule, the pose matrix captures the viewpoint of the object. With deep learning training, we want to capture those information in the matrix capsule.
+
 <div class="imgcap">
 <img src="/assets/capsule/data.png" style="border:none;width:60%">
 </div>
