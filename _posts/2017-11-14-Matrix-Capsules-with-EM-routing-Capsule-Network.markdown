@@ -62,7 +62,7 @@ A neuron in deep learning captures the likeliness of a feature. In a matrix caps
 <div class="imgcap">
 <img src="/assets/capsule/capp.png" style="border:none;width:40%;">
 </div>
-(Source from the Matrix capsules with EM routing)
+(Source from the Matrix capsules with EM routing paper)
 
 ### Gaussian mixture model & Expectation Maximization (EM)
 
@@ -199,6 +199,28 @@ It then follows by a convolution capsule layer ConvCaps1 with a 3x3 filters ($$K
 In CNN, a filter is shared in generate each filter map. So it detects a specific feature regardless of the location in the image. In Class Capsules, the transformation matrix is shared in extracting the same capsule feature. (e.g. face) It also adds the scaled x, y coordinate of the center of the receptive field of each capsule to the first two elements of the vote. This is called **Coordinate Addition**. This helps the transformations to produce those two elements that represent the position of the feature relative to the center of the capsule’s receptive field.
 
 The routing is performed between adjacent capsule layers. For convolutional capsules, each capsule in layer L + 1 are connected to capsules within its receptive field in layer L only. 
+
+### Data
+
+The smallNORB dataset has 5 toy classes: airplanes, cars, trucks, humans and animals. Every individual sample is pictured at 18 different azimuths (0-340), 9 elevations and 6 lighting conditions. This dataset is particular picked such that we can study how a model can handle different viewpoints.
+
+<div class="imgcap">
+<img src="/assets/capsule/data.png" style="border:none;width:80%">
+</div>
+
+
+### Visualization
+
+The pose matrices in Class Capsules are interpreted as the latent representation of the image. By adjusting the first 2 dimension of the pose and reconstructing it through a decoder (similar to the one in the previous capsule article), we can visualize what the Capsule Network learns for the MNist data.
+
+<div class="imgcap">
+<img src="/assets/capsule/m2.png" style="border:none;width:80%">
+</div>
+
+(Source from the Matrix capsules with EM routing paper)
+
+Some digits are slightly rotated or moved which demonstrate the Class Capsules are learning the pose information of the MNist dataset.
+
 
 
 

@@ -199,15 +199,23 @@ Iterative dynamic routing provides an alternative of how signal is routed based 
 <img src="/assets/capsule/face7.jpg" style="border:none;width:45%;">
 </div>
 
-The iterative dynamic routing with capsules is just one showcase in demonstrating the routing-by-agreement. In a second paper on capsules _Matrix capsules with EM routing_, a [likeliness, 4x4 pose matrix] matrix capsule is proposed (rather than a k-D vector capsule) with a new Expectation-maximization routing (EM routing). The objective of the EM routing is to group capsules to form a part-whole relationship like the parse tree above with a clustering technique (EM). A higher level feature (a face) is detected by looking for agreement between votes from the capsules one layer below. Instead of using the scalar product to find the similarity, we use EM to cluster capsules that have close proximity of the corresponding votes.
+The iterative dynamic routing with capsules is just one showcase in demonstrating the routing-by-agreement. We expect more capsule models with advance routing methods will be introduced in coming years. In a second paper on capsules _Matrix capsules with EM routing_, a [likeliness, 4x4 pose matrix] matrix capsule is proposed (rather than a k-D vector capsule) with a new Expectation-maximization routing (EM routing). The pose matrices are designed to capture the viewpoint of the object. For example, the second row of the image represent the same object above with a different pose matrix (viewpoint).
 
-In machine learning, we use EM to cluster datapoints into different Gaussian distributions. For example, we cluster the datapoints below into two clusters modeled by two gaussian distributions.
+<div class="imgcap">
+<img src="/assets/capsule/data.png" style="border:none;width:50%">
+</div>
+
+The objective of the EM routing is to group capsules to form a part-whole relationship with a clustering technique (EM). In machine learning, we use EM to cluster datapoints into different Gaussian distributions. For example, we cluster the datapoints below into two clusters modeled by two gaussian distributions.
 
 <div class="imgcap">
 <img src="/assets/ml/GM2.png" style="border:none;width:60%;">
 </div>
- 
-The matrix capsules extract pose information of a feature and then transform it with a trasformation matrix to a vote. The transformation matrix is viewpoint invariant. We do not need different transformation matrices for different viewpoints. Even the viewpoint may change, the pose matrices (or votes) corresponding to the same high level structure (a face) will change in a co-ordinate way such that a cluster with the same capsules can be detected just in a slightly shifted area. Hence, the EM routing groups related capsules regardless of the viewpoint. Unlike CNN which the weight for a neuron can be viewpoint dependent, the transformation matrix is viewpoint independent which may require less data to train.
+
+For the mouth, eyes and nose capsules in the lower layer, each of them makes predictions (votes) on the pose matrices of its possible parent capsule(s) through a transformation matrix. The role of the EM routing is to cluster lower level capsules that produce similar votes. Conceptually the votes from the mouth, eyes and nose capsules may cluster into the pink region above that can be represented by their parent capsule (face).
+
+> A higher level feature (a face) is detected by looking for agreement between votes from the capsules one layer below. We use EM routing to cluster capsules that have close proximity of the corresponding votes. 
+
+The transformation matrix to compute the vote is viewpoint invariant. We do not need different transformation matrices for different viewpoints. Even the viewpoint may change, the pose matrices (or votes) corresponding to the same high level structure (a face) will change in a co-ordinate way such that a cluster with the same capsules can be detected. Hence, the EM routing groups related capsules regardless of the viewpoint. Unlike CNN which each neuron may detect a different viewpoint, the transformation matrix is viewpoint independent which may require less data to train.
 
 > New capsules and routing algorithm will hopefully build higher level structures much easier and much effectively with less training data.
 
