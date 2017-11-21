@@ -150,7 +150,7 @@ a_c = sigmoid(\lambda(b - \sum_h cost_h))
 $$
 
 which $$-b$$ represents the cost of describing the mean of capsule c and λ is an inverse temperature
-parameter. $$b$$ is learned discriminatively using backpropagation. However, the paper does not provide the details. We use a fixed schedule for λ which is a hyper-parameter.
+parameter. $$b$$ is learned discriminatively using backpropagation. We use a fixed schedule for λ which is a hyper-parameter.
 
 Here is the algorithm in computing the capsule activation as well as the mean of the capsule one layer above.
 
