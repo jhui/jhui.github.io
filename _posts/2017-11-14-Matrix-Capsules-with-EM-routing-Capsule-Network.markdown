@@ -32,7 +32,7 @@ Even we can build a simple CNN just to detect the presence of the features (eyes
 <img src="/assets/capsule/sface2.jpg" style="border:none;width:20%;">
 </div>
 
-The following image can be mis-categorized as gibbon in a CNN model by selectively making small changes into the pixel value of the original panda picture. 
+The following image can be mis-categorized as a gibbon in a CNN model by selectively making small changes into the pixel value of the original panda picture. 
 
 <div class="imgcap">
 <img src="/assets/capsule/a2.png" style="border:none;width:60%;">
