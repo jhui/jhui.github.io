@@ -3,7 +3,7 @@ layout: post
 comments: true
 mathjax: true
 priority: 410
-title: “Understanding Dynamic Routing between Capsules (Capsule Network)”
+title: “Understanding Dynamic Routing between Capsules (Capsule Networks)”
 excerpt: “A simple tutorial in understanding Capsules, Dynamic routing and Capsule Network CapsNet”
 date: 2017-11-03 11:00:00
 ---
