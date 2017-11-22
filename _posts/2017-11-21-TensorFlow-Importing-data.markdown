@@ -48,7 +48,6 @@ with tf.Session() as sess:
     print(sess.run(result))  # "0"
     print(sess.run(result))  # "2"
     print(sess.run(result))  # "4"
-    print(sess.run(result))  
     try:
       sess.run(result)
     except tf.errors.OutOfRangeError:
@@ -95,7 +94,7 @@ with tf.Session() as sess:
 
     for i in range(10):
         value = sess.run(next_element)
-        print(f"{value} ", end=" ")    # 1 2 3 ... 10
+        print(f"{value} ", end=" ")    # 0 1 2 3 ... 9
 ```
 
 	  
@@ -168,7 +167,7 @@ with tf.Session() as sess:
 
 ### Dataset shape
 
-Dataset with Rank 2 (2-D) tensors
+Produce data with shape (10,)
 ```python
 import tensorflow as tf
 
@@ -185,7 +184,7 @@ with tf.Session() as sess:
       print(f"{value} ")        # Print out an array with 10 random numbers
 ```
 
-With shape ((), (100,))
+Produce data with shape ((), (100,)): a tuple with the first element as a float32 scalar and the second element as an array with 100 int32.
 ```python
 dataset = tf.data.Dataset.from_tensor_slices(
    (tf.random_uniform([4]),              # (tf.float32, tf.int32)
@@ -235,11 +234,10 @@ np.save('in.npy', x)
 
 Reading Numpy data as TensorFlow dataset.
 ```python
-data = np.load('in.npy')
-
-features = data["features"]
-label = data["label"]
-
+with np.load("in.npy") as data:
+  features = data["features"]
+  labels = data["labels"]
+  
 features_placeholder = tf.placeholder(features.dtype, features.shape)
 labels_placeholder = tf.placeholder(label.dtype, label.shape)
 
@@ -254,7 +252,8 @@ with tf.Session() as sess:
 
 To create a dataset from TFRecord and have the iteration keep repeating.
 ```python
-filenames = get_filenames()   # Array of filename pathes as string
+filenames = get_filenames()   # Array of filename paths as string 
+                              # ["/data/f1.tfrecord" "/data/f2.tfrecord"]
 dataset = tf.data.TFRecordDataset(filenames).repeat()
 ```
 
