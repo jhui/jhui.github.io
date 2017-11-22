@@ -5,8 +5,8 @@ mathjax: true
 priority: 830
 title: “TensorFlow - Importing data”
 excerpt: “How to read data into the TensorFlow?”
-date: 2017-03-08 14:00:00
----
+date: 2017-11-21 14:00:00
+---tf.data
 
 
 ### Basic
@@ -15,7 +15,7 @@ Data can be feed into TensorFlow using iterator.
 ```python
 import tensorflow as tf
 
-dataset = tf.contrib.data.Dataset.range(10)
+dataset = tf.data.Dataset.range(10)
 
 iterator = dataset.make_one_shot_iterator()
 next_element = iterator.get_next()
@@ -38,7 +38,7 @@ An iterator can run out of values. Handling iterator's out of range:
 ```python
 import tensorflow as tf
 
-dataset = tf.contrib.data.Dataset.range(3)
+dataset = tf.data.Dataset.range(3)
 iterator = dataset.make_one_shot_iterator()
 next_element = iterator.get_next()
 
@@ -57,7 +57,7 @@ with tf.Session() as sess:
 	  
 If we want the iterator to keep repeat the data, we can call _repeat_ so the iterator will repeat itself at the end.	  
 ```python
-dataset = tf.contrib.data.Dataset.range(3)
+dataset = tf.data.Dataset.range(3)
 dataset = dataset.repeat()
 ```
 	  
@@ -67,7 +67,7 @@ dataset = dataset.repeat()
 
 As demonstrated before:
 ```
-dataset = tf.contrib.data.Dataset.range(10)
+dataset = tf.data.Dataset.range(10)
 
 iterator = dataset.make_one_shot_iterator()
 next_element = iterator.get_next()
@@ -85,7 +85,7 @@ In the example below, we allow the max range of the iterator to be supplied at r
 import tensorflow as tf
 
 max_value = tf.placeholder(tf.int64, shape=[])
-dataset = tf.contrib.data.Dataset.range(max_value)    # Take a placeholder to create a dataset
+dataset = tf.data.Dataset.range(max_value)    # Take a placeholder to create a dataset
 iterator = dataset.make_initializable_iterator()      # Create an initializable iterator
 next_element = iterator.get_next()
 
@@ -107,9 +107,9 @@ We can create an iterator for different datasets. For example, in training, we u
 import tensorflow as tf
 
 
-training_dataset = tf.contrib.data.Dataset.range(100).map(
+training_dataset = tf.data.Dataset.range(100).map(
     lambda x: x + tf.random_uniform([], -10, 10, tf.int64))
-validation_dataset = tf.contrib.data.Dataset.range(50)
+validation_dataset = tf.data.Dataset.range(50)
 
 # Build an iterator that can take different datasets with the same type and shape
 iterator = tf.Iterator.from_structure(training_dataset.output_types, training_dataset.output_shapes)
@@ -139,12 +139,12 @@ import tensorflow as tf
 
 
 # Create 2 dataset witht the same datatype and shape
-training_dataset = tf.contrib.data.Dataset.range(300).map(lambda x: x + tf.random_uniform([], -10, 10, tf.int64))
-validation_dataset = tf.contrib.data.Dataset.range(50)
+training_dataset = tf.data.Dataset.range(300).map(lambda x: x + tf.random_uniform([], -10, 10, tf.int64))
+validation_dataset = tf.data.Dataset.range(50)
 
 # Create a feedable iterator that use a placeholder to switch between dataset
 handle = tf.placeholder(tf.string, shape=[])
-iterator = tf.contrib.data.Iterator.from_string_handle(
+iterator = tf.data.Iterator.from_string_handle(
     handle, training_dataset.output_types, training_dataset.output_shapes)
 next_element = iterator.get_next()
 
@@ -172,7 +172,7 @@ Dataset with Rank 2 (2-D) tensors
 ```python
 import tensorflow as tf
 
-dataset = tf.contrib.data.Dataset.from_tensor_slices(tf.random_uniform([4, 10]))
+dataset = tf.data.Dataset.from_tensor_slices(tf.random_uniform([4, 10]))
 
 iterator = dataset.make_initializable_iterator()      # Create an initializable iterator
 next_element = iterator.get_next()
@@ -187,14 +187,14 @@ with tf.Session() as sess:
 
 With shape ((), (100,))
 ```python
-dataset = tf.contrib.data.Dataset.from_tensor_slices(
+dataset = tf.data.Dataset.from_tensor_slices(
    (tf.random_uniform([4]),              # (tf.float32, tf.int32)
     tf.random_uniform([4, 100], maxval=100, dtype=tf.int32))) # ((), (100,))
 ```
 
 Zip 2 dataset
 ```python
-dataset = tf.contrib.data.Dataset.zip((dataset1, dataset2))
+dataset = tf.data.Dataset.zip((dataset1, dataset2))
 print(dataset3.output_types)  # ==> (tf.float32, (tf.float32, tf.int32))
 print(dataset3.output_shapes)  # ==> "(10, ((), (100,)))
 ```
@@ -206,7 +206,7 @@ next1, (next21, next22) = iterator.get_next()
 
 Giving labels:
 ```python
-dataset = tf.contrib.data.Dataset.from_tensor_slices(
+dataset = tf.data.Dataset.from_tensor_slices(
    {"a": tf.random_uniform([4]),
     "b": tf.random_uniform([4, 100], maxval=100, dtype=tf.int32)})
 print(dataset.output_types)  # ==> "{'a': tf.float32, 'b': tf.int32}"
@@ -243,7 +243,7 @@ label = data["label"]
 features_placeholder = tf.placeholder(features.dtype, features.shape)
 labels_placeholder = tf.placeholder(label.dtype, label.shape)
 
-dataset = tf.contrib.data.Dataset.from_tensor_slices((features_placeholder, labels_placeholder))
+dataset = tf.data.Dataset.from_tensor_slices((features_placeholder, labels_placeholder))
 iterator = dataset.make_initializable_iterator()
 
 with tf.Session() as sess:
@@ -255,7 +255,7 @@ with tf.Session() as sess:
 To create a dataset from TFRecord and have the iteration keep repeating.
 ```python
 filenames = get_filenames()   # Array of filename pathes as string
-dataset = tf.contrib.data.TFRecordDataset(filenames).repeat()
+dataset = tf.data.TFRecordDataset(filenames).repeat()
 ```
 
 Create the operators to parse the dataset.
@@ -314,7 +314,7 @@ def make_batch(batch_size):
     filenames = [os.path.join(".", 'f1.tfrecords'), os.path.join(".", 'f2.tfrecords')]
 
     # Repeat infinitely.
-    dataset = tf.contrib.data.TFRecordDataset(filenames).repeat()
+    dataset = tf.data.TFRecordDataset(filenames).repeat()
 
     # Parse records.
     dataset = dataset.map(
@@ -348,7 +348,7 @@ def _parse(example_proto):
   return parsed_features["image"], parsed_features["label"]
 
 filenames = [os.path.join(".", 'f1.tfrecords'), os.path.join(".", 'f2.tfrecords')]
-dataset = tf.contrib.data.TFRecordDataset(filenames)
+dataset = tf.data.TFRecordDataset(filenames)
 dataset = dataset.map(_parse)
 ```
 
@@ -365,7 +365,7 @@ def _parse(filename, label):
 filenames = tf.constant([os.path.join(".", 'f1.jpg'), os.path.join(".", 'f2.jpg')])
 labels = tf.constant([2, 5])
 
-dataset = tf.contrib.data.Dataset.from_tensor_slices((filenames, labels))
+dataset = tf.data.Dataset.from_tensor_slices((filenames, labels))
 dataset = dataset.map(_parse)
 ```
 
@@ -385,7 +385,7 @@ def _resize_function(image_decoded, label):
 filenames = tf.constant([os.path.join(".", 'f1.jpg'), os.path.join(".", 'f2.jpg')])
 labels = tf.constant([2, 5])
 
-dataset = tf.contrib.data.Dataset.from_tensor_slices((filenames, labels))
+dataset = tf.data.Dataset.from_tensor_slices((filenames, labels))
 dataset = dataset.map(
     lambda filename, label: tf.py_func(
         _read_py_function, [filename, label], [tf.uint8, label.dtype]))
@@ -434,18 +434,18 @@ writer.close()
 Create a text line dataset
 ```python
 filenames = [os.path.join(".", 'f1.txt'), os.path.join(".", 'f2.txt')]
-dataset = tf.contrib.data.TextLineDataset(filenames)
+dataset = tf.data.TextLineDataset(filenames)
 ```
 
 Filter out first line and comments
 ```python
 filenames = [os.path.join(".", 'f1.txt'), os.path.join(".", 'f2.txt')]
 
-dataset = tf.contrib.data.Dataset.from_tensor_slices(filenames)
+dataset = tf.data.Dataset.from_tensor_slices(filenames)
 
 dataset = dataset.flat_map(
     lambda filename: (
-        tf.contrib.data.TextLineDataset(filename)
+        tf.data.TextLineDataset(filename)
         .skip(1)       # Skip first line
         .filter(lambda line: tf.not_equal(tf.substr(line, 0, 1), "#")))) # Skip comment line
 ```
@@ -454,7 +454,7 @@ dataset = dataset.flat_map(
 
 To create a mini-batch:
 ```python
-dataset = tf.contrib.data.Dataset.range(100)
+dataset = tf.data.Dataset.range(100)
 batched_dataset = dataset.batch(4)
 
 iterator = batched_dataset.make_one_shot_iterator()
@@ -466,7 +466,7 @@ with tf.Session() as sess:
 
 Use padded_batch for padding batches.
 ```python
-dataset = tf.contrib.data.Dataset.range(13)
+dataset = tf.data.Dataset.range(13)
 
 # For x=0 -> [0], x=2 -> [2, 2], x=3 -> [3, 3, 3]
 dataset = dataset.map(lambda x: tf.fill([tf.cast(x, tf.int32)], x))
@@ -520,7 +520,7 @@ import os
 
 def dataset_input_fn():
   filenames = ["./file1.tfrecord", "./file2.tfrecord"]
-  dataset = tf.contrib.data.TFRecordDataset(filenames)
+  dataset = tf.data.TFRecordDataset(filenames)
 
   def parser(record):
     keys_to_features = {
