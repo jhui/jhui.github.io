@@ -6,7 +6,7 @@ priority: 830
 title: “TensorFlow - Importing data”
 excerpt: “How to read data into the TensorFlow?”
 date: 2017-11-21 14:00:00
----tf.data
+---
 
 
 ### Basic
