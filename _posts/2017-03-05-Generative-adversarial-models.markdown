@@ -2,7 +2,7 @@
 layout: post
 comments: true
 mathjax: true
-priority: 550
+priority: -800
 title: “Generative adversarial nets (GAN) , DCGAN, CGAN, InfoGAN”
 excerpt: “Generative adversarial nets, improving GAN, DCGAN, CGAN, InfoGAN”
 date: 2017-03-05 14:00:00

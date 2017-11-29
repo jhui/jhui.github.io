@@ -2,7 +2,7 @@
 layout: post
 comments: true
 mathjax: true
-priority: 410
+priority: -1200
 title: “Understanding Dynamic Routing between Capsules (Capsule Networks)”
 excerpt: “A simple tutorial in understanding Capsules, Dynamic routing and Capsule Network CapsNet”
 date: 2017-11-03 11:00:00
@@ -45,11 +45,44 @@ Now, we imagine that each neuron contains the likelihood as well as properties o
 
 Instead of using the term neurons, the technical paper uses the term **capsules** to indicate that capsules output a vector instead of a single scaler value.
 
-### Viewpoint and style invariant
+### Viewpoint invariant
 
-Don't mistaken that CNN cannot explore spatial relationships. With more convolution layers, more features maps and smaller filter size, CNN is feasible in detecting or rejecting features in different combinations of variants. (viewpoint variants like orientation, perspective, and style variants like skin tone, stroke width, font type) Nevertheless this approach tends to memorize the dataset rather than generalize a solution. To avoid overfitting, we use a large training dataset to cover different variant combinations. This approach is not easy to detect adversaries also. MNist dataset contains 55,000 training data. i.e. 5,500 samples per digits. However, it is unlikely that children need to read this large amount of samples to learn digits. Our existing deep learning models including CNN seem inefficient in utilizing datapoints.
+Let's examine how a CNN can handle viewpoint variants. For example, how to train a face detection neuron for different orientations.
 
-> With feature property as part of the information extracted by capsules, we _may_ generalize the model better without an over extensive amount of labeled data for different variants.
+<div class="imgcap">
+<img src="/assets/capsule/sface3.jpg" style="border:none;width:40%;">
+</div>
+
+Conceptually, we can say the CNN trains neurons to handle different orientations with a final top level face detection neuron.
+
+<div class="imgcap">
+<img src="/assets/capsule/cnn1.jpg" style="border:none;width;">
+</div>
+
+As noted above, for a CNN to handle viewpoint or style variants, we add more convolution layers and features maps. Nevertheless this approach tends to memorize the dataset rather than generalize a solution. It requires a large volume of training data to cover different variants and to avoid overfitting. MNist dataset contains 55,000 training data. i.e. 5,500 samples per digits. However, it is unlikely that children need to read this large amount of samples to learn digits. Our existing deep learning models including CNN seem inefficient in utilizing datapoints. Here is an ironic quote from Geoffrey Hinton:  
+
+> It (convolution network) works depressingly well.
+
+
+### Equivariance vs invariance
+
+Instead of capture a feature with a specific variant, a capsule is trained to capture the likeliness of a feature and its variant. So the purpose of the capsule is not only to detect a feature but also to train the model to learn the variant. 
+
+<div class="imgcap">
+<img src="/assets/capsule/c21.jpg" style="border:none;width;">
+</div>
+
+Such that the same capsule can detect the same object with different orientations (for example, rotate clockwise):
+
+<div class="imgcap">
+<img src="/assets/capsule/c22.jpg" style="border:none;width;">
+</div>
+
+**Invariance** is the detection of features regardless of the variants. For example, a nose-detection neuron detects a nose regardless of the orientation. However, the loss of spatial orientation in a neuron will eventually hurt the effectiveness of such invariance model.
+
+**Equivariance** is the detection of objects that can transform to each other (for example, detecting faces with different orientations). Intuitively, the capsule network detects the face is rotated right 20° (equivariance) rather than realizes the face matched a variant that is rotated 20°. By forcing the model to learn the feature variant in a capsule, we _may_ extrapolate possible variants more effectively with less training data. In additionally, we may reject adversaries more effectively.
+
+> With feature property as part of the information extracted by capsules, we _may_ generalize the model better without an over extensive amount of labeled data.
 
 ### Capsule
 
@@ -183,7 +216,9 @@ Here is the final pseudo code for the dynamic routing:
 
 > Routing a capsule to the capsule in the layer above based on relevancy is called **Routing-by-agreement**.
 
-There is a short coming using the max pool in CNN. In max pool, we only keep the most dominating (max) features. Capsules maintain a weighted sum of features from the previous layer. Hence, it is more suitable in detecting overlapping features. For example detecting multiple overlapping digits in the handwriting:
+### Max pooling shortcoming
+
+The max pooling in a CNN handles translational variance (for example, if we move the object slightly to the right). With max pooling, we keep the most dominating (max) features. Even the object is moved slightly, it can still be detected within the pooling window. However, we only keep one feature per window. Capsules maintain a weighted sum of features from the previous layer. Hence, it is more suitable in detecting overlapping features. For example detecting multiple overlapping digits in the handwriting:
 
 <div class="imgcap">
 <img src="/assets/capsule/over.jpg" style="border:none">
@@ -218,6 +253,9 @@ For the mouth, eyes and nose capsules in the lower layer, each of them makes pre
 The transformation matrix to compute the vote is viewpoint invariant. We do not need different transformation matrices for different viewpoints. Even the viewpoint may change, the pose matrices (or votes) corresponding to the same high level structure (a face) will change in a co-ordinate way such that a cluster with the same capsules can be detected. Hence, the EM routing groups related capsules regardless of the viewpoint. Unlike CNN which each neuron may detect a different viewpoint, the transformation matrix is viewpoint independent which may require less data to train.
 
 > New capsules and routing algorithm will hopefully build higher level structures much easier and much effectively with less training data.
+
+(Note: The second paper expands what a Capsule network can do. For those interested, here is my other article on the [Matrix capsule](https://jhui.github.io/2017/11/14/Matrix-Capsules-with-EM-routing-Capsule-Network/)).
+
 
 ### CapsNet architecture
 

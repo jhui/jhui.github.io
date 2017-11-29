@@ -2,7 +2,7 @@
 layout: post
 comments: true
 mathjax: true
-priority: 415
+priority: -1000
 title: “Understanding Matrix capsules with EM Routing (Based on Hinton's Capsule Networks)”
 excerpt: “A simple tutorial in understanding Matrix capsules with EM Routing in Capsule Networks”
 date: 2017-11-14 11:00:00
