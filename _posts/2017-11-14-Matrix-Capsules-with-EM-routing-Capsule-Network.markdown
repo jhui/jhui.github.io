@@ -12,21 +12,22 @@ This article covers the second capsule network paper [_Matrix capsules with EM R
 
 ### CNN challenges
 
-In our [previous capsule article](https://jhui.github.io/2017/11/03/Dynamic-Routing-Between-Capsules/), we cover the challenges of CNN in exploring spatial relationship and discuss how capsule networks may address those short-comings. Let's recap one of the challenge of CNN in handling different viewpoints. 
+In our [previous capsule article](https://jhui.github.io/2017/11/03/Dynamic-Routing-Between-Capsules/), we cover the challenges of CNN in exploring spatial relationship and discuss how capsule networks may address those short-comings. Let's recap one of the challenge of CNN in handling different viewpoints like faces with different orientation. 
 
 <div class="imgcap">
 <img src="/assets/capsule/sface3.jpg" style="border:none;width:50%;">
 </div>
 
-To identify the three different viewpoints above as a face, a CNN model may build neurons in learning different feature orientations. 
+Conceptually, the CNN trains neurons to handle different feature orientations with a top level face detection neuron.
 
 <div class="imgcap">
-<img src="/assets/capsule/cnn1.jpg" style="border:none;">
+<img src="/assets/capsule/cnn1.jpg" style="border:none;width;">
 </div>
 
-Nevertheless this tends to memorize the dataset rather than generalize a solution. It requires extensive training datapoints to have reasonable coverage of different variant combinations. MNist dataset contains 55,000 training data. i.e. 5,500 samples per digits. However, it is unlikely that children need to read this large amount of samples to learn digits. Our existing deep learning models including CNN seem inefficient in utilizing datapoints. 
+As indicated above, we add more convolution layers and features maps. Nevertheless this approach tends to memorize the dataset rather than generalize a solution. It requires a large volume of training data to cover different variants and to avoid overfitting. MNist dataset contains 55,000 training data. i.e. 5,500 samples per digits. However, it is unlikely that children need to read this large amount of samples to learn digits. Our existing deep learning models including CNN seem inefficient in utilizing datapoints. 
 
-Even we can build a simple CNN just to detect the presence of the features (eyes, nose and mouth), it is vulnerable to adversaires by simply move, rotate or resize individual features.
+### Adversaires
+CNN is also vulnerable to adversaires by simply move, rotate or resize individual features.
 
 <div class="imgcap">
 <img src="/assets/capsule/sface2.jpg" style="border:none;width:20%;">
@@ -40,15 +41,25 @@ The following image can be mis-categorized as a gibbon in a CNN model by selecti
 
 (image source [OpenAi](https://blog.openai.com/adversarial-example-research/))
 
-### Matrix capsule
+### Capsule
 
-We do not want to build multiple neurons in handling different viewpoint variants (spatial orientation). Instead, we want one single node (a capsule) in handling multiple viewpoints.
+A capsule captures the likeliness of a feature and its variant. So the purpose of the capsule is not only to detect a feature but also to train the model to learn the variants. 
 
 <div class="imgcap">
-<img src="/assets/capsule/c1.jpg" style="border:none;width:50%;">
+<img src="/assets/capsule/c21.jpg" style="border:none;width;">
 </div>
 
-A neuron in deep learning captures the likeliness of a feature. The matrix capsule captures the activation (likeliness) and the 4x4 pose matrix.
+So the same capsule can detect the same object class with different orientations (for example, it detect a face with 0.9 likeliness and rotate 20° clockwise):
+
+<div class="imgcap">
+<img src="/assets/capsule/c22.jpg" style="border:none;width;">
+</div>
+
+**Equivariance** is the detection of objects that can transform to each other.  Intuitively, the capsule network detects the face is rotated right 20° (equivariance) rather than realizes the face matched a variant that is rotated 20°. By forcing the model to learn the feature variant in a capsule, we _may_ extrapolate possible variants more effectively with less training data. 
+
+### Matrix capsule
+
+The matrix capsule captures the activation (likeliness) and the 4x4 pose matrix.
 
 <div class="imgcap">
 <img src="/assets/capsule/capp.png" style="border:none;width:40%;">
@@ -159,6 +170,8 @@ Here is the algorithm in computing the capsule activation as well as the mean of
 <img src="/assets/capsule/al1.png" style="border:none;width:50%">
 </div>
 
+(Source from the Matrix capsules with EM routing paper)
+
 We start with the activation $$\alpha$$ for capsules in level L and their corresponding votes $$v$$ for level L+1. We initially set the assignment probability to be uniformly distributed. We call M-step to compute the the Gaussian model ($$\mu$$, $$\sigma$$) and the activation for the capsules in layer L+1. Then we call E-step to recompute the assignment probabilities $$r_i$$ based on how well the vote match with other capsules. We re-iterate the process $$t$$ (default 3) times to finalize the activation and $$\mu$$ for the capsules in level L+1.
 
 In M-step, we calculate $$\mu$$ and $$\sigma$$ based on the activation, votes $$v$$ and the assignment probability for the lower layer capsules. Then we compute the new activation for the capsule. $$ \beta_{\nu} $$ and $$ \beta_{\alpha}$$ is trained discriminatively as stated before.
@@ -185,6 +198,8 @@ The smallNORB dataset has 5 toy classes: airplanes, cars, trucks, humans and ani
 <img src="/assets/capsule/data.png" style="border:none;width:60%">
 </div>
 
+(Picture from the Matrix capsules with EM routing paper)
+
 #### Architect
 
 Now we use matrix capsule to classify our smallNORB data.
@@ -192,6 +207,7 @@ Now we use matrix capsule to classify our smallNORB data.
 <div class="imgcap">
 <img src="/assets/capsule/cape.png" style="border:none;">
 </div>
+(Picture from the Matrix capsules with EM routing paper)
 
 ReLU Conv1 is a regular convolution layer with a 5x5 filter and a stride of 2 outputting 32 channels ($$A=32$$ feature maps) using ReLU activation.
 

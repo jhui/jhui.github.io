@@ -72,7 +72,7 @@ Instead of capture a feature with a specific variant, a capsule is trained to ca
 <img src="/assets/capsule/c21.jpg" style="border:none;width;">
 </div>
 
-Such that the same capsule can detect the same object with different orientations (for example, rotate clockwise):
+Such that the same capsule can detect the same object class with different orientations (for example, rotate clockwise):
 
 <div class="imgcap">
 <img src="/assets/capsule/c22.jpg" style="border:none;width;">
