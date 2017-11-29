@@ -57,6 +57,8 @@ So the same capsule can detect the same object class with different orientations
 
 **Equivariance** is the detection of objects that can transform to each other.  Intuitively, the capsule network detects the face is rotated right 20° (equivariance) rather than realizes the face matched a variant that is rotated 20°. By forcing the model to learn the feature variant in a capsule, we _may_ extrapolate possible variants more effectively with less training data. 
 
+In CNN, final label is viewpoint invariant. For equivariance, changes in viewpoint lead to corresponding changes in neural activities.
+
 ### Matrix capsule
 
 The matrix capsule captures the activation (likeliness) and the 4x4 pose matrix.
