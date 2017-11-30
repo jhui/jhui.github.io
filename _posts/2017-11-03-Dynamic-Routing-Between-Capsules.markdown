@@ -218,7 +218,7 @@ Here is the final pseudo code for the dynamic routing:
 
 ### Max pooling shortcoming
 
-The max pooling in a CNN handles translational variance (for example, if we move the object slightly to the right). With max pooling, we keep the most dominating (max) features. Even the object is moved slightly, it can still be detected within the pooling window. However, we only keep one feature per window. Capsules maintain a weighted sum of features from the previous layer. Hence, it is more suitable in detecting overlapping features. For example detecting multiple overlapping digits in the handwriting:
+The max pooling in a CNN handles translational variance. Even a feature is slightly moved, if it is still within the pooling window, it can still be detected. Nevertheless, this approach keeps only the max feature (the most dominating) and throws away the others. Capsules maintain a weighted sum of features from the previous layer. Hence, it is more suitable in detecting overlapping features. For example detecting multiple overlapping digits in the handwriting:
 
 <div class="imgcap">
 <img src="/assets/capsule/over.jpg" style="border:none">
