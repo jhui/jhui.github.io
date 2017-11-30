@@ -18,13 +18,13 @@ In deep learning, the activation level of a neuron is often interpreted as the l
 <img src="/assets/capsule/fc.jpg" style="border:none;width:70%;">
 </div>
 
-If we pass the Picasso's "Portrait of woman in d`hermine pass" into a CNN classifier, how likely that the classifier may mistaken it as a real human face? CNN is good at detecting features but less effective at exploring the spatial relationships among features (perspective, size, orientation).
+If we pass the Picasso's "Portrait of woman in d`hermine pass" into a CNN classifier, how likely that the classifier may mistaken it as a real human face? 
 
 <div class="imgcap">
 <img src="/assets/capsule/picasso.jpg" style="border:none;width:40%;">
 </div>
 
-For example, the following picture may fool a _simple_ CNN model in believing that this a good sketch of a human face.
+CNN is good at detecting features but less effective at exploring the spatial relationships among features (perspective, size, orientation). For example, the following picture may fool a _simple_ CNN model in believing that this a good sketch of a human face.
 
 <div class="imgcap">
 <img src="/assets/capsule/face2.jpg" style="border:none;width:20%;">
