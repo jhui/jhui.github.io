@@ -64,7 +64,7 @@ As noted above, for a CNN to handle viewpoint or style variants, we add more con
 > It (convolution network) works depressingly well.
 
 
-### Equivariance vs invariance
+#### Equivariance vs invariance
 
 Instead of capture a feature with a specific variant, a capsule is trained to capture the likeliness of a feature and its variant. So the purpose of the capsule is not only to detect a feature but also to train the model to learn the variant. 
 
