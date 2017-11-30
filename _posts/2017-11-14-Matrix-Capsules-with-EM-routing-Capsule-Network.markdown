@@ -129,6 +129,14 @@ Eventually, we will converge to two Gaussian distributions that maximize the lik
 
 A higher level feature (a face) is detected by looking for agreement between votes from the capsules one layer below. A **vote** $$v$$ is computed by multipling the pose matrix of capsule $$i$$ with a **viewpoint invariant transformation** $$W_{ic}$$ (from capsule $$i$$ to capsule $$c$$ above). The probability that a capsule is assigned to capsule $$c$$ as a part-whole relationship is based on the proximity of the vote coming from that capsule to the votes coming from other capsules that are assigned to capsule $$c$$. $$W_{ic}$$ is learned discriminatively through cost function and backpropagation. It learns not only what a face composed of, and it also makes sure the pose information are matched with its sub-components.
 
+Here is the visualization of routing=by-agreement in matrix capsules:
+ 
+<div class="imgcap">
+<img src="/assets/capsule/gf.png" style="border:none;width:80%">
+</div>
+
+(Source Geoffrey Hinton)
+
 Even the viewpoint may change, the pose matrices (or votes) corresponding to the same high level structure (a face) will change in a co-ordinate way such that a cluster with the same capsules can be detected. Hence, the EM routing groups related capsules regardless of the viewpoint.
 
 <div class="imgcap">
