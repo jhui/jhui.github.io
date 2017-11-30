@@ -18,7 +18,7 @@ In deep learning, the activation level of a neuron is often interpreted as the l
 <img src="/assets/capsule/fc.jpg" style="border:none;width:70%;">
 </div>
 
-If we pass the Picasso's "Portrait of woman in d`hermine pass" into a CNN classifier, how likely that the classifier may mistaken it as a real human face? 
+If we pass the Picasso's "Portrait of woman in d`hermine pass" into a CNN classifier, how likely that the classifier may mistaken it as a real human face?
 
 <div class="imgcap">
 <img src="/assets/capsule/picasso.jpg" style="border:none;width:40%;">

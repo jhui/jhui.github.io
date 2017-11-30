@@ -2,7 +2,7 @@
 layout: post
 comments: true
 mathjax: true
-priority: 790
+priority: -900
 title: “TensorFlow - Install CUDA, CuDNN & TensorFlow in AWS EC2 P2”
 excerpt: “TensorFlow - Deploy TensorFlow application in AWS EC2 P2 with CUDA & CuDNN”
 date: 2017-09-07 14:00:00

@@ -2,7 +2,7 @@
 layout: post
 comments: true
 mathjax: true
-priority: -900
+priority: -750
 title: “Fast R-CNN and Faster R-CNN”
 excerpt: “Object detection using Fast R-CNN and Faster R-CNN.”
 date: 2017-03-15 11:00:00
