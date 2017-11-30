@@ -250,7 +250,13 @@ For the mouth, eyes and nose capsules in the lower layer, each of them makes pre
 
 > A higher level feature (a face) is detected by looking for agreement between votes from the capsules one layer below. We use EM routing to cluster capsules that have close proximity of the corresponding votes. 
 
-The transformation matrix to compute the vote is viewpoint invariant. We do not need different transformation matrices for different viewpoints. Even the viewpoint may change, the pose matrices (or votes) corresponding to the same high level structure (a face) will change in a co-ordinate way such that a cluster with the same capsules can be detected. Hence, the EM routing groups related capsules regardless of the viewpoint. Unlike CNN which each neuron may detect a different viewpoint, the transformation matrix is viewpoint independent which may require less data to train.
+The transformation matrix to compute the vote is viewpoint invariant. We do not need different transformation matrices for different viewpoints. Even the viewpoint may change, the pose matrices (or votes) corresponding to the same high level structure (a face) will change in a co-ordinate way such that a cluster with the same capsules can be detected. 
+
+<div class="imgcap">
+<img src="/assets/capsule/cluster2.jpg" style="border:none;width:80%">
+</div>
+
+Hence, the EM routing groups related capsules regardless of the viewpoint. Unlike CNN which each neuron may detect a different viewpoint, the transformation matrix is viewpoint independent which may require less data to train.
 
 > New capsules and routing algorithm will hopefully build higher level structures much easier and much effectively with less training data.
 
