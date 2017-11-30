@@ -88,6 +88,13 @@ In the face detection example, each of the mouth, eyes and nose capsules in the 
 <img src="/assets/capsule/c3.jpg" style="border:none;width:80%">
 </div>
 
+Here is the visualization of the votes from the lower layer capsule.
+
+<div class="imgcap">
+<img src="/assets/capsule/cluster.jpg" style="border:none;width;width:70%">
+</div>
+
+
 > A higher level feature (a face) is detected by looking for agreement between votes from the capsules one layer below. We use EM routing to cluster capsules that have close proximity of the corresponding votes. 
 
 ### Gaussian mixture model & Expectation Maximization (EM)
@@ -123,6 +130,12 @@ Eventually, we will converge to two Gaussian distributions that maximize the lik
 ### Using EM for Routing-By-Agreement
 
 A higher level feature (a face) is detected by looking for agreement between votes from the capsules one layer below. A **vote** $$v$$ is computed by multipling the pose matrix of capsule $$i$$ with a **viewpoint invariant transformation** $$W_{ic}$$ (from capsule $$i$$ to capsule $$c$$ above). The probability that a capsule is assigned to capsule $$c$$ as a part-whole relationship is based on the proximity of the vote coming from that capsule to the votes coming from other capsules that are assigned to capsule $$c$$. $$W_{ic}$$ is learned discriminatively through cost function and backpropagation. It learns not only what a face composed of, and it also makes sure the pose information are matched with its sub-components.
+
+Even the viewpoint may change, the pose matrices (or votes) corresponding to the same high level structure (a face) will change in a co-ordinate way such that a cluster with the same capsules can be detected. Hence, the EM routing groups related capsules regardless of the viewpoint.
+
+<div class="imgcap">
+<img src="/assets/capsule/cluster2.jpg" style="border:none;width:80%">
+</div>
 
 #### Capsule assignment
 
