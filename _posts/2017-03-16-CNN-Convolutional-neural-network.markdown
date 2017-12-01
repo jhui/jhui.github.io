@@ -52,8 +52,8 @@ $$
 N = \frac {\text{filter patch size} - 1} {2}
 $$
 
-### Convolution neural network (CNN)
-A convolution neural network composes of convolution layers, polling layers and fully connected layers(FC). 
+### Convolutional neural network (CNN)
+A convolutional neural network composes of convolution layers, polling layers and fully connected layers(FC). 
 
 <div class="imgcap">
 <img src="/assets/cnn/conv_layer.png" style="border:none;width:70%">
