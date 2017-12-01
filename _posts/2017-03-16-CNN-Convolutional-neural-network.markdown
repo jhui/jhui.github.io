@@ -3,7 +3,7 @@ layout: post
 comments: true
 mathjax: true
 priority: 300
-title: “Convolution neural networks (CNN) tutorial”
+title: “Convolutional neural networks (CNN) tutorial”
 excerpt: “Convolutional networks explore features by discover its spatial information. This tutorial will build CNN networks for visual recognition.”
 date: 2017-03-16 12:00:00
 ---
