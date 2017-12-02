@@ -234,7 +234,7 @@ Iterative dynamic routing provides an alternative of how signal is routed based 
 <img src="/assets/capsule/face7.jpg" style="border:none;width:45%;">
 </div>
 
-The iterative dynamic routing with capsules is just one showcase in demonstrating the routing-by-agreement. We expect more capsule models with advance routing methods will be introduced in coming years. In a second paper on capsules _Matrix capsules with EM routing_, a [likeliness, 4x4 pose matrix] matrix capsule is proposed (rather than a k-D vector capsule) with a new Expectation-maximization routing (EM routing). The pose matrices are designed to capture the viewpoint of the object. For example, the second row of the image represent the same object above with a different pose matrix (viewpoint).
+The iterative dynamic routing with capsules is just one showcase in demonstrating the routing-by-agreement. We expect more capsule models with advance routing methods will be introduced in coming years. In a second paper on capsules _Matrix capsules with EM routing_, a [likeliness, 4x4 pose matrix] matrix capsule is proposed (rather than a k-D vector capsule) with a new Expectation-maximization routing (EM routing). The pose matrices are designed to capture the viewpoint of the object. For example, the second row of the picture below represent the same object above with a different pose matrix (viewpoint).
 
 <div class="imgcap">
 <img src="/assets/capsule/data.png" style="border:none;width:50%">
