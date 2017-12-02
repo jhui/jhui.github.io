@@ -61,7 +61,7 @@ Conceptually, we can say the CNN trains neurons to handle different orientations
 
 As noted above, for a CNN to handle viewpoint or style variants, we add more convolution layers and features maps. Nevertheless this approach tends to memorize the dataset rather than generalize a solution. It requires a large volume of training data to cover different variants and to avoid overfitting. MNist dataset contains 55,000 training data. i.e. 5,500 samples per digits. However, it is unlikely that children need to read this large amount of samples to learn digits. Our existing deep learning models including CNN seem inefficient in utilizing datapoints. Here is an ironic quote from Geoffrey Hinton:  
 
-> It (convolution network) works depressingly well.
+> It (convolutional network) works depressingly well.
 
 
 #### Equivariance vs invariance
@@ -80,7 +80,7 @@ Such that the same capsule can detect the same object class with different orien
 
 **Invariance** is the detection of features regardless of the variants. For example, a nose-detection neuron detects a nose regardless of the orientation. However, the loss of spatial orientation in a neuron will eventually hurt the effectiveness of such invariance model.
 
-**Equivariance** is the detection of objects that can transform to each other (for example, detecting faces with different orientations). Intuitively, the capsule network detects the face is rotated right 20° (equivariance) rather than realizes the face matched a variant that is rotated 20°. By forcing the model to learn the feature variant in a capsule, we _may_ extrapolate possible variants more effectively with less training data. In additionally, we may reject adversaries more effectively.
+**Equivariance** is the detection of objects that can transform to each other (for example, detecting faces with different orientations). Intuitively, the capsule network detects the face is rotated right 20° (equivariance) rather than realizes the face matched a variant that is rotated 20°. By forcing the model to learn the feature variant in a capsule, we _may_ extrapolate possible variants more effectively with less training data. In additional, we may reject adversaries more effectively.
 
 > With feature property as part of the information extracted by capsules, we _may_ generalize the model better without an over extensive amount of labeled data.
 
