@@ -273,7 +273,7 @@ Finally, we apply capsules to build the CapsNet to classify the MNist digits. Th
 
 Image is feed into the ReLU Conv1 which is a standard convolution layer. It applies 256 9x9 kernels to generate an output with 256 channels (feature maps). With stride 1 and no padding, the spatial dimension is reduced to 20x20. ( 28-9+1=20) 
 
-It is then feed into PrimaryCapsules which is a modified convolution layer supporting capsules. It generates a 8-D vector instead of a scalar. PrimaryCapsules used 8x32 kernels to generate 32 8-D capsules. (i.e. 8 output neurons are grouped together to form a capsule) PrimaryCapsules uses 9x9 kernels with stride 2 and no padding to reduce the spatial dimension from 20x20 to 6x6 ( $$\frac{20-9}{2} + 1 = 6 $$). In PrimaryCapsules, we have 32x6x6 capsules. 
+It is then feed into PrimaryCapsules which is a modified convolution layer supporting capsules. It generates a 8-D vector instead of a scalar. PrimaryCapsules used 8x32 kernels to generate 32 8-D capsules. (i.e. 8 output neurons are grouped together to form a capsule) PrimaryCapsules uses 9x9 kernels with stride 2 and no padding to reduce the spatial dimension from 20x20 to 6x6 ( $$ \lfloor \frac{20-9}{2} \rfloor + 1 = 6 $$). In PrimaryCapsules, we have 32x6x6 capsules. 
 
 It is then feed into DigiCaps which apply a transformation matrix $$W_{ij} $$ with shape 16x8 to convert the 8-D capsule to a 16-D capsule for each class $$j$$ (from 1 to 10).
 
