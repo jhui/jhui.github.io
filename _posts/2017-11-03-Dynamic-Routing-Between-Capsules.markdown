@@ -240,6 +240,8 @@ The iterative dynamic routing with capsules is just one showcase in demonstratin
 <img src="/assets/capsule/data.png" style="border:none;width:50%">
 </div>
 
+(Source from the paper Matrix capsules with EM routing)
+
 The objective of the EM routing is to group capsules to form a part-whole relationship with a clustering technique (EM). In machine learning, we use EM to cluster datapoints into different Gaussian distributions. For example, we cluster the datapoints below into two clusters modeled by two gaussian distributions.
 
 <div class="imgcap">
