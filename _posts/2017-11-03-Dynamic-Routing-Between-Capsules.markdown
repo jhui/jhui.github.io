@@ -224,7 +224,7 @@ The max pooling in a CNN handles translational variance. Even a feature is sligh
 <img src="/assets/capsule/over.jpg" style="border:none">
 </div>
 
-### Significant of Iterative dynamic routing with capsules
+### Significant of routing-by-agreement with capsules
 
 In deep learning, we use backpropagation to train the model's parameters based on a cost function. Those parameters (weights) control how signal is routed from one layer to another. If the weight between 2 neurons is zero, the activation of a neuron is not propagated to that neuron.
 
