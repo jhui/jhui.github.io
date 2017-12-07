@@ -165,8 +165,7 @@ $$
 
 Hence, $$\ln(P_{ih})$$ is the negative likelihood of the vote $$v_i$$ matching the pose matrix of the capsule $$c$$.
 
-$$cost_h$$ calculates the cost of having the lower layer capsules being part of capsule $$c$$. If $$cost_h$$ is low, capsule $$i$$ is more likely to activate the face capsule. Since capsules are not equally related to capsule $$c$$, we pro-rated the cost with the **assignment probabilities** $$r_i$$. 
-
+$$cost_h$$ calculates the cost of having the lower layer capsules being part of capsule $$c$$. Since capsules are not equally related to capsule $$c$$, we pro-rated the cost with the **assignment probabilities** $$r_i$$. Low $$cost_h$$ increases the likelihood that the lower level capsules with high $$r_i$$ form a part-whole relationship with the parent capsule $$c$$. It also increases the likelihood of capsule $$c$$ being activated.
 
 $$
 \begin{split}
