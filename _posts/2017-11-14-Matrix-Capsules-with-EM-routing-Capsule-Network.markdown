@@ -233,9 +233,19 @@ ReLU Conv1 is a regular convolution layer with a 5x5 filter and a stride of 2 ou
 
 We apply a 1x1 filter to transform the 32 channels into 32 ($$B=32$$) primary capsules which contain a 4x4 pose matrix and 1 scalar for the activation. Therefore it takes $$ A \times B \times (4 \times 4 + 1) $$ 1x1 filters.
 
-It then follows by a convolution capsule layer ConvCaps1 with a 3x3 filters ($$K=3$$) and a stride of 2. ConvCaps1 is very similar to a regular convolution layer with the exception that it takes capsules as input and output capsules. ConvCaps2 is similar to ConvCaps1 except that ConvCaps2 has a stride of 1. ConvCaps2 connects to the Class Capsules which have one capsule per class. (5 classes $$E=5$$) 
+It then follows by a convolution capsule layer ConvCaps1 with a 3x3 filters ($$K=3$$) and a stride of 2. ConvCaps1 is very similar to a regular convolution layer with the exception that it takes capsules as input and output capsules. ConvCaps2 is similar to ConvCaps1 except that ConvCaps2 has a stride of 1. ConvCaps2 connects to the Class Capsules with a fully connected layer which output one capsule per class. (5 classes $$E=5$$) 
+
+| Layer Name | Apply | Output shape |
+| --- | --- | --- | --- |
+| Raw image |  |  28, 28, 1 |
+| ReLU Conv1 | Convolution layer with 5x5 kernels output 32 channels, stride 2, with padding | 14, 14, 32|
+| PrimaryCaps | Convolution capsule layer with 1x1 kernels output 32x(4x4) for pose and 32x1 for activation with strides 1 and padding | pose (14, 14, 32, 4, 4) activations (14, 14, 32) |
+| ConvCaps1 | Capsule convolution 3x3x32x32x4x4, strides 2 | poses (6, 6, 32, 4, 4), activations (6, 6, 32) |
+| ConvCaps2 | Capsule convolution 3x3x32x32x4x4, strides 1 | poses (4, 4, 32, 4, 4), activations (4, 4, 32) |
+| Class Capsules | Capsule FC 1x1x32x5x4x4  | poses (5, 4, 4), activations (5) |
 
 In CNN, a filter is shared in generate each filter map. So it detects a specific feature regardless of the location in the image. In Class Capsules, the transformation matrix is shared in extracting the same capsule feature. (e.g. face) To maintain the spatial location of capsule, we also adds the scaled x, y coordinate of the center of the receptive field of each capsule to the first two elements of the vote. This is called **Coordinate Addition**. This helps the transformations to produce those two elements that represent the position of the feature relative to the center of the capsule’s receptive field. The routing is performed between adjacent capsule layers. For convolutional capsules, each capsule in layer L + 1 are connected to capsules within its receptive field in layer L only. 
+
 
 #### Loss function
 
