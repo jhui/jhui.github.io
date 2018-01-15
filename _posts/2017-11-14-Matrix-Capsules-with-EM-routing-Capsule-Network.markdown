@@ -253,7 +253,7 @@ ReLU Conv1 is a regular convolution layer with a 5x5 filter and a stride of 2 ou
 
 In PrimryCaps, we apply a 1x1 filter to transform the 32 channels from  ReLU Conv1 into 32 ($$B=32$$) primary capsules. Each capsule contains a 4x4 pose matrix and a scalar for the activation. Therefore it takes $$ A \times B \times (4 \times 4 + 1) $$ 1x1 filters. PrimaryCaps is very similar to the regular convolution layer with the exception that it generates a capsule (4x4 pose matrix + 1 scalar activation) instead of a scalar value.
 
-It then follows by a **convolution capsule layer** ConvCaps1 using a 3x3 filters ($$K=3$$) and a stride of 2. ConvCaps1 takes capsules as input and output capsules. The major difference between ConvCaps1 and a regular convolution is that it uses EM routing to compute the activation and the pose matrix for the next upper level capsules.
+It then follows by a **convolution capsule layer** ConvCaps1 using a 3x3 filters ($$K=3$$) and a stride of 2. ConvCaps1 takes capsules as input and output capsules. The major difference between ConvCaps1 and a regular convolution is that it uses EM routing to compute the activation and the pose matrix for the next upper level capsules. 
 
 The capsule output of ConvCaps1 contains the pose matrix and the activation. It is then feed into ConvCaps2. ConvCaps2 is another convolution capsule layer but with stride equal to 1. 
  
@@ -306,8 +306,6 @@ And the outputs for each layer:
 | ConvCaps1 | Capsule convolution 3x3x32x32x4x4, strides 2 | poses (6, 6, 32, 4, 4), activations (6, 6, 32) |
 | ConvCaps2 | Capsule convolution 3x3x32x32x4x4, strides 1 | poses (4, 4, 32, 4, 4), activations (4, 4, 32) |
 | Class Capsules | Capsule FC 1x1x32x5x4x4  | poses (5, 4, 4), activations (5) |
-
-In CNN, a filter is shared in generate each filter map. So it detects a specific feature regardless of the location in the image. In Class Capsules, the transformation matrix is shared in extracting the same capsule feature. (e.g. face) To maintain the spatial location of capsule, we also adds the scaled x, y coordinate of the center of the receptive field of each capsule to the first two elements of the vote. This is called **Coordinate Addition**. This helps the transformations to produce those two elements that represent the position of the feature relative to the center of the capsule’s receptive field. The routing is performed between adjacent capsule layers. For convolutional capsules, each capsule in layer L + 1 are connected to capsules within its receptive field in layer L only. 
 
 #### ConvCaps1
 
@@ -560,6 +558,13 @@ def e_step(o_mean, o_stdv, o_activations, votes):
   return rr
 ```
 	  
+#### Class Capsules
+	  
+In CNN, a filter is shared in generate each filter map. So it detects a specific feature regardless of the location in the image. In Class Capsules, the transformation matrix is shared in extracting the same class. Class capsules apply one view transform weight matrix (4 x 4) to each input channel and the view transform matrix is shared across spatial locations. So the kernel labelled in D is 1x1 and the number of variables of weights is D x E x 4 x 4.
+	  
+To maintain the spatial location of capsule, we also adds the scaled x, y coordinate of the center of the receptive field of each capsule to the first two elements of the vote. This is called **Coordinate Addition**. Hence, the vote is changed from 16 (4x4) components to 18 components. We use the same EM-routing algorithm which take the 18 components instead of the 16 components
+to compute the assignment probability and activation. This helps the transformations to produce those two elements that represent the position of the feature relative to the center of the capsule’s receptive field. 
+	  
 #### Loss function
 
 The loss function is defined as
@@ -568,7 +573,7 @@ $$
 L_i = (\max(0, m - (a_t - a_i)))^2 
 $$
 
-which $$a_t$$ is the activation of the target class and $$a_i$$ is the other classes. If the activation of a wrong class is closer than the margin $$m$$, we penalize it by the squared distance to the margin. $$m$$ is initially start as 0.2 and linearly increasing to 0.9 to avoid dead capsules.
+which $$a_t$$ is the activation of the target class and $$a_i$$ is the other classes. If the activation of a wrong class is closer than the margin $$m$$, we penalize it by the squared distance to the margin. $$m$$ is initially start as 0.2 and linearly increasing to 0.9 during training (say increase it after each epoch) to avoid dead capsules.
 
 ### Result
 
