@@ -8,7 +8,7 @@ excerpt: “A simple tutorial in understanding Matrix capsules with EM Routing i
 date: 2017-11-14 11:00:00
 ---
 
-This article covers the second capsule network paper [_Matrix capsules with EM Routing_](https://openreview.net/pdf?id=HJWLfGWRb) based on Geoffrey Hinton's Capsule Networks. We will cover the basic of matrix capsules and apply EM routing to classify images with different viewpoints. The code demonstration is originated from [Guang Yang](https://github.com/gyang274/capsulesEM).
+This article covers the second capsule network paper [_Matrix capsules with EM Routing_](https://openreview.net/pdf?id=HJWLfGWRb) based on Geoffrey Hinton's Capsule Networks. We will cover the basic of matrix capsules and apply EM routing to classify images with different viewpoints. The code demonstrating the matrix capsule is originated from [Guang Yang](https://github.com/gyang274/capsulesEM).
 
 ### CNN challenges
 
