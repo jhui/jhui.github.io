@@ -259,8 +259,8 @@ The capsule output of ConvCaps1 contains the pose matrix and the activation. It 
  
 The output capsules of ConvCaps2 are connected to the Class Capsules using a fully connected layer instead of a convolution layer.   ConvCaps2  outputs one capsule per class. (In smallNORB, we have 5 classes $$E=5$$) 
 
-Here is the code in building each layers:
-
+Here is the code in building each layers: 
+(Note, in the trace below, we replace the smallNORB with the MNist dataset with image size 28x28x1)
 ```python
 def capsules_net(inputs, num_classes, iterations, name='CapsuleEM-V0'):
   """Replicate the network in `Matrix Capsules with EM Routing.`
@@ -305,7 +305,7 @@ And the outputs for each layer:
 | PrimaryCaps | Convolution capsule layer with 1x1 kernels output 32x(4x4) for pose and 32x1 for activation with strides 1 and padding | pose (14, 14, 32, 4, 4) activations (14, 14, 32) |
 | ConvCaps1 | Capsule convolution 3x3x32x32x4x4, strides 2 | poses (6, 6, 32, 4, 4), activations (6, 6, 32) |
 | ConvCaps2 | Capsule convolution 3x3x32x32x4x4, strides 1 | poses (4, 4, 32, 4, 4), activations (4, 4, 32) |
-| Class Capsules | Capsule FC 1x1x32x5x4x4  | poses (5, 4, 4), activations (5) |
+| Class Capsules | Capsule FC 1x1x32x5x4x4  | poses (10, 4, 4), activations (10) |
 
 #### ConvCaps1
 
