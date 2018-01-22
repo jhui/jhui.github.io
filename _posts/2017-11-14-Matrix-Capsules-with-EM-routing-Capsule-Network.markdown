@@ -602,7 +602,8 @@ def mat_transform(input, output_cap_size, size):
 <img src="/assets/capsule/al1.png" style="border:none;width:40%">
 </div>
 
-Here is the code implementation for the EM routing which calling m_step and e_step alternatively. (by default, 3 iterations) In the last iteration, the m_step already calculates the pose matrices and the activation and therefore we skip the last e_step which mainly update the routing assignment.
+Here is the code implementation for the EM routing which calling m_step and e_step alternatively. By default, we ran the iterations 3 times. The main purpose of the EM routing is to compute the pose matrices and the activations. In the last iteration, the m_step already complete the last calculation of those parameters. Therefore we can skip the e_step in the last iteration which mainly responsible for re-calculating the routing assignment.
+
 ```python
 def matrix_capsules_em_routing(votes, i_activations, beta_v, beta_a, iterations, name):
   """The EM routing between input capsules (i) and output capsules (j).
@@ -662,13 +663,13 @@ def matrix_capsules_em_routing(votes, i_activations, beta_v, beta_a, iterations,
   return poses, activations
 ```
   
- To compute the activation of the output capsule $$a_j$$
+In the equation for the output capsule's activation $$a_j$$
 
  $$
  a_j = sigmoid(\lambda(b_j - \sum_h cost^h_j))
  $$
   
-we use λ as an inverse temperature parameter which start from 1 and increment 1 after each routing iteration. The paper does not specify how λ is increased and we can experiment different schemes. 
+λ is an inverse temperature parameter. In our implementation, we start from 1 and increment it by 1 after each routing iteration. The original paper does not specify how λ is increased and you can experiment different schemes instead. Here is our source code:
 ```python
 # inverse_temperature schedule (min, max)
 it_min = 1.0
@@ -681,7 +682,7 @@ for it in range(iterations):
   )
 ```
 
-In the last iteration loop, $$a_j$$ is output as the activation of the output capsule $$j$$ and $$ \mu^h_j $$ as the h-th component of the corresponding pose matrix. We later reshape all 16 components into a 4x4 pose matrix.
+After the last iteration loop, $$a_j$$ is output as the final activation of the output capsule $$j$$. The mean $$ \mu^h_j $$ is used for the final value of the h-th component of the corresponding pose matrix. We later reshape those 16 components into a 4x4 pose matrix.
 ```python
 # pose: (N, OH, OW, o 4 x 4) via squeeze o_mean (24, 6, 6, 32, 16)
 poses = tf.squeeze(o_mean, axis=-3)
@@ -697,9 +698,9 @@ The algorithm for the m-steps.
 <img src="/assets/capsule/al2.png" style="border:none;width:90%">
 </div>
 
-The following providing the trace of the m-step call in the creating the ConvCaps1 layer. (with a batch size N of 24, 32 input capsules and output capsules, 3x3 kernels, 4x4=16 pose matrix and an output spatial dimension of 6x6.) 
+The following is the code listing of the m-step method. The comment traces the shape of the Tensors under the following conditions: a batch size of 24, 32 input capsules and output capsules, 3x3 kernels, 4x4=16 pose matrix and an output spatial dimension of 6x6.
 
-m_step computes the mean and the variance. They have the shape of (24, 6, 6, 1, 32, 16) and(24, 6, 6, 1, 32, 1) respectively in ConvCaps1.
+m_step computes the mean and the variance of the parent capsules. Means and variances have the shape of (24, 6, 6, 1, 32, 16) and (24, 6, 6, 1, 32, 1) respectively in ConvCaps1.
 
 ```python
 def m_step(rr, votes, i_activations, beta_v, beta_a, inverse_temperature):
@@ -767,7 +768,8 @@ The algorithm for the e-steps.
 <img src="/assets/capsule/al3.png" style="border:none;width:90%">
 </div>
 
-e_step is mainly responsible for re-calculate the routing assignment (shape: 24, 6, 6, 288, 32, 1) after the newly updated output activation $$a_j$$ and the new $$\mu$$ and $$\sigma$$ for the Gaussian model for the parent capsules calculated by m_step.
+e_step is mainly responsible for re-calculating the routing assignment (shape: 24, 6, 6, 288, 32, 1) after m_step updates the output activation $$a_j$$ and the Gaussian models with new $$\mu$$ and $$\sigma$$.
+
 ```python
 def e_step(o_mean, o_stdv, o_activations, votes):
   """The E-Step in EM Routing.
@@ -804,7 +806,7 @@ def e_step(o_mean, o_stdv, o_activations, votes):
 
 #### Class capsules
 
-Recall from a couple sections ago, the output of ConvCaps2 is feed into the Class capsules layer. In ConvCaps2, we generate a spatial dimension of 4x4 each with 32 capsules. Each capsule containing a 4x4 pose matrix and 1 activation value. So, in our example, the shape of the poses is (24, 4, 4, 32, 4, 4) for a batch size of 24. Comparing with ConvCaps, class capsules uses 1x1 filter and instead of generate a 2D spatial output (6x6 in ConvCaps1 and 4x4 in ConvCaps2), it outputs 10 capsules each representing one of the 10 classes in MNist. The code structure for the class capsules is very similar to the conv_capsule. It makes call to compute the votes and then use EM routing to compute the capsule outputs.
+Recall from a couple sections ago, the output of ConvCaps2 is feed into the Class capsules layer. In ConvCaps2, the output capsules have a spatial dimension of 4x4 and each location has 32 capsules. Each capsule contains a 4x4 pose matrix and 1 activation value. So, in our example with a batch size of 24, the shape of the poses is (24, 4, 4, 32, 4, 4). Class capsules uses a 1x1 filter. Instead of outputting a 2D spatial output (6x6 in ConvCaps1 and 4x4 in ConvCaps2), it outputs 10 capsules each representing one of the 10 classes in the MNist. The code structure for the class capsules is very similar to the conv_capsule. It makes call to compute the votes and then use EM routing to compute the capsule outputs.
 
 ```python
 def class_capsules(inputs, num_classes, iterations, batch_size, name):
