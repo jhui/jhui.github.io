@@ -874,7 +874,9 @@ def class_capsules(inputs, num_classes, iterations, batch_size, name):
         return poses, activations
 ```
 
-To integrate the spatial location of the predicted class in the class capsules, we add the scaled x, y coordinate of the center of the receptive field of each capsule in ConvCaps2 to the first two elements of the vote. This is called **Coordinate Addition**. According to the paper, this encourages the model to train the transformation matrix to produce values for those two elements to represent the position of the feature relative to the center of the capsule’s receptive field. The motivation of the coordinate addition is to have the first 2 elements of the votes ($$v^1_{jk}, v^2_{jk}$$) to predict the spatial coordinates (x, y) of the predicted class. Instead of just checking the presence of a feature, we force the system to verify the spatial relationship of features to avoid adversaries. i.e. if the spatial orders of features are wrong, their corresponding votes should not match.
+To integrate the spatial location of the predicted class in the class capsules, we add the scaled x, y coordinate of the center of the receptive field of each capsule in ConvCaps2 to the first two elements of the vote. This is called **Coordinate Addition**. According to the paper, this encourages the model to train the transformation matrix to produce values for those two elements to represent the position of the feature relative to the center of the capsule’s receptive field. The motivation of the coordinate addition is to have the first 2 elements of the votes ($$v^1_{jk}, v^2_{jk}$$) to predict the spatial coordinates (x, y) of the predicted class. 
+
+By retaining the spatial information in the capsule, we move beyond simply checking the presence of a feature. We encourage the system to verify the spatial relationship of features to avoid adversaries. i.e. if the spatial orders of features are wrong, their corresponding votes should not match.
 
 Here is the code.
 
