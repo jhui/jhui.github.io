@@ -206,11 +206,17 @@ $$
 a_j = sigmoid(\lambda(b_j - \sum_h cost^h_j))
 $$
 
-In the original paper, "$$-b_j$$" is explained as the cost of describing the mean and variance of capsule j. From the perspective of routing by agreement, I sometimes interpret "b" as a threshold in which how close the votes on $$j$$ needed to be on each other to activate $$j$$. $$b_j$$ is learned discriminatively using a cost function and the backpropagation. In EM routing, we use multiple iterations (default 3 iterations) to cluster the datapoints. λ is an inverse temperature parameter which increases after each EM routing iteration. For example, λ is first initialized to 1 at the beginning of the iterations and increment by 1 after each routing iteration. The exact scheme is not discussed in the paper and we should experiment different schemes during the training. 
+In the original paper, "$$-b_j$$" is explained as the cost of describing the mean and variance of capsule j. From the perspective of routing by agreement, I sometimes interpret "b" as a threshold in which how close the votes on $$j$$ needed to be on each other to activate $$j$$. $$b_j$$ is learned discriminatively using a cost function and the backpropagation. 
+
+Since we do not know the value for $$r_{ij}$$ and $$\sigma$$, we compute those values and $$a_j$$ iteratively using EM routing. λ in the equation above is an inverse temperature parameter which increases after each EM routing iteration. The exact schedule of the increase is not discussed in the paper and we should experiment different schemes during the training. In our implementation, λ is first initialized to 1 at the beginning of the iterations and then increment by 1 after each routing iteration.  
 
 #### EM Routing
 
-Here is the EM-routing in computing the capsule activation as well as the mean and the variance (Gaussian model) of the parent capsule.
+The pose matrix and the activation of the output capsules are computed iteratively using EM routing. The basic idea is:
+
+1. Calculate the Gaussian models ($$\mu$$ and $$\sigma$$) of the parent capsules based on the current routing assignment $$r_{ij}$$. Re-compute the cost and the activation $$a_j$$ based the equations above.
+2. Re-calculate $$r_{ij}$$ based on the new Gaussian model and $$a_j$$
+3. Re-iterate step 1 and 2 by $$t$$ times (default 3)
 
 <div class="imgcap">
 <img src="/assets/capsule/al1.png" style="border:none;width:40%">
@@ -238,17 +244,19 @@ In E-step, we re-calculate the assignment probability $$r_{ij}$$ based on the ne
 <img src="/assets/capsule/al1.png" style="border:none;width:40%">
 </div>
 
+#### Backpropagation and EM-routing
+
+In CNN, we use the formula below to calculate the activation of a neuron.
+
+$$
+y_j =  ReLU( \sum_{i} W_{ij} * x_i + b_{j} )
+$$
+
+However, in matrix capsules, we use EM-routing to compute the activation of a capsule and its pose matrix. Nevertheless, the matrix capsules still heavily depend on the backpropagation in training the transformation matrix $$W_{ij}$$ and the parameters $$ \beta_{\nu} $$ and $$ \beta_{\alpha}$$.
+ 
 #### Loss function (using Spread loss)
 
-Instead of using
-
-$$
-z_j =  \sum_{i} W_i * x_i + b_{i}
-$$
-
-to calculate the activation of a neuron, matrix capsules use EM-routing to compute the activation of a capsule and its pose matrix. Nevertheless, the matrix capsules still heavily depend on the backpropagation in training the transformation matrix $$W_{ij}$$ and the parameters $$ \beta_{\nu} $$ and $$ \beta_{\alpha}$$.
-
-The loss from the class $$i$$ (other than the true label $$t$$) is defined as
+We use spread loss as the main loss function for the backpropagation. The loss from the class $$i$$ (other than the true label $$t$$) is defined as
 
 $$
 L_i = (\max(0, m - (a_t - a_i)))^2 
@@ -262,9 +270,10 @@ $$
 L = \sum_{i \neq t} (\max(0, m - (a_t - a_i)))^2 
 $$
 
-
 If the margin between the true label and the wrong class is smaller than $$m$$, we penalize it by the 
-square of $$m - (a_t - a_i)$$. $$m$$ is initially start as 0.2 and linearly increased by 0.1 after each epoch training. $$m$$ will stop growing after reaching the maximum 0.9. Starting at a lower margin helps the training to avoid too many dead capsules during the early phase.
+square of $$m - (a_t - a_i)$$. $$m$$ is initially start as 0.2 and linearly increased by 0.1 after each epoch training. $$m$$ will stop growing after reaching the maximum 0.9. Starting at a lower margin helps the training to avoid too many dead capsules during the early phase. 
+
+Other implementations add regularization loss and reconstruction loss to the loss function. Since those are not specific to the matrix capsule, we will simply mention here without further elaboration.
 
 ### Capsule Network
 
@@ -311,7 +320,14 @@ The capsule output of ConvCaps1 is then feed into ConvCaps2. ConvCaps2 is anothe
  
 The output capsules of ConvCaps2 are connected to the Class Capsules using a 1x1 filter and it has one capsule per class. (In MNist, we have 10 classes $$E=10$$) 
 
-We use EM routing to compute the pose matrices and the output activations for ConvCaps1, ConvCaps2 and Class Capsules. In CNN, we slide the same filter over the spatial dimension in calculating the same feature map. i.e. we want to detect the same feature regardless of the location. In EM routing, we share the same transformation matrix $$W_{ij}$$ regardless of its spatial location in calculating the votes from capsule $$i$$ to capsule $$j$$. For example, from ConvCaps1 to ConvCaps2, we have 32 input capsules and 32 output capsules. The filter size is 3x3 and the capsule's pose matrix is 4x4. Hence, we require 3x3x32x32x4x4 parameters.
+We use EM routing to compute the pose matrices and the output activations for ConvCaps1, ConvCaps2 and Class Capsules. In CNN, we slide the same filter over the spatial dimension in calculating the same feature map. i.e. we want to detect the same feature regardless of the location. Similarly, in EM routing, we share the same transformation matrix $$W_{ij}$$ regardless of its spatial location in calculating the votes from capsule $$i$$ to capsule $$j$$. 
+
+For example, in ConvCaps1 to ConvCaps2, we have 
+* filter size is 3x3 
+* 32 input and output capsules
+* pose matrix is 4x4
+
+Since we share the transformation matrix, we just need 3x3x32x32x4x4 parameters.
 
 Here is the code in building our layers:
 ```python
@@ -384,7 +400,7 @@ def conv2d(inputs, kernel, out_channels, stride, padding, name, is_train=True, a
 
 #### PrimaryCaps
 
-PrimaryCaps is not much difference from a CNN layer: instead of generating 1 scalar value, we generate out_capsules (32) capsules with 4 x 4  scalar values for the pose matrices and 1 scalar for the activation:
+PrimaryCaps is not much difference from a CNN layer: instead of generating 1 scalar value, we generate 32 capsules with 4 x 4  scalar values for the pose matrices and 1 scalar for the activation:
 ```python
 def primary_caps(inputs, kernel_size, out_capsules, stride, padding, pose_shape, name):
     """This constructs a primary capsule layer using regular convolution layer.
@@ -442,8 +458,8 @@ ConvCaps1 and ConvCaps are both convolution capsule with stride 2 and 1 respecti
 The code involves 3 major steps:
 
 * Use kernel_tile to tile (convolute) the pose matrices and the activation to be used later in voting and EM routing.
-* Call mat_transform to generate the votes from the children "tiled" pose matrices and the transformation matrices.
-* Call matrix_capsules_em_routing to compute the output capsules (pose and activation) of the parent capsule.
+* Compute votes: call mat_transform to generate the votes from the children "tiled" pose matrices and the transformation matrices.
+* EM-routing: call matrix_capsules_em_routing to compute the output capsules (pose and activation) of the parent capsule.
 
 ```python
 def conv_capsule(inputs, shape, strides, iterations, batch_size, name):
@@ -602,7 +618,7 @@ def mat_transform(input, output_cap_size, size):
 <img src="/assets/capsule/al1.png" style="border:none;width:40%">
 </div>
 
-Here is the code implementation for the EM routing which calling m_step and e_step alternatively. By default, we ran the iterations 3 times. The main purpose of the EM routing is to compute the pose matrices and the activations. In the last iteration, the m_step already complete the last calculation of those parameters. Therefore we can skip the e_step in the last iteration which mainly responsible for re-calculating the routing assignment.
+Here is the code implementation for the EM routing which calling m_step and e_step alternatively. By default, we ran the iterations 3 times. The main purpose of the EM routing is to compute the pose matrices and the activations of the output capsules. In the last iteration, the m_step already complete the last calculation of those parameters. Therefore we skip the e_step in the last iteration which mainly responsible for re-calculating the routing assignment $$r_{ij}$$. The comments contain the tracing of the shape of tensors in ConvCaps1. 
 
 ```python
 def matrix_capsules_em_routing(votes, i_activations, beta_v, beta_a, iterations, name):
@@ -698,10 +714,9 @@ The algorithm for the m-steps.
 <img src="/assets/capsule/al2.png" style="border:none;width:90%">
 </div>
 
-The following is the code listing of the m-step method. The comment traces the shape of the Tensors under the following conditions: a batch size of 24, 32 input capsules and output capsules, 3x3 kernels, 4x4=16 pose matrix and an output spatial dimension of 6x6.
-
 m_step computes the mean and the variance of the parent capsules. Means and variances have the shape of (24, 6, 6, 1, 32, 16) and (24, 6, 6, 1, 32, 1) respectively in ConvCaps1.
 
+The following is the code listing of the m-step method. 
 ```python
 def m_step(rr, votes, i_activations, beta_v, beta_a, inverse_temperature):
   """The M-Step in EM Routing from input capsules i to output capsule j.
@@ -813,7 +828,7 @@ Recall from a couple sections ago, the output of ConvCaps2 is feed into the Clas
 * 32 output channels
 * 4x4 pose matrix
 
-Instead of using a 3x3 filter in ConvCaps2. Class capsules use a 1x1 filter. Also, nstead of outputting a 2D spatial output (6x6 in ConvCaps1 and 4x4 in ConvCaps2), it outputs 10 capsules each representing one of the 10 classes in the MNist. The code structure for the class capsules is very similar to the conv_capsule. It makes call to compute the votes and then use EM routing to compute the capsule outputs.
+Instead of using a 3x3 filter in ConvCaps2, Class capsules use a 1x1 filter. Also, instead of outputting a 2D spatial output (6x6 in ConvCaps1 and 4x4 in ConvCaps2), it outputs 10 capsules each representing one of the 10 classes in the MNist. The code structure for the class capsules is very similar to the conv_capsule. It makes calls to compute the votes and then use EM routing to compute the capsule outputs.
 
 ```python
 def class_capsules(inputs, num_classes, iterations, batch_size, name):
