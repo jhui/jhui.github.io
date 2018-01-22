@@ -806,7 +806,14 @@ def e_step(o_mean, o_stdv, o_activations, votes):
 
 #### Class capsules
 
-Recall from a couple sections ago, the output of ConvCaps2 is feed into the Class capsules layer. In ConvCaps2, the output capsules have a spatial dimension of 4x4 and each location has 32 capsules. Each capsule contains a 4x4 pose matrix and 1 activation value. So, in our example with a batch size of 24, the shape of the poses is (24, 4, 4, 32, 4, 4). Class capsules uses a 1x1 filter. Instead of outputting a 2D spatial output (6x6 in ConvCaps1 and 4x4 in ConvCaps2), it outputs 10 capsules each representing one of the 10 classes in the MNist. The code structure for the class capsules is very similar to the conv_capsule. It makes call to compute the votes and then use EM routing to compute the capsule outputs.
+Recall from a couple sections ago, the output of ConvCaps2 is feed into the Class capsules layer. The output poses for ConvCaps2 has a shape of (24, 4, 4, 32, 4, 4). 
+
+* batch size of 24
+* 4x4 spatial output
+* 32 output channels
+* 4x4 pose matrix
+
+Instead of using a 3x3 filter in ConvCaps2. Class capsules use a 1x1 filter. Also, nstead of outputting a 2D spatial output (6x6 in ConvCaps1 and 4x4 in ConvCaps2), it outputs 10 capsules each representing one of the 10 classes in the MNist. The code structure for the class capsules is very similar to the conv_capsule. It makes call to compute the votes and then use EM routing to compute the capsule outputs.
 
 ```python
 def class_capsules(inputs, num_classes, iterations, batch_size, name):
@@ -880,7 +887,7 @@ To integrate the spatial location of the predicted class in the class capsules, 
 
 By retaining the spatial information in the capsule, we move beyond simply checking the presence of a feature. We encourage the system to verify the spatial relationship of features to avoid adversaries. i.e. if the spatial orders of features are wrong, their corresponding votes should not match.
 
-The pseudo code below illustrates the key idea. The pose matrices for the ConvCaps2 output has the shape of (24, **4, 4**, 32, 4, 4).  i.e. a spatial dimension of 4x4. We use the location of the capsule to locate the corresponding element in c1 below (a 4x4 matrix) which contains the scaled x coordinate of the center of the receptive field of the spatial capsule. We add the value to $$v^1_{jk}$$. For the second element $$v^2_{jk}$$ of the vote, we repeat the same process using c2.
+The pseudo code below illustrates the key idea. The pose matrices for the ConvCaps2 output has the shape of (24, **4, 4**, 32, 4, 4).  i.e. a spatial dimension of 4x4. We use the location of the capsule to locate the corresponding element in c1 below (a 4x4 matrix) which contains the scaled x coordinate of the center of the receptive field of the spatial capsule. We add this element value to $$v^1_{jk}$$. For the second element $$v^2_{jk}$$ of the vote, we repeat the same process using c2.
 
 ```
 # Spatial output of ConvCaps2 is 4x4
