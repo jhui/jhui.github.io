@@ -280,7 +280,7 @@ The smallNORB dataset has 5 toy classes: airplanes, cars, trucks, humans and ani
 
 #### Architect
 
-However, many code implementation starts with the MNist dataset because the image size is smaller. So for our demonstration, we also pick the MNist dataset.
+However, many code implementations start with the MNist dataset because the image size is smaller. So for our demonstration, we also pick the MNist dataset.
 
 <div class="imgcap">
 <img src="/assets/capsule/cape.png" style="border:none;">
@@ -880,8 +880,28 @@ To integrate the spatial location of the predicted class in the class capsules, 
 
 By retaining the spatial information in the capsule, we move beyond simply checking the presence of a feature. We encourage the system to verify the spatial relationship of features to avoid adversaries. i.e. if the spatial orders of features are wrong, their corresponding votes should not match.
 
-Here is the code.
+The pseudo code below illustrates the key idea. The pose matrices for the ConvCaps2 output has the shape of (24, **4, 4**, 32, 4, 4).  i.e. a spatial dimension of 4x4. We use the location of the capsule to locate the corresponding element in c1 below (a 4x4 matrix) which contains the scaled x coordinate of the center of the receptive field of the spatial capsule. We add the value to $$v^1_{jk}$$. For the second element $$v^2_{jk}$$ of the vote, we repeat the same process using c2.
 
+```
+# Spatial output of ConvCaps2 is 4x4
+v1 = [[[8.],  [12.], [16.], [20.]],
+      [[8.],  [12.], [16.], [20.]],
+      [[8.],  [12.], [16.], [20.]],
+      [[8.],  [12.], [16.], [20.]],
+     ]
+
+v2 = [[[8.],  [8.],  [8.],  [8]],
+      [[12.], [12.], [12.], [12.]],
+      [[16.], [16.], [16.], [16.]],
+      [[20.], [20.], [20.], [20.]]
+         ]
+
+c1 = np.array(v1, dtype=np.float32) / 28.0
+c2 = np.array(v2, dtype=np.float32) / 28.0
+```
+
+
+Here is the final code which looks far more complicated in order to handle any image size.
 ```python
 def coord_addition(votes, H, W):
     """Coordinate addition.
@@ -917,25 +937,6 @@ def coord_addition(votes, H, W):
     return votes
 ```
 
-The code above behaves similar to adding the corresponding values in c1 below to $$v^1_{jk}$$. ConvCaps2 output capsules has a spatial dimension of 4x4 (Note, this is the spatial dimension not the 4x4 pose matrix). We use the location of the capsule to locate the corresponding element in c1 below (a 4x4 matrix) which contains the scaled x coordinate of the center of the receptive field of the spatial capsule. We add the value to $$v^1_{jk}$$. Then we repeat c2 for the vote element $$v^2_{jk}$$. 
-
-```
-# Spatial output of ConvCaps2 is 4x4
-v1 = [[[8.],  [12.], [16.], [20.]],
-      [[8.],  [12.], [16.], [20.]],
-      [[8.],  [12.], [16.], [20.]],
-      [[8.],  [12.], [16.], [20.]],
-     ]
-
-v2 = [[[8.],  [8.],  [8.],  [8]],
-      [[12.], [12.], [12.], [12.]],
-      [[16.], [16.], [16.], [16.]],
-      [[20.], [20.], [20.], [20.]]
-         ]
-
-c1 = np.array(v1, dtype=np.float32) / 28.0
-c2 = np.array(v2, dtype=np.float32) / 28.0
-```
 		  
 ### Spread loss
 
