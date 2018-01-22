@@ -1034,7 +1034,7 @@ Part of the code implementation in computing the vote and the EM-routing is modi
 * Configure the mnist_config.py and cap_config.py according to your environment. 
 * Run the download_and_convert_mnist.py before running train.py.
 
-Please note that the source code is for illustration purpose with no support at this moment. Readers should refer to other implementations if you can not self trouble shoot the issues. Zhang's implementation seems easier to understand but Yang implementation is closer to the original paper.
+Please note that the source code is for illustration purpose with no support at this moment. Readers may refer to other implementations if you have problems to trouble shooting any issues that may come up. Zhang's implementation seems easier to understand but Yang implementation is closer to the original paper.
 
 
 
