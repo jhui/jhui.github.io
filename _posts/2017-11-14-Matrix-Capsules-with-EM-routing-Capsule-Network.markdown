@@ -1013,7 +1013,7 @@ The error rate for the Capsule network is generally lower than a CNN model with 
 
 (Source from the Matrix capsules with EM routing paper)
 
-The core idea of FGSM (fast gradient sign method) adversary is to add some noise on every step of optimization to drift the classification away from the target class. We optimize the image to maximize the error based on the gradient information. Matrix routing is shown to be less vulnerable to FGSM adversaries comparing to CNN.
+The core idea of FGSM (fast gradient sign method) adversary is to add some noise on every step of optimization to drift the classification away from the target class. It slightly modifies the image to maximize the error based on the gradient information. Matrix routing is shown to be less vulnerable to FGSM adversaries comparing to CNN.
 
 ### Visualization
 
