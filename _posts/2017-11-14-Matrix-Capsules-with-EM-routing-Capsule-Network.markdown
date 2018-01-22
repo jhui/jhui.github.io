@@ -309,7 +309,7 @@ PrimaryCaps is followed by a **convolution capsule layer** ConvCaps1 using a 3x3
 
 The capsule output of ConvCaps1 is then feed into ConvCaps2. ConvCaps2 is another convolution capsule layer but with a stride of 1. 
  
-The output capsules of ConvCaps2 are connected to the Class Capsules using a 1x1 filter and it has one capsule per class. (In MNist, we have 10 classes $$E=5$$) 
+The output capsules of ConvCaps2 are connected to the Class Capsules using a 1x1 filter and it has one capsule per class. (In MNist, we have 10 classes $$E=10$$) 
 
 We use EM routing to compute the pose matrices and the output activations for ConvCaps1, ConvCaps2 and Class Capsules. In CNN, we slide the same filter over the spatial dimension in calculating the same feature map. i.e. we want to detect the same feature regardless of the location. In EM routing, we share the same transformation matrix $$W_{ij}$$ regardless of its spatial location in calculating the votes from capsule $$i$$ to capsule $$j$$. For example, from ConvCaps1 to ConvCaps2, we have 32 input capsules and 32 output capsules. The filter size is 3x3 and the capsule's pose matrix is 4x4. Hence, we require 3x3x32x32x4x4 parameters.
 
