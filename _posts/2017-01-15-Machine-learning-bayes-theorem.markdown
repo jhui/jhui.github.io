@@ -258,16 +258,15 @@ How far the posterior will move towards to the new evidence? It depends on the s
 
 ### Beta distribution for prior
 
-In this section, we show how to use beta distribution to model the prior to solve the posterior in the example above.
-
 The definition of a beta distribution is:
 
 $$
 \begin{align} 
-P(\theta \vert a, b) = \frac{\theta^{a-1} (1-\theta)^{b-1}} {B(a, b)}
-& \propto \theta^{a-1} (1-\theta)^{b-1}
+P(\theta \vert a, b) = \frac{\theta^{a-1} (1-\theta)^{b-1}} {B(a, b)} 
 \end{align}
 $$
+
+where $$a$$ and $$b$$ are parameters for the beta distribution.
 
 For discret variable, the beta function $$B$$ is defined as:
 
@@ -286,19 +285,27 @@ B(a, b) = \int^1_0 \theta^{a-1} (1-\theta)^{b-1} d\theta
 \end{align}
 $$
 
-Here are the beta distribution for different values of a and b. For $$a=b=1$$, the probability is uniformly distributed:  
+For our discussion, let $$\theta$$ be the infection rate of the flu. With Bayes' theorem, we study the probabilities of different infection rates rather than just finding the most likely infection rate. The prior $$P(\theta)$$ is the belief on the probabilities for different infection rates. $$P(\theta=0.3) = 0.6$$ means the probability that the infection rate equals to 0.3 is 0.6. If we know nothing about this flu, we use an uniform probability distribution for $$P(\theta)$$ in Bayes' theorem and assume any infection rate is equally likely. 
+
+We use Beta function to model our belief. We set $$a=b=1$$ in the beta distribution for an uniform probability distribution. The following plots the distribution $$P(\theta)$$:
+
 <div class="imgcap">
 <img src="/assets/ml/c1.png" style="border:none;width:20%">
 </div>
 
-For $$a=10, b=1$$:
+Different values of $$a$$ and $$b$$ result in different probability distribution. For $$a=10, b=1$$, the probability peaks towards $$ \theta=1$$ :
 <div class="imgcap">
 <img src="/assets/ml/c2.png" style="border:none;width:20%">
 </div>
 
-For $$a=1, b=10$$:
+For $$a=1, b=10$$, the probability peaks towards $$ \theta=0$$:
 <div class="imgcap">
 <img src="/assets/ml/c3.png" style="border:none;width:20%">
+</div>
+
+For example, we can start with some prior information about the infection rate of the flu. For example, for $$a=2, b=3$$, we set the peak around 0.35:
+<div class="imgcap">
+<img src="/assets/ml/c5.png" style="border:none;width:20%">
 </div>
 
 For $$a=b=0.5$$:
@@ -306,64 +313,74 @@ For $$a=b=0.5$$:
 <img src="/assets/ml/c4.png" style="border:none;width:20%">
 </div>
 
-For $$a=2, b=3$$:
-<div class="imgcap">
-<img src="/assets/ml/c5.png" style="border:none;width:20%">
-</div>
 
-We can model the likeliness with a Binomial distribution
+We model the likeliness $$P(data \vert \theta)$$ of our observed data given a specific infection rate with a Binomial distribution. For example, what is the possibility of seeing 4 infections (variable x) out of 10 (N) samples given the infection rate $$\theta$$.
 
 $$
 \begin{align} 
-P(x \vert \theta) & = {N \choose x} \theta^{x} (1-\theta)^{N-x}
+P(data \vert \theta) & = {N \choose x} \theta^{x} (1-\theta)^{N-x}
 \end{align}
 $$
 
-Let's apply the Bayes theorem to calculate the posterior:
+Let's apply the Bayes theorem to calculate the posterior $$ P(\theta \vert data) $$: the probability distribution function for $$\theta$$ given the observed data. We usually remove constant terms from the equations because we can always re-normalize the graph later if needed.
+ 
+$$
+\begin{align} 
+P(data \vert \theta) & \propto \theta^x(1-\theta)^{N-x} & \text{ (model with a Binomial distribution) }\\
+P(\theta) & \propto \theta^{a-1} (1-\theta)^{b-1} & \text{ (model as a beta distribution) }\\
+\end{align}
+$$
+
+Using Bayes' theorem:
 
 $$
 \begin{align} 
-P(data \vert \theta) & \propto \theta^x(1-\theta)^{N-x} \\
-P(\theta) & = \theta^{a-1} (1-\theta)^{b-1} \quad \text{ (use beta distribution) }\\
-\\
-P(\theta \vert data) & = \frac{P(data \vert \theta) \times P(\theta)}{P(data)} \\
-& \propto P(data \vert \theta) \times P(\theta) \\
+P(\theta \vert data) & = \frac{P(data \vert \theta)  P(\theta)}{P(data)} \\
+& \propto P(data \vert \theta) P(\theta) \\
 & \propto \theta^{a + x -1} (1-\theta)^{N + b -x -1} \\ 
 & = B(a+x, N + b - x)
 \end{align}
 $$
 
-If we start with a uniformed distributed prior $$P(\theta) = B(1, 1)$$ which is a good start if we do not have any prior knowledge of $$\theta$$ (say the infection rate of a decease.).
+We start with a Beta function for the prior and end with another Beta function as the posterior. Pior is a **conjugate prior** if the posterior is the same class of function as the prior. As shown below, this helps us to calculate the posterior much easier.
+
+We start with the uniformed distributed prior $$P(\theta) = B(1, 1)$$ assuming we have no prior knowledge on the infection rate. $$\theta$$ is equally likely for any values between [0, 1]. 
 
 <div class="imgcap">
 <img src="/assets/ml/c1.png" style="border:none;width:20%">
 </div>
 
-and we have $$ N=10, x=3 $$ (say 3 infections out of 10 samples), the posterior will be $$B(1+3, 10 + 1 - 3) = B(4, 8)$$ which has a peak at 0.3 which is the same as the maximum likeliness estimation from our sample:
+For the first set of sample, we have 3 infections our of a sample of 10. ($$ N=10, x=3 $$) The posterior will be $$B(1+3, 10 + 1 - 3) = B(4, 8)$$ which has a peak at 0.3. Even assuming no prior knowledge (an uniform distribution), Bayes' theorem arrives with a posterior peaks at the maximum likeliness estimation (0.3) from the first sample data.
 
 <div class="imgcap">
 <img src="/assets/ml/b11.png" style="border:none;width:20%">
 </div>
 
-If we start with a biased prior $$B(10, 1)$$ geared towards 100% infection:
+Just for discussion, we can start with a biased prior $$B(10, 1)$$ which peak at 100% infection:
 
 <div class="imgcap">
 <img src="/assets/ml/c2.png" style="border:none;width:20%">
 </div>
 
-and we have $$ N=10, x=3 $$, the posterior will be $$B(a+x, N + b - x) = B(10+3, 10 + 1 - 3) = B(13, 8)$$ with $$\theta$$ peak at 0.62.
+The observed sample ($$ N=10, x=3 $$) will produce the posterior:
+
+$$B(a+x, N + b - x) = B(10+3, 10 + 1 - 3) = B(13, 8)$$ with $$\theta$$ peak at 0.62.
 
 <div class="imgcap">
 <img src="/assets/ml/b12.png" style="border:none;width:20%">
 </div>
 
-By increase the sampling size to $$ N=100, x=30$$, the posterior move closer to the maximum likeliness. $$B(10+30, 100 + 1 - 30) = B(40, 71)$$ 
+Let's say a second set of samples came in 1 week later with $$ N=100, x=30$$. We can update the posterior again. 
+
+$$B(10+30, 100 + 1 - 30) = B(40, 71)$$
+
+As shown, the posterior's peak moves closer to the maximum likeliness to correct the previous bias.
 
 <div class="imgcap">
 <img src="/assets/ml/b13.png" style="border:none;width:20%">
 </div>
 
-When we enter a new flu season, our new sampling size for the new Flu strain is small. The error can be large if we just use this small sampling data to compute the infection rate. Instead, we use prior knowledge to compute a prior for the infection rate for the last 12 months. Then we use Bayes theorem with the prior and the likeliness to compute the posterior infection probability. When data size is small, the posterior rely more on the prior but once the sampling size increases, it readjust itself to the new sample. Hence, Bayes theorem can give better prediction when sample size is small while re-adjust the prediction according to the size of the sampling data.
+When we enter a new flu season, our new sampling size for the new Flu strain is small. The sampling error can be large if we just use this small sampling data to compute the infection rate. Instead, we use prior knowledge (the last 12 months data) to compute a prior for the infection rate. Then we use Bayes theorem with the prior and the likeliness to compute the posterior probability. When data size is small, the posterior rely more on the prior but once the sampling size increases, it re-adjusts itself to the new sample data. Hence, Bayes theorem can give better prediction.
 
 ### Programming
 
