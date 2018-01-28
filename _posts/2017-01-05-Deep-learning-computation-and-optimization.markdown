@@ -155,7 +155,7 @@ $$
 
 #### Learning rate
 
-With Taylor series
+With Taylor series in 2nd order:
 
 $$
 \begin{split}
@@ -165,7 +165,7 @@ f(x^0 - \epsilon g) & \approx f(x^0) - \epsilon g^T g + \frac{1}{2} \epsilon^2 g
 \end{split}
 $$
 
-If $$\epsilon$$ is too large,  the term $$\epsilon^2 g^T H  g$$ may cause $$f(x)$$ to go up again. The optimal step for $$\epsilon$$ is (assume $$\epsilon>0$$):
+If $$g^T H g$$ is negative or 0, $$f(x)$$ decreases as $$ϵ$$ increases. However, we cannot drop $$ϵ$$ too far as the accuracy of the Taylor series drops as $$ϵ$$ increases. If $$g^T H g$$ is positive, it may cause $$f(x)$$ to go up again. The optimal step for $$\epsilon$$ is (assume $$\epsilon>0$$):
 
 $$
 \begin{split}
@@ -405,11 +405,6 @@ Otherwise, the in-equality constrain becomes the equality constraint $$h(x^{*})=
 <div class="imgcap">
 <img src="/assets/ml/lag.png" style="border:none;width:60%">
 </div>
-
-
-
-
-
 
 ### Terms
 
