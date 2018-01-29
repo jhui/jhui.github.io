@@ -14,7 +14,8 @@ date: 2017-01-05 12:00:00
 Transpose:
 
 $$
-(AB)^T = B^TA^T
+(AB)^T = B^TA^T \\
+(A + B)^T = A^T + B^T \\
 $$
 
 $$
@@ -124,6 +125,13 @@ In machine learning, many equations in calculating elements between $$i \leftrig
 
 $$
 A A^{-1} = I
+$$
+
+Properties:
+
+$$
+(AB)^{-1} = B^{-1} A^{-1}\\
+(A^T)^{-1} = (A^{-1})^T
 $$
 
 Solving linear equation with an inverse matrix:
@@ -453,47 +461,73 @@ Other properties:
 
 $$
 \begin{split}
+Tr(A) &= \sum_i \lambda_i \quad \text{sum of eigenvalues.}\\
 Tr(A) & = Tr(A^T) \\
 Tr(AB) & = Tr(BA) \\
 Tr(ABC) & = Tr(CAB) = Tr(BCA)   \quad \text{move first element to the end or vice versa.} \\
 \end{split}
 $$
 
-
-### PCA
+### Derivative of matrix
 
 $$
-c = f(x) \\
-x^{'} = g(c) \\
+\begin{split}
+\frac{\partial x^Ta}{\partial x} & = \frac{\partial a^T x}{\partial x} = a \\
+\\
+\frac{\partial a^TXb}{\partial X} & =  a b^T \\
+\\
+\frac{\partial a^TX^Tb}{\partial X} & =  b a^T \\
+\\
+\frac{\partial a^TXa}{\partial X} & =  \frac{\partial a^TX^Ta}{\partial X}  = a a^T \\
+\\
+\frac{\partial b^TX^TXc}{\partial X} & =  X(b c^T + cb^T) \\
+\end{split}
 $$
 
-Using a matrix for transformation:
+
+### Principal Component Analysis (PCA)
+
+PCA encodes a n-dimensional input space into an m-dimensional output space with $$n > m$$. We want to minimize the amount of information lost during the reduction and minimize the difference if it is  reconstructed. 
+
+Let's $$f$$ and $$g$$ be the encoder and the decoder:
+
+$$
+\begin{split}
+c & = f(x) \quad \text{which } x \in \mathbb{R}^{n}\\
+x^{'} & = g(c) \\
+\end{split}
+$$
+
+We apply a linear transformation to decode $$c$$. We constraint $$D$$ to be a matrix $$\mathbb{R}^{n \times m}$$ composed of columns that is orthogonal to each other with unit norm. (i.e. $$D^TD = I_l$$.)
+
 $$
 g(c) = Dc
 $$
 
-PCA constrains the columns of $$D$$ to be orthogonal to each other with magnitude 1.
-
-PCA minimize the 
+PCA uses L2-norm to minimize the reconstruction error. 
 
 $$
 c^∗= \arg \min_c \|x − g(c)\|_2^2
 $$
 
+Compute L2-norm:
+
 $$
 \begin{split}
 (x − g(c))^T(x − g(c)) &= (x^T − g(c)^T)(x − g(c)) \\
-&= x^Tx -x^Tg(c) - g(c)^Tx - g(c)^Tg(c) \\
-&= x^Tx - 2x^Tg(c) - g(c)^Tg(c) \\
+&= x^Tx -x^Tg(c) - g(c)^Tx - g(c)^Tg(c) \\ 
+&= x^Tx - 2x^Tg(c) - g(c)^Tg(c) \quad \text{since }g(c)^Tx \text{ is a scalar and } s^T=s \\ 
 \end{split}
 $$
+
+Optimize $$c$$:
 
 $$
 \begin{split}
 c^∗ &= \arg \min_c x^Tx - 2x^Tg(c) - g(c)^Tg(c) \\
-&= \arg \min_c - 2x^Tg(c) - g(c)^Tg(c) \\
+&= \arg \min_c - 2x^Tg(c) - g(c)^Tg(c) \quad \text{the optimal point remains the same without the constant. terms}\\
 &= \arg \min_c - 2x^TDc - c^TD^TDc \\
-&= \arg \min_c - 2x^TDc - c^TIc \quad \text{apply the constraint of D by PCA}\\
+&= \arg \min_c - 2x^TDc - c^TIc \quad \text{since }  D \text{ is orthongonal: } D^TD = I.\\
 &= \arg \min_c - 2x^TDc - c^Tc \\
 \end{split}
 $$
@@ -511,33 +545,48 @@ $$
 So, the optimize encode and decode scheme is 
 
 $$
-c = D^Tx \\
-x^{'} = Dc
-x^{'} = D D^Tx
+c = f(x) = D^Tx \\
+x^{'} = g(c) = Dx = D  D^Tx \\
+r(x) = D  D^Tx  \quad \text{reconstuction.}\\
 $$
 
-Let's assume the constraint $$D D^T=I $$, and since $$DD^Tx^i_j$$ is scalar, we can just take a transpose to $$XDD^T$$ and we assume $$c$$ is 1-D.
+To find the optimal transformation $$D^{*}$$, we want to optimize $$D$$ over all datapoint $$x^{(i)}$$:
+
+$$
+D^{*} = \arg \min_D \sum_{ij} \| \big( x^{(i)}_j - r(x^{(i)})_j \big)  \|^2 \quad \text{which } D^TD = I_l.
+$$ 
+
+Let's consider $$l=1$$, so D is just a vector $$d$$.
 
 $$
 \begin{split}
-D^∗ &= \arg \min_D \sum_{ij} \|x^i_j - DD^Tx^i_j)\|^2_2  \\
-&= \arg \min_D \|X - XDD^T\|^2_2  \\
-&= \arg \min_D Tr((X - XDD^T)^T(X - XDD^T))  \\
-&= \arg \min_D Tr( X^TX −X^TXDD^T− DD^TX^TX + DD^TX^TXDD^T )\\
-&= \arg \min_D Tr( −X^TXDD^T− DD^TX^TX + DD^TX^TXDD^T ) \quad \text{ take away terms not depend on D}\\
-&= \arg \min_D Tr( −2X^TXDD^T  + DD^TX^TXDD^T ) \\
-&= \arg \min_D Tr( −2X^TXDD^T  + X^TXDD^TDD^T ) \\
-&= \arg \min_D Tr( −2X^TXDD^T  + X^TXDD^T ) \quad \text{ apply } D D^T=I \\
-&= \arg \min_D -Tr( X^TXDD^T ) \\
-&= \arg \max_D Tr( X^TXDD^T ) \\
-&= \arg \max_D Tr( D^TX^TXD ) \\
+d^{*}  & = \arg \min_D \sum_{ij} \| \big( x^{(i)} - d d^T x^{(i)} \big)  \|^2_2 \quad \text{which } \| d \| = 1.\\
+d^{*}  & = \arg \min_D \sum_{ij} \| \big( x^{(i)} - d^T x^{(i)} d \big)  \|^2_2 \quad \text{move the scalar }d^T x^{(i)} \text{ to the front.}\\
+d^{*}  & = \arg \min_D \sum_{ij} \|  \big( x^{(i)} - x^{(i)T} d d \big) \|^2_2 \quad \text{transpose the scalar } d^T x^{(i)}.\\
+d^{*}  & = \arg \min_D \| \big( X - X d d^T \big)  \|^2_F \quad \text{which } \| d \| = 1. \\
+\end{split}
+$$ 
+
+where $$X$$ contains all datapoints.
+Xdd
+$$
+\begin{split}
+D^∗ &= \arg \min_D \|X - Xdd^T\|^2_F  \\
+&= \arg \min_D Tr((X - Xdd^T)^T(X - Xdd^T))  \\
+&= \arg \min_D Tr( X^TX −X^TXdd^T− dd^TX^TX + dd^TX^TXdd^T )\\
+&= \arg \min_D Tr( −X^TXdd^T− dd^TX^TX + dd^TX^TXdd^T ) \quad \text{ take away terms not depend on D} \\
+&= \arg \min_D -Tr(X^TXdd^T) − Tr(dd^TX^TX) + Tr(dd^TX^TXdd^T )  \\
+&= \arg \min_D -2Tr(X^TXdd^T)  + Tr(dd^TX^TXdd^T )  \\
+&= \arg \min_D -2Tr(X^TXdd^T)  + Tr(X^TXdd^Tdd^T )  \quad \text{cycle the order in Tr.} \\
+&= \arg \min_D -2Tr(X^TXdd^T)  + Tr(X^TXdd^T )  \quad \text{apply} \|d^Td\|=1 \\
+&= \arg \min_D -Tr(X^TXdd^T) \\
+&= \arg \max_D Tr(X^TXdd^T) \\
+&= \arg \max_D Tr(d^TX^TXd) \quad \text{subject to} \|d^Td\|=1 \\
 \end{split}
 $$
 
-By induction, we can expand $$c$$ to higher dimension.
-
-Optimal $$D$$ is given by the eigenvector of $$X^TX$$ corresponding to the largest eigenvalue.
-
+This equation can be solved using eigendecomposition. Optimal $$D$$ is the eigenvector of $$X^TX$$ that has the largest eigenvalue.
+ 
 ### Determinant
 
 The determinant of the matrix $$A$$ is the product of all eigenvalues. If the absolute value is greater than 1, $$Ax$$ expands the output space. If it is between 0 and 1, it shrinks the space.
