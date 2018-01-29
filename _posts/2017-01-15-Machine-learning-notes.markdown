@@ -49,6 +49,91 @@ $$
  
 > Simple model has high bias. Overfitting a high complexity model causes high variance.
 
+#### Example: Gaussian distribution estimator
+
+Gaussian equation:
+
+$$
+\mathcal{N}(x;μ, σ^2) = \frac{1}{\sigma\sqrt{2\pi}}e^{-(x - \mu)^{2}/2\sigma^{2} } 
+$$
+
+A common estimator for the Gaussian mean parameter:
+
+$$
+\begin{split}
+\hat{\mu}_m = \frac{1}{m} \sum^m_1 x_i \\
+\end{split}
+$$
+
+Estimate the Bias of the estimator:
+
+$$
+\begin{split}
+bias(\hat{\mu}_m ) &=  \mathbb{E}[\hat{\mu}_m ] - \mu \\
+&= \mathbb{E} [\frac{1}{m} \sum^m_1 x_i ] - \mu \\
+&= \frac{1}{m}  \mathbb{E} [\sum^m_1 x_i ] - \mu \\
+&= \frac{1}{m}  m \mathbb{E}[x_i] - \mu \\
+&= \mu - \mu \\
+&= 0 \\
+\end{split}
+$$
+
+Hence, our estimator for the Gaussian mean parameter has zero bias.
+
+Let's consider the following estimator for the Gaussian variance parameter:
+
+$$
+\begin{split}
+\hat{\sigma}^2_m = \frac{1}{m} \sum^m_{i=1} (x_i - \hat{\mu_m})^2 \\
+\end{split}
+$$
+
+Estimate the Bias of the estimator:
+
+$$
+\begin{split}
+bias(\hat{\sigma}^2_m) = \mathbb{E} [\hat{\sigma}^2_m] - \sigma^2
+\end{split}
+$$
+
+Calculate $$\mathbb{E} [\hat{\sigma}^2_m]$$ first:
+
+$$
+\begin{split}
+\mathbb{E} [\hat{\sigma}^2_m] & = \mathbb{E} [\frac{1}{m}\sum_{i = 1}^N (x_i - \mu_m)^2] = \frac{1}{m} \mathbb{E} [\sum_{i = 1}^m (x_i^2 - 2x_i \mu_m + \mu_m^2)]  \\
+& = \frac{1}{m} \big( \mathbb{E} [\sum_{i = 1}^m x_i^2] - \mathbb{E} [\sum_{i = 1}^m  2x_i \mu_m] + \mathbb{E} [\sum_{i = 1}^m  \mu_m^2)]  \big) \\
+& = \frac{1}{m} \big( \mathbb{E} [\sum_{i = 1}^m x_i^2] - \mathbb{E} [\sum_{i = 1}^m  2 \mu_m \mu_m] + \mathbb{E} [\sum_{i = 1}^m  \mu_m^2)]  \big) \\
+&= \frac{1}{m} \big( \mathbb{E} [\sum_{i = 1}^m x_i^2] -  \mathbb{E} [\sum_{i = 1}^m  \mu_m^2)] \big) \\
+&=  \mathbb{E} [x_m^2] -  \mathbb{E} [\mu_m^2)] \\
+& = \sigma_{x_m}^2 + \mu_{x_m}^2 -  \sigma_{\mu_m}^2 - \mu_{\mu_m}^2 \quad \text{since }\sigma^2 = \mathbb{E} [x^2] - \mu^2 \implies \mathbb{E} [x^2] = \sigma^2  + \mu^2 \\
+& = \sigma_{x_m}^2  -  \sigma_{\mu_m}^2  \quad \text{since } \mu_{x_m}^2 = \mu_{\mu_m}^2 \\
+& = \sigma_{x_m}^2  -  Var(\mu_m) \\ 
+& = \sigma_{x_m}^2  - Var( \frac{1}{m} \sum^m_{i=1} x_m) \\ 
+& = \sigma_{x_m}^2  -  \frac{1}{m^2}  Var(\sum^m_{i=1} x_m) \\ 
+& = \sigma_{x_m}^2  -  \frac{1}{m^2}  m \sigma_{x_m}^2 \\
+& = \frac{m-1}{m}  \sigma_{x_m}^2 \neq 0\\
+\end{split}
+$$
+
+Hence, this estimator is biased. Intuitively, we sometimes over-estimate and sometimes estimate $$\mu$$. By squaring it, we tends to over-estimate all the time and therefore the estimator has biases. The correct estimator for $$\sigma$$ is:
+
+$$
+\begin{split}
+\hat{\sigma}^2_m = \frac{1}{m-1} \sum^m_{i=1} (x_i - \hat{\mu_m})^2 \\
+\end{split}
+$$
+
+Proof:
+
+$$
+\begin{split}
+\mathbb{E} [\hat{\sigma}^2_m] & = \mathbb{E} [ \frac{1}{m-1}  \sum^m_{i=1} (x_i - \mu_m)^2 ] \\
+& = \frac{1}{m-1} \mathbb{E} [ \sum^m_{i=1} (x_i - \mu_m)^2 ]  \\
+& = \frac{1}{m-1} (m-1) \mathbb{E} [ \sigma^2_{x_m}] \quad \text{reuse the result from the calculations of } \mathbb{E} [\hat{\sigma}^2_m]. \\ 
+& = \sigma^2_{x_m} \\
+\end{split}
+$$
+
 ### L1 regularization
 
 $$
@@ -234,11 +319,11 @@ Manifold/Visualization
 	* MDS, IsoMap, t-sne
 Self-organized map
 Association rule
-	
-### Reference
 
-[Deep learning by Ian Goodfellow, Yoshua Bengio and Aaron Courville](http://www.deeplearningbook.org/)
+### No free lunch theorem
 
+What is the next number in the number sequence 2, 3, 5, 7, 11? It will be the next prime number 13. We do better than random guessing because there is a specific pattern in the data. Nevertheless, if we are provided more than one number sequence with all possible data combinations, we will never do better than random guessing. No free lunch theorem claims that If we build a model to make prediction over all possible input data distributions, we can not expect such model to do better than any other models or a random guesser. 
 
+> If you want to please everyone, you are not pleasing anyone.
 
-  
+Claiming one model is better than the other is not obvious. If a model is doing well in one training dataset, it may do poorly in another. Or we can always cherry pick data to make bad models look good. However, there will be patterns in the real life problems that we are interested in. But no free lunch theorem reminds us that a looking good model may do badly in real life if the data distribution of the training dataset is different than the one in real life. 

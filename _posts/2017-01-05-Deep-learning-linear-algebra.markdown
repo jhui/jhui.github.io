@@ -481,9 +481,38 @@ $$
 \frac{\partial a^TXa}{\partial X} & =  \frac{\partial a^TX^Ta}{\partial X}  = a a^T \\
 \\
 \frac{\partial b^TX^TXc}{\partial X} & =  X(b c^T + cb^T) \\
+\\
+\frac{\partial X^T B X}{\partial X} & =  (B + B^T)X \\
+\\
+\frac{\partial w^T X^Tx w}{\partial w} & =  ((x^Tx) + (x^Tx)^T)w = (x^Tx + x^Tx)w = 2x^Tx w \\
+\\
 \end{split}
 $$
 
+Example, Optimize mean square error of a linear regression.
+
+Given: 
+$$N$$ is the size of the dataset, 
+$$\hat{y} , y \in \mathbb{R}^N $$,
+$$ w \in \mathbb{R}^k  $$,
+$$ X \in \mathbb{R}^{N \times k}  $$.
+
+$$
+\begin{split}
+J & = \| \hat{y} - y \|^2\\
+J & = \| X w - y \|^2  \quad \text{Given} \hat{y} = X w \\  
+\nabla_w J  & = \nabla_w \| X w - y \|^2 \\
+& = \nabla_w (X w - y )^T (X w - y ) \\
+& = \nabla_w (w^T X^T - y^T) (X w - y ) \\
+& = \nabla_w (w^T X^T X w - w^T X^T y  - y^TX w + y^T y ) \\
+& = \nabla_w (w^T X^T X w - w^T X^T y  - (w^T X^T y)^T + y^T y ) \\
+& = \nabla_w (w^T X^T X w - 2 w^T X^T y  + y^T y ) \quad \text{since } w^T X^T y \text{ is scalar which equals to the transpose.}\\
+& = \nabla_w (w^T X^T X w - 2 w^T X^T y) \quad \text{remove terms not relative to } w. \\
+& = 2 X^T X - 2 X^T y \\
+\nabla_w J  & = 2 X^T X w - 2 X^T y = 0 \quad \text{set to 0 for the critical point.}\\
+w & = (X^T X)^{-1} X^T y \\
+\end{split}
+$$
 
 ### Principal Component Analysis (PCA)
 
