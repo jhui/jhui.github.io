@@ -3,8 +3,8 @@ layout: post
 comments: true
 mathjax: true
 priority: 990000
-title: “Deep learning - Probability.”
-excerpt: “Deep learning - Probability.”
+title: “Deep learning - Probability & distribution.”
+excerpt: “Deep learning - Probability & distribution.”
 date: 2017-01-05 12:00:00
 ---
 
