@@ -327,3 +327,8 @@ What is the next number in the number sequence 2, 3, 5, 7, 11? It will be the ne
 > If you want to please everyone, you are not pleasing anyone.
 
 Claiming one model is better than the other is not obvious. If a model is doing well in one training dataset, it may do poorly in another. Or we can always cherry pick data to make bad models look good. However, there will be patterns in the real life problems that we are interested in. But no free lunch theorem reminds us that a looking good model may do badly in real life if the data distribution of the training dataset is different than the one in real life. 
+
+
+### Central limit theorem
+
+The central limit theorem states that if we keep randomly sampling data from a distribution and compute its mean, the computed means will follow a normal distribution even the original data does not follow the normal distribution.
