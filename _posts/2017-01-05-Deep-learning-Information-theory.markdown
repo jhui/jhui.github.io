@@ -69,19 +69,20 @@ For a fair die, $$ H(X) = \log_2 6 \approx 2.59 $$. A fair die has more entropy 
 
 ### Cross entropy
 
-If entropy measures the minimum number of bits to encode information, cross entropy measures the minimum of bits to encode $$y$$ using the wrong optimized encoding scheme from $$\hat{y}$$.
+If entropy measures the minimum number of bits to encode information, cross entropy measures the minimum of bits to encode $$x$$ with distribution $$P$$ using the wrong optimized encoding scheme from $$Q$$.
 
 Cross entropy is defined as:
 
 $$
-H(y, \hat{y}) = - \sum_y p(y) \log p(\hat{y})
+H(P, Q) = - \sum_x P(x) \log Q(x)
 $$
 
-> Cross entropy is encoding y with the probability distribution from $$\hat{y}$$. In deep learning, $$\hat{y}$$ is often the probability distribution predicted by the learning model.
+> In deep learning, $$P$$ is the distribution of the true labels, and $$Q$$ is the probability distribution of the predictions from the deep network.
+
 
 ### KL Divergence
 
-In deep learning, we want a model to make data predictions with probability distribution resemble the distribution of our data labels. Such difference between 2 probability distributions can be measured by KL Divergence which is defined as:
+In deep learning, we want a model with data distribution $$Q$$ resemble the distribution $$P$$ from the model. Such difference between 2 probability distributions can be measured by KL Divergence which is defined as:
 
 $$
 \begin{split}
@@ -103,7 +104,7 @@ $$
 </div>
 (Source Wikipedia.)
 
-> In deep learning, Q is the probability distribution predicted by the learning model.
+KL-divergence is not commutative: $$D_{KL}(P \vert \vert Q)  \neq D_{KL}(Q \vert \vert P) $$.
 
 Recall:
 
@@ -128,20 +129,19 @@ $$
 
 So cross entropy is the sum of entropy and KL-divergence. Cross entropy $$H(P, Q)$$ is larger than $$H(P)$$ since we require extra amount of information (bits) to encode data with less optimized scheme from $$Q$$ if $$P \neq Q$$. Hence, KL-divergence is always positive for $$P \neq Q$$ or zero otherwise. 
 
-KL-divergence is not commutative: $$D_{KL}(P \vert \vert Q)  \neq D_{KL}(Q \vert \vert P) $$.
-
-$$H(P)$$ only depends on $$P$$: the probability distribution of the data. Since data distribution is un-changed with the model $$\theta$$ we build, **minimize the cross entropy is equivalent to minimize the KL-divergence**.
+$$H(P)$$ only depends on $$P$$: the probability distribution of the data. Since it is un-related with the model $$\theta$$ we build, we can treat $$H(P)$$ as a constant. Therefore, **minimizing the cross entropy is equivalent to minimize the KL-divergence**.
 
 $$
 \begin{split}
-\nabla_\theta  H(P, Q_\theta) & \equiv \nabla_\theta ( H(P) + D_{KL}(P \vert \vert Q_\theta) )	\\	 
- & \equiv \nabla_\theta D_{KL}(P \vert \vert Q_\theta) \\	 
+H(P, Q_\theta) & = H(P) + D_{KL}(P \vert \vert Q_\theta) 	\\	 
+\nabla_\theta  H(P, Q_\theta) & = \nabla_\theta ( H(P) + D_{KL}(P \vert \vert Q_\theta) )	\\	 
+ & = \nabla_\theta D_{KL}(P \vert \vert Q_\theta) \\	 
 \end{split}
 $$
 
 ### Maximum Likelihood Estimation
 
-We want to build a model with $$\hat\theta$$ that maximizes the probability of the observed data (a model that fits the data the best **Maximum Likelihood Estimation MLE**):
+We want to build a model with $$\hat\theta$$ that maximizes the probability of the observed data (a model that fits the data the best: **Maximum Likelihood Estimation MLE**):
 
 $$
 \begin{split}
@@ -149,7 +149,7 @@ $$
 \end{split}
 $$
 
-However, multiplications overflow or underflow easily. Since $$\log(x)$$ is monotonic, optimize $$log(f(x))$$ is the same as optimize $$f(x)$$. So instead of the MLE, we take the log and minimize the **negative log likelihood (NLL)**. We add the negative sign because the log of a probability invert the direction of $$p(x)$$.
+However, multiplications overflow or underflow easily. Since $$\log(x)$$ is monotonic, optimize $$log(f(x))$$ is the same as optimize $$f(x)$$. We add the negative sign because the log of a probability invert the direction of $$p(x)$$. So instead of the MLE, we take the $$\log$$ and minimize the **negative log likelihood (NLL)**. 
 
 $$
 \begin{split}
@@ -169,7 +169,7 @@ $$
  
 #### Putting it together
 
-We want to build a model that fits our data the best. We start with the maximum likelihood estimation (MLE) which later change to negative log likelihood to avoid overflow or underflow. Mathematically, the negative log likelihood and the cross entropy has the same equation. KL divergence is an alternative approach in solving the optimization problem. Even it has a different formula from the cross entropy, they both come up with the same solution.
+We want to build a model that fits our data the best. We start with the maximum likelihood estimation (MLE) which later change to negative log likelihood to avoid overflow or underflow. Mathematically, the negative log likelihood and the cross entropy have the same equation. KL divergence provides another perspective in optimizing a model. However, even they uses different formula, they both end up with the same solution.
 
 > Cross entropy is one common objective function in deep learning.
 
