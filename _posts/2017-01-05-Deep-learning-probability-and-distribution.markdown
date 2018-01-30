@@ -109,7 +109,7 @@ $$
 <img src="/assets/ml/ggg3.jpg" style="border:none;width:45%">
 </div>
 
-For example, $$P(H=0.6)$$ means what is the probability of finding the coin has a 0.6 chance of getting a tail. Of course, it is much lower than $$P(H=0.5)$$ if the coin is fair. We can use previous knowledge (including previous data) or assumption to define the prior at the beginning and re-adjust it with Bayes' theorem with observed evidence. $$P(E \vert H)$$ is the **likelihood** of the observed data $$E$$ given the belief. (say, the likelihood of observing 2 tails in the next 2 trails) For example, if $$H=0.6$$, the likelihood of seeing 2 tails are $$0.6 \times 0.6$$. The **posterior** $$P(H \vert E)$$ is the updated belief using Bayes' equation above after taking the observed data into account. Since we see more tails in our evidence, the peak of $$P(H \vert E)$$ is shifted to the right. As suspected, we are dealing with a series of probabilities rather than one single value. However, with the beta function, this can be done easily. 
+For example, $$P(H=0.6)$$ means what is the probability of finding the coin has a 0.6 chance of getting a tail. Of course, it is much lower than $$P(H=0.5)$$ if the coin is fair. We can use previous knowledge (including previous data) or assumption to define the prior at the beginning and re-adjust it with Bayes' theorem with observed evidence. $$P(E \vert H)$$ is the **likelihood** of the observed data $$E$$ given the belief. (say, the likelihood of observing 2 tails in the next 2 trails) For example, if $$H=0.6$$, the likelihood of seeing 2 tails are $$0.6 \times 0.6$$. The **posterior** $$P(H \vert E)$$ is the updated belief using Bayes' equation above after taking the observed data into account. Since we see more tails in our evidence, the peak of the posterior is shifted to the right but not to $$H=1.0$$ as the frequentist approach may calculate. As suspected, we are dealing with a series of probabilities rather than one single value. However, with the beta function, this can be done easily. 
 
 <div class="imgcap">
 <img src="/assets/ml/ggg4.png" style="border:none;width:45%">
@@ -136,7 +136,9 @@ P(y \vert x_1, x_2, \cdots , x_n) & = \frac{P(x_1, x_2, \cdots , x_n \vert y) P(
 \end{split}
 $$
 
-We often ignore the marginal property (the denominator) in Naive Bayes theorem because it is a constant. We usually compare calculated values rather than finding the absolute values. In particular, $$P(x_1, x_2, \cdots , x_n)$$ may be too hard to find in some problems.
+We often ignore the marginal property (the denominator) in Naive Bayes theorem because it is a constant. The probability of the evidence is un-related with $$y$$. We usually compare calculated values rather than finding the absolute values. In particular, $$P(x_1, x_2, \cdots , x_n)$$ may be too hard to find in some problems.
+
+In detecting e-mail spam, $$y$$ indicates whether the email is a spam. $$x_i$$ represents the presence of the word $$i$$ in our vocabulary. $$P(x_i \vert y)$$ represents the chance that word $$i$$ presence in a spam. We can collect the spam emails marked by users and calculate this probability easily. By trial and error, we can set a threshold for the calculated value before we mark it as a spam.
 
 ### Expectation
 
