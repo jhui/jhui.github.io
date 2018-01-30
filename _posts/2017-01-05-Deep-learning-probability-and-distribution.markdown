@@ -117,7 +117,9 @@ For example, $$P(H=0.6)$$ means what is the probability of finding the coin has 
 
 When the next round of sample data is available, we can apply the Bayes' theorem again with the prior replaced by the last posterior. Bayes' theorem works better than simple frequency calculation in particular the sampling error can be high when sampling size is small at the beginning. 
 
-As indicated by the naming, the observed data $$E$$ is also called evidence and the belief $$H$$ is also called hypothesis. This section just introduces the key terms people often used. In the later section on beta function, we will detail the implementation and the advantage.
+As indicated by the naming, the observed data $$E$$ is also called evidence and the belief $$H$$ is also called hypothesis. 
+
+Bayes theorem can handle multiple variables $$P(A \vert B, C, D) $$ and provide a better mathematical foundations than the frequentist approach.This section introduces the key terminology. In the later section on beta function, we will detail the implementation and the advantage.
 
 ### Naive Bayes' theorem
 

@@ -3,8 +3,8 @@ layout: post
 comments: true
 mathjax: true
 priority: 990000
-title: “Deep learning - Information theory”
-excerpt: “Deep learning - Information theory”
+title: “Deep learning - Information theory & Maximum likelihood.”
+excerpt: “Deep learning - Information theory & Maximum likelihood..”
 date: 2017-01-05 12:00:00
 ---
 
@@ -82,7 +82,7 @@ $$
 
 ### KL Divergence
 
-In deep learning, we want a model with data distribution $$Q$$ resemble the distribution $$P$$ from the model. Such difference between 2 probability distributions can be measured by KL Divergence which is defined as:
+In deep learning, we want a model predicting data distribution $$Q$$ resemble the distribution $$P$$ from the data. Such difference between 2 probability distributions can be measured by KL Divergence which is defined as:
 
 $$
 \begin{split}

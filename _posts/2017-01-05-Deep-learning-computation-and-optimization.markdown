@@ -3,8 +3,8 @@ layout: post
 comments: true
 mathjax: true
 priority: 990000
-title: “Deep learning - Computation and optimization.”
-excerpt: “Deep learning - Computation and optimization.”
+title: “Deep learning - Computation & optimization.”
+excerpt: “Deep learning - Computation & optimization.”
 date: 2017-01-05 12:00:00
 ---
 
