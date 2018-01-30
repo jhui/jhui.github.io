@@ -458,7 +458,7 @@ Frequentist probability is the frequency of events after many trials. For exampl
 
 ### Examples
 
-#### Example: Gaussian distribution estimator
+#### Calculate bias and variances of a Gaussian distribution estimator
 
 Gaussian equation:
 
@@ -466,11 +466,11 @@ $$
 \mathcal{N}(x;μ, σ^2) = \frac{1}{\sigma\sqrt{2\pi}}e^{-(x - \mu)^{2}/2\sigma^{2} } 
 $$
 
-A common estimator for the Gaussian mean parameter:
+A common estimator for the Gaussian mean parameter by sampling $$m$$ datapoints:
 
 $$
 \begin{split}
-\hat{\mu}_m = \frac{1}{m} \sum^m_1 x_i \\
+\hat{\mu}_m = \frac{1}{m} \sum^m_1 x^{(i)} \\
 \end{split}
 $$
 
@@ -479,9 +479,9 @@ Estimate the Bias of the estimator:
 $$
 \begin{split}
 bias(\hat{\mu}_m ) &=  \mathbb{E}[\hat{\mu}_m ] - \mu \\
-&= \mathbb{E} [\frac{1}{m} \sum^m_1 x_i ] - \mu \\
-&= \frac{1}{m}  \mathbb{E} [\sum^m_1 x_i ] - \mu \\
-&= \frac{1}{m}  m \mathbb{E}[x_i] - \mu \\
+&= \mathbb{E} [\frac{1}{m} \sum^m_1 x^{(i)} ] - \mu \\
+&= \frac{1}{m}  \mathbb{E} [\sum^m_1 x^{(i)} ] - \mu \\
+&= \frac{1}{m}  m \mathbb{E}[x^{(i)}] - \mu \\
 &= \mu - \mu \\
 &= 0 \\
 \end{split}
@@ -493,7 +493,7 @@ Let's consider the following estimator for the Gaussian variance parameter:
 
 $$
 \begin{split}
-\hat{\sigma}^2_m = \frac{1}{m} \sum^m_{i=1} (x_i - \hat{\mu_m})^2 \\
+\hat{\sigma}^2_m = \frac{1}{m} \sum^m_{i=1} (x^{(i)} - \hat{\mu_m})^2 \\
 \end{split}
 $$
 
@@ -509,18 +509,18 @@ Calculate $$\mathbb{E} [\hat{\sigma}^2_m]$$ first:
 
 $$
 \begin{split}
-\mathbb{E} [\hat{\sigma}^2_m] & = \mathbb{E} [\frac{1}{m}\sum_{i = 1}^N (x_i - \mu_m)^2] = \frac{1}{m} \mathbb{E} [\sum_{i = 1}^m (x_i^2 - 2x_i \mu_m + \mu_m^2)]  \\
-& = \frac{1}{m} \big( \mathbb{E} [\sum_{i = 1}^m x_i^2] - \mathbb{E} [\sum_{i = 1}^m  2x_i \mu_m] + \mathbb{E} [\sum_{i = 1}^m  \mu_m^2)]  \big) \\
-& = \frac{1}{m} \big( \mathbb{E} [\sum_{i = 1}^m x_i^2] - \mathbb{E} [\sum_{i = 1}^m  2 \mu_m \mu_m] + \mathbb{E} [\sum_{i = 1}^m  \mu_m^2)]  \big) \\
-&= \frac{1}{m} \big( \mathbb{E} [\sum_{i = 1}^m x_i^2] -  \mathbb{E} [\sum_{i = 1}^m  \mu_m^2)] \big) \\
+\mathbb{E} [\hat{\sigma}^2_m] & = \mathbb{E} [\frac{1}{m}\sum_{i = 1}^N (x^{(i)} - \mu_m)^2] = \frac{1}{m} \mathbb{E} [\sum_{i = 1}^m ((x^{(i)})^2 - 2x^{(i)}x^{(i)} \mu_m + \mu_m^2)]  \\
+& = \frac{1}{m} \big( \mathbb{E} [\sum_{i = 1}^m (x^{(i)})^2] - \mathbb{E} [\sum_{i = 1}^m  2x^{(i)} \mu_m] + \mathbb{E} [\sum_{i = 1}^m  \mu_m^2)]  \big) \\
+& = \frac{1}{m} \big( \mathbb{E} [\sum_{i = 1}^m (x^{(i)})^2] - \mathbb{E} [\sum_{i = 1}^m  2 \mu_m \mu_m] + \mathbb{E} [\sum_{i = 1}^m  \mu_m^2)]  \big) \\
+&= \frac{1}{m} \big( \mathbb{E} [\sum_{i = 1}^m (x^{(i)})^2] -  \mathbb{E} [\sum_{i = 1}^m  \mu_m^2)] \big) \\
 &=  \mathbb{E} [x_m^2] -  \mathbb{E} [\mu_m^2)] \\
 & = \sigma_{x_m}^2 + \mu_{x_m}^2 -  \sigma_{\mu_m}^2 - \mu_{\mu_m}^2 \quad \text{since }\sigma^2 = \mathbb{E} [x^2] - \mu^2 \implies \mathbb{E} [x^2] = \sigma^2  + \mu^2 \\
 & = \sigma_{x_m}^2  -  \sigma_{\mu_m}^2  \quad \text{since } \mu_{x_m}^2 = \mu_{\mu_m}^2 \\
 & = \sigma_{x_m}^2  -  Var(\mu_m) \\ 
-& = \sigma_{x_m}^2  - Var( \frac{1}{m} \sum^m_{i=1} x_m) \\ 
-& = \sigma_{x_m}^2  -  \frac{1}{m^2}  Var(\sum^m_{i=1} x_m) \\ 
-& = \sigma_{x_m}^2  -  \frac{1}{m^2}  m \sigma_{x_m}^2 \\
-& = \frac{m-1}{m}  \sigma_{x_m}^2 \neq  \sigma^2_{x_m}\\
+& = \sigma_{x_m}^2  - Var( \frac{1}{m} \sum^m_{i=1} x^m) \\ 
+& = \sigma_{x_m}^2  -  \frac{1}{m^2}  Var(\sum^m_{i=1} x^m) \\ 
+& = \sigma_{x_m}^2  -  \frac{1}{m^2}  m \sigma_{x^m}^2 \\
+& = \frac{m-1}{m}  \sigma_{x^m}^2 \neq  \sigma^2_{x^m}\\
 \end{split}
 $$
 
@@ -528,7 +528,7 @@ Hence, this estimator is biased. Intuitively, we sometimes over-estimate and som
 
 $$
 \begin{split}
-\hat{\sigma}^2_m = \frac{1}{m-1} \sum^m_{i=1} (x_i - \mu_m)^2 \\
+\hat{\sigma}^2_m = \frac{1}{m-1} \sum^m_{i=1} (x^{(i)} - \mu_m)^2 \\
 \end{split}
 $$
 
@@ -536,10 +536,57 @@ Proof:
 
 $$
 \begin{split}
-\mathbb{E} [\hat{\sigma}^2_m] & = \mathbb{E} [ \frac{1}{m-1}  \sum^m_{i=1} (x_i - \mu_m)^2 ] \\
-& = \frac{1}{m-1} \mathbb{E} [ \sum^m_{i=1} (x_i - \mu_m)^2 ]  \\
+\mathbb{E} [\hat{\sigma}^2_m] & = \mathbb{E} [ \frac{1}{m-1}  \sum^m_{i=1} (x^{(i)} - \mu_m)^2 ] \\
+& = \frac{1}{m-1} \mathbb{E} [ \sum^m_{i=1} (x^{(i)} - \mu_m)^2 ]  \\
 & = \frac{1}{m-1} (m-1) \mathbb{E} [ \sigma^2_{x_m}] \quad \text{reuse the result from the calculations of } \mathbb{E} [\hat{\sigma}^2_m]. \\ 
 & = \sigma^2_{x_m} \\
 \end{split}
 $$
+
+#### Calculate bias and variances of a Bernoulli Distribution estimator
+
+Bernoulli Distribution:
+
+$$
+P(x^{(i)}; θ) = θ^{x^{(i)}} (1 − θ)^{(1−x^{(i)} )}.
+$$
+
+A common estimator will be:
+
+$$
+\hat{θ}_m = \frac{1}{m} \sum^m_{i=1} x^{(i)}
+$$
+
+Find the bias:
+
+$$
+\begin{split}
+bias(\hat{θ}_m) &= \mathbb{E} [\hat{θ}_m] - θ \\
+&= \mathbb{E} [ \frac{1}{m} \sum^m_{i=1} x^{(i)} ] - θ \\
+&= \frac{1}{m}  (\sum^m_{i=1} \mathbb{E} [  x^{(i)} ]) - θ \\
+&= \frac{1}{m}  (\sum^m_{i=1} (\sum^1_0 θ^{x^{(i)}} (1 − θ)^{(1−x^{(i)} )})) - θ \\
+&= \frac{1}{m}  (\sum^m_{i=1} θ) - θ \\
+&= \frac{1}{m}  m θ - θ \\
+&= 0
+\end{split}
+$$
+
+i.e. our estimator has no bias.
+
+The variance of $$θ$$ drops as $$m$$ increases:
+
+$$
+\begin{split}
+Var(\hat{θ}_m) &=Var( \frac{1}{m} \sum^m_{i=1} x^{(i)} ] ) \\
+&= \frac{1}{m^2}  \sum^m_{i=1}  Var (x^{(i)} ]) \\
+&= \frac{1}{m^2}  \sum^m_{i=1}   θ(1-θ)\\
+&= \frac{1}{m^2}  m   θ(1-θ)\\
+&= \frac{1}{m}  θ(1-θ)\\
+\end{split}
+$$
+
+
+
+
+
 

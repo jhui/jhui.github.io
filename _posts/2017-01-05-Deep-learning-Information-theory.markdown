@@ -42,7 +42,7 @@ So
 
 $$
 \begin{split}
-H(x) & = − E_{x \sim P} [log P(x)] \\
+H(x) & = − \mathbb{E}_{x \sim P} [log P(x)] \\
 H(x) & = - \sum_x P(x) \log P(x) \\
 \end{split}
 $$
@@ -67,8 +67,6 @@ The entropy of a coin peaks when $$p(head)=p(tail)=0.5$$.
 
 For a fair die, $$ H(X) = \log_2 6 \approx 2.59 $$. A fair die has more entropy than a fair coin because it is less predictable.
 
-
-
 ### Cross entropy
 
 If entropy measures the minimum number of bits to encode information, cross entropy measures the minimum of bits to encode $$y$$ using the wrong optimized encoding scheme from $$\hat{y}$$.
@@ -76,14 +74,14 @@ If entropy measures the minimum number of bits to encode information, cross entr
 Cross entropy is defined as:
 
 $$
-H(y, \hat{y}) = - \sum_X p(y) \log p(\hat{y})
+H(y, \hat{y}) = - \sum_y p(y) \log p(\hat{y})
 $$
 
 > Cross entropy is encoding y with the probability distribution from $$\hat{y}$$. In deep learning, $$\hat{y}$$ is often the probability distribution predicted by the learning model.
 
 ### KL Divergence
 
-KL Divergence measures the difference between 2 probability distribution as:
+In deep learning, we want a model to make data predictions with probability distribution resemble the distribution of our data labels. Such difference between 2 probability distributions can be measured by KL Divergence which is defined as:
 
 $$
 \begin{split}
@@ -100,15 +98,10 @@ D_{KL}(P \vert \vert Q) & =  \sum_{x=1}^N P(x) \log \frac{P(x)}{Q(x)} \\
 \end{split}
 $$
 
-Properties:
-
-* KL-divergence is always positive or zero, and 
-* $$D_{KL}(P \vert \vert Q)  \neq D_{KL}(Q \vert \vert P) $$
-
 <div class="imgcap">
 <img src="/assets/ml/kl.png" style="border:none;width:80%">
 </div>
-Source Wikipedia.
+(Source Wikipedia.)
 
 > In deep learning, Q is the probability distribution predicted by the learning model.
 
@@ -116,63 +109,69 @@ Recall:
 
 $$
 \begin{split}
-H(P) & = - \sum P \log P \\
-H(P, Q) & = - \sum P \log Q \\
-D_{KL}(P \vert \vert Q) & = \sum P \log \frac{P}{Q} \\
+H(P) & = - \sum P \log P, \\
+H(P, Q) & = - \sum P \log Q, \quad \text{and}\\
+D_{KL}(P \vert \vert Q) & = \sum P \log \frac{P}{Q}. \\
 \end{split}
 $$
 
-Compute cross entropy:
+We can rewrite the cross entropy equation with KL divergence:
 
 $$
 \begin{split}
 H(P, Q) & = - \sum P \log Q \\
    & = - \sum P \log P + \sum P \log P - \sum P \log Q \\
    & = H(P) + \sum P \log \frac{P}{Q} \\
-   & = H(P) + D_{KL}(P \vert \vert Q) 		 
+   H(P, Q) & = H(P) + D_{KL}(P \vert \vert Q) 	\\	 
 \end{split}
 $$
 
-So cross entropy is the sum of entropy and KL-divergence. Because the entropy of a system is unchanged, **minimize the cross entropy is the same as minimize the KL-divergence** in deep learning.
+So cross entropy is the sum of entropy and KL-divergence. Cross entropy $$H(P, Q)$$ is larger than $$H(P)$$ since we require extra amount of information (bits) to encode data with less optimized scheme from $$Q$$ if $$P \neq Q$$. Hence, KL-divergence is always positive for $$P \neq Q$$ or zero otherwise. 
+
+KL-divergence is not commutative: $$D_{KL}(P \vert \vert Q)  \neq D_{KL}(Q \vert \vert P) $$.
+
+$$H(P)$$ only depends on $$P$$: the probability distribution of the data. Since data distribution is un-changed with the model $$\theta$$ we build, **minimize the cross entropy is equivalent to minimize the KL-divergence**.
 
 $$
 \begin{split}
-H(P, Q) & =  H(P) + D_{KL}(P \vert \vert Q) 		 
+\nabla_\theta  H(P, Q_\theta) & \equiv \nabla_\theta ( H(P) + D_{KL}(P \vert \vert Q_\theta) )	\\	 
+ & \equiv \nabla_\theta D_{KL}(P \vert \vert Q_\theta) \\	 
 \end{split}
 $$
 
-Cross entropy $$H(P, Q)$$ is the extra amount of information (bits) needed to encode data sample from $$P$$ when the scheme from $$Q$$ is used. KL-divergence is always non-negative. If both encoding scheme $$P, Q$$ are the same, KL-divergence is zero and the cross entropy is the same as the entropy.
-
-
 ### Maximum Likelihood Estimation
 
-To find the optimized model parameter $$\hat\theta$$ that maximize the likelihood of the observed data. (Note, adding or multiply constant to an objective function does not alter the solution for $$\hat\theta$$.)
+We want to build a model with $$\hat\theta$$ that maximizes the probability of the observed data (a model that fits the data the best **Maximum Likelihood Estimation MLE**):
 
 $$
 \begin{split}
 \hat\theta & = \arg\max_{\theta} \prod^N_{i=1} p(x_i \vert \theta ) \\
-& = \arg\max_{\theta} \sum^N_{i=1} \log p(x_i \vert \theta ) \\
-& = \arg\max_{\theta} \frac{1}{N} \sum^N_{i=1} \log p(x_i \vert \theta ) - \frac{1}{N} \sum^N_{i=1} \log p(x_i \vert \theta_0 ) \\
-& = \arg\max_{\theta} \sum^N_{i=1} \log \frac {p(x_i \vert \theta )}{p(x_i \vert \theta_0 )} \\
-& = \arg\max_{\theta} \sum_{x_i \in X} P(x_i \vert \theta_0) \log \frac {p(x_i \vert \theta )}{p(x_i \vert 
-\theta_0 )} \\
-& \implies \arg\min_{\theta}  D_{KL}(P(x_i \vert \theta_0) \vert \vert P(x_i \vert \theta)) \\
 \end{split}
 $$
 
-where $$\theta_0$$ is the ground truth.
-
-**Maximum Likelihood Estimation (MLE) is the same as minimize KL Divergence.**
-
-It is also the same as minimize the entropy difference between the true world and the AI model.
+However, multiplications overflow or underflow easily. Since $$\log(x)$$ is monotonic, optimize $$log(f(x))$$ is the same as optimize $$f(x)$$. So instead of the MLE, we take the log and minimize the **negative log likelihood (NLL)**. We add the negative sign because the log of a probability invert the direction of $$p(x)$$.
 
 $$
 \begin{split}
-\hat\theta & = \arg\max_{\theta} \sum_{x_i \in X} P(x_i \vert \theta_0) \log \frac {p(x_i \vert \theta )}{p(x_i \vert \theta_0 )} \\
-& = \arg\min_{\theta} \sum_{x_i \in X} P(x_i \vert \theta_0) \log p(x_i \vert \theta_0 ) -  P(x_i \vert \theta_0) \log p(x_i \vert \theta ) \\ 
-& \implies \arg\min_{\theta} H(\text{real world}) - H(\text{model})\\
+\hat\theta & = \arg\min_{\theta} - \sum^N_{i=1} \log p(x_i \vert \theta ) \\
 \end{split}
 $$
+ 
+**NLL and minimizing cross entropy is equivalent**:
+
+$$
+\begin{split}
+\hat\theta & = \arg\min_{\theta} - \sum^N_{i=1} \log p(x_i \vert \theta ) \\
+&  = \arg\min_{\theta} - \sum_{x \in X} p(x) \log p(x \vert \theta ) \\
+& = \arg\min_{\theta} H(P, Q) \\ 
+\end{split}
+$$
+ 
+#### Putting it together
+
+We want to build a model that fits our data the best. We start with the maximum likelihood estimation (MLE) which later change to negative log likelihood to avoid overflow or underflow. Mathematically, the negative log likelihood and the cross entropy has the same equation. KL divergence is an alternative approach in solving the optimization problem. Even it has a different formula from the cross entropy, they both come up with the same solution.
+
+> Cross entropy is one common objective function in deep learning.
 
 ### Nash Equilibrium
 
