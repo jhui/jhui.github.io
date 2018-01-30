@@ -173,6 +173,104 @@ We want to build a model that fits our data the best. We start with the maximum 
 
 > Cross entropy is one common objective function in deep learning.
 
+### Mean square error (MSE)
+
+In a regression problem, $$y = f(x; w)$$. In real life, we are dealing with un-certainty and in-complete information. So we may model the problem as:
+
+$$
+\hat{y} = f(x; θ) \\
+y \sim \mathcal{N}(y;μ=\hat{y}, σ^2) \\
+p(y | x; θ) = \frac{1}{\sigma\sqrt{2\pi}} \exp({\frac{-(y - \hat{y})^{2} } {2\sigma^{2}}}) \\
+$$
+
+with $$\sigma$$ pre-defined by users:
+
+The log likelihood becomes optimizing the mean square error:
+
+$$
+\begin{split}
+J &= \sum^m_{i=1} \log p(y | x; θ) \\
+& = \sum^m_{i=1}  \log \frac{1}{\sigma\sqrt{2\pi}}  \exp({\frac{-(y^{(i)} - \hat{y^{(i)}})^{2} } {2\sigma^{2}}}) \\
+& = \sum^m_{i=1} - \log(\sigma\sqrt{2\pi}) - \log \exp({\frac{(y^{(i)} - \hat{y^{(i)}})^{2} } {2\sigma^{2}}}) \\
+& = \sum^m_{i=1} - \log(\sigma) - \frac{1}{2} \log( 2\pi) - {\frac{(y^{(i)} - \hat{y^{(i)}})^{2} } {2\sigma^{2}}} \\
+& =  - m\log(\sigma) - \frac{m}{2} \log( 2\pi) - \sum^m_{i=1} {\frac{(y^{(i)} - \hat{y^{(i)}})^{2} } {2\sigma^{2}}} \\
+& =  - m\log(\sigma) - \frac{m}{2} \log( 2\pi) - \sum^m_{i=1} {\frac{ \| y^{(i)} - \hat{y^{(i)}} \|^{2} } {2\sigma^{2}}} \\
+\nabla_θ J & = - \nabla_θ \sum^m_{i=1} {\frac{ \| y^{(i)} - \hat{y^{(i)}} \|^{2} } {2\sigma^{2}}} \\ 
+\end{split} 
+$$
+
+> Many cost functions used in deep learning, including the MSE, can be derived from the MLE.
+
+### Maximum A Posteriori (MAP)
+
+MLE maximizes $$ p(y \vert x; θ) $$. 
+
+$$
+\begin{split}
+θ^* = \arg\max_θ (P(y \vert x; θ)) & = \arg\max_w \prod^n_{i=1} P( y \vert x; θ)\\
+\end{split} 
+$$
+
+Alternative, we can find the most likely $$θ$$ given $$x$$:
+
+$$
+θ^{*}_{MAP} = \arg \max_θ p(θ \vert y) = \arg \max_θ \log p(y \vert θ) + \log p(θ) \\
+$$ 
+
+Apply Bayes' theorem:
+
+$$
+\begin{split}
+θ_{MAP} & = \arg \max_θ p(θ \vert y) \\
+& = \arg \max_θ \log p(y \vert θ) + \log p(θ) - \log p(y)\\
+& = \arg \max_θ \log p(y \vert θ) + \log p(θ) \\
+\end{split}
+$$
+
+To demonstrate the idea, we use a Gaussian distribution of $$ \mu=0, \sigma^2 = \frac{1}{\lambda}$$ as the our prior:
+
+$$
+\begin{split}
+p(θ) & =  \frac{1}{\sqrt{2 \pi \frac{1}{\lambda}}} e^{-\frac{(θ - 0)^{2}}{2\frac{1}{\lambda}} } \\
+\log p(θ) & = - \log {\sqrt{2 \pi \frac{1}{\lambda}}} + \log e^{- \frac{\lambda}{2}θ^2}  \\
+& = C^{'} - \frac{\lambda}{2}θ^2 \\
+- \sum^N_{j=1} \log p(θ) &= C + \frac{\lambda}{2} \| θ \|^2 \quad \text{ L-2 regularization}
+\end{split}
+$$
+
+Assume the likelihood is also gaussian distributed:
+
+$$
+\begin{split}
+p(y^{(i)} \vert θ) & \propto e^{ - \frac{(\hat{y}^{(i)} - y^{(i)})^2}{2 \sigma^2} } \\
+- \sum^N_{i=1} \log p(y^{(i)} \vert θ) & \propto \frac{1}{2 \sigma^2} \| \hat{y}^{(i)} - y^{(i)} \|^2 \\
+\end{split}
+$$
+
+So for a Gaussian distribution prior and likelihood, the cost function is
+
+$$
+\begin{split}
+J(θ) & = \sum^N_{i=1} - \log p(y^{(i)} \vert θ) - \log p(θ) \\
+& = - \sum^N_{i=1} \log p(y^{(i)} | θ) - \sum^d_{j=1} \log p(θ) \\
+&=  \frac{1}{2 \sigma^2} \| \hat{y}^{(i)} - y^{(i)} \|^2 + \frac{\lambda}{2} \| θ \|^2 + constant
+\end{split}
+$$
+ 
+which is the same as the MSE with L2-regularization.
+ 
+If the likeliness is computed from a logistic function, the corresponding cost function is:
+ 
+$$
+\begin{split}
+p(y_i \vert x_i, w) & = \frac{1}{ 1 + e^{- y_i w^T x_i} } \\
+J(w) & = - \sum^N_{i=1} \log p(y_i \vert x_i, w) - \sum^d_{j=1} \log p(w_j) - C \\
+&= \sum^N_{i=1} \log(1 + e^{- y_i w^T x_i})  + \frac{\lambda}{2} \| w \|^2 + constant
+\end{split}
+$$
+
+Like, MLE, MAP provides a mechanism to derive the cost function. However, MAP can also model the uncertainty into the cost function which turns out to be the regularization factor used in deep learning.
+
 ### Nash Equilibrium
 
 In the game theory, the Nash Equilibrium is reached when no player will change its strategy after considering all possible strategy of opponents. i.e. in the Nash equilibrium, no one will change its decision even after we will all the player strategy to everyone. A game can have 0, 1 or multiple Nash Equilibria. 
@@ -206,4 +304,8 @@ $$
 JSD(X || Y) = H(\frac{X + Y}{2}) - \frac{H(X) + H(Y)}{2}
 $$
 	
-	
+
+
+
+
+	  

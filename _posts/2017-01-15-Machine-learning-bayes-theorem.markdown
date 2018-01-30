@@ -287,6 +287,8 @@ $$
 
 For our discussion, let $$\theta$$ be the infection rate of the flu. With Bayes' theorem, we study the probabilities of different infection rates rather than just finding the most likely infection rate. The prior $$P(\theta)$$ is the belief on the probabilities for different infection rates. $$P(\theta=0.3) = 0.6$$ means the probability that the infection rate equals to 0.3 is 0.6. If we know nothing about this flu, we use an uniform probability distribution for $$P(\theta)$$ in Bayes' theorem and assume any infection rate is equally likely. 
 
+> An uniform distribution maximizes the entropy (randomness) to reflect the highest uncertainty of our belief.
+
 We use Beta function to model our belief. We set $$a=b=1$$ in the beta distribution for an uniform probability distribution. The following plots the distribution $$P(\theta)$$:
 
 <div class="imgcap">
@@ -380,7 +382,13 @@ As shown, the posterior's peak moves closer to the maximum likeliness to correct
 <img src="/assets/ml/b13.png" style="border:none;width:20%">
 </div>
 
-When we enter a new flu season, our new sampling size for the new Flu strain is small. The sampling error can be large if we just use this small sampling data to compute the infection rate. Instead, we use prior knowledge (the last 12 months data) to compute a prior for the infection rate. Then we use Bayes theorem with the prior and the likeliness to compute the posterior probability. When data size is small, the posterior rely more on the prior but once the sampling size increases, it re-adjusts itself to the new sample data. Hence, Bayes theorem can give better prediction.
+By taking advantage of the prior, Bayesian method generalizes better. When we enter a new flu season, our new sampling size for the new Flu strain is small. The sampling error can be large if we just use this small sampling data to compute the infection rate. Instead, we use prior knowledge (the last 12 months data) to compute a prior for the infection rate. Then we use Bayes theorem with the prior and the likeliness to compute the posterior probability. When data size is small, the posterior rely more on the prior but once the sampling size increases, it re-adjusts itself to the new sample data. Hence, Bayes theorem can give better prediction.
+
+Given datapoints $$x^{(1)} , \dots , x^{(m)}$$, we can compute the probability of $$x^{(m+1)}$$ by integrating the probability of each $$\theta$$ with the probability of $$x^{(m+1)}$$ given for each $$\theta$$. i.e. the expected value $$\mathbb{E}_θ [ p(x^{(m+1)} \vert θ) ]$$.
+
+$$
+p(x^{(m+1)} \vert x^{(1)} , \dots , x^{(m)}) = \int p(x^{(m+1)} \vert θ) p( θ \vert  x^{(1)} , \dots , x^{(m)}) dθ \\
+$$
 
 ### Programming
 
