@@ -99,14 +99,17 @@ P(H \vert E) & = \frac{P(E \vert H) \cdot P(H)}{P(E)} \\
 \end{split}
 $$
 
+$$P(H)$$ is called **prior** which quantifies our belief $$H$$. We all start learning probability using a frequentist approach: we calculate the probability by $$ \frac{number of events}{total trials} $$. For a fair die, the chance of getting a tail $$P_t(tail)$$ is 0.5. But if the total trials are small, the calculated value is unlikely accurate. In Bayes inference, we quantify all possibilities of getting a tail $$P(H)$$ to deal with uncertainty. We want to find the probability of all the probabilities:
 
-$$P(H)$$ is called **prior** which quantifies our belief $$H$$. For a fair die, the chance of getting a tail $$P_t(tail)$$ is 0.5. In Bayes' theorem, we are interesting in quantifying different possibilities of getting a tail rather than just learning the most likely probability. The following is the plot for $$P(H)$$. 
+$$
+P(H=v) \quad \text{for all } v \in [0, 1]
+$$
 
 <div class="imgcap">
 <img src="/assets/ml/ggg3.jpg" style="border:none;width:45%">
 </div>
 
-$$P(H=0.6)$$ means what is the probability of finding the coin has a 0.6 chance of getting a tail. Of course, it is much lower than $$P(H=0.5)$$ if the coin is fair. We can use previous knowledge (including previous data) or assumption to define the prior at the beginning. $$P(E \vert H)$$ is the **likelihood** of the observed data $$E$$ (say, 2 tails in the next 2 trails) given the belief. For example, for $$H=0.6$$, the likelihood of seeing 2 tails are $$0.6 \times 0.6$$. As suspected, we are dealing with a series of probabilities rather than one single value. However, with the beta function (detailed later), it can be done easily. The **posterior** $$P(H \vert E)$$ is the updated belief using Bayes' theorem after taking the observed data into account.  
+For example, $$P(H=0.6)$$ means what is the probability of finding the coin has a 0.6 chance of getting a tail. Of course, it is much lower than $$P(H=0.5)$$ if the coin is fair. We can use previous knowledge (including previous data) or assumption to define the prior at the beginning and re-adjust it with Bayes' theorem with observed evidence. $$P(E \vert H)$$ is the **likelihood** of the observed data $$E$$ given the belief. (say, the likelihood of observing 2 tails in the next 2 trails) For example, if $$H=0.6$$, the likelihood of seeing 2 tails are $$0.6 \times 0.6$$. As suspected, we are dealing with a series of probabilities rather than one single value. However, with the beta function, this can be done easily. The **posterior** $$P(H \vert E)$$ is the updated belief using Bayes' theorem after taking the observed data into account. 
 
 <div class="imgcap">
 <img src="/assets/ml/ggg4.png" style="border:none;width:45%">
@@ -114,7 +117,7 @@ $$P(H=0.6)$$ means what is the probability of finding the coin has a 0.6 chance 
 
 When the next round of sample data is available, we can apply the Bayes' theorem again with the prior replaced by the last posterior. Bayes' theorem works better than simple frequency calculation in particular the sampling error can be high when sampling size is small at the beginning. 
 
-As indicated by the naming, the observed data $$E$$ is also called evidence and the belief $$H$$ is also called hypothesis.
+As indicated by the naming, the observed data $$E$$ is also called evidence and the belief $$H$$ is also called hypothesis. In the later section on beta function, we will detail the implementation and the advantage.
 
 ### Naive Bayes' theorem
 
@@ -457,12 +460,6 @@ Laplace distribution:
 $$
 Laplace(x; µ, γ) = \frac{1}{2γ} e^{− \frac{\vert x − µ\vert}{γ} }
 $$
-
-### Terms
-
-#### Frequentist probability
-
-Frequentist probability is the frequency of events after many trials. For example, if we get 48 tails in flipping a coin 100 times, we say the probability of tail is $$\frac{48}{100}$$. Frequentist probability is prone to sampling errors in small data size. We think bayesian probability based on Bayes' theorem gives us better quality information in quantify a belief (probability) with observed data.
 
 ### Examples
 
