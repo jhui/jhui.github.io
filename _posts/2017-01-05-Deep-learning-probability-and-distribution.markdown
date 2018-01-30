@@ -99,7 +99,7 @@ P(H \vert E) & = \frac{P(E \vert H) \cdot P(H)}{P(E)} \\
 \end{split}
 $$
 
-$$P(H)$$ is called **prior** which quantifies our belief $$H$$. We all start learning probability using a frequentist approach: we calculate the probability by $$ \frac{number of events}{total trials} $$. For a fair die, the chance of getting a tail $$P_t(tail)$$ is 0.5. But if the total trials are small, the calculated value is unlikely accurate. In Bayes inference, we quantify all possibilities of getting a tail $$P(H)$$ to deal with uncertainty. We want to find the probability of all the probabilities:
+$$P(H)$$ is called **prior** which quantifies our belief $$H$$. We all start learning probability using a frequentist approach: we calculate the probability by $$ \frac{\text{number of events}}{\text{total trials}} $$. For a fair die, the chance of getting a tail $$P_t(tail)$$ is 0.5. But if the total trials are small, the calculated value is unlikely accurate. In Bayes inference, we quantify all possibilities of getting a tail $$P(H)$$ to deal with uncertainty. We want to find the probability of all the probabilities:
 
 $$
 P(H=v) \quad \text{for all } v \in [0, 1]
