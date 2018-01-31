@@ -795,7 +795,33 @@ A non-parametric model uses similarity between training data and the testing dat
 
 ### Kernel
 
-Kernel is a non-parametric model which use similarity between training data as the input features $$f_i$$ to make predictions.
+#### Generic form
+
+The generic form of using linear regression with a kernel is:
+
+$$
+y = b + \sum_i w_i k(x, x^{(i)}).
+$$
+
+which $$x$$ contains all $$m$$ training datapoints.
+
+There are many kernel functions. For example, using a feature function $$φ$$ to extract features:
+
+$$
+k(x, x^{(i)}) = φ(x) ·φ(x^{(i)})
+$$
+
+Or a Gaussian function to measure the similarity between the training datapoints and the input.
+
+$$
+k(u, v) = \mathbb{N}(u − v; 0, σ^2)
+$$
+
+Kernel transforms $$x$$ non-lineally before applying the linear regression. Therefore, we can take advantage of the convex property of the cost function in linear regression to learn $$w$$ efficiently, yet we can transform $$x$$ for a non-linear boundary.
+
+#### Example
+
+In the example below, we use a Gaussian function as a kernel:
 
 $$
 \begin{split}
@@ -812,16 +838,13 @@ $$
 k(x, x^i) = e^{(- \frac{\| x - x^i \|^2}{2 \sigma^2})}
 $$
 
-If $$x$$ is very similar to $$x^i$$, $$ k=1$$. If $$x$$ is very different from $$x^i$$, $$ k=0$$. 
-
-
-We can use any model to make prediction based on the new input features. For example, a linear model
+We use $$y^{(i)}$$ as $$w_i$$ instead of learning those parameters:
 
 $$
 \hat{y} = \sum_{i=1}^n y_i f_i
 $$
 
-For example, if we have 3 training datapoints with $$ y^1 = 1, y^2 = -1, y^3 = 1 $$, then
+For example, if we have 3 training datapoints with output $$ y^1 = 1, y^2 = -1, y^3 = 1 $$, then
 
 $$
 \hat{y} = f_1 - f_2 + f_3
@@ -839,60 +862,9 @@ $$
 \end{equation}
 $$
 
-#### SVM with kernels
-
-Using kernels, we convert each feature $$x_i$$ into m features measuring its similarity with all the training datapoints.
-
-$$
-\begin{split}
-x^i \rightarrow \begin{bmatrix}
-    f^i_1 = k( x^i, x_1) & \\
-    f^i_2 = k( x^i, x_2) & \\
-    \cdots & \\
-    f^i_m = k( x^i, x_m) & \\
-\end{bmatrix}
-\end{split}
-$$
-
-and a Gaussian kernel with $$\sigma$$:
-
-$$
-k(x, x^i) = e^{(- \frac{\| x - x^i \|^2}{2 \sigma^2})}
-$$
-
-We use a linear regression model:
-
-$$
-\hat{y} = w f
-$$
-
-and train our model using the SVM cost function:
-
-$$
-\begin{split}
-J(W) & = \sum^m_{i=1} max(0, 1 - y^i wf^i) + \frac{\lambda}{2} \| w \|^2  \\
-\end{split}
-$$
-
-Choice of $$\lambda$$  & $$\sigma$$
-
-* Larger $$\lambda$$ means high regularization with higher bias and lower variance.
-* Larger $$\sigma$$ means we take more influence from the neighbors. i.e. higher bias and lower variance.
-
-When to use a linear model (Logistic regression or SVM with linear kernel $$y = w x$$ ) or a SVM Gaussian kernel?
-
-Note: N is the number of feature for $$x$$ and m is the number of training data
-
-| N (large) & m (small) |  Many input features and vulnerable to overfit with small amount of data | Linear model |
-| N (large) & m (large) |  Training data is too large to use kernels  | Linear model |
-| <nobr>N (small) & m (intermediate) </nobr>| Use non-linear kernel to have a more complex mode | <nobr> Non-linear kernel </nobr>|
-| N (small) & m (large) |  Training data is too large to use kernels. Add/Create new features. | Linear model |
-
 ### Radial basis functions (RBF)
 
-Radial basis functions (RBF) is a non-parametric model that takes account of all training datapoints instead of just K-nearest neighbors. However, the influence decreases as the distance increase.
-
-In the first step, we build a matrix using all training datapoints ($$x^1, x^2, \cdots x^n$$):
+Radial basis functions (RBF) is a non-parametric model that use a Gaussian function as a kernel while learning $$w$$. In the first step, we build a matrix using all training datapoints ($$x^1, x^2, \cdots x^n$$):
 
 $$
 z = \begin{bmatrix}
@@ -903,13 +875,13 @@ z = \begin{bmatrix}
 \end{bmatrix}
 $$
 
-which $$k$$ is a kernel function to measure similarity based on a Gaussian distribution:
+which $$k$$ is a kernel function to measure similarity between 2 datapoints based on a Gaussian distribution:
 
 $$
 k(x) = e^{(- \frac{x^2}{2 \sigma^2})}
 $$
 
-and $$w$$ is calculated with $$z$$ and true value $$y$$:
+and $$w$$ is learned from $$z$$ and true value $$y$$:
 
 $$
 y = w^T z
@@ -949,12 +921,59 @@ $$
 y = w_1 e^{(- \frac{ \| x' - x_1 \|^2}{2 \sigma^2})} + w_2 e^{(- \frac{ \| x' - x_2 \|^2}{2 \sigma^2})} + \cdots + w_n e^{(- \frac{ \| x' - x_n \|^2}{2 \sigma^2})}
 $$
 
-For example, we have 3 training datapoints $$x_1, x_2, x_3$$, each creating a bell curve $$ w_1 e^{(- \frac{ \| x' - x_1 \|^2}{2 \sigma^2})} $$ indicating much it contributes to the final output (blue dots) at $$x_i$$.
+For example, we have 3 training datapoints $$x_1, x_2, x_3$$, each creating a bell curve $$ w_1 e^{(- \frac{ \| x' - x_1 \|^2}{2 \sigma^2})} $$ indicating how much it contributes to the final output (blue dots) at $$x_i$$.
 
 <div class="imgcap">
 <img src="/assets/ml/gpp.png" style="border:none;width:70%">
 </div>
 
 With more datapoints, we can build a complex functions using this gaussian functions.
+
+#### SVM with kernels
+
+We reuse a Gaussian kernel:
+
+$$
+\begin{split}
+x^i \rightarrow \begin{bmatrix}
+    f^i_1 = k( x^i, x_1) & \\
+    f^i_2 = k( x^i, x_2) & \\
+    \cdots & \\
+    f^i_m = k( x^i, x_m) & \\
+\end{bmatrix}
+\end{split}
+$$
+
+$$
+k(x, x^i) = e^{(- \frac{\| x - x^i \|^2}{2 \sigma^2})}
+$$
+
+Instead of $$y^{(i)}$$, we train the model $$w$$ with a SVM cost function:
+
+$$
+\hat{y} = w f
+$$
+
+$$
+\begin{split}
+J(W) & = \sum^m_{i=1} max(0, 1 - y^i wf^i) + \frac{\lambda}{2} \| w \|^2  \\
+\end{split}
+$$
+
+Choice of $$\lambda$$  & $$\sigma$$:
+
+* Larger $$\lambda$$ means higher regularization. i.e. we want to reduces overfitting. This reduces the variance but increase the bias.
+* Larger $$\sigma$$ means we take neighbors farther away into consideration. Again, this reduces variance but increases bias.
+
+When to use a linear model (Logistic regression or SVM with linear kernel $$y = w x$$ ) or a SVM Gaussian kernel?
+
+Note: N is the number of feature for $$x$$ and m is the number of training data.
+
+| N (large) & m (small) |  Many input features and vulnerable to overfit with small amount of data | Linear model |
+| N (large) & m (large) |  Training data is too large to use kernels  | Linear model |
+| <nobr>N (small) & m (intermediate) </nobr>| Use non-linear kernel to have a more complex mode | <nobr> Non-linear kernel </nobr>|
+| N (small) & m (large) |  Training data is too large to use kernels. Add/Create new features. | Linear model |
+
+
 
 

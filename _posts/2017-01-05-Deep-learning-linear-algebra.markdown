@@ -614,8 +614,30 @@ D^∗ &= \arg \min_D \|X - Xdd^T\|^2_F  \\
 \end{split}
 $$
 
-This equation can be solved using eigendecomposition. Optimal $$D$$ is the eigenvector of $$X^TX$$ that has the largest eigenvalue.
- 
+This equation can be solved using eigendecomposition. Optimal $$d$$ is the eigenvector of $$X^TX$$ that has the largest eigenvalue. For $$l > 1$$, the matrix D is given by the eigenvectors corresponding to the $$l$$ largest eigenvalues.
+
+### Moore-Penrose Pseudoinverse
+
+For a linear equation:
+
+$$
+Ax = y
+$$
+
+A^{+} is a pseudo inverse of matrix A. We do not called it $$A^{-1}$$ because inverse matrix is only defined for a square matrix.
+
+$$
+x = A^{+} y
+$$
+
+$$A^{+}$ is computed as (if exist):
+
+$$
+A^{+} = V D^{+}U^T
+$$
+
+which $$U, D \text{ and } V are the SVD of $$A$$. The pseudoinverse $$D^{+}$$ of a diagonal matrix D is computed by taking the reciprocal $$\frac{1}{x}$$ of all non-zero elements then taking the transpose of the resulting matrix.
+
 ### Determinant
 
 The determinant of the matrix $$A$$ is the product of all eigenvalues. If the absolute value is greater than 1, $$Ax$$ expands the output space. If it is between 0 and 1, it shrinks the space.

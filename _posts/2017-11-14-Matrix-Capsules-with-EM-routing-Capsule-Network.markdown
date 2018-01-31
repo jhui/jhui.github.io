@@ -8,7 +8,7 @@ excerpt: “A simple tutorial in understanding Matrix capsules with EM Routing i
 date: 2017-11-14 11:00:00
 ---
 
-This article covers the second capsule network paper [_Matrix capsules with EM Routing_](https://openreview.net/pdf?id=HJWLfGWRb) based on Geoffrey Hinton's Capsule Networks. We will cover the basic of matrix capsules and apply EM (Expectation Maximization) routing to classify images with different viewpoints.  At the second half of the article, we will detail the Matrix Capsule and EM routing implementation using TensorFlow.
+This article covers the second capsule network paper [_Matrix capsules with EM Routing_](https://openreview.net/pdf?id=HJWLfGWRb) both authored by Geoffrey E Hinton, Sara Sabour and Nicholas Frosst. This paper is based on Geoffrey Hinton's Capsule Networks concept. We will first cover the basic of matrix capsules and apply EM (Expectation Maximization) routing to classify images with different viewpoints.  At the second half of the article, we will detail the Matrix Capsule and EM routing implementation using TensorFlow.
 
 ### CNN challenges
 
