@@ -232,13 +232,13 @@ The iterative dynamic routing with capsules is just one showcase in demonstratin
 
 (Source from the paper Matrix capsules with EM routing)
 
-We apply a clustering technique, the EM routing, to cluster related capsules to form a parent capsule. Even the viewpoint may change, the votes will change in a co-ordinate way so the EM routing can still cluster the same children capsules together.
+Matrix capsules apply a clustering technique, the EM routing, to cluster related capsules to form a parent capsule. Even the viewpoint may change, the votes will change in a co-ordinate way so the EM routing can still cluster the same children capsules together.
 
 <div class="imgcap">
 <img src="/assets/capsule/cluster2.jpg" style="border:none;width:80%">
 </div>
 
-The first paper opens a new approach in the deep learning, and the second paper explores deeper into its potential. For those interested, I will suggest my second article on [Matrix capsule](https://jhui.github.io/2017/11/14/Matrix-Capsules-with-EM-routing-Capsule-Network/).
+The first paper opens a new approach in the deep learning, and the second paper explores deeper into its potential. For those interested, there are more details in my second article on [Matrix capsule](https://jhui.github.io/2017/11/14/Matrix-Capsules-with-EM-routing-Capsule-Network/).
 
 ### CapsNet architecture
 
