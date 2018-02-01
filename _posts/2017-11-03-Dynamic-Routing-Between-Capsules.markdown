@@ -236,7 +236,7 @@ We apply a clustering technique, the EM routing, to cluster related capsules to 
 <img src="/assets/capsule/cluster2.jpg" style="border:none;width:80%">
 </div>
 
-The first paper opens a new approach in the deep learning, and the second paper explores deeper into its potential. For those interested, i will suggest my second article on [Matrix capsule](https://jhui.github.io/2017/11/14/Matrix-Capsules-with-EM-routing-Capsule-Network/)).
+The first paper opens a new approach in the deep learning, and the second paper explores deeper into its potential. For those interested, I will suggest my second article on [Matrix capsule](https://jhui.github.io/2017/11/14/Matrix-Capsules-with-EM-routing-Capsule-Network/).
 
 ### CapsNet architecture
 
