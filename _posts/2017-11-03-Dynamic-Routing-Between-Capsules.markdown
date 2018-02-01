@@ -59,7 +59,7 @@ A capsule network share the same capsule to detect multiple variants in a simple
 <img src="/assets/capsule/c22.jpg" style="border:none;width:40%;">
 </div>
 
-**Equivariance** is the detection of objects that can transform to each other. Intuitively, a capsule detects the face is rotated right 20° (or rotated left 20°) rather than realizes the face matched a variant that is rotated 20°. By forcing the model to learn the feature variant in a capsule, we _may_ extrapolate possible variants more effectively with less training data.
+**Equivariance** is the detection of objects that can transform to each other. Intuitively, a capsule detects the face is rotated right 20° (or rotated left 20°) rather than realizes the face matched a variant that is rotated right 20°. By forcing the model to learn the feature variant in a capsule, we _may_ extrapolate possible variants more effectively with less training data.
 
 MNist dataset contains 55,000 training data. i.e. 5,500 samples per digits. However, it is unlikely that children need to read this large amount of samples to learn digits. Our existing deep learning models including CNN seem inefficient in utilizing datapoints. 
 
@@ -169,7 +169,7 @@ b_{ij} ← \hat{u}_{j \vert i} \cdot v_j \\
 \end{split}
 $$
 
-Therefore, the similarity score $$b_{ij}$$ takes into account on both likeliness and the feature properties, instead of just likeliness in neurons. $$ b_{ij} $$ remains low if the activation $$u_i$$ of capsule $$i$$ is low since $$\hat{u}_{j \vert i}$$ is computed from $$u_i$$. i.e. $$b_{ij}$$ should remain low for the face capsule if the mouth capsule is not activated.
+Therefore, the similarity score $$b_{ij}$$ takes into account on both likeliness and the feature properties, instead of just likeliness in neurons. Also, $$ b_{ij} $$ remains low if the activation $$u_i$$ of capsule $$i$$ is low since $$\hat{u}_{j \vert i}$$ length is proportional to $$u_i$$. i.e. $$b_{ij}$$ should remain low between the mouth capsule and the face capsule if the mouth capsule is not activated.
 
 The coupling coefficients $$ c_{ij} $$ is computed as the softmax of $$ b_{ij} $$:
 
