@@ -8,7 +8,7 @@ excerpt: “A simple tutorial in understanding Matrix capsules with EM Routing i
 date: 2017-11-14 11:00:00
 ---
 
-This article covers the second Hinton's capsule network paper [_Matrix capsules with EM Routing_](https://openreview.net/pdf?id=HJWLfGWRb), both authored by Geoffrey E Hinton, Sara Sabour and Nicholas Frosst. We will first cover the basic of matrix capsules and apply EM (Expectation Maximization) routing to classify images with different viewpoints.  At the second half of the article, we will detail the Matrix Capsule and EM routing implementation using TensorFlow.
+This article covers the second Hinton's capsule network paper [_Matrix capsules with EM Routing_](https://openreview.net/pdf?id=HJWLfGWRb), both authored by Geoffrey E Hinton, Sara Sabour and Nicholas Frosst. We will first cover the matrix capsules and apply EM (Expectation Maximization) routing to classify images with different viewpoints. For those want to understand the detail implementation, the second half of the article covers an implementation on the matrix Capsule and EM routing using TensorFlow.
 
 ### CNN challenges
 
@@ -33,7 +33,7 @@ CNN is also vulnerable to adversaires by simply move, rotate or resize individua
 <img src="/assets/capsule/sface2.jpg" style="border:none;width:20%;">
 </div>
 
-The following image can be mis-categorized as a gibbon in a CNN model by selectively making small changes into the original panda picture. The middle noisy picture is the changes made to the panda image on the left. After the change, the original CNN network mis-classifies the image as a gibbon.
+We can add tiny un-noticeable changes to an image to fool a deep network easily. The image on the left below is correctly classified by a CNN network as a panda. By selectively adding small changes from the middle picture to the panda picture, the CNN suddenly mis-classifies the resulting image in the right as a gibbon.
 
 <div class="imgcap">
 <img src="/assets/capsule/a2.png" style="border:none;width:60%;">
@@ -43,54 +43,61 @@ The following image can be mis-categorized as a gibbon in a CNN model by selecti
 
 ### Capsule
 
-**A capsule captures the likeliness of a feature and its variant**. So the purpose of the capsule is not _only_ to detect a feature but also to train the model to learn the variants. So the same capsule can detect multiple variants.
+**A capsule captures the likeliness of a feature and its variant**. So the capsule does not _only_ detect a feature but it is trained to learn and detect the variants.
 
 <div class="imgcap">
 <img src="/assets/capsule/c21.jpg" style="border:none;width;">
 </div>
 
-For example, the capsule above can detect a face rotated clockwise or counter clockwise:
+For example, the same network layer can detect a face rotated clockwise.
 
 <div class="imgcap">
 <img src="/assets/capsule/c22.jpg" style="border:none;width;">
 </div>
 
-**Equivariance** is the detection of objects that can transform to each other.  Intuitively, the capsule network detects the face is rotated right 20° (equivariance) rather than realizes the face matched a variant that is rotated 20°. By forcing the model to learn the feature variant in a capsule, we _may_ extrapolate possible variants more effectively with less training data. In CNN, the final label is viewpoint invariant (i.e. the top neuron detects a face but losses the information in the angle of rotation). For equivariance, changes in the viewpoint lead to the corresponding changes in capsules (the angle of rotation). By maintaining the spatial orientation, it will be easier to avoid adversaires.
+**Equivariance** is the detection of objects that can transform to each other.  Intuitively, the capsule network detects the face is rotated right 20° (an equivariance) rather than realizes the face matched a variant that is rotated 20°. By forcing the model to learn the feature variant in a capsule, we _may_ extrapolate possible variants more effectively with less training data. In CNN, the final label is viewpoint invariant. i.e. the top neuron detects a face but losses the information in the angle of rotation. For equivariance, the variant information like the angle of rotation is kept inside the capsule. Maintaining such spatial orientation helps us to avoid adversaires.
 
 ### Matrix capsule
 
-The **matrix capsule** captures the activation (likeliness) and the 4x4 pose matrix.
+A **matrix capsule** captures the activation (likeliness) similar to that of a neuron, but also captures a 4x4 pose matrix. In computer graphics, a pose matrix defines the translation and the rotation of an object which is equivalent to the change of the viewpoint of an object.
 
 <div class="imgcap">
 <img src="/assets/capsule/capp.png" style="border:none;width:40%;">
 </div>
 (Source from the Matrix capsules with EM routing paper)
 
-For example, the second row images below represent the same object above them with differen viewpoints. In matrix capsule, we train the model to capture the pose information (orientation, azimuths etc...). Of course, just like other deep learning methods, this is our intention even though it is never guaranteed.
+For example, the second row images below represent the same object above them with differen viewpoints. In matrix capsule, we train the model to capture the pose information (orientation, azimuths etc...). Of course, just like other deep learning methods, this is our intention and it is never guaranteed.
 
 <div class="imgcap">
 <img src="/assets/capsule/data.png" style="border:none;width:60%">
 </div>
 (Source from the Matrix capsules with EM routing paper)
 
-The objective of the EM (Expectation Maximization) routing is to group capsules to form a part-whole relationship using a clustering technique (EM). In machine learning, we use EM to cluster datapoints into different Gaussian distributions. For example, we cluster the datapoints below into two clusters modeled by two gaussian distributions.
+The objective of the EM (Expectation Maximization) routing is to group capsules to form a part-whole relationship using a clustering technique (EM). In machine learning, we use EM clustering to cluster datapoints into Gaussian distributions. For example, we cluster the datapoints below into two clusters modeled by two gaussian distributions  $$G_1 = \mathcal{N}(\mu_1, \sigma_1^2)$$ and $$G_2 = \mathcal{N}(\mu_2, \sigma_2^2)$$. Then we represent the datapoints by the corresponding Gaussian distribution.
 
 <div class="imgcap">
 <img src="/assets/ml/GM2.png" style="border:none;width:60%;">
 </div>
 
-In the face detection example, each of the mouth, eyes and nose detection capsules in the lower layer makes predictions (**votes**) on the pose matrices of its possible parent capsule(s). These votes are computed by multiplying its own pose matrix with a transformation matrix that we learn from the training data. The role of the EM routing is to cluster lower level capsules that produce similar votes to a parent capsule. For example, if the nose, mouth and eyes capsules all vote a similar pose matrix value for a capsule in the layer above, we cluster them together to build a higher level structure: the face capsule.
+In the face detection example, each of the mouth, eyes and nose detection capsules in the lower layer makes predictions (**votes**) on the pose matrices of its possible parent capsules. Each vote is a predicted value for a parent capsule's pose matrix, and it is computed by multiplying its own pose matrix $$M$$ with a **transformation matrix** $$W$$ that we learn from the training data. 
 
-<div class="imgcap">
-<img src="/assets/capsule/c3.jpg" style="border:none;width:80%">
-</div>
+$$
+\begin{split}
+&v = M W \quad 
+\end{split}
+$$
 
-Here is the visualization of the votes from the lower layer capsule.
+We apply the EM routing to group capsules into a parent capsule in runtime:
 
 <div class="imgcap">
 <img src="/assets/capsule/cluster.jpg" style="border:none;width;width:70%">
 </div>
 
+i.e., if the nose, mouth and eyes capsules all vote a similar pose matrix value, we cluster them together to form a parent capsule: the face capsule.
+
+<div class="imgcap">
+<img src="/assets/capsule/c3.jpg" style="border:none;width:80%">
+</div>
 
 > A higher level feature (a face) is detected by looking for agreement between votes from the capsules one layer below. We use EM routing to cluster capsules that have close proximity of the corresponding votes. 
 
@@ -126,9 +133,7 @@ Eventually, we will converge to two Gaussian distributions that maximize the lik
 
 ### Using EM for Routing-By-Agreement
 
-Now, we will put it together to explain the EM routing for matrix capsule. A higher level feature (a face) is detected by looking for agreement between votes from the capsules one layer below. 
-
-A **vote** $$v_{ij}$$ for capsule $$j$$ from capsule $$i$$ is computed by multipling the pose matrix $$M_i$$ of capsule $$i$$ with a **viewpoint invariant transformation** $$W_{ij}$$. 
+Now, let's get into more details. A higher level feature (a face) is detected by looking for agreement between votes from the capsules one layer below. A **vote** $$v_{ij}$$ for the parent capsule $$j$$ from capsule $$i$$ is computed by multipling the pose matrix $$M_i$$ of capsule $$i$$ with a **viewpoint invariant transformation** $$W_{ij}$$. 
 
 $$
 \begin{split}
@@ -136,9 +141,9 @@ $$
 \end{split}
 $$
 
-The probability that a capsule $$i$$ is assigned to capsule $$j$$ as a part-whole relationship is based on the proximity of the vote $$v_{ij}$$ to the votes $$(v_{oj} \ldots) $$ from other capsules. $$W_{ij}$$ is learned discriminatively through a cost function and the backpropagation. It learns not only what a face is composed of, and it also makes sure the pose information of the parent capsule matched with its sub-components after some transformation.
+The probability that a capsule $$i$$ is grouped into capsule $$j$$ as a part-whole relationship is based on the proximity of the vote $$v_{ij}$$ to other votes $$(v_{o_{1}j} \ldots v_{o_{k}j}) $$ from other capsules. $$W_{ij}$$ is learned discriminatively through a cost function and the backpropagation. It learns not only what a face is composed of, and it also makes sure the pose information of the parent capsule matched with its sub-components after some transformation.
 
-Here is the visualization of routing-by-agreement in matrix capsules. We group capsules with similar votes ($$ T_iT_{ij} \approx T_hT_{hj}$$) after transform the pose $$ T_i$$ and $$T_j$$ with a viewpoint invariant transformation. ($$T_{ij}$$ aka $$W_{ij}$$ and $$T_{hj}$$)
+Here is the visualization of routing-by-agreement with the matrix capsules. We group capsules with similar votes ($$ T_iT_{ij} \approx T_hT_{hj}$$) after transform the pose $$ T_i$$ and $$T_j$$ with a viewpoint invariant transformation. ($$T_{ij}$$ aka $$W_{ij}$$ and $$T_{hj}$$)
  
 <div class="imgcap">
 <img src="/assets/capsule/gh.png" style="border:none;width:80%">
@@ -146,7 +151,7 @@ Here is the visualization of routing-by-agreement in matrix capsules. We group c
 
 (Source Geoffrey Hinton)
 
-Even the viewpoint may change, the pose matrices (or votes) corresponding to the same high level structure (a face) will change in a co-ordinate way such that we can still cluster the same group of lower level capsules together. i.e. we do not need different transformation matrices for different viewpoints. The transformation matrix is viewpoint invariant.
+Even the viewpoint may change, the pose matrices and the votes change in a co-ordinate way. In our example, the locations of the votes may change from the red dots to the pink dots below when the face is rotated. Nevertheless, EM routing is based on proximity and therefore EM routing can still clusters the same children capsules together. Hence, the transformation matrices are the same for any viewpoints of the objects: viewpoint invariant. We just need one set of the transformation matrices and one parent capsule for different object orientations.
 
 <div class="imgcap">
 <img src="/assets/capsule/cluster2.jpg" style="border:none;width:80%">
@@ -154,7 +159,7 @@ Even the viewpoint may change, the pose matrices (or votes) corresponding to the
 
 #### Capsule assignment
 
-EM Routing clusters capsules to form a higher level structure. We also use EM routing to compute the **assignment probabilities** $$r_{ij}$$ to measure it quantitively. For example, the hand capsule is not part of the face capsule, the assignment probability between the face and the hand is zero.
+EM routing clusters capsules to form a higher level capsule in runtime. It also calculates the **assignment probabilities** $$r_{ij}$$ to quantify the runtime connection between a capsule and its parents. For example, the hand capsule does not belong to the face capsule, the assignment probability between them is zero. $$r_{ij}$$ is also impacted by the activation of a capsule. If the mouth in the image is obstructed, the mouth capsule will have zero activation. The calculated $$r_{ij}$$ will also be zero.
 
 <div class="imgcap">
 <img src="/assets/capsule/c2.jpg" style="border:none;width:80%">
@@ -162,41 +167,51 @@ EM Routing clusters capsules to form a higher level structure. We also use EM ro
 
 ### Calculate capsule activation and pose matrix
 
-Let $$ v^h_{ij} $$ be $$h$$-th dimensional component for the **vote** $$v_{ij}$$ from capsule $$i$$ to capsule $$j$$. $$ v_{ij} $$ is the product of the pose matrix ($$M_i$$) for capsule $$i$$ and the transformation matrix $$W_{ij}$$. 
+The output of a capsule is computed differently than a deep network neuron. In EM clustering, we represent datapoints by a Gaussian distribution. In EM routing, we model the pose matrix of the parent capsule with a Gaussian also. The pose matrix is a $$4 \times 4$$ matrix, i.e. 16 components. We model the pose matrix with a Gaussian having 16 $$\mu$$ and 16 $$\sigma$$ and each $$\mu$$ represents a pose matrix's component.
+
+Let $$v_{ij}$$ be the vote from capsule $$i$$ for the parent capsule $$j$$, and $$ v^h_{ij} $$ be its $$h$$-th component. We apply the probability density function of a Gaussian
 
 $$
 \begin{split}
-&v_{ij} = M_iW_{ij} \quad 
+P(x) & = \frac{1}{\sigma \sqrt{2\pi}}e^{-(x - \mu)^{2}/2\sigma^{2} } \\
 \end{split}
 $$
 
-The capsule $$j$$ is modeled by a Gaussian $$G$$ ($$\mu^h$$ and $$\sigma^h$$ represents the mean and standard deviation for the h-th component). The probability distribution for $$ v^h_{ij} $$ based on this Gaussian distribution is (i.e. the probability that $$v^h_{ij}$$ belongs to the cluster $$G$$ using the Gaussian equation):
+to compute the probability of $$v^h_{ij} $$ belonging to the capsule $$j$$'s Gaussian model:
 
 $$
 \begin{split}
 p^h_{i \vert j} & = \frac{1}{\sqrt{2 \pi ({\sigma^h_j})^2}} \exp{(- \frac{(v^h_{ij}-\mu^h_j)^2}{2 ({\sigma^h_j})^2})} \\
-\ln(p^h_{i \vert j}) &= - \frac{(v^h_{ij}-\mu^h_j)^2}{2 ({\sigma^h_j})^2} - \ln(\sigma^h_j) - \frac{\ln(2 \pi)}{2} \\
 \end{split}
 $$
 
-$$\ln(p_{i \vert j})$$ is the negative log likelihood of the vote $$v_{ij}$$ matching the pose matrix of the capsule $$j$$.
+Let's take the natural $$log$$:
 
-$$cost_{ij}$$ is the cost to activate the capsule $$j$$ by the lower layer capsule $$i$$. If the calculated cost is low, we increase the chance of activating $$j$$. If $$cost$$ is high, it implies the corresponding votes do not match the parent Gaussian distribution and it gives a lower chance to activate the parent capsule. 
+$$
+\begin{split}
+\ln(p^h_{i \vert j}) &= \ln \frac{1}{\sqrt{2 \pi ({\sigma^h_j})^2}} \exp{(- \frac{(v^h_{ij}-\mu^h_j)^2}{2 ({\sigma^h_j})^2})} \\
+\\
+&= - \ln(\sigma^h_j) - \frac{\ln(2 \pi)}{2} - \frac{(v^h_{ij}-\mu^h_j)^2}{2 ({\sigma^h_j})^2}\\
+\end{split}
+$$
 
-$$cost$$ is the negative of the negative log likelihood. The h-th component of the cost for representing capsule $$i$$ by capsule $$j$$ is:
+Let's estimate the cost to activate a capsule. The lower the cost, the more likely a capsule will be activated. If cost is high, the votes do not match the parent Gaussian distribution and therefore a low chance to be activated. 
+
+Let $$cost_{ij}$$ be the cost to activate the parent capsule $$j$$ by the capsule $$i$$. It is the negative of the log likelihood:
 
 $$
 cost^h_{ij} = - \ln(P^h_{i \vert j})
 $$
 
-Since capsules are not equally related to capsule $$j$$, we pro-rated the cost with the **assignment probabilities** $$r_{ij}$$. The cost for all lower layer capsules is:
+Since capsules are not equally linked with capsule $$j$$, we pro-rated the cost with the runtime **assignment probabilities** $$r_{ij}$$. The cost from all lower layer capsules is:
 
 $$
 \begin{split}
 cost^h_j &= \sum_i  r_{ij} cost^h_{ij} \\
 &= \sum_i - r_{ij} \ln(p^h_{i \vert j}) \\
-&= \frac{\sum_i r_{ij} (\sigma^h)^2}{2 (\sigma^h)^2} + (\ln(\sigma^h) + \frac{\ln(2 \pi)}{2}) \sum_i r_{ij} \\
-&= (\ln(\sigma^h) + k) \sum_i r_{ij}  \quad \text{which k is a constant}
+&= \sum_i r_{ij}  \big( \frac{(v^h_{ij}-\mu^h_j)^2}{2 ({\sigma^h_j})^2} + \ln(\sigma^h_j) + \frac{\ln(2 \pi)}{2} \big)\\
+&= \frac{\sum_i r_{ij} (\sigma^h_j)^2}{2 (\sigma^h_j)^2} + (\ln(\sigma^h_j) + \frac{\ln(2 \pi)}{2}) \sum_i r_{ij} \\
+&= \big(\ln(\sigma^h_j) + k \big) \sum_i r_{ij}  \quad \text{which k is a constant}
 \end{split}
 $$
 
@@ -208,15 +223,11 @@ $$
 
 In the original paper, "$$-b_j$$" is explained as the cost of describing the mean and variance of capsule j. From the perspective of routing by agreement, I sometimes interpret "b" as a threshold in which how close the votes on $$j$$ needed to be on each other to activate $$j$$. $$b_j$$ is learned discriminatively using a cost function and the backpropagation. 
 
-Since we do not know the value for $$r_{ij}$$ and $$\sigma$$, we compute those values and $$a_j$$ iteratively using EM routing. λ in the equation above is an inverse temperature parameter which increases after each EM routing iteration. The exact schedule of the increase is not discussed in the paper and we should experiment different schemes during the training. In our implementation, λ is first initialized to 1 at the beginning of the iterations and then increment by 1 after each routing iteration.  
+$$r_{ij}$$, $$\mu$$, $$\sigma$$ and $$a_j$$ are computed iteratively using EM routing discussed in the next section. λ in the equation above is an inverse temperature parameter which increases after each EM routing iteration. The increasing values allow the iterations to be less aggressive in eliminating capsules from the parents in later iterations, otherwise there may be only one left per parent. The schedule of the increase is not discussed in the paper and can be experimented. In our implementation, λ is first initialized to 1 at the beginning of the iterations and then increment by 1 after each routing iteration.
 
 #### EM Routing
 
-The pose matrix and the activation of the output capsules are computed iteratively using EM routing. The basic idea is:
-
-1. Calculate the Gaussian models ($$\mu$$ and $$\sigma$$) of the parent capsules based on the current routing assignment $$r_{ij}$$. Re-compute the cost and the activation $$a_j$$ based the equations above.
-2. Re-calculate $$r_{ij}$$ based on the new Gaussian model and $$a_j$$
-3. Re-iterate step 1 and 2 by $$t$$ times (default 3)
+The pose matrix and the activation of the output capsules are computed iteratively using EM routing. The basic idea is we re-calculate a new Gaussian model and the activation $$a_j$$ for the parent capsule based on the runtime assignment probability $$r_{ij}$$ and the votes & activations of the children capsules. With the new model and $$a_j$$, we re-calculate $$r_{ij}$$. We repeat the iteration 3 times. The last $$a_j$$ will be the parent capsule's output. The 16 $$\mu$$ from the last Gaussian model will be reshaped to form the $$4 \times 4$$ pose matrix of the parent capsule.
 
 <div class="imgcap">
 <img src="/assets/capsule/al1.png" style="border:none;width:40%">
@@ -224,27 +235,27 @@ The pose matrix and the activation of the output capsules are computed iterative
 
 (Source from the Matrix capsules with EM routing paper)
 
-We start with the activation $$a$$ for capsules in level L and their corresponding votes $$V$$ for level L+1. We initially set the assignment probability $$r_{ij}$$ to be uniformly distributed before the routing iterations. We call M-step to compute an updated Gaussian model ($$\mu$$, $$\sigma$$) with the current $$r_{ij}$$ and the activation for the capsules in layer L+1. Then we call E-step to recompute the assignment probabilities $$r_{ij}$$ based on the newly computed Gaussian values and the activations in Layer L+1. We re-iterate the process $$t$$ (default 3) times so we can cluster the capsules better (better $$r_{ij}$$) and use the last calculated $$a_j$$ as the activation of the capsule $$j$$ and the last calculated $$\mu^h_j$$ as the h-th component of the pose matrix. (we reshape the 16 components into a 4x4 pose matrix.) 
+$$a$$ and $$V$$ above is the activation and the votes from the children capsules. We initialize the assignment probability $$r_{ij}$$ to be uniformly distributed. i.e. we start with the children capsules equally related with any parents. We call M-step to compute an updated Gaussian model ($$\mu$$, $$\sigma$$) and the parent activation $$a_j$$ from $$a$$, $$V$$ and current $$r_{ij}$$. Then we call E-step to recompute the assignment probabilities $$r_{ij}$$ based on the new Gaussian model and the new $$a_j$$. 
 
-In M-step, we calculate $$\mu$$ and $$\sigma$$ based on the activation $$a_i$$ at Level L and the current $$r_{ij}$$ (which is updated by E-step). M-step also re-calcule the cost and the activation $$a_j$$ for the capsules $$j$$ in Level L+1. $$ \beta_{\nu} $$ and $$ \beta_{\alpha}$$ is trained discriminatively. λ is an inverse temperature parameter increased by 1 after each routing iteration in our code implementation. 
+The details of M-step:
 
 <div class="imgcap">
 <img src="/assets/capsule/al2.png" style="border:none;width:90%">
 </div>
 
-In E-step, we re-calculate the assignment probability $$r_{ij}$$ based on the new $$\mu$$, $$\sigma$$ and $$a_j$$. The assignment is increased if the vote is closer to the $$\mu$$ of the updated Gaussian model.
 
+In M-step, we calculate $$\mu$$ and $$\sigma$$ based on the activation $$a_i$$ from the children capsules, the current $$r_{ij}$$ and votes $$V$$. M-step also re-calcule the cost and the activation $$a_j$$ for the parent capsules. $$ \beta_{\nu} $$ and $$ \beta_{\alpha}$$ is trained discriminatively. λ is an inverse temperature parameter increased by 1 after each routing iteration in our code implementation. 
+
+The details of E-step:
 <div class="imgcap">
 <img src="/assets/capsule/al3.png" style="border:none;width:90%">
 </div>
 
-> We use the $$a_j$$ from the last m-step call in the iterations as the activation of the output capsule $$j$$ and $$ \mu^h_j $$ as the h-component (for h = 1 ... 4x4=16) of the corresponding pose matrix.
+In E-step, we re-calculate the assignment probability $$r_{ij}$$ based on the new $$\mu$$, $$\sigma$$ and $$a_j$$. The assignment is increased if the vote is closer to the $$\mu$$ of the updated Gaussian model.
 
-<div class="imgcap">
-<img src="/assets/capsule/al1.png" style="border:none;width:40%">
-</div>
+> We use the $$a_j$$ from the last m-step call in the iterations as the activation of the output capsule $$j$$ and we shape the 16 $$ \mu$$ to form the 4x4 pose matrix.
 
-#### Backpropagation and EM-routing
+#### The role of backpropagation & EM routing
 
 In CNN, we use the formula below to calculate the activation of a neuron.
 
@@ -252,11 +263,13 @@ $$
 y_j =  ReLU( \sum_{i} W_{ij} * x_i + b_{j} )
 $$
 
-However, in matrix capsules, we use EM-routing to compute the activation of a capsule and its pose matrix. Nevertheless, the matrix capsules still heavily depend on the backpropagation in training the transformation matrix $$W_{ij}$$ and the parameters $$ \beta_{\nu} $$ and $$ \beta_{\alpha}$$.
- 
+However, the output of a capsule including the activation and the pose matrix is calculated by the EM routing. We use EM-routing to compute the parent capsule's output from the transformation matrix $$W$$ and the children capsules' activations and pose matrices. Nevertheless, by no mistake, the matrix capsules still heavily depend on the backpropagation in training the transformation matrix $$W_{ij}$$ and the parameters $$ \beta_{\nu} $$ and $$ \beta_{\alpha}$$.
+
+In EM routing, we compute the assignment probability $$r_{ij}$$ to quantify the connection between the children capsules and the parent capsules. This value is important but short lived. We re-initialize it to be uniformly distributed for every datapoint before the EM routing calculation. In any situration, training or testing, we use EM routing to compute capsules' outputs.
+
 #### Loss function (using Spread loss)
 
-We use spread loss as the main loss function for the backpropagation. The loss from the class $$i$$ (other than the true label $$t$$) is defined as
+Matrix capsules requires a loss function to train $$W$$, $$ \beta_{\nu} $$ and $$ \beta_{\alpha}$$. We pick spread loss as the main loss function for the backpropagation. The loss from the class $$i$$ (other than the true label $$t$$) is defined as
 
 $$
 L_i = (\max(0, m - (a_t - a_i)))^2 
@@ -277,9 +290,11 @@ Other implementations add regularization loss and reconstruction loss to the los
 
 ### Capsule Network
 
+The Capsule Network (CapsNet) in the first paper uses a fully connected network. This solution is hard to scale for larger images. In the next few sections, the matrix capsules use some of the convolution techniques in CNN to explore spatial features so it can scale better.
+
 #### smallNORB
 
-The smallNORB dataset has 5 toy classes: airplanes, cars, trucks, humans and animals. Every individual sample is pictured at 18 different azimuths (0-340), 9 elevations and 6 lighting conditions. This dataset is particular picked by the paper so it can study the classification of images with different viewpoints.
+The research paper uses the smallNORB dataset. It has 5 toy classes: airplanes, cars, trucks, humans and animals. Every individual sample is pictured at 18 different azimuths (0-340), 9 elevations and 6 lighting conditions. This dataset is particular picked by the paper so it can study the classification of images with different viewpoints.
 
 <div class="imgcap">
 <img src="/assets/capsule/data.png" style="border:none;width:60%">
@@ -289,47 +304,45 @@ The smallNORB dataset has 5 toy classes: airplanes, cars, trucks, humans and ani
 
 #### Architect
 
-However, many code implementations start with the MNist dataset because the image size is smaller. So for our demonstration, we also pick the MNist dataset.
+However, many code implementations start with the MNist dataset because the image size is smaller. So for our demonstration, we also pick the MNist dataset. This is the network design:
 
 <div class="imgcap">
 <img src="/assets/capsule/cape.png" style="border:none;">
 </div>
-(Picture from the Matrix capsules with EM routing paper)
+(Picture from the Matrix capsules with EM routing paper). 
 
-In our implementation, A=32 channels, B=32 capsules, K=3 (3x3 kernels), C=32 capsules, D=32 capusles, E=10 classes.
+ReLU Conv1 is a regular convolution (CNN) layer using a 5x5 filter with stride 2 outputting 32 ($$A=32$$) channels (feature maps) using the ReLU activation.
 
-Here is a brief description of each layer and the shape of their outputs:
+In PrimaryCaps, we apply a 1x1 convolution filter to transform each of the 32 channels into 32 ($$B=32$$) primary capsules. Each capsule contains a 4x4 pose matrix and an activation value. We use the regular convolution layer to implement the PrimaryCaps. We group $$4 \times 4 + 1$$ neurons to generate 1 capsule.
+
+PrimaryCaps is followed by a **convolution capsule layer** ConvCaps1 using a 3x3 filters ($$K=3$$) with stride 2. ConvCaps1 takes capsules as input and output capsules. ConvCaps1 is similar to a regular convolution layer except it uses EM routing to compute the capsule output.
+
+The capsule output of ConvCaps1 is then feed into ConvCaps2. ConvCaps2 is another convolution capsule layer but with stride 1. 
+ 
+The output capsules of ConvCaps2 are connected to the Class Capsules using a 1x1 filter and it outputs one capsule per class. (In MNist, we have 10 classes $$E=10$$) 
+
+We use EM routing to compute the pose matrices and the output activations for ConvCaps1, ConvCaps2 and Class Capsules. In CNN, we slide the same filter over the spatial dimension in calculating the same feature map. We want to detect the same feature regardless of the location. Similarly, in EM routing, we share the same transformation matrix $$W_{ij}$$ across spatial dimension to calculate the votes. 
+
+For example, from ConvCaps1 to ConvCaps2, we have 
+
+* a 3x3 filter,
+* 32 input and output capsules, and 
+* a 4x4 pose matrix.
+
+Since we share the transformation matrix, we just need 3x3x32x32x4x4 parameters for $$W$$.
+
+Here is the summary of each layer and the shape of their outputs:
 
 | Layer Name | Apply | Output shape |
 | --- | --- | --- | --- |
 | MNist image |  |  28, 28, 1 |
 | ReLU Conv1 | Regular Convolution (CNN) layer using 5x5 kernels with 32 output channels, stride 2 and padding | 14, 14, 32 |
-| PrimaryCaps | Modified convolution layer with 1x1 kernels output 32 capsules. (each with a 4x4 Pose matrix and a scalar activation value) The convolution uses strides 1 and padding. <br>Requiring 32x32x(4x4+1) parameters. | <nobr>pose (14, 14, 32, 4, 4), </nobr> <br>activations (14, 14, 32) |
-| ConvCaps1 | Capsule convolution with 3x3 kernels, strides 2 and no padding. <br>Requiring 3x3x32x32x4x4 parameters. | poses (6, 6, 32, 4, 4), activations (6, 6, 32) |
+| PrimaryCaps | Modified convolution layer with 1x1 kernels, strides 1 with padding and outputing 32 capsules. <br>Requiring 32x32x(4x4+1) parameters. | <nobr>pose (14, 14, 32, 4, 4), </nobr> <br>activations (14, 14, 32) |
+| ConvCaps1 | Capsule convolution with 3x3 kernels, strides 2 and no padding. Requiring 3x3x32x32x4x4 parameters. | poses (6, 6, 32, 4, 4), activations (6, 6, 32) |
 | ConvCaps2 | Capsule convolution with 3x3 kernels, strides 1 and no padding | poses (4, 4, 32, 4, 4), activations (4, 4, 32) |
 | Class Capsules | Capsule with 1x1 kernel. Requiring 32x10x4x4 parameters.   | poses (10, 4, 4), activations (10) |
 
-
-ReLU Conv1 is a regular convolution (CNN) layer using a 5x5 filter with a stride of 2 outputting 32 ($$A=32$$) channels (feature maps) using the ReLU activation.
-
-In PrimaryCaps, we apply a 1x1 filter to transform each of the 32 channels into 32 ($$B=32$$) primary capsules. Each capsule contains a 4x4 pose matrix and a scalar for the activation. Therefore it takes $$ A \times B \times (4 \times 4 + 1) $$ 1x1 filters. We use the regular convolution layer to implement the PrimaryCaps. In CNN, each node outputs one scalar value. In the matrix capsule, we group $$4 \times 4 + 1$$ nodes to generate 1 capsule. 
-
-PrimaryCaps is followed by a **convolution capsule layer** ConvCaps1 using a 3x3 filters ($$K=3$$) with a stride of 2. ConvCaps1 takes capsules as input and output capsules. The major difference between ConvCaps1 and a regular convolution layer is that a convolution capsule layer uses EM routing to compute the activation output and the pose matrices of the upper level capsules. 
-
-The capsule output of ConvCaps1 is then feed into ConvCaps2. ConvCaps2 is another convolution capsule layer but with a stride of 1. 
- 
-The output capsules of ConvCaps2 are connected to the Class Capsules using a 1x1 filter and it has one capsule per class. (In MNist, we have 10 classes $$E=10$$) 
-
-We use EM routing to compute the pose matrices and the output activations for ConvCaps1, ConvCaps2 and Class Capsules. In CNN, we slide the same filter over the spatial dimension in calculating the same feature map. i.e. we want to detect the same feature regardless of the location. Similarly, in EM routing, we share the same transformation matrix $$W_{ij}$$ regardless of its spatial location in calculating the votes from capsule $$i$$ to capsule $$j$$. 
-
-For example, in ConvCaps1 to ConvCaps2, we have 
-* filter size is 3x3 
-* 32 input and output capsules
-* pose matrix is 4x4
-
-Since we share the transformation matrix, we just need 3x3x32x32x4x4 parameters.
-
-Here is the code in building our layers:
+For the rest of the article, we will cover a detail implementation using Tensor. Here is the code in building our layers:
 ```python
 def capsules_net(inputs, num_classes, iterations, batch_size, name='capsule_em'):
     """Define the Capsule Network model
