@@ -8,7 +8,7 @@ excerpt: “A simple tutorial in understanding Capsules, Dynamic routing and Cap
 date: 2017-11-03 11:00:00
 ---
 
-This article covers the technical paper by Sara Sabour, Nicholas Frosst and Geoffrey Hinton on [Dynamic Routing between Capsules](https://arxiv.org/pdf/1710.09829.pdf). In this article, we will describe the basic concept first and later apply it with the Capsule network _CapsNet_ to detect digits in MNist. In the last third of the article, we go through a detail implementation based on Keras. The source code implementation is originated from [XifengGuo](https://github.com/XifengGuo/CapsNet-Keras) using Keras with Tensorflow. 
+This article covers the technical paper by Sara Sabour, Nicholas Frosst and Geoffrey Hinton on [Dynamic Routing between Capsules](https://arxiv.org/pdf/1710.09829.pdf). In this article, we will describe the basic Capsule concept and apply it with the Capsule network _CapsNet_ to detect digits in MNist. In the last third of the article, we go through a detail implementation. The source code implementation is originated from [XifengGuo](https://github.com/XifengGuo/CapsNet-Keras) using Keras with Tensorflow. 
 
 ### CNN challenges
 
