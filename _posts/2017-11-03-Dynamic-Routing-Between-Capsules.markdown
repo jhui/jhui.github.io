@@ -8,7 +8,7 @@ excerpt: “A simple tutorial in understanding Capsules, Dynamic routing and Cap
 date: 2017-11-03 11:00:00
 ---
 
-This article covers the technical paper by Sara Sabour, Nicholas Frosst and Geoffrey Hinton on [Dynamic Routing between Capsules](https://arxiv.org/pdf/1710.09829.pdf). The source code implementation is originated from [XifengGuo](https://github.com/XifengGuo/CapsNet-Keras) using Keras with Tensorflow. In this article, we will describe the basic concept first and later apply it with the Capsule network _CapsNet_ to detect digits in MNist.
+This article covers the technical paper by Sara Sabour, Nicholas Frosst and Geoffrey Hinton on [Dynamic Routing between Capsules](https://arxiv.org/pdf/1710.09829.pdf). In this article, we will describe the basic concept first and later apply it with the Capsule network _CapsNet_ to detect digits in MNist. In the last third of the article, we go through a detail implementation based on Keras. The source code implementation is originated from [XifengGuo](https://github.com/XifengGuo/CapsNet-Keras) using Keras with Tensorflow. 
 
 ### CNN challenges
 
@@ -45,42 +45,23 @@ Now, we imagine that each neuron contains the likelihood as well as properties o
 
 Instead of using the term neurons, the technical paper uses the term **capsules** to indicate that capsules output a vector instead of a single scaler value.
 
-### Viewpoint invariant
+### Equivariance
 
-Let's examine how a CNN can handle viewpoint variants. For example, how to train a face detection neuron for different orientations.
-
-<div class="imgcap">
-<img src="/assets/capsule/sface3.jpg" style="border:none;width:40%;">
-</div>
-
-Conceptually, we can say the CNN trains neurons to handle different orientations with a final top level face detection neuron.
-
+Conceptually, a CNN model use multiple neurons and layers in capturing different feature's variants:
 <div class="imgcap">
 <img src="/assets/capsule/cnn1.jpg" style="border:none;width;">
 </div>
 
-As noted above, for a CNN to handle viewpoint or style variants, we add more convolution layers and features maps. Nevertheless this approach tends to memorize the dataset rather than generalize a solution. It requires a large volume of training data to cover different variants and to avoid overfitting. MNist dataset contains 55,000 training data. i.e. 5,500 samples per digits. However, it is unlikely that children need to read this large amount of samples to learn digits. Our existing deep learning models including CNN seem inefficient in utilizing datapoints. Here is an ironic quote from Geoffrey Hinton:  
-
-> It (convolutional network) works depressingly well.
-
-
-#### Equivariance vs invariance
-
-Instead of capture a feature with a specific variant, a capsule is trained to capture the likeliness of a feature and its variant. So the purpose of the capsule is not only to detect a feature but also to train the model to learn the variant. 
+A capsule network share the same capsule to detect multiple variants in a simpler network.
 
 <div class="imgcap">
-<img src="/assets/capsule/c21.jpg" style="border:none;width;">
+<img src="/assets/capsule/c21.jpg" style="border:none;width:40%;">
+<img src="/assets/capsule/c22.jpg" style="border:none;width:40%;">
 </div>
 
-Such that the same capsule can detect the same object class with different orientations (for example, rotate clockwise):
+**Equivariance** is the detection of objects that can transform to each other. Intuitively, the capsule network detects the face is rotated right 20° (or rotated left 20°) rather than realizes the face matched a variant that is rotated 20°. By forcing the model to learn the feature variant in a capsule, we _may_ extrapolate possible variants more effectively with less training data.
 
-<div class="imgcap">
-<img src="/assets/capsule/c22.jpg" style="border:none;width;">
-</div>
-
-**Invariance** is the detection of features regardless of the variants. For example, a nose-detection neuron detects a nose regardless of the orientation. However, the loss of spatial orientation in a neuron will eventually hurt the effectiveness of such invariance model.
-
-**Equivariance** is the detection of objects that can transform to each other (for example, detecting faces with different orientations). Intuitively, the capsule network detects the face is rotated right 20° (equivariance) rather than realizes the face matched a variant that is rotated 20°. By forcing the model to learn the feature variant in a capsule, we _may_ extrapolate possible variants more effectively with less training data. In additional, we may reject adversaries more effectively.
+MNist dataset contains 55,000 training data. i.e. 5,500 samples per digits. However, it is unlikely that children need to read this large amount of samples to learn digits. Our existing deep learning models including CNN seem inefficient in utilizing datapoints. 
 
 > With feature property as part of the information extracted by capsules, we _may_ generalize the model better without an over extensive amount of labeled data.
 
@@ -121,13 +102,13 @@ $$
 
 which $$W_{ij}, z_j$$ and $$y_i$$ are all scalars. 
 
-For a capsule, the input $$u_i$$ and the output $$v_j$$ of a capsule are vectors. 
+For a capsule, the input $$u_i$$ and the output $$v_j$$ of a capsule are vectors. The output of a capsule is computed by the dynamic routing.
 
 <div class="imgcap">
 <img src="/assets/capsule/fc2.jpg" style="border:none;width:35%;">
 </div>
 
-We apply a **transformation matrix** $$W_{ij}$$ to the capsule output $$ u_i $$ of the pervious layer. For example, with a $$m \times k $$ matrix, we transform a k-D $$u_i$$ to a m-D $$\hat{u}_{j \vert i}$$. ($$ (m \times k) \text{  } \times \text{  } (k \times 1) \implies m \times 1$$) Then we compute a weighted sum $$s_j$$ with weights $$c_{ij}$$.
+We apply a **transformation matrix** $$W_{ij}$$ to the capsule output $$ u_i $$ of the pervious layer. For example, with a $$p \times k $$ matrix, we transform $$u_i$$ to $$\hat{u}_{j \vert i}$$ from k-dimension to p-dimension. ($$ (p \times k) \times (k \times 1) \implies p \times 1$$) Then we compute a weighted sum $$s_j$$ with weights $$c_{ij}$$.
 
 $$
 \begin{split}
@@ -136,9 +117,10 @@ s_j & = \sum_i c_{ij}  \hat{u}_{j|i} \\
 \end{split}
 $$
 
-$$c_{ij}$$ are **coupling coefficients** that are trained by the iterative dynamic routing process (discussed next) and $$ \sum_{j} c_{ij}$$ are designed to sum to one.
+$$c_{ij}$$ are **coupling coefficients** that are calculated by the iterative dynamic routing process (discussed next) and $$ \sum_{j} c_{ij}$$ are designed to sum to one. Conceptually, $$c_{ij}$$ measures how likely capsule $$i$$ may activate capsule $$j$$.
 
-Instead of applying a ReLU function, we apply a squashing function to scale the vector between 0 and unit length. 
+Instead of applying a ReLU function, we apply a squashing function to $$s_j$$ so the final output vector $$v_j$$ of the capsule has length between 0 and 1. This function shrinks small vectors to zero and large vectors to unit vectors.
+
 
 $$
 \begin{split}
@@ -146,24 +128,23 @@ v_{j} & = \frac{\| s_{j} \|^2}{ 1 + \| s_{j} \|^2} \frac{s_{j}}{ \| s_{j} \|}  \
 \end{split}
 $$
 
-It shrinks small vectors to zero and long vectors to unit vectors. Therefore the likelihood of each capsule is bounded between zero and one.
 
 $$
 \begin{split}
-v_{j} & \approx \| s_{j} \| s_{j}  \quad & \text{for } s_{j} \text { is short } \\
-v_{j} & \approx \frac{s_{j}}{ \| s_{j} \|}  \quad & \text{for } s_{j} \text { is long } \\
+v_{j} & \approx \| s_{j} \| s_{j}  \quad & \text{for } s_{j} \text { is small. } \\
+v_{j} & \approx \frac{s_{j}}{ \| s_{j} \|}  \quad & \text{for } s_{j} \text { is large. } \\
 \end{split}
 $$
 
 ### Iterative dynamic Routing
 
-In deep learning, we use backpropagation to train model parameters. The transformation matrix $$ W_{ij} $$ in capsules are still trained with backpropagation. Nevertheless, the coupling coefficients $$c_{ij}$$ are calculated with a new iterative dynamic routing method.
+In capsule, we use iterative dynamic routing to compute the capsule output by calculating an intermediate value $$c_{ij}$$ (coupling coefficient).
 
 <div class="imgcap">
 <img src="/assets/capsule/face6.jpg" style="border:none;width:65%;">
 </div>
 
-The **prediction vector** $$\hat{u}_{j \vert i}$$ is computed as (with the transformation matrix):
+Recall that the **prediction vector** $$\hat{u}_{j \vert i}$$ is computed as:
 
 $$
 \begin{split}
@@ -171,9 +152,7 @@ $$
 \end{split}
 $$
 
-which $$ u_i $$ is the activity vector for the capsule $$i$$ in the layer below.
-
-The **activity vector** $$v_j$$ for the capsule $$j$$  in the layer above is computed as:
+and the **activity vector** $$v_j$$ (the capsule $$j$$ output) is:
 
 $$
 \begin{split}
@@ -182,13 +161,15 @@ v_{j} & = \frac{\| s_{j} \|^2}{ 1 + \| s_{j} \|^2} \frac{s_{j}}{ \| s_{j} \|}  \
 \end{split}
 $$
 
-Intuitively, prediction vector $$\hat{u}_{j \vert i}$$ is the prediction (**vote**) from the capsule $$i$$ on the output of the capsule $$j$$ above. If the activity vector has close similarity with the prediction vector, we conclude that capsule $$i$$ is highly related with the capsule $$j$$. (For example, the eye capsule is highly related to the face capsule.) Such similarity is measured using the scalar product of the prediction and activity vector.  Therefore, the similarity takes into account on both likeliness and the feature properties. (instead of just likeliness in neurons) We compute a relevancy score $$ b_{ij} $$ according to the similarity:
+Intuitively, prediction vector $$\hat{u}_{j \vert i}$$ is the prediction (**vote**) from the capsule $$i$$ on the output of the capsule $$j$$ above. If the activity vector has close similarity with the prediction vector, we conclude that both capsules are highly related. For example, the mouth capsule is part of the face capsule. Such similarity is measured using the scalar product of the prediction and the activity vector.  
 
 $$
 \begin{split}
 b_{ij} ← \hat{u}_{j \vert i} \cdot v_j \\
 \end{split}
 $$
+
+Therefore, the similarity score $$b_{ij}$$ takes into account on both likeliness and the feature properties, instead of just likeliness in neurons. $$ b_{ij} $$ remains low if the activation $$u_i$$ of capsule $$i$$ is low since $$\hat{u}_{j \vert i}$$ is computed from $$u_i$$. i.e. the score should remain low for the face capsule if the mouth capsule is not activated.
 
 The coupling coefficients $$ c_{ij} $$ is computed as the softmax of $$ b_{ij} $$:
 
@@ -216,6 +197,9 @@ Here is the final pseudo code for the dynamic routing:
 
 > Routing a capsule to the capsule in the layer above based on relevancy is called **Routing-by-agreement**.
 
+We compute $$c_{ij}$$ to quantify the connection between a capsule and its parent capsules. This value is important but short lived. We re-initialize it to 0 for every datapoint before the dynamic routing calculation. To calculate a capsule output, training or testing, we use the dynamic routing.
+
+
 ### Max pooling shortcoming
 
 The max pooling in a CNN handles translational variance. Even a feature is slightly moved, if it is still within the pooling window, it can still be detected. Nevertheless, this approach keeps only the max feature (the most dominating) and throws away the others. Capsules maintain a weighted sum of features from the previous layer. Hence, it is more suitable in detecting overlapping features. For example detecting multiple overlapping digits in the handwriting:
@@ -226,15 +210,19 @@ The max pooling in a CNN handles translational variance. Even a feature is sligh
 
 ### Significant of routing-by-agreement with capsules
 
-In deep learning, we use backpropagation to train the model's parameters based on a cost function. Those parameters (weights) control how signal is routed from one layer to another. If the weight between 2 neurons is zero, the activation of a neuron is not propagated to that neuron.
+In a fully connected network, we calculate the neuron with
 
-Iterative dynamic routing provides an alternative of how signal is routed based on feature parameters rather than one size fit all cost function. By utilizing the feature parameters, we can theoretically group capsules better to form a high level structure. For example, the capsule layers may eventually behaves as a **parse tree** that explore the part-whole relationship. (for example, a face is composed of eyes, a nose and a mouth) The iterative dynamic routing controls how much a signal is propagate upward to the capsules above utilizing the transformation matrix, the likeliness and the feature's properties.
+$$
+y_j =  ReLU( \sum_{i} W_{ij} * x_i + b_{j} ),
+$$
+
+and $$W$$ is trained by the backpropagation with a global cost function. Iterative dynamic routing provides an alternative of calculating how a capsule is activated by using local features' properties. Theoretically, we can group capsules better and simpler to form a **parse tree** with reduced risk of adversaries.
 
 <div class="imgcap">
 <img src="/assets/capsule/face7.jpg" style="border:none;width:45%;">
 </div>
 
-The iterative dynamic routing with capsules is just one showcase in demonstrating the routing-by-agreement. We expect more capsule models with advance routing methods will be introduced in coming years. In a second paper on capsules _Matrix capsules with EM routing_, a [likeliness, 4x4 pose matrix] matrix capsule is proposed (rather than a k-D vector capsule) with a new Expectation-maximization routing (EM routing). The pose matrices are designed to capture the viewpoint of the object. For example, the second row of the picture below represent the same object above with a different pose matrix (viewpoint).
+The iterative dynamic routing with capsules is just one showcase in demonstrating the routing-by-agreement. In a second paper on capsules _Matrix capsules with EM routing_, a matrix capsule [likeliness, 4x4 pose matrix] is proposed with a new Expectation-maximization (EM) routing. The pose matrices are designed to capture different viewpoints so a capsule can capture objects with different azimuths and elevations.
 
 <div class="imgcap">
 <img src="/assets/capsule/data.png" style="border:none;width:50%">
@@ -242,28 +230,13 @@ The iterative dynamic routing with capsules is just one showcase in demonstratin
 
 (Source from the paper Matrix capsules with EM routing)
 
-The objective of the EM routing is to group capsules to form a part-whole relationship with a clustering technique (EM). In machine learning, we use EM to cluster datapoints into different Gaussian distributions. For example, we cluster the datapoints below into two clusters modeled by two gaussian distributions.
-
-<div class="imgcap">
-<img src="/assets/ml/GM2.png" style="border:none;width:60%;">
-</div>
-
-For the mouth, eyes and nose capsules in the lower layer, each of them makes predictions (votes) on the pose matrices of its possible parent capsule(s) through a transformation matrix. The role of the EM routing is to cluster lower level capsules that produce similar votes. Conceptually the votes from the mouth, eyes and nose capsules may cluster into the pink region above that can be represented by their parent capsule (face).
-
-> A higher level feature (a face) is detected by looking for agreement between votes from the capsules one layer below. We use EM routing to cluster capsules that have close proximity of the corresponding votes. 
-
-The transformation matrix to compute the vote is viewpoint invariant. We do not need different transformation matrices for different viewpoints. Even the viewpoint may change, the pose matrices (or votes) corresponding to the same high level structure (a face) will change in a co-ordinate way such that a cluster with the same capsules can be detected. 
+We apply a clustering technique, the EM routing, to cluster related capsules to form a parent capsule. Even the viewpoint may change, the votes will change in a co-ordinate way so the EM routing can still cluster the same children capsules together.
 
 <div class="imgcap">
 <img src="/assets/capsule/cluster2.jpg" style="border:none;width:80%">
 </div>
 
-Hence, the EM routing groups related capsules regardless of the viewpoint. Unlike CNN which each neuron may detect a different viewpoint, the transformation matrix is viewpoint independent which may require less data to train.
-
-> New capsules and routing algorithm will hopefully build higher level structures much easier and much effectively with less training data.
-
-(Note: The second paper expands what a Capsule network can do. For those interested, here is my other article on the [Matrix capsule](https://jhui.github.io/2017/11/14/Matrix-Capsules-with-EM-routing-Capsule-Network/)).
-
+The first paper opens a new approach in the deep learning, and the second paper explores deeper into its potential. For those interested, i will suggest my second article on [Matrix capsule](https://jhui.github.io/2017/11/14/Matrix-Capsules-with-EM-routing-Capsule-Network/)).
 
 ### CapsNet architecture
 
