@@ -59,7 +59,7 @@ A capsule network share the same capsule to detect multiple variants in a simple
 <img src="/assets/capsule/c22.jpg" style="border:none;width:40%;">
 </div>
 
-**Equivariance** is the detection of objects that can transform to each other. Intuitively, the capsule network detects the face is rotated right 20° (or rotated left 20°) rather than realizes the face matched a variant that is rotated 20°. By forcing the model to learn the feature variant in a capsule, we _may_ extrapolate possible variants more effectively with less training data.
+**Equivariance** is the detection of objects that can transform to each other. Intuitively, a capsule detects the face is rotated right 20° (or rotated left 20°) rather than realizes the face matched a variant that is rotated 20°. By forcing the model to learn the feature variant in a capsule, we _may_ extrapolate possible variants more effectively with less training data.
 
 MNist dataset contains 55,000 training data. i.e. 5,500 samples per digits. However, it is unlikely that children need to read this large amount of samples to learn digits. Our existing deep learning models including CNN seem inefficient in utilizing datapoints. 
 
@@ -169,7 +169,7 @@ b_{ij} ← \hat{u}_{j \vert i} \cdot v_j \\
 \end{split}
 $$
 
-Therefore, the similarity score $$b_{ij}$$ takes into account on both likeliness and the feature properties, instead of just likeliness in neurons. $$ b_{ij} $$ remains low if the activation $$u_i$$ of capsule $$i$$ is low since $$\hat{u}_{j \vert i}$$ is computed from $$u_i$$. i.e. the score should remain low for the face capsule if the mouth capsule is not activated.
+Therefore, the similarity score $$b_{ij}$$ takes into account on both likeliness and the feature properties, instead of just likeliness in neurons. $$ b_{ij} $$ remains low if the activation $$u_i$$ of capsule $$i$$ is low since $$\hat{u}_{j \vert i}$$ is computed from $$u_i$$. i.e. $$b_{ij}$$ should remain low for the face capsule if the mouth capsule is not activated.
 
 The coupling coefficients $$ c_{ij} $$ is computed as the softmax of $$ b_{ij} $$:
 
@@ -197,7 +197,9 @@ Here is the final pseudo code for the dynamic routing:
 
 > Routing a capsule to the capsule in the layer above based on relevancy is called **Routing-by-agreement**.
 
-We compute $$c_{ij}$$ to quantify the connection between a capsule and its parent capsules. This value is important but short lived. We re-initialize it to 0 for every datapoint before the dynamic routing calculation. To calculate a capsule output, training or testing, we use the dynamic routing.
+
+The dynamic routing is not a complete replacement of the backpropagation. The transformation matrix $$W$$ is still trained with the backpropagation using a cost function. We use dynamic routing to compute the output of a capsule. We compute $$c_{ij}$$ to quantify the connection between a capsule and its parent capsules. This value is important but short lived. We re-initialize it to 0 for every datapoint before the dynamic routing calculation. To calculate a capsule output, training or testing, we always redo the dynamic routing calculation.
+
 
 
 ### Max pooling shortcoming
