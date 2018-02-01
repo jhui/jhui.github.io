@@ -215,7 +215,7 @@ The max pooling in a CNN handles translational variance. Even a feature is sligh
 In a fully connected network, we calculate the neuron with
 
 $$
-y_j =  ReLU( \sum_{i} W_{ij} * x_i + b_{j} ),
+y_j =  ReLU( \sum_{i} W_{ij} x_i + b_{j} ),
 $$
 
 and $$W$$ is trained by the backpropagation with a global cost function. Iterative dynamic routing provides an alternative of calculating how a capsule is activated by using local features' properties. Theoretically, we can group capsules better and simpler to form a **parse tree** with reduced risk of adversaries.
