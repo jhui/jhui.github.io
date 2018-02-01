@@ -47,7 +47,7 @@ Instead of using the term neurons, the technical paper uses the term **capsules*
 
 ### Equivariance
 
-Conceptually, a CNN model use multiple neurons and layers in capturing different feature's variants:
+Conceptually, a CNN model uses multiple neurons and layers in capturing different feature's variants:
 <div class="imgcap">
 <img src="/assets/capsule/cnn1.jpg" style="border:none;width;">
 </div>
