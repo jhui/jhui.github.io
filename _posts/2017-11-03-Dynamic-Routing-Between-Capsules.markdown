@@ -198,7 +198,7 @@ Here is the final pseudo code for the dynamic routing:
 > Routing a capsule to the capsule in the layer above based on relevancy is called **Routing-by-agreement**.
 
 
-The dynamic routing is not a complete replacement of the backpropagation. The transformation matrix $$W$$ is still trained with the backpropagation using a cost function. We use dynamic routing to compute the output of a capsule. We compute $$c_{ij}$$ to quantify the connection between a capsule and its parent capsules. This value is important but short lived. We re-initialize it to 0 for every datapoint before the dynamic routing calculation. To calculate a capsule output, training or testing, we always redo the dynamic routing calculation.
+The dynamic routing is not a complete replacement of the backpropagation. The transformation matrix $$W$$ is still trained with the backpropagation using a cost function. However, we use dynamic routing to compute the output of a capsule. We compute $$c_{ij}$$ to quantify the connection between a capsule and its parent capsules. This value is important but short lived. We re-initialize it to 0 for every datapoint before the dynamic routing calculation. To calculate a capsule output, training or testing, we always redo the dynamic routing calculation.
 
 
 
