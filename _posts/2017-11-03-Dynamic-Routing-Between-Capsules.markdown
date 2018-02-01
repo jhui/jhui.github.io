@@ -232,7 +232,7 @@ The iterative dynamic routing with capsules is just one showcase in demonstratin
 
 (Source from the paper Matrix capsules with EM routing)
 
-Matrix capsules apply a clustering technique, the EM routing, to cluster related capsules to form a parent capsule. Even the viewpoint may change, the votes will change in a co-ordinate way so the EM routing can still cluster the same children capsules together.
+Matrix capsules apply a clustering technique, the EM routing, to cluster related capsules to form a parent capsule. Even the viewpoint may change, the votes will change in a co-ordinate way from the red dots to the pink dots below. So the EM routing can still cluster the same children capsules together.
 
 <div class="imgcap">
 <img src="/assets/capsule/cluster2.jpg" style="border:none;width:80%">
