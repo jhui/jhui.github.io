@@ -161,9 +161,9 @@ $$
 
 $$
 \begin{split}
-\hat\theta & = \arg\min_{\theta} - \sum^N_{i=1} \log p(x_i \vert \theta ) \\
-&  = \arg\min_{\theta} - \sum_{x \in X} p(x) \log p(x \vert \theta ) \\
-& = \arg\min_{\theta} H(P, Q) \\ 
+\hat\theta & = \arg\min_{\theta} - \sum^N_{i=1} \log q(x_i \vert \theta ) \\
+&  = \arg\min_{\theta} - \sum_{x \in X} p(x) \log q(x \vert \theta ) \\
+& = \arg\min_{\theta} H(p, q) \\ 
 \end{split}
 $$
  
