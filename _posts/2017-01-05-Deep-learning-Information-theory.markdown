@@ -211,7 +211,7 @@ $$
 \end{split} 
 $$
 
-Alternative, we can find the most likely $$θ$$ given $$x$$:
+Alternative, we can find the most likely $$θ$$ given $$y$$:
 
 $$
 θ^{*}_{MAP} = \arg \max_θ p(θ \vert y) = \arg \max_θ \log p(y \vert θ) + \log p(θ) \\
