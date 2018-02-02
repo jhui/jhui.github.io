@@ -83,26 +83,35 @@ In the third row, we rotate the image by 20°. The capsule will generate vectors
 
 > We call the output vector of a capsule as the **activity vector** with magnitude represents the probability of detecting a feature and its orientation represents its parameters (properties).
 
-### Compute the output of a capsule
+### Dynamic routing
 
-Recall a fully connected neural network:
+Dynamic routing groups capsules to form a parent capsule, and it calculates the capsule's output.
+
+#### Intuition
+
+We collect 3 similar sketches with different scale and orientation, and we measures the horizontal width of the mouth and the eye in pixels. They are
+$$s^{(1)}=(100, 66), s^{(2)}=(200, 131) \text{ and } s^{(3)}=( 50, 33).$$
 
 <div class="imgcap">
-<img src="/assets/capsule/fc1.jpg" style="border:none;width:35%;">
+<img src="/assets/ml/faa2.jpg" style="border:none;width:40%;">
 </div>
 
-The output of each neuron is computed from the output of the neurons from the previous layer:
+([Image modified from](http://sharenoesis.com/article/draw-face/84))
+
+Let's assume $$W_m =2, W_e=3$$, and we calculate a vote from the mouth and the eye for $$ s^{(1)}$$ as:
 
 $$
 \begin{split}
-z_j &= \sum_i W_{ij} x_i \\
-y_j &= ReLU(z_j) \\
+v^{(1)}_m & = W_m \times width_m = 2 \times 100 = 200 \\
+v^{(1)}_e & = W_e \times width_e = 3 \times 65 = 198 \\
 \end{split}
 $$
 
-which $$W_{ij}, z_j$$ and $$y_i$$ are all scalars. 
+We realize both $$v^{(1)}_m$$ and $$v^{(1)}_e$$ are very similar. When we repeat it with other sketches, we get the same findings. So the mouth capsule and the eye capsule must be strongly related to a parent capsule with width approximate 200 pixels. From our experience, a face is 2 times ($$W_m=2$$) the width of a mouth and 3 times the width ($$W_e=3$$) of an eye. So the parent capsule we detected is a face capsule. Of course, we can make it more accurate by adding more properties like height or color. In dynamic routing, we transform the vectors of an input capsules with a transformation matrix $$W$$ to form a vote, and group capsules with similar votes. Those votes eventually becomes the output vector of the parent capsule. So how can we know $$W$$? Just do it in the deep learning way: backpropagation with a cost function.
 
-For a capsule, the input $$u_i$$ and the output $$v_j$$ of a capsule are vectors. The output of a capsule is computed by the dynamic routing.
+#### Calculating a capsule output
+
+For a capsule, the input $$u_i$$ and the output $$v_j$$ of a capsule are vectors.
 
 <div class="imgcap">
 <img src="/assets/capsule/fc2.jpg" style="border:none;width:35%;">
@@ -161,7 +170,7 @@ v_{j} & = \frac{\| s_{j} \|^2}{ 1 + \| s_{j} \|^2} \frac{s_{j}}{ \| s_{j} \|}  \
 \end{split}
 $$
 
-Intuitively, prediction vector $$\hat{u}_{j \vert i}$$ is the prediction (**vote**) from the capsule $$i$$ on the output of the capsule $$j$$ above. If the activity vector has close similarity with the prediction vector, we conclude that both capsules are highly related. For example, the mouth capsule is part of the face capsule. Such similarity is measured using the scalar product of the prediction and the activity vector.  
+Intuitively, prediction vector $$\hat{u}_{j \vert i}$$ is the prediction (**vote**) from the capsule $$i$$ on the output of the capsule $$j$$ above. If the activity vector has close similarity with the prediction vector, we conclude that both capsules are highly related. Such similarity is measured using the scalar product of the prediction and the activity vector.  
 
 $$
 \begin{split}
