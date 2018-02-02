@@ -630,13 +630,13 @@ $$
 x = A^{+} y
 $$
 
-$$A^{+}$ is computed as (if exist):
+$$A^{+}$$ is computed as (if exist):
 
 $$
 A^{+} = V D^{+}U^T
 $$
 
-which $$U, D \text{ and } V are the SVD of $$A$$. The pseudoinverse $$D^{+}$$ of a diagonal matrix D is computed by taking the reciprocal $$\frac{1}{x}$$ of all non-zero elements then taking the transpose of the resulting matrix.
+which $$U, D \text{ and } V $$ are the SVD of $$A$$. The pseudoinverse $$D^{+}$$ of a diagonal matrix D is computed by taking the reciprocal $$\frac{1}{x}$$ of all non-zero elements then taking the transpose of the resulting matrix.
 
 ### Determinant
 
