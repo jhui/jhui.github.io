@@ -470,10 +470,31 @@ $$
 
 ### Derivative of matrix
 
+For vector $$x$$:
+
 $$
 \begin{split}
-\frac{\partial x^Ta}{\partial x} & = \frac{\partial a^T x}{\partial x} = a \\
+\frac{\partial Ax}{\partial x} & = A \\
+\frac{\partial Ax}{\partial z} & = A \frac{\partial x}{\partial z}\\
 \\
+\frac{\partial x^Ta}{\partial x} &  = a \\
+\frac{\partial a^T x}{\partial x} & = a \\
+\\
+\frac{\partial y^TAx}{\partial x} &  = y^TA \\
+\frac{\partial y^TAx}{\partial y} & = x^TA^T \\
+\\
+\frac{\partial x^T x}{\partial x} & = 2 x^T \\
+\\
+\frac{\partial x^T A x}{\partial x} & =  x^T(A + A^T) \\
+\frac{\partial x^TAx}{\partial x} & = 2 x^T A \quad \text{if } A \text{ is symmetric.}\\
+\\
+\end{split}
+$$
+
+For matrix $$X$$:
+
+$$
+\begin{split}
 \frac{\partial a^TXb}{\partial X} & =  a b^T \\
 \\
 \frac{\partial a^TX^Tb}{\partial X} & =  b a^T \\
