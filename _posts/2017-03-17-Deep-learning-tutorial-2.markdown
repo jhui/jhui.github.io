@@ -190,7 +190,7 @@ When we build our model, we try out a polynomial model with order of nine. Even 
 
 ### Diminishing and exploding gradient
 
-**Cannot train a model if gradients explode or diminish.** From our previous example, we demonstrate the importance of tracing the gradient at different layers to troubleshoot problems. In our online dating model, we log
+**Cannot train a model if gradients explode or diminish.** If the gradient is close to zero, we hardly learn. If it is too large, we jump too far. The activation functions have saturation areas where the gradient is very small. Some problem domains have very steep gradient also. From our previous example, we demonstrate the importance of tracing the gradient at different layers to troubleshoot problems. In our online dating model, we log
 $$ \| gradient \| $$ 
 for each layers.
 

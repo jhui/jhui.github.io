@@ -223,7 +223,7 @@ $$
 
 In the original paper, "$$-b_j$$" is explained as the cost of describing the mean and variance of capsule j. From the perspective of routing by agreement, I sometimes interpret "b" as a threshold in which how close the votes on $$j$$ needed to be on each other to activate $$j$$. $$b_j$$ is learned discriminatively using a cost function and the backpropagation. 
 
-$$r_{ij}$$, $$\mu$$, $$\sigma$$ and $$a_j$$ are computed iteratively using EM routing discussed in the next section. λ in the equation above is an inverse temperature parameter which increases after each EM routing iteration. The increasing values allow the iterations to be less aggressive in eliminating capsules from the parents in later iterations, otherwise there may be only one left per parent. The schedule of the increase is not discussed in the paper and can be experimented. In our implementation, λ is first initialized to 1 at the beginning of the iterations and then increment by 1 after each routing iteration.
+$$r_{ij}$$, $$\mu$$, $$\sigma$$ and $$a_j$$ are computed iteratively using EM routing discussed in the next section. λ in the equation above is an inverse temperature $$ \frac{1}{temperature}$$ parameter  which increases after each EM routing iteration. The lower temperature (the higher λ) allows later iterations to refine the results better. In our implementation, λ is first initialized to 1 at the beginning of the iterations and then increment by 1 after each routing iteration.
 
 #### EM Routing
 

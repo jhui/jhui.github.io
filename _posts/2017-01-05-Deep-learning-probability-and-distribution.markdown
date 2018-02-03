@@ -21,6 +21,8 @@ $$
 \int p(x)dx = 1
 $$
 
+$$\mathrm{x}$$ is called a **random variable** whose values are the outcome of a random process. For example, if we roll a dice five times, $$P(\mathrm{x} = x)$$ holds the probability for $$ \mathrm{x} = x $$ after five rolls.
+
 ### Conditional probability
 
 $$
