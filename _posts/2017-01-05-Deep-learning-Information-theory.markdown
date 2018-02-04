@@ -63,7 +63,7 @@ The entropy of a coin peaks when $$p(head)=p(tail)=0.5$$.
 <img src="/assets/ml/fcc.png" style="border:none;width:30%">
 </div>
 
-(Source wikipedia)
+(Source Wikipedia)
 
 For a fair die, $$ H(X) = \log_2 6 \approx 2.59 $$. A fair die has more entropy than a fair coin because it is less predictable.
 

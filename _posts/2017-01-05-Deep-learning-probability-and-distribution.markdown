@@ -221,7 +221,7 @@ $$
 <img src="/assets/ml/bplot.jpg" style="border:none;width:50%">
 </div>
 
-Source: wikipedia
+Source Wikipedia
 
 $$
 \begin{split}
@@ -241,7 +241,7 @@ $$
 <div class="imgcap">
 <img src="/assets/ml/bdist.png" style="border:none;width:50%">
 </div>
-Source: wikipedia
+Source Wikipedia
 
 The Gaussian distribution is the limiting case for the binomial distribution with:
 
@@ -447,7 +447,7 @@ Exponential distribution:
 <img src="/assets/ml/eexp.png" style="border:none;width:40%">
 </div>
 
-(Source wikipedia)
+(Source Wikipedia)
 
 $$
 p(x;\lambda)=

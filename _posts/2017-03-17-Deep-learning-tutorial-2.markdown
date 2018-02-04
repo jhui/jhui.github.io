@@ -486,7 +486,7 @@ In machine learning, KL Divergence measures the difference between 2 probability
 <img src="/assets/ml/kl.png" style="border:none;width:80%">
 </div>
 
-Source wikipedia.
+Source Wikipedia.
 
 It becomes a very good cost function to penalize the difference between the true label and the prediction made by the model. In our previous example, we classify a picture as either a bus, a truck or an airplane (bus, truck, airplane). The true label probability distribution for a bus is (1, 0, 0) and our model prediction can be (0.88, 0.08, 0.04). The KL Divergence becomes a very good cost function to train our model.
 

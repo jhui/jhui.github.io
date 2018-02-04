@@ -331,3 +331,16 @@ Claiming one model is better than the other is not obvious. If a model is doing 
 ### Central limit theorem
 
 The central limit theorem states that if we keep randomly sampling data from a distribution and compute its mean, the computed means will follow a normal distribution even the original data does not follow the normal distribution.
+
+### Future challenges
+
+Possible challenges in future research
+
+* Learn with less data.
+* Better use of un-labeled data.
+* Learn from related task
+* Generate new data.
+* Determine how likely for a datapoint.
+* Handle missing values.
+
+ 

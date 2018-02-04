@@ -109,7 +109,7 @@ We will take a short break to understand EM. A Gaussian mixture model clusters d
 <img src="/assets/capsule/em.gif" style="border:none;width:40%">
 </div>
 
-(Image source wikipedia)
+(Image source Wikipedia)
 
 For a Gaussian mixture model with two clusters, we start with a random initialization of clusters $$ G_1 = (\mu_1, \sigma^2_1) $$ and $$ G_2 = (\mu_2, \sigma^2_2) $$. Expectation Maximization (EM) algorithm tries to fit the training datapoints into $$G_1$$ and $$G_2$$ and then re-compute $$\mu$$ and $$ \sigma$$ for $$G_1$$ and $$G_2$$ based on Gaussian distribution. The iteration continues until the solution converged such that the probability of seeing all datapoints is maximized with the final $$G_1$$ and $$G_2$$ distribution.
 

@@ -643,7 +643,7 @@ Here is another plot of posterior after seeing 5 evidence. The blue dot is where
 <img src="/assets/ml/s4.png" style="border:none;width:100%">
 </div>
 
-Source wikipedia.
+Source Wikipedia.
 
 ### Gaussian mixture model
 

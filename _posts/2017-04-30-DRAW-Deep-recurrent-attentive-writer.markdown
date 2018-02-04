@@ -378,7 +378,7 @@ def attn_window(self, scope, h_dec):
 
 Our Gaussian distribution is symmetrical in 2-D. Therefore, we do not need _filterbank_ to return a 2D filters. Instead, it returns 2 linear filters $$ F_x, F_y$$. 
 
-Source wikipedia:
+Source Wikipedia:
 <div class="imgcap">
 <img src="/assets/gm/wiki.png" style="border:none;width:40%">
 </div>
