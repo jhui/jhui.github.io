@@ -155,13 +155,13 @@ $$
 Can be shorten as:
 
 $$
-\mathbf{E}_{x} [f(x)]
+\mathbb{E}_{x} [f(x)]
 $$
 
 For continuous variables:
 
 $$
-\mathbf{E}_{x \sim P} [f(x)] = \int p(x)f(x)dx
+\mathbb{E}_{x \sim P} [f(x)] = \int p(x)f(x)dx
 $$
 
 Properties:

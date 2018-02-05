@@ -108,10 +108,15 @@ $$
  & = \frac{\partial \mathcal{F}(x)}{\partial \theta}  - \sum_{x^{'}} \frac{e^{-\mathcal{F}(x^{'})}}{\sum_{x^{'}} e^{-\mathcal{F}(x^{'})}}  \frac{\partial \mathcal{F}(x^{'})}{\partial \theta}  \\
  & = \frac{\partial \mathcal{F}(x)}{\partial \theta}  - \sum_{x^{'}} \frac{e^{-\mathcal{F}(x^{'})}}{Z}  \frac{\partial \mathcal{F}(x^{'})}{\partial \theta}  \\
 & = \frac{\partial \mathcal{F}(x)}{\partial \theta} - \sum_{x^{'}} p(x^{'}) \frac{\partial \mathcal{F}(x^{'})}{\partial \theta} \\
+& = \frac{\partial \mathcal{F}(x)}{\partial \theta} - \mathbb{E}_{x^{'} \sim p} [ \frac{\partial \mathcal{F}(x^{'})}{\partial \theta}  ] \\
 \end{split}
 $$
 
+In Restricted Boltzmann Machine, we apply further constraints so we can approximate $$\mathbb{E}_{x^{'} \sim p} [ \frac{\partial \mathcal{F}(x^{'})}{\partial \theta}  ]$$ easier.
+
 ### Restricted Boltzmann Machine (RBM)
+
+In Boltzmann Machines, visible units or hidden units are fully connected with each other. In Restricted Boltzmann Machine (RBM), units in the same layer are not connected. The units in one layer is only fully connected with units in the next layer.
 
 <div class="imgcap">
 <img src="/assets/know/bolt3.png" style="border:none;width:30%">
@@ -124,5 +129,5 @@ To determine the activation of the unit $$i$$, we compute the sum of all votes f
 
 $$z = \sum_j W_{ij} a_j + b_i$$
 
-The result is passed to a sigmoid function to determine the probability $$p_{on} = \sigma(z)$$. We sample from $$p_{on}$$ to set $$s_i$$ to 1 or 0.  
+The result is passed to a sigmoid function to determine the probability $$p_{on} = \sigma(z)$$. We sample from $$p_{on}$$ to set the state of unit $$i$$ ($$s_i$$) to 0 or 1.  
 
