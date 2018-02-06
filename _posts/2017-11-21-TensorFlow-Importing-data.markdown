@@ -508,7 +508,45 @@ with tf.train.MonitoredTrainingSession(...) as sess:
     sess.run(training_op)
 ```	
 
-### Estimator
+### Estimator with an input function
+
+iris_data:
+
+```python
+def train_input_fn(features, labels, batch_size):
+    """An input function for training"""
+    # Convert the inputs to a Dataset.
+    dataset = tf.data.Dataset.from_tensor_slices((dict(features), labels))
+
+    # Shuffle, repeat, and batch the examples.
+    dataset = dataset.shuffle(1000).repeat().batch(batch_size)
+
+    # Return the dataset.
+    return dataset
+```
+
+The train, evaluate, and predict methods of the Estimator require input functions to return a tuple containing Tensorflow tensors. (features, label)
+
+```python
+...
+classifier = tf.estimator.Estimator(
+     model_fn=my_model,
+     params={
+         'feature_columns': my_feature_columns,
+         # Two hidden layers of 10 nodes each.
+         'hidden_units': [10, 10],
+         # The model must choose between 3 classes.
+         'n_classes': 3,
+     })
+
+# Train the Model.
+classifier.train(
+     input_fn=lambda:iris_data.train_input_fn(train_x, train_y, args.batch_size),
+     steps=args.train_steps)
+...	 
+```		
+
+### Estimator with a one-hot iterator
 
 Use make_one_shot_iterator with the Estimator.
 ```
@@ -517,7 +555,7 @@ from PIL import Image
 import numpy as np
 import os
 
-def dataset_input_fn():
+def train_input_fn():
   filenames = ["./file1.tfrecord", "./file2.tfrecord"]
   dataset = tf.data.TFRecordDataset(filenames)
 
@@ -545,3 +583,4 @@ def dataset_input_fn():
   features, labels = iterator.get_next()
   return features, labels
 ```  
+
