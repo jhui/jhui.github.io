@@ -8,7 +8,7 @@ excerpt: “Machine learning - Restricted Boltzmann Machines.”
 date: 2017-01-15 12:00:00
 ---
 
-(Working in progress)
+(Personal notes)
 
 ### Maxwell–Boltzmann distribution
 
@@ -24,27 +24,25 @@ Here is the Maxwell–Boltzmann distribution equation:
 
 $$
 \begin{split}
-f(E) & = A e^{\frac{-E}{kT}} \\
-\end{split}
-$$
-
-$$f(E)$$ gives the probability density (PDF) of molecules with energy $$E$$ which is a function of the temperature $$T$$. The probability density decreases exponentially with $$E$$. As the temperature increases, the probability of a molecule having higher energy also increases. Since the number of molecules remains constant, the peak is therefore lower. Maxwell–Boltzmann distribution equation often expresses as a a function of the molecular velocity:
-
-$$
-\begin{split}
 f(v) & = \sqrt{ \left (\frac{m}{2\pi kT} \right)^{3}  } 4\pi v^2  e^{\frac{-mv^2}{2kT}}  \\
 \end{split}
 $$
 
-Maxwell–Boltzmann distribution can be generalized as:
+$$f(v)$$ gives the probability density function (PDF) of molecules with velocity $$v$$ which is a function of the temperature $$T$$. The probability density decreases exponentially with $$v$$. As the temperature increases, the probability of a molecule having higher velocity also increases. Since the number of molecules remains constant, the peak is therefore lower. 
+
+### Energy based model
+
+In Maxwell–Boltzmann statistics, the probability distribution is defined using an energy function $$E(x)$$:
 
 $$
 \begin{split}
-P(x) & = \frac{e^{-E(x)}}{Z}  \quad \text{where } Z = {\sum_{x^{'}} e^{-E(x^{'}) }}  \text{ renormalize the value to } [0, 1].\\
+P(x) & = \frac{e^{-E(x)}}{Z} \\ 
 \end{split}
 $$
 
-In machine learning, the Boltzmann Machie and the Restricted Boltzmann Machie use the Maxwell–Boltzmann distribution to model a datapoint $$x$$. 
+where $$ Z = {\sum_{x^{'}} e^{-E(x^{'}) }}$$ is called the **partition function**, and it renormalizes the probability between 0 and 1.
+ 
+By defining an energy function $$E(x)$$ for an energy based model like the Boltzmann Machie or the Restricted Boltzmann Machie, we can compute the probability distribution $$P(x)$$.
 
 ### Boltzmann Machine
 
@@ -55,13 +53,15 @@ A Boltzmann Machine projects an input data $$x$$ from a higher dimensional space
 </div>
 (Source Wikipedia)
 
-We use $$ W_{ij} $$ to model the connection between unit $$i$$ and $$j$$ with binary state $$s_i$$ and $$s_j$$ $$ \in \{0, 1\}$$. If $$s_i$$ and $$s_j$$ are the same, we want $$W_{ij}>0$$. Otherwise, we want $$W_{ij}<0$$. 
+$$s_i \in \{0, 1 \}$$ is the binary state for unit $$i$$. We use $$ W_{ij} $$ to model the connection between unit $$i$$ and $$j$$. If $$s_i$$ and $$s_j$$ are the same, we want $$W_{ij}>0$$. Otherwise, we want $$W_{ij}<0$$. Intuitively, $$W_{ij}$$ indicates whether two units are positively or negatively related. If it is negatively related, one activation may turn off the other. 
 
 The energy between unit $$i$$ and $$j$$ is defined as:
 
 $$
 E(i, j) = - W_{ij} s_i s_j - b_i s_i
 $$
+
+So the energy is increased if $$s_i = s_j = 1$$ and $$W_{ij}$$ is wrong. i.e. $$W_{ij} <0 $$.
 
 The energy function of the system is the sum of all units:
 
@@ -71,9 +71,9 @@ E &= - \sum_{i < j} W_{ij}s_i s_j - \sum_i \theta_i s_i  \quad \text{ or} \quad 
 \end{split}
 $$
 
-If $$s_i=s_j=1$$, we want $$W_{ij}$$ to be positive. If it is right, the energy drops by "- W_{ij} s_i s_j". Otherwise, the energy will increase. Hence, the energy function is equivalent to a cost function in training a model.
+> The energy function is equivalent to the cost function in deep learning.
 
-Using Boltzmann distribution, the PDF for $$x$$ is 
+Using Boltzmann statistics, the PDF for $$x$$ is 
 
 $$
 \begin{split}
@@ -90,7 +90,15 @@ $$
 \end{split}
 $$
 
-So
+And,
+
+$$
+\begin{split}
+e^{-\mathcal{F}(x) }  = \sum_{x^{'}} e^{-E(x, x^{'})} \\
+\end{split}
+$$
+
+Therefore,
 
 $$
 \begin{split}
@@ -104,6 +112,13 @@ $$
 \begin{split}
 - \log p(x) & = \mathcal{F}(x) + \log Z \\
 & = \mathcal{F}(x) + \log (\sum_{x^{'}} e^{-\mathcal{F}(x^{'})})  \\
+\end{split}
+$$
+
+Its gradient is:
+
+$$
+\begin{split}
 - \frac{\partial \log p(x)}{\partial \theta} & = \frac{\partial \mathcal{F}(x)}{\partial \theta} + \frac{1}{\sum_{x^{'}} e^{-\mathcal{F}(x^{'})}} \frac{\partial  }{\partial \theta} \sum_{x^{'}} e^{-\mathcal{F}(x^{'})} \\
  & = \frac{\partial \mathcal{F}(x)}{\partial \theta}  - \sum_{x^{'}} \frac{e^{-\mathcal{F}(x^{'})}}{\sum_{x^{'}} e^{-\mathcal{F}(x^{'})}}  \frac{\partial \mathcal{F}(x^{'})}{\partial \theta}  \\
  & = \frac{\partial \mathcal{F}(x)}{\partial \theta}  - \sum_{x^{'}} \frac{e^{-\mathcal{F}(x^{'})}}{Z}  \frac{\partial \mathcal{F}(x^{'})}{\partial \theta}  \\
@@ -111,8 +126,6 @@ $$
 & = \frac{\partial \mathcal{F}(x)}{\partial \theta} - \mathbb{E}_{x^{'} \sim p} [ \frac{\partial \mathcal{F}(x^{'})}{\partial \theta}  ] \\
 \end{split}
 $$
-
-In Restricted Boltzmann Machine, we apply further constraints so we can approximate $$\mathbb{E}_{x^{'} \sim p} [ \frac{\partial \mathcal{F}(x^{'})}{\partial \theta}  ]$$ easier.
 
 ### Restricted Boltzmann Machine (RBM)
 
@@ -124,10 +137,42 @@ In Boltzmann Machines, visible units or hidden units are fully connected with ea
 
 ([Source](http://deeplearning.net/tutorial/rbm.html))
 
+The energy function for an RBM:
 
-To determine the activation of the unit $$i$$, we compute the sum of all votes from all neighbors $$j$$ and then add a bias. 
+$$
+\begin{split}
+E(v, h) = -a^T v - b^T h - v^T W h \\ 
+\end{split}
+$$
 
-$$z = \sum_j W_{ij} a_j + b_i$$
+Probability:
 
-The result is passed to a sigmoid function to determine the probability $$p_{on} = \sigma(z)$$. We sample from $$p_{on}$$ to set the state of unit $$i$$ ($$s_i$$) to 0 or 1.  
+$$
+\begin{split}
+P(v, h) & = \frac{1}{Z} e^{-E(v, h)} \\
+P(v) &= \frac{1}{Z} \sum_h e^{-E(v, h)}
+\end{split}
+$$
+
+Conditional probability:
+
+$$
+\begin{split}
+P(h \vert v) & = \prod_i P(h_i \vert v) \\
+P(v \vert h) & = \prod_j P(v_j \vert h) \\
+\end{split}
+$$
+
+$$
+\begin{split}
+P(h_j = 1 \vert v) &= \sigma \big( b_j + \sum_i W_{ij} v_i  \big) \\
+P(v_i = 1 \vert h) &= \sigma \big( a_i + \sum_j W_{ij} h_j  \big) \\
+\end{split}
+$$
+
+$$
+\begin{split}
+P(v^k_i = 1 \h) = \frac{ e^{ a^k_i + \sum_j W^k_{ij} h_j } }{Z}
+\end{split}
+$$
 
