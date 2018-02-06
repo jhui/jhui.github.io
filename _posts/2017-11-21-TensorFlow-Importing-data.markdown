@@ -510,7 +510,7 @@ with tf.train.MonitoredTrainingSession(...) as sess:
 
 ### Estimator with an input function
 
-iris_data:
+Create an input function in iris_data:
 
 ```python
 def train_input_fn(features, labels, batch_size):
@@ -525,7 +525,7 @@ def train_input_fn(features, labels, batch_size):
     return dataset
 ```
 
-The train, evaluate, and predict methods of the Estimator require input functions to return a tuple containing Tensorflow tensors. (features, label)
+Pass the function into the estimator:
 
 ```python
 ...
@@ -583,4 +583,6 @@ def train_input_fn():
   features, labels = iterator.get_next()
   return features, labels
 ```  
+
+The train, evaluate, and predict methods of the Estimator require input functions to return a tuple containing TensorFlow tensors. (features, label)
 
