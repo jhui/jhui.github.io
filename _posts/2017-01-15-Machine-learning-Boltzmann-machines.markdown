@@ -169,6 +169,16 @@ computed and we sample a binary value from it. Once the binary states $$h_j$$ ha
 
 To train the biases, the steps are similar except we use the individual state $$v_i$$ or $$h_j$$ instead.
 
+#### Simple walk through
+
+1. Start with a sample $$v$$ from the training dataset.
+1. Compute $$p(h \vert v) = \sigma(b_j + \sum_i v_i w_{ij})$$ and sample $$h \in \{ 0, 1\}$$ from it.
+1. $$positve_{ij} = v_i h_j $$.
+1. Compute $$p(v^{(1)} \vert h) = \sigma(a_i + \sum_j h_j w_{ij})$$ and sample $$v^{(1)}\in \{ 0, 1\}$$ from it.
+1. $$negative_{ij} = v^{(1)}_i h_j $$.
+1. $$W_{ij} = W_{ij} + \epsilon (positive_{ij} - negative_{ij})$$.
+
+
 ### Free energy
 
 The free energy of visible vector $$v$$ is the energy of a single configuration that has the same probability as all of the configurations that contain $$v$$:
@@ -190,10 +200,19 @@ x_j = b_j + \sum_i v_i w_{ij} \\
 p_j = \sigma(x_j)
 $$
 
-The free energy can be evaluated as:
+The free energy of RBM can be simplified as:
 
 $$
-F(v) = - \sum_i v_i a_i - \sum_j \log(1 + e^{x_j})
+\begin{split}
+F(v) & = - log \sum_{h \in \{0, 1\}^m} e^{-E(v, h)} \\
+& = - log \sum_{h \in \{0, 1\}^m} e^{ h^T W v + a^T v + b^T h} \\
+& = - log \big( e^{a^Tv} \sum_{h \in \{0, 1\}^m} e^{ h^T W v + b^T h} \big) \\
+& = - a^Tv - log  \Big( \big( \sum_{h_1 \in \{ 0, 1 \} } e^{ h_1 W_1 v + b_1h_1} \big) + \dots + \big( \sum_{h_m \in \{ 0, 1 \}} e^{ h_m W_m v + b_mh_m} \big) \Big)\\
+& = - a^Tv - log  \Big( \big( e^{ 0 W_1 v + b_1 0} + e^{ 1 W_1 v + b_1 1} \big) + \dots + \big( e^{ 0 W_m v + b_m 0} + e^{ 1 W_m v + b_m 1}  \big) \Big)\\
+& = - a^Tv - log  \Big( \big( 1 + e^{W_1 v + b_1} \big)  + \dots +  \big( 1 + e^{W_m v + b_m}  \big) \Big)\\
+& = - a^Tv - \sum_j \log(1 + e^{W_j v + b_j}) \\
+& = - a^Tv - \sum_j \log(1 + e^{x_j}) \\
+\end{split}
 $$
 
 ### Energy based model (Gradient) 
@@ -236,9 +255,9 @@ $$
 \end{split} 
 $$
 
-where $$p$$ is the probability distribution formed by the model. Unfortunately, $$\mathbb{E}_{x^{'} \sim p} [ \frac{\partial \mathcal{F}(x^{'})}{\partial \theta}  ]$$ is not easy to compute.
+where $$p$$ is the probability distribution formed by the model.
 
-### Contrastive Divergence
+### Contrastive Divergence (CD-k)
 
 For a RBM,
 
@@ -250,14 +269,34 @@ where
 
 $$
 x_j = b_j + \sum_i v_i w_{ij} \\
-p_j = \sigma(x_j)
 $$
 
-Therefore:
+i.e.
 
 $$
-F(v) = -a v - \sum_{i \in visible} \log(1 + e^{\sigma(b_i + W_i v)})
+F(v) = -a v - \sum_{i \in visible} \log(1 + e^{b_i + W_i v})
 $$
+
+(Without proof) We combine $$F(v)$$ with the gradient from the last section, :
+
+$$
+\begin{split} 
+- \frac{\partial \log P(x)}{\partial W_{ij}} & = \mathbb{E} [ p(h_j \vert v) v_i ] - v^{(k)}_i \sigma(W_j v^{(k)} + b_j ) \\
+- \frac{\partial \log P(x)}{\partial b_j} & =  \mathbb{E} [ p(h_j \vert v) ] - \sigma(W_j v^{(k)} ) \\
+- \frac{\partial \log P(x)}{\partial a_i} & =  \mathbb{E} [ p(v_i \vert h) ] - v^{(k)}_i  \\
+\end{split} 
+$$
+
+which
+
+$$
+h ^{(k+1)} = \sigma(W v^{(k)} + b) \\
+v ^{(k+1)} = \sigma(W h^{(k+1)} + a) \\
+$$
+
+$$v = v^{(0)} $$ and $$h^{(1)}$$ is the prediction from $$ v^{(0)} $$, $$ v^{(1)} $$ is the prediction from $$ h^{(1)} $$.
+
+So we sample an image from the training data as $$v$$ and compute $$v^{(k)}$$. In practice, $$k=1$$ will show resonable result already.
 
 ### Credit
 
