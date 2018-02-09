@@ -563,6 +563,11 @@ class DigiCap(layers.Layer):
 
 Here is the code to implement the following Iterative dynamic Routing pseudo code.
 
+### Credits
+
+https://github.com/Sarasra/models/tree/master/research/capsules
+
+
 <div class="imgcap">
 <img src="/assets/capsule/alg.jpg" style="border:none;width:90%;">
 </div>
@@ -626,6 +631,8 @@ Each capsule in DigiCaps is a 16-D vector. By slightly varying one dimension by 
 <img src="/assets/capsule/dim.png" style="border:none;width:70%;">
 </div>
 
-[Source Sara Sabour, Nicholas Frosst, Geoffrey Hinton](https://arxiv.org/pdf/1710.09829.pdf) 
+### Sabour implementation
+
+Sara Sabour released an implementation on Capsule at [Github Sara Sabour](https://github.com/Sarasra/models/tree/master/research/capsules). Since this is an ongoing research, do expect the implementation may be different from the paper.
 
 
