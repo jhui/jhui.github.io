@@ -18,7 +18,7 @@ AI is at a critical stage. To make it succesful, we need influx of engineers und
 
 > In Theoretical Physics, Professor Susskind once said "Fat advanced textbooks are are not suitable to people who have no teacher to ask questions of, and the popular literature does not go deeply enough to satisfy these curious people." 
 
-Many articles here served as my personal and professional notes. I re-wrote some of them if there are enough interests. So clicking the recommendation button of your favorite topics helps me to gauge the interests better. For those intersted in connecting with me professionally, you can find me at Linkedin.
+Many articles here served as my personal and professional notes. I re-write some of them if there are enough interests. So clicking the recommendation button of your favorite topics helps me to gauge the interests better. For those intersted in connecting with me professionally, you can find me at Linkedin.
 
 <script type="text/javascript" src="https://platform.linkedin.com/badges/js/profile.js" async defer></script>
 
