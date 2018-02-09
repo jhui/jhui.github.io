@@ -12,13 +12,13 @@ $$
 E(v, h) = -a^T v - b^T h - v^T W h \\ 
 $$
 
-This simple equation represents the core idea of the Boltzmann machine. But for engineers, they get loss. 
+This simple equation represents the core idea of the Boltzmann machine. But for engineers, they get loss easily. 
 
 AI is at a critical stage. To make it succesful, we need influx of engineers understanding both AI and products. I once asked a question to two executives. How do we know this AI approach work? One gives me a mocking challenge on the AI progress but the other describes a risk mitigating product approach. Ideas are great but that is not enough to make great products. We need a wider spectrum of expertises.
 
 > In the theoretical Physics, Professor Susskind once said "Fat advanced textbooks are are not suitable to people who have no teacher to ask questions of, and the popular literature does not go deeply enough to satisfy these curious people." 
 
-Many articles here served as my personal and professional footnotes. I re-wrote some of them if people are interested. So if you click on the recommendation button, it helps me to gauge the interests better. 
+Many articles here served as my personal and professional footnotes. I re-wrote some of them if people are interested. Avoiding equations and terms are counter productive, but I wish I can present the core concept with insights may help people to understand it better. So if you click on the recommendation button, it helps me to gauge the interests better. 
 
 For those intersted in connecting with me professionally, you can find me at Linkedin. 
 
