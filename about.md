@@ -6,7 +6,7 @@ mathjax: true
 permalink: /about/
 ---
 
-My name is **Jonathan Hui**. I started this blog to share my excitement about Deep Learning. My journey started many years ago when I built a recommendation engine. After the project, I time-boxed myself for 3 months to learn Deep learning. After years, I am still learning and the excitement never dies. The community in Deep learning is sometimes like a secret society. There are secret handshakes and lingos. And the Math is beautify.
+My name is **Jonathan Hui**. I started this blog to share my excitement about Deep Learning. My journey started many years ago when I built a recommendation engine. After the project, I time-boxed myself for 3 months to learn Deep learning. After years, I am still learning and the excitement never dies. The community in Deep learning is sometimes like a secret society. There are secret handshakes and lingos. And the Math is beautiful.
 
 $$
 E(v, h) = -a^T v - b^T h - v^T W h \\ 
@@ -18,7 +18,7 @@ AI is at a critical stage. To make it succesful, we need influx of engineers und
 
 > In Theoretical Physics, Professor Susskind once said "Fat advanced textbooks are are not suitable to people who have no teacher to ask questions of, and the popular literature does not go deeply enough to satisfy these curious people." 
 
-Many articles here served as my personal and professional notes. I re-write some of them if there are enough interests. So clicking the recommendation button of your favorite topics helps me to gauge the interests better. For those intersted in connecting with me professionally, you can find me at Linkedin.
+Many articles here served as my personal and professional notes. I re-write some of them if there are enough interests. So clicking the "recommend" button of your favorite topics helps me to gauge the interests better. For those intersted in connecting with me professionally, you can find me at Linkedin.
 
 <script type="text/javascript" src="https://platform.linkedin.com/badges/js/profile.js" async defer></script>
 
