@@ -3,10 +3,12 @@ layout: post
 comments: true
 mathjax: true
 priority: 1232
-title: “PyTorch - Neural networks”
-excerpt: “PyTorch - Neural networks”
+title: “PyTorch - Neural networks with nn modules”
+excerpt: “PyTorch - Neural networks with nn modules”
 date: 2018-02-09 14:00:00
 ---
+
+The _nn_ modules in PyTorch provides us a higher level API to build and train deep network.
 
 
 ### Neural Networks
@@ -90,6 +92,8 @@ out = net(input)   # out's size: 1x10.
 
 input here has a size of (batch size) x (# of channel) x width x height. torch.nn processes batch data only. To support a single datapoint, use _input.unsqueeze(0)_ to convert a single datapoint to a batch with only one sample.
 
+_Net_ extends from _nn.Module_. Hence, _Net_ is a reusable custom module just like other built-in modules (layers) provided by _nn.Module_.
+
 ### Variables and functional
 
 The difference between _torch.nn_ and _torch.nn.functional_ is very subtle. In fact, many _torch.nn.functional_ have a corresponding equivalent in _torch.nn_. For layers with trainable parameters, we use _torch.nn_ to create the layer. We store it back in the instance so we can easily access the layer and the trainable parameters later.
@@ -98,7 +102,7 @@ The difference between _torch.nn_ and _torch.nn.functional_ is very subtle. In f
 self.conv1 = nn.Conv2d(1, 6, 5)
 ```
 
-As a common practice, for many simpler operations without trainable parameters or configurable parameters, we often use _torch.nn.functional_. However, if we want to use a _nn.Sequential container_ to compose layers, we must use _torch.nn_. 
+In many code samples, it uses _torch.nn.functional_ for simpler operations that have no trainable parameters or configurable parameters. Alternatively, in a later section, we use _torch.nn.Sequential_ to compose layers from _torch.nn_ only. Both approaches are simple and more like a coding style issue rather than any major implementation differences.
 
 ### Backward pass
 
@@ -156,9 +160,9 @@ print(loss.grad_fn.next_functions[0][0]) # <AddmmBackward object at 0x10d729400>
 print(loss.grad_fn.next_functions[0][0].next_functions[0][0])  # <ExpandBackward object at 0x10fd39e48>
 ```
 
-#### Update trainable parameters
+### Optimizer
 
-To train the parameters, we create an optimizer and call _step_ to upgrade the parameters.
+We seldom access the gradients manually to train the model parameters. PyTorch provides _torch.optim_ for such purpose. To train the parameters, we create an optimizer and call _step_ to upgrade the parameters.
 
 ```python
 import torch.optim as optim
@@ -167,16 +171,26 @@ import torch.optim as optim
 optimizer = optim.SGD(net.parameters(), lr=0.01)
 
 # Inside the training loop
-# ...
-optimizer.zero_grad()   # zero the gradient buffers
-output = net(input)
-loss = criterion(output, target)
-loss.backward()
-optimizer.step()        # Perform the training parameters update
+for t in range(500):
+   output = net(input)
+   loss = criterion(output, target)
+
+   optimizer.zero_grad()   # zero the gradient buffers
+   loss.backward()
+
+   optimizer.step()        # Perform the training parameters update
 ```
 
 We need to zero the gradient buffer once for every training iteration to reset the gradient computed by last data batch.
+
+#### Adam optimizer
+
+Adam optimizer is one of the most popular gradient descent optimizer in deep learning. Here is the partial sample code in using an Adam optimizer:
  
+```python
+learning_rate = 1e-4
+optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
+```	 
  
 ### Putting it together
 
@@ -377,428 +391,222 @@ for data in rand_loader:
           "output_size", output.size())
 ```		  
 
-### APIs
- 
-The rest of the article summarizes some important APIs for the neural networks. Feel free to browse through it quickly. The official documentation is located [here](http://pytorch.org/docs/master/nn.html). 
- 
-### Convolution layers
+### torch.nn.Sequential
 
-#### nn.Conv1d
+We can build a model using a Sequential without _torch.nn.functional_. Most _torch.nn.functional_ classes have an equivalent in _torch.nn_. Using _torch.nn_ alone or mixing it with _torch.nn.functional_ are both very common. I will let the judgement to the reader.
 
 ```python
-m = nn.Conv1d(16, 33, 3, stride=2)
-input = Variable(torch.randn(20, 16, 50))
-output = m(input)
+import torch
+from torch.autograd import Variable
+
+N, D_in, H, D_out = 64, 1000, 100, 10
+
+x = Variable(torch.randn(N, D_in))
+y = Variable(torch.randn(N, D_out), requires_grad=False)
+
+model = torch.nn.Sequential(
+    torch.nn.Linear(D_in, H),
+    torch.nn.ReLU(),
+    torch.nn.Linear(H, D_out),
+)
+
+loss_fn = torch.nn.MSELoss(size_average=False)
+
+learning_rate = 1e-4
+for t in range(500):
+    y_pred = model(x)
+
+    loss = loss_fn(y_pred, y)
+    print(t, loss.data[0])
+
+    model.zero_grad()
+
+    loss.backward()
+
+    for param in model.parameters():
+        param.data -= learning_rate * param.grad.data
 ```
 
-#### nn.Conv2d
+### Dynamic computation graph example
+
+PyTorch uses a new graph for each training iteration. This allows us to have a different graph for each iteration. The code below is a fully-connected ReLU network that each forward pass has somewhere between 1 to 4 hidden layers. It also demonstrate how to share and reuse weights.
 
 ```python
-m = nn.Conv2d(16, 33, (3, 5), stride=(2, 1), padding=(4, 2), dilation=(3, 1))
-input = Variable(torch.randn(20, 16, 50, 100))
-output = m(input)
+import random
+import torch
+from torch.autograd import Variable
+
+
+class DynamicNet(torch.nn.Module):
+    def __init__(self, D_in, H, D_out):
+        super(DynamicNet, self).__init__()
+        self.input_linear = torch.nn.Linear(D_in, H)
+        self.middle_linear = torch.nn.Linear(H, H)
+        self.output_linear = torch.nn.Linear(H, D_out)
+
+    def forward(self, x):
+        h_relu = self.input_linear(x).clamp(min=0)
+        for _ in range(random.randint(0, 3)):
+            h_relu = self.middle_linear(h_relu).clamp(min=0)
+        y_pred = self.output_linear(h_relu)
+        return y_pred
+
+
+N, D_in, H, D_out = 64, 1000, 100, 10
+
+x = Variable(torch.randn(N, D_in))
+y = Variable(torch.randn(N, D_out), requires_grad=False)
+
+model = DynamicNet(D_in, H, D_out)
+
+criterion = torch.nn.MSELoss(size_average=False)
+optimizer = torch.optim.SGD(model.parameters(), lr=1e-4, momentum=0.9)
+for t in range(500):
+    y_pred = model(x)
+
+    loss = criterion(y_pred, y)
+    optimizer.zero_grad()
+    loss.backward()
+    optimizer.step()
 ```
 
-#### nn.Conv3d
+### Transfer model
+
+In computer vision, training a model from scratch using your own dataset is time consuming. In a transfer model, we load a pre-trained model that is trained with a well known dataset. We replace the final layers with our own layers. Then we retrain the model with our own dataset. Such strategy allows us to start the retraining with good quality model parameters rather than random values. That usually results in much shorter training time to achieve the desirable accuracy. This approach often requires less training data. In some cases, we even freeze all the model parameters except the layers that we replaced, this can further cut down the training time.
+
+Here is some boiler plate code in loading data. You should already familiar with it by now.
+```python
+import torch
+import torch.nn as nn
+import torch.optim as optim
+from torch.optim import lr_scheduler
+from torch.autograd import Variable
+import numpy as np
+import torchvision
+from torchvision import datasets, models, transforms
+import time
+import os
+import copy
+
+data_transforms = {
+    'train': transforms.Compose([
+        transforms.RandomSizedCrop(224),
+        transforms.RandomHorizontalFlip(),
+        transforms.ToTensor(),
+        transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+    ]),
+    'val': transforms.Compose([
+        transforms.Scale(256),
+        transforms.CenterCrop(224),
+        transforms.ToTensor(),
+        transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+    ]),
+}
+
+data_dir = 'hymenoptera_data'
+image_datasets = {x: datasets.ImageFolder(os.path.join(data_dir, x),
+                                          data_transforms[x])
+                  for x in ['train', 'val']}
+dataloaders = {x: torch.utils.data.DataLoader(image_datasets[x], batch_size=4,
+                                             shuffle=True, num_workers=4)
+              for x in ['train', 'val']}
+dataset_sizes = {x: len(image_datasets[x]) for x in ['train', 'val']}
+class_names = image_datasets['train'].classes
+```
+
+Now, we are loading a pre-trained ResNet model using the torchvision. The last layer of the RestNet is a fully connected layer. We find out the input size of that layer and replace it with a new fully connected layer _nn.Linear_ that output 2 channels . Then we will retrain a new model.
 
 ```python
-m = nn.Conv3d(16, 33, (3, 5, 2), stride=(2, 1, 1), padding=(4, 2, 0))
-input = Variable(torch.randn(20, 16, 10, 50, 100))
-output = m(input)
+model_ft = torchvision.models.resnet18(pretrained=True)
+num_ftrs = model_ft.fc.in_features
+model_ft.fc = nn.Linear(num_ftrs, 2)
+
+criterion = nn.CrossEntropyLoss()
+
+optimizer_ft = optim.SGD(model_ft.parameters(), lr=0.001, momentum=0.9)
+exp_lr_scheduler = lr_scheduler.StepLR(optimizer_ft, step_size=7, gamma=0.1)
+
+model_ft = train_model(model_ft, criterion, optimizer_ft, exp_lr_scheduler,
+                       num_epochs=25)
 ```
 
-### Pooling layers
-
-#### torch.nn.MaxPool2d
+_train\_model_ retrains our new model. For each epoch, we run both the training and validation data. We keep track of the best model with the highest validation accuracy and return the best model after 25 epochs.
 
 ```python
-m = nn.MaxPool2d((3, 2), stride=(2, 1))
-input = Variable(torch.randn(20, 16, 50, 32))
-output = m(input)
+def train_model(model, criterion, optimizer, scheduler, num_epochs=25):
+    since = time.time()
+
+    best_model_wts = copy.deepcopy(model.state_dict())
+    best_acc = 0.0
+
+    for epoch in range(num_epochs):
+        # Each epoch has a training and validation phase
+        for phase in ['train', 'val']:
+            if phase == 'train':
+                scheduler.step()
+                model.train(True)  # Set model to training mode
+            else:
+                model.train(False)  # Set model to evaluate mode
+
+            running_loss = 0.0
+            running_corrects = 0
+
+            # Iterate over data.
+            for data in dataloaders[phase]:
+                # get the inputs
+                inputs, labels = data
+
+                # wrap them in Variable
+                inputs, labels = Variable(inputs), Variable(labels)
+
+                # zero the parameter gradients
+                optimizer.zero_grad()
+
+                # forward
+                outputs = model(inputs)
+                _, preds = torch.max(outputs.data, 1)
+                loss = criterion(outputs, labels)
+
+                # backward + optimize only if in training phase
+                if phase == 'train':
+                    loss.backward()
+                    optimizer.step()
+
+                # statistics
+                running_loss += loss.data[0] * inputs.size(0)
+                running_corrects += torch.sum(preds == labels.data)
+
+            epoch_loss = running_loss / dataset_sizes[phase]
+            epoch_acc = running_corrects / dataset_sizes[phase]
+
+            # deep copy the model
+            if phase == 'val' and epoch_acc > best_acc:
+                best_acc = epoch_acc
+                best_model_wts = copy.deepcopy(model.state_dict())
+
+    time_elapsed = time.time() - since
+
+    # load best model weights
+    model.load_state_dict(best_model_wts)
+    return model
 ```
 
-#### torch.nn.MaxUnpool2d
+As mentioned before, we can even save more training time by just retraining the replaced layer. We set _requires\_grad_ to False for the original model. Then we replace it with a new FC layer using _nn.Linear_. By default, a newly constructed modules have _requires\_grad_ =True by default.
 
-```python
-pool = nn.MaxPool2d(2, stride=2, return_indices=True)
-unpool = nn.MaxUnpool2d(2, stride=2)
-input = Variable(torch.Tensor([[[[ 1,  2,  3,  4],
-                                 [ 5,  6,  7,  8],
-                                 [ 9, 10, 11, 12],
-                                 [13, 14, 15, 16]]]]))
-output, indices = pool(input)
-unpool(output, indices)
-# Variable containing:
-# (0 ,0 ,.,.) =
-#   0   0   0   0
-#   0   6   0   8
-#   0   0   0   0
-#   0  14   0  16
-# [torch.FloatTensor of size 1x1x4x4]
 ```
+model_conv = torchvision.models.resnet18(pretrained=True)
+for param in model_conv.parameters():
+    param.requires_grad = False
 
-#### nn.AvgPool2d
+# Parameters of newly constructed modules have requires_grad=True by default
+num_ftrs = model_conv.fc.in_features
+model_conv.fc = nn.Linear(num_ftrs, 2)
 
-```python
-m = nn.AvgPool2d((3, 2), stride=(2, 1))
-input = Variable(torch.randn(20, 16, 50, 32))
-output = m(input)
-```
+criterion = nn.CrossEntropyLoss()
 
-### Padding layers
+optimizer_conv = optim.SGD(model_conv.fc.parameters(), lr=0.001, momentum=0.9)
+exp_lr_scheduler = lr_scheduler.StepLR(optimizer_conv, step_size=7, gamma=0.1)
 
-#### nn.ReplicationPad2d
-
-```python
-m = nn.ReplicationPad2d(3)
-input = Variable(torch.randn(16, 3, 320, 480))
-output = m(input)
-```
-
-#### nn.ZeroPad2d
-
-```python
-m = nn.ZeroPad2d(3)
-input = Variable(torch.randn(16, 3, 320, 480))
-output = m(input)
-```
-
-### Non-linear activation
-
-#### ReLU
-
-```python
-m = nn.ReLU()
-input = Variable(torch.randn(2))
-print(input)
-print(m(input))
-```
-
-#### Leaky ReLU
-
-```python
-m = nn.LeakyReLU(0.1)
-input = Variable(torch.randn(2))
-print(input)
-print(m(input))
-```
-
-#### Sigmoid
-
-```python
-m = nn.Sigmoid()
-input = Variable(torch.randn(2))
-print(input)
-print(m(input))
-```
-
-#### Softplus
-
-```python
-m = nn.Softplus()
-input = Variable(torch.randn(2))
-print(input)
-print(m(input))
-```
-
-#### Softmax
-
-```python
-m = nn.Softmax()
-input = Variable(torch.randn(2, 3))
-print(input)
-print(m(input))
-```
-
-### Normalization layers
-
-#### nn.BatchNorm1d
-
-```python
-m = nn.BatchNorm1d(100)
-# Without Learnable Parameters
-m = nn.BatchNorm1d(100, affine=False)
-input = autograd.Variable(torch.randn(20, 100))
-output = m(input)
-```
-
-#### nn.BatchNorm2d
-
-```python
-# With Learnable Parameters
-m = nn.BatchNorm2d(100)
-# Without Learnable Parameters
-m = nn.BatchNorm2d(100, affine=False)
-input = autograd.Variable(torch.randn(20, 100, 35, 45))
-output = m(input)
-```
-
-### Recurrent layers
-
-#### nn.RNN
-
-```python
-rnn = nn.RNN(10, 20, 2)
-input = Variable(torch.randn(5, 3, 10))
-h0 = Variable(torch.randn(2, 3, 20))
-output, hn = rnn(input, h0)
-```
-
-#### nn.LSTM
-
-```python
-rnn = nn.LSTM(10, 20, 2)
-input = Variable(torch.randn(5, 3, 10))
-h0 = Variable(torch.randn(2, 3, 20))
-c0 = Variable(torch.randn(2, 3, 20))
-output, hn = rnn(input, (h0, c0))
-```
-
-#### nn.GRU
-
-```python
-rnn = nn.GRU(10, 20, 2)
-input = Variable(torch.randn(5, 3, 10))
-h0 = Variable(torch.randn(2, 3, 20))
-output, hn = rnn(input, h0)
-```
-
-#### nn.RNNCell
-
-```python
-rnn = nn.RNNCell(10, 20)
-input = Variable(torch.randn(6, 3, 10))
-hx = Variable(torch.randn(3, 20))
-output = []
-for i in range(6):
-    hx = rnn(input[i], hx)
-    output.append(hx)
-```
-
-#### nn.LSTMCell
-
-```python
-rnn = nn.LSTMCell(10, 20)
-input = Variable(torch.randn(6, 3, 10))
-hx = Variable(torch.randn(3, 20))
-cx = Variable(torch.randn(3, 20))
-output = []
-for i in range(6):
-    hx, cx = rnn(input[i], (hx, cx))
-    output.append(hx)
-```
-
-#### nn.GRUCell
-
-```python
-rnn = nn.GRUCell(10, 20)
-input = Variable(torch.randn(6, 3, 10))
-hx = Variable(torch.randn(3, 20))
-output = []
-for i in range(6):
-    hx = rnn(input[i], hx)
-    output.append(hx)
-```	
-
-### Linear Layer
-
-#### nn.Linear
-
-```python
-m = nn.Linear(20, 30)
-input = Variable(torch.randn(128, 20))
-output = m(input)
-print(output.size())
-```
-
-### Dropout
-
-#### nn.Dropout
-
-```python
-m = nn.Dropout(p=0.2)
-input = autograd.Variable(torch.randn(20, 16))
-output = m(input)
-```
-
-### Sparse layers
-
-#### nn.Embedding
-
-```python
-# an Embedding module containing 10 tensors of size 3
-embedding = nn.Embedding(10, 3)
-# a batch of 2 samples of 4 indices each
-input = Variable(torch.LongTensor([[1,2,4,5],[4,3,2,9]]))
-embedding(input)
-
-# Variable containing:
-# (0 ,.,.) =
-# -1.0822  1.2522  0.2434
-#  0.8393 -0.6062 -0.3348
-#  0.6597  0.0350  0.0837
-#  0.5521  0.9447  0.0498
-#
-# (1 ,.,.) =
-#  0.6597  0.0350  0.0837
-# -0.1527  0.0877  0.4260
-#  0.8393 -0.6062 -0.3348
-# -0.8738 -0.9054  0.4281
-# [torch.FloatTensor of size 2x4x3]
-```
-
-### Distance function
-
-#### nn.CosineSimilarity
-```python
-input1 = Variable(torch.randn(100, 128))
-input2 = Variable(torch.randn(100, 128))
-cos = nn.CosineSimilarity(dim=1, eps=1e-6)
-output = cos(input1, input2)
-print(output)
-```
-
-### Loss function
-
-#### nn.L1Loss
-
-```python
-loss = nn.L1Loss()
-input = autograd.Variable(torch.randn(3, 5), requires_grad=True)
-target = autograd.Variable(torch.randn(3, 5))
-output = loss(input, target)
-output.backward()
-```
-
-#### nn.MSELoss
-
-```python
-loss = nn.MSELoss()
-input = Variable(torch.randn(3, 5), requires_grad=True)
-target = Variable(torch.randn(3, 5))
-output = loss(input, target)
-output.backward()
-```
-
-#### nn.CrossEntropyLoss
-
-```python
-loss = nn.CrossEntropyLoss()
-input = autograd.Variable(torch.randn(3, 5), requires_grad=True)
-target = autograd.Variable(torch.LongTensor(3).random_(5))
-output = loss(input, target)
-output.backward()
-```
-
-#### nn.NLLLoss
-
-```python
-m = nn.LogSoftmax()
-loss = nn.NLLLoss()
-# input is of size N x C = 3 x 5
-input = Variable(torch.randn(3, 5), requires_grad=True)
-# each element in target has to have 0 <= value < C
-target = autograd.Variable(torch.LongTensor([1, 0, 4]))
-output = loss(m(input), target)
-output.backward()
-```
-
-#### nn.KLDivLoss
-
-```python
-nn.KLDivLoss(size_average=False)
-```
-
-### Vision layers
-
-#### nn.PixelShuffle
-
-```python
-ps = nn.PixelShuffle(3)
-input = autograd.Variable(torch.Tensor(1, 9, 4, 4))
-output = ps(input)
-print(output.size())
-```
-
-#### nn.Upsample
-
-```python
-m = nn.Upsample(scale_factor=2, mode='bilinear')
-```
-
-#### nn.UpsamplingBilinear2d
-
-```python
-m = nn.UpsamplingBilinear2d(scale_factor=2)
-```
-
-### Utilities
-
-#### Clip gradient
-
-```python
-torch.nn.utils.clip_grad_norm(...)
-```
-
-### torch.nn.init
-
-#### nn.init.uniform
-
-```python
-w = torch.Tensor(3, 5)
-nn.init.uniform(w)
-```
-
-#### nn.init.normal
-
-```python
-w = torch.Tensor(3, 5)
-nn.init.normal(w)
-```
-
-#### nn.init.constant
-
-```python
-w = torch.Tensor(3, 5)
-nn.init.constant(w, 0.3)
-```
-
-#### nn.init.xavier_uniform
-
-```python
-w = torch.Tensor(3, 5)
-nn.init.xavier_uniform(w, gain=nn.init.calculate_gain('relu'))
-```
-
-#### nn.init.xavier_normal
-
-```python
-w = torch.Tensor(3, 5)
-nn.init.xavier_normal(w)
-```
-
-#### nn.init.kaiming_normal
-
-```python
-w = torch.Tensor(3, 5)
-nn.init.kaiming_normal(w, mode='fan_out')
-```
-
-#### Summary
-```
-torch.nn.init
-=============
-
-.. currentmodule:: torch.nn.init
-.. autofunction:: calculate_gain
-.. autofunction:: uniform
-.. autofunction:: normal
-.. autofunction:: constant
-.. autofunction:: eye
-.. autofunction:: dirac
-.. autofunction:: xavier_uniform
-.. autofunction:: xavier_normal
-.. autofunction:: kaiming_uniform
-.. autofunction:: kaiming_normal
-.. autofunction:: orthogonal
+model_conv = train_model(model_conv, criterion, optimizer_conv,
+                         exp_lr_scheduler, num_epochs=25)
 ```

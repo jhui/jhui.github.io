@@ -145,10 +145,22 @@ v = torch.LongTensor([1,2,3])   # A Tensor of type Long
 ```
 
 #### Create a random Tensor
+
+To increase the reproducibility of result, we often set the random seed to a specific value first.
+```python
+torch.manual_seed(1)
+```
+
 ```python
 v = torch.rand(2, 3)            # Initialize with random number (uniform distribution)
 v = torch.randn(2, 3)           # With normal distribution (SD=1, mean=0)
 v = torch.randperm(4)           # Size 4. Random permutation of integers from 0 to 3
+```
+
+#### Tensor type
+
+```
+x = torch.randn(5, 3).type(torch.FloatTensor)
 ```
 
 #### Identity matrices, Fill Tensor with 0, 1 or values
