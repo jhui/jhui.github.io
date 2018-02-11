@@ -11,9 +11,9 @@ date: 2018-02-09 14:00:00
 
 ### Neural Networks
 
-In PyTorch, we use torch.nn to build layers. In _\_\_iniit\_\__, we configure different trainable layers including convolution and affine layers with nn.Conv2d and nn.Linear respectively. We create the method _forward_ to compute the network output. It contains functionals to link layers already configured in _\_\_iniit\_\__ to form a computation graph. Functionals include ReLU and max poolings. The difference between torch.nn and torch.nn.functional is very subtle which many other deep network frameworks do not make such a distinction. In PyTorch, torch.nn.functional tends to have no trainable parameters.
+In PyTorch, we use torch.nn to build layers. For example, in _\_\_iniit\_\__, we configure different trainable layers including convolution and affine layers with _nn.Conv2d_ and _nn.Linear_ respectively. We create the method _forward_ to compute the network output. It contains functionals linking layers already configured in _\_\_iniit\_\__ to form a computation graph. Functionals include ReLU and max poolings. 
 
- To create a deep network:
+To create a deep network:
 
 ```python
 import torch
@@ -88,11 +88,21 @@ out = net(input)   # out's size: 1x10.
 # [torch.FloatTensor of size 1x10]
 ```
 
-input here has a dimension of (batch size, # of channel, width, height). torch.nn processes batch data only. To support a single datapoint, use _input.unsqueeze(0)_ to convert a single datapoint to a batch with only one sample.
+input here has a size of (batch size) x (# of channel) x width x height. torch.nn processes batch data only. To support a single datapoint, use _input.unsqueeze(0)_ to convert a single datapoint to a batch with only one sample.
+
+### Variables and functional
+
+The difference between _torch.nn_ and _torch.nn.functional_ is very subtle. In fact, many _torch.nn.functional_ have a corresponding equivalent in _torch.nn_. For layers with trainable parameters, we use _torch.nn_ to create the layer. We store it back in the instance so we can easily access the layer and the trainable parameters later.
+
+```python
+self.conv1 = nn.Conv2d(1, 6, 5)
+```
+
+As a common practice, for many simpler operations without trainable parameters or configurable parameters, we often use _torch.nn.functional_. However, if we want to use a _nn.Sequential container_ to compose layers, we must use _torch.nn_. 
 
 ### Backward pass
 
-To compute the backward pass for gradient, we first zero the gradient stored in the network. In some network design, we need to call _backward_ multiple times. In PyTorch, every time we backpropagate the gradient from a variable, the gradient is accumulative instead of being reset and replaced. For example in a generative adversary network GAN, we need an accumulated gradients from multiple backward passes: one for the generative part and one for the adversary part of the network. We need to reset the gradients only once but not between _backward_ calls. Hence, to accommodate such flexibility, we explicitly reset the gradient instead of _backward_ resets it every time.
+To compute the backward pass for gradient, we first zero the gradient stored in the network. In PyTorch, every time we backpropagate the gradient from a variable, the gradient is accumulative instead of being reset and replaced. In some network designs, we need to call _backward_ multiple times. For example in a generative adversary network GAN, we need an accumulated gradients from 2 _backward_ passes: one for the generative part and one for the adversary part of the network. We reset the gradients only once but not between _backward_ calls. Hence, to accommodate such flexibility, we explicitly reset the gradient instead of having _backward_ resets it automatically every time.
 
 ```
 net.zero_grad()
@@ -101,7 +111,7 @@ out.backward()
 
 ### Loss function
 
-Create a mean square error loss function and backpropagate gradient based on the loss.
+PyTorch comes with many loss functions. For example, the code below create a mean square error loss function and later backpropagate the gradients based on the loss.
 
 ```python
 output = net(input)
@@ -166,6 +176,210 @@ optimizer.step()        # Perform the training parameters update
 ```
 
 We need to zero the gradient buffer once for every training iteration to reset the gradient computed by last data batch.
+ 
+ 
+### Putting it together
+
+To put everything together, we creats a CNN classifier for the CIFAR10 images. 
+
+#### Reading Dataset (torchvision)
+
+PyTorch provides a package called _torchvision_ to load and prepare dataset. First, we use _transforms.Compose_ to compose a series of transformation. torchvision reads datasets into PILImage (Python imaging format). _transforms.ToTensor_ converts a PIL Image in the range \[0, 255\] to a torch.FloatTensor of shape (C x H x W) with range \[0.0, 1.0\]. We then renormalize the input to \[-1, 1\]:
+
+$$
+input = \frac{input - 0.5}{0.5}
+$$
+
+_torchvision.datasets.CIFAR10_ is responsible for loading and transforming a dataset (training or testing). _torchvision.datasets.CIFAR10_ is passed to a _torch.utils.data.DataLoader_ to load multiple samples in parallel.
+
+```python
+import torch
+import torchvision
+import torchvision.transforms as transforms
+
+
+transform = transforms.Compose(
+    [transforms.ToTensor(),
+     transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
+
+trainset = torchvision.datasets.CIFAR10(root='./data', train=True,
+                                        download=True, transform=transform)
+trainloader = torch.utils.data.DataLoader(trainset, batch_size=4,
+                                          shuffle=True, num_workers=2)
+
+testset = torchvision.datasets.CIFAR10(root='./data', train=False,
+                                       download=True, transform=transform)
+testloader = torch.utils.data.DataLoader(testset, batch_size=4,
+                                         shuffle=False, num_workers=2)
+
+classes = ('plane', 'car', 'bird', 'cat',
+           'deer', 'dog', 'frog', 'horse', 'ship', 'truck')
+```
+
+#### Model & Training
+
+We define a model in the class _Net_. Then we run 2 epoch of training using cross entropy loss function with a SGD optimizer.
+
+```python
+class Net(nn.Module):
+    def __init__(self):
+        super(Net, self).__init__()
+        self.conv1 = nn.Conv2d(3, 6, 5)
+        self.pool = nn.MaxPool2d(2, 2)
+        self.conv2 = nn.Conv2d(6, 16, 5)
+        self.fc1 = nn.Linear(16 * 5 * 5, 120)
+        self.fc2 = nn.Linear(120, 84)
+        self.fc3 = nn.Linear(84, 10)
+
+    def forward(self, x):
+        x = self.pool(F.relu(self.conv1(x)))
+        x = self.pool(F.relu(self.conv2(x)))
+        x = x.view(-1, 16 * 5 * 5)
+        x = F.relu(self.fc1(x))
+        x = F.relu(self.fc2(x))
+        x = self.fc3(x)
+        return x
+
+net = Net()
+
+import torch.optim as optim
+
+criterion = nn.CrossEntropyLoss()
+optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
+
+for epoch in range(2):  # loop over the dataset multiple times
+    running_loss = 0.0
+    # With a batch size of 4 in each iteration
+    for i, data in enumerate(trainloader, 0):  # trainloader reads data using torchvision
+        inputs, labels = data
+        inputs, labels = Variable(inputs), Variable(labels)
+
+        optimizer.zero_grad()
+
+        outputs = net(inputs)
+        loss = criterion(outputs, labels)
+        loss.backward()
+        optimizer.step()
+
+        print(f"Loss {loss.data[0]}")
+		
+print('Finished Training')
+```
+
+#### Testing
+
+To compute the accuracy for the testing data:
+
+```python
+correct = 0
+total = 0
+for data in testloader:
+    images, labels = data
+    outputs = net(Variable(images))
+    _, predicted = torch.max(outputs.data, 1)   # Find the class index with the maximum value.
+    total += labels.size(0)
+    correct += (predicted == labels).sum()
+
+print('Accuracy of the network on the 10000 test images: %d %%' % (
+    100 * correct / total))
+```
+
+### CUDA
+
+To run the code in multiple GPUs:
+
+Move the model to GPU:
+
+```
+if torch.cuda.is_available():
+   model.cuda()
+```
+
+Move all tensors to GPU:
+
+```python
+if torch.cuda.is_available():
+    input_var = Variable(data.cuda())
+```
+
+Calling data.cuda() won’t copy the tensor to the GPU. We need to assign it to a new tensor and use that tensor on the GPU.
+
+PyTorch uses only one GPU by default. The steps above only run the code in one GPU. For multiple GPUs we need to run the model run in parallell with DataParallel:
+
+```python
+model = nn.DataParallel(model)
+```
+
+Here is the full source code for reference:
+
+```python
+import torch
+import torch.nn as nn
+from torch.autograd import Variable
+from torch.utils.data import Dataset, DataLoader
+
+# Parameters and DataLoaders
+input_size = 5
+output_size = 2
+
+batch_size = 30
+data_size = 100
+
+
+class RandomDataset(Dataset):
+
+    def __init__(self, size, length):
+        self.len = length
+        self.data = torch.randn(length, size)
+
+    def __getitem__(self, index):
+        return self.data[index]
+
+    def __len__(self):
+        return self.len
+
+rand_loader = DataLoader(dataset=RandomDataset(input_size, 100),
+                         batch_size=batch_size, shuffle=True)
+
+
+class Model(nn.Module):
+
+    def __init__(self, input_size, output_size):
+        super(Model, self).__init__()
+        self.fc = nn.Linear(input_size, output_size)
+
+    def forward(self, input):
+        output = self.fc(input)
+        print("  In Model: input size", input.size(), 
+              "output size", output.size())
+
+        return output
+
+
+model = Model(input_size, output_size)
+if torch.cuda.device_count() > 1:
+  print("Let's use", torch.cuda.device_count(), "GPUs!")
+  # dim = 0 [30, xxx] -> [10, ...], [10, ...], [10, ...] on 3 GPUs
+  model = nn.DataParallel(model)
+
+if torch.cuda.is_available():
+   model.cuda()
+
+
+for data in rand_loader:
+    if torch.cuda.is_available():
+        input_var = Variable(data.cuda())
+    else:
+        input_var = Variable(data)
+
+    output = model(input_var)
+    print("Outside: input size", input_var.size(),
+          "output_size", output.size())
+```		  
+
+### APIs
+ 
+The rest of the article summarizes some important APIs for the neural networks. Feel free to browse through it quickly. The official documentation is located [here](http://pytorch.org/docs/master/nn.html). 
  
 ### Convolution layers
 
