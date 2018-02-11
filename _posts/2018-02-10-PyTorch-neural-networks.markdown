@@ -104,6 +104,20 @@ self.conv1 = nn.Conv2d(1, 6, 5)
 
 In many code samples, it uses _torch.nn.functional_ for simpler operations that have no trainable parameters or configurable parameters. Alternatively, in a later section, we use _torch.nn.Sequential_ to compose layers from _torch.nn_ only. Both approaches are simple and more like a coding style issue rather than any major implementation differences.
 
+#### Common Functionals
+
+```python
+import torch
+import torch.nn.functional as F
+
+data = autograd.Variable(torch.randn(2, 2))
+F.relu(data)
+
+data = autograd.Variable(torch.randn(5))
+F.softmax(data, dim=0)
+```
+
+
 ### Backward pass
 
 To compute the backward pass for gradient, we first zero the gradient stored in the network. In PyTorch, every time we backpropagate the gradient from a variable, the gradient is accumulative instead of being reset and replaced. In some network designs, we need to call _backward_ multiple times. For example in a generative adversary network GAN, we need an accumulated gradients from 2 _backward_ passes: one for the generative part and one for the adversary part of the network. We reset the gradients only once but not between _backward_ calls. Hence, to accommodate such flexibility, we explicitly reset the gradient instead of having _backward_ resets it automatically every time.
