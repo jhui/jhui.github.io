@@ -26,19 +26,38 @@ answers = tf.Variable([[False, True],[False, False]], tf.bool)
 When you train a model, we use variables to store training parameters like weight and bias, hyper parameters like learning rate, or state information like global step. 
 
 However, the best way to create a variable is using _tf.get_variable_. It allows deep net to share parameters.
+
+Initialize variables:
+
 ```python
 import tensorflow as tf
 import numpy as np
 
-v1 = tf.get_variable("v1", [5, 5, 3])   # A tensor with shape (5, 5, 3) filled with random values
-v2 = tf.get_variable("v2", initializer=tf.constant(2))    # 2, float32 scalar
-v3 = tf.get_variable("v3", initializer=tf.constant([[2, 3], [4, 5]]))  # [[2, 3], [4, 5]]
+v1 =  tf.get_variable("v1", [5, 5, 3])  # A tensor with shape (5, 5, 3) filled with random values
+v2 =  tf.get_variable("v2", [5, 5, 3], dtype=tf.int32, trainable=True)
 
-v4 = tf.get_variable("v1", [3, 2], initializer=tf.zeros_initializer)
-v5 = tf.get_variable("v2", [3, 2], initializer=tf.ones_initializer)
+v3 = tf.get_variable("v3", [3, 2], initializer=tf.zeros_initializer) # Set to 0
+v4 = tf.get_variable("v4", [3, 2], initializer=tf.ones_initializer)  # Set to 1
+
+v5 = tf.get_variable("v5", initializer=tf.constant(2))    # scalar: 2. float32.
+v6 = tf.get_variable("v6", initializer=tf.constant([2]))  # [2]
+v7 = tf.get_variable("v7", initializer=tf.constant([[2, 3], [4, 5]]))  # [[2, 3], [4, 5]]
+
+v8 = tf.get_variable("v8", initializer=tf.constant(0.1, shape=[3, 2]))
 
 # [[ 1.  2.], [ 3.  4.], [ 5.  6.]]
-v6 = tf.get_variable("v3", [3, 2], initializer=tf.constant_initializer([1, 2, 3, 4, 5, 6])) 
+v9 = tf.get_variable("v3", [3, 2], initializer=tf.constant_initializer([1, 2, 3, 4, 5, 6])) 
+
+# [[ 1.  2.], [ 2.  2.], [ 2.  2.]]
+v10 = tf.get_variable("v4", [3, 2], initializer=tf.constant_initializer([1, 2])) 
+```
+
+Note: when we use _tf.constant_ in _tf.get_variable_, we do not need to specify the tensor shape unless we want to change the shape of the Tensor from the constant data. By default, variable is of type float32. _tf.get_variable_ assumes the variable is trainable.
+
+Randomized the value of variables:
+```python
+import tensorflow as tf
+import numpy as np
 
 W = tf.get_variable("W", [784, 256], initializer=tf.truncated_normal_initializer(stddev=np.sqrt(2.0 / 784)))
 Z = tf.get_variable("z", [4, 5], initializer=tf.random_uniform_initializer(-1, 1)) 

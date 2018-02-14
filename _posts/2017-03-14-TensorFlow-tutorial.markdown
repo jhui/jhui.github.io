@@ -3,36 +3,88 @@ layout: post
 comments: true
 mathjax: true
 priority: 800
-title: “TensorFlow Basic”
+title: “TensorFlow Basic - tutorial.”
 excerpt: “TensorFlow is a very powerful platform for Machine Learning. This tutorial goes over some of the basic of TensorFlow.”
-date: 2017-03-14 14:00:00
+date: 2018-02-13 14:00:00
 ---
 
 ### Basic
-TensorFlow is an open source software library for machine learning developed by Google. This tutorial is designed to teach the basic concepts and how to use it.
+TensorFlow is an open source software platform for deep learning developed by Google. This tutorial is designed to teach the basic concepts and how to use it. This article is intended for audiences with some simple understanding on deep learning.
 
 #### First TensorFlow program
-TensorFlow represents computations by linking op nodes into graphs. TensorFlow programs are structured into a construction phase and an execution phase. The following program:
+TensorFlow represents computations by linking **op** (operation) nodes into a computation **graph**. TensorFlow programs are structured into a construction phase and an execution phase. The following program:
 1. Constructs a computation graph for a matrix multiplication. 
-2. Open a TensorFlow session and compute the matrix multiplication by executing the computation graph.
+2. Open a TensorFlow session and execute the computation graph.
 
 ```python
 import tensorflow as tf
 
-# Construct 2 op nodes (m1, m2) representing 2 matrix.
-m1 = tf.constant([[3, 5]])     # (1, 2)
-m2 = tf.constant([[2],[4]])    # (2, 1)
+# Construct 2 ops representing 2 matrices.
+# All ops are automatically added to the default computation graph.
+# tf.constant outputs a Tensor and assign it to m1 or m2.
+m1 = tf.constant([[3, 5]])     # shape: (1, 2)
+m2 = tf.constant([[2],[4]])    # shape: (2, 1)
 
-product = tf.matmul(m1, m2)    # A matrix multiplication op node
+# Create a matrix multiplication op 
+# Assign the output Tensor to "product".
+product = tf.matmul(m1, m2)    
 
-with tf.Session() as sess:     # Open a TensorFlow session to execute the graph. 
+with tf.Session() as sess:     # Open a session to execute the default graph. 
     result = sess.run(product) # Compute the result for “product”
     print(result)              # 3*2+5*4: [[26]]
 ```
-_sess.run_ and _tensor.eval()_will return a NumPy array containing the result of the computation.
 
-The above program hardwires the matrix as a constant. We will implement a new linear equation that feeds the graph with input data on execution.
+_sess.run\(product\)_ returns a NumPy array containing the result of the computation.
 
+#### Tensor & Computation graph
+
+TensorFlow builds a computation graph containing **ops** (operation nodes). It usually starts with an op that takes in a list or a placeholder with data provided later.
+
+```python
+m1 = tf.constant([[3, 5]])
+```
+
+_tf.constant_ builds an op that represents a Python list. By default, all ops are added to the current default graph. 
+ 
+Ops output zero or more Tensors. In TensorFlow, a **Tensor** is a typed multi-dimensional array, similar to a Python list or a NumPy ndarray. The shape of a tensor is its dimension. For example, a 5x5x3 matrix is a Rank 3 (3-dimensional) tensor with shape (5, 5, 3). Because our list is a 1x2 array of type int32, it outputs a Tensor of type int32 with shape (2, ): a 1-dimensional array with 2 elements.
+
+We make additional TensorFlow calls to link ops and tensors together to form a graph. _tf.matmul_ links 2 tensors to create a matrix multiplication tensor.
+
+```
+product = tf.matmul(m1, m2)    # A matrix multiplication operation takes 2 Tensors 
+                               # and output 1 Tensor
+```
+
+During these calls, no actual computations are done. All computations are **delayed** until we invoke a Tensor inside a session (_sess.run_). Then all the required operations to compute the Tensor will be executed.
+
+```python
+with tf.Session() as sess:     # Open a session to execute the default graph. 
+    result = sess.run(product) # Compute the result for “product”
+```
+
+> With TensorFlow v1.5, the eager execution model executes ops immediately. It is not released for production yet. We will discuss this model later.
+
+Common ops to hold data are:
+
+* tf.Variable
+* tf.Constant
+* tf.Placeholder
+* tf.SparseTensor
+
+### tf.placeholder
+
+_tf.constant_ hardwires the input matrices as constant ops. These constants are part of the computation graph running with the same input. To switch to different input data, we replace the constant ops with the placeholders. When we run a graph in a session, we feed different input matrices into the placeholders using _feed\_dict_.
+
+```python
+x = tf.placeholder(tf.int32, shape=(2, 1))
+b = tf.placeholder(tf.int32)
+...
+with tf.Session() as sess:
+    result = sess.run(product, feed_dict={x: np.array([[2],[4]]), b:1})
+    ...
+```
+
+Here is the full source code:
 ```python
 import tensorflow as tf
 import numpy as np
@@ -50,25 +102,113 @@ with tf.Session() as sess:
     # Feed data into the place holder (x & b) before execution.
     result = sess.run(product, feed_dict={x: np.array([[2],[4]]), b:1})
     print(result)              # 3*2+5*4+1 = [[27]]
+
+    result = sess.run(product, feed_dict={x: np.array([[5],[6]]), b:3})
+    print(result)              # [[48]]
 ```
 
-> When we construct a graph (tf.constant, tf.get_variable, tf.matmul), we are just building a computation graph. No computation is actually perforned until we run it inside a session (sess.run).
+By default, the data type (dtype) of a tensor is tf.float32. In our code, we explicitly define the type to be int32 in _tf.placeholder_.
 
-Common tensor types in TensorFlow are:
+### Train a linear model
 
-* tf.Variable
-* tf.Constant
-* tf.Placeholder
-* tf.SparseTensor
-
-#### Train a linear model
-Let’s do a simple linear regression with a linear model below.
+Let’s build a simple linear regression model: with training data $$x$$ and labels $$y$$. We want to build a linear model and find (train) the parameters $$W$$ and $$b$$.
 
 $$
 y = Wx + b
 $$
 
-We will supply the model with training data (x, y) and later compute the corresponding model parameter W & b.
+
+The code implementation contains 3 major parts:
+* Define a model
+* Define a loss function and an optimizer for the gradient descent
+* Train the model
+
+#### Model
+
+Define the linear model y = Wx + b. 
+```python
+### Define a model: a computational graph
+# Parameters for a linear model y = Wx + b
+W = tf.get_variable("W", initializer=tf.constant([0.1]))
+b = tf.get_variable("b", initializer=tf.constant([0.0]))
+
+# Placeholder for input and prediction
+x = tf.placeholder(tf.float32)
+y = tf.placeholder(tf.float32)
+
+# Define a linear model y = Wx + b
+model = W * x + b
+```
+
+We define both $$W$$ and $$b$$ as TensorFlow **variables** initialized to 0.1 and 0.0 respectively. By default, TensorFlow variables are trainable and used to define models' parameters.
+
+```python
+W = tf.get_variable("W", initializer=tf.constant([0.1]))
+b = tf.get_variable("b", initializer=tf.constant([0.0]))
+```
+
+Variables produce Tensor outputs. Tensors can be multi-dimensional. The code below creates a variable with shape (5, 5, 3) of type int32, and we use a zero initializer to set all values to 0.
+
+```python
+int_v = tf.get_variable("my_int_variable_name", [5, 5, 3], dtype=tf.int32, 
+  initializer=tf.zeros_initializer)
+```  
+
+#### Lost function and optimizer & trainer
+
+To define the Mean Square Error (MSE) cost function, we subtract the label value from the prediction of a model, and then sum over its square.
+
+```python
+loss = tf.reduce_sum(tf.square(model - y))
+```
+
+We create a gradient descent optimizer and a trainer to find the optimal trainable parameters $$W$$ and $$b$$ for our model.
+
+```python
+# Optimizer with a 0.01 learning rate
+optimizer = tf.train.GradientDescentOptimizer(0.01)
+train = optimizer.minimize(loss)
+```
+
+#### Training
+All operations are not yet executed. Before any execution, we need to initialize all the variables first.
+
+```python
+tf.global_variables_initializer().run()
+```
+
+It actually runs all the initialization ops of all variables inside a session. This is a short cut for:
+
+```python
+init = tf.global_variables_initializer()
+with tf.Session() as sess:
+    sess.run(init)
+```
+
+We train our model with 1000 iterations.  For every 100 iterations, we compute the loss and print it out.
+```python
+for i in range(1000):
+   sess.run(train, {x:x_train, y:y_train})
+   if i%100==0:
+        l_cost = sess.run(loss, {x:x_train, y:y_train})
+        print(f"i: {i} cost: {l_cost}")
+```
+After 1000 iterations are done, we stop the training, and print out W, b and the loss:
+```python
+# Evaluate training accuracy
+l_W, l_b, l_cost  = sess.run([W, b, loss], {x:x_train, y:y_train})
+print(f"W: {l_W} b: {l_b} cost: {l_cost}")
+
+# W: [ 1.99999797] b: [-0.49999401] cost: 2.2751578399038408e-11
+```
+
+From the printout, we realize the model trained from our data is:
+
+$$
+y = 2x - 0.5
+$$
+
+Here is the full source code:
 ```python
 import tensorflow as tf
 
@@ -111,78 +251,6 @@ with tf.Session() as sess:
     print(f"W: {l_W} b: {l_b} cost: {l_cost}")
     # W: [ 1.99999797] b: [-0.49999401] cost: 2.2751578399038408e-11
 ```
-A typical TensorFlow program contains:
-* Define a model
-* Define a loss function and a trainer
-* Training (fitting)
-
-#### Model
-Define the linear model y = Wx + b. 
-```python
-### Define a model: a computational graph
-# Parameters for a linear model y = Wx + b
-W = tf.get_variable("W", initializer=tf.constant([0.1]))
-b = tf.get_variable("b", initializer=tf.constant([0.0]))
-
-# Placeholder for input and prediction
-x = tf.placeholder(tf.float32)
-y = tf.placeholder(tf.float32)
-
-# Define a linear model y = Wx + b
-model = W * x + b
-```
-
-We define both $$W$$ and $$b$$ as variables initialized as 0.1 and 0 respectively. Variables are trainable and can act as the parameters of a model.
-```python
-W = tf.get_variable("W", initializer=tf.constant([0.1]))
-b = tf.get_variable("b", initializer=tf.constant([0.0]))
-```
-
-The shape of a tensor is the dimension of a tensor. For example, a 5x5x3 matrix is a Rank 3 (3-dimensional) tensor with shape (5, 5, 3). By default, the data type (dtype) of a tensor is tf.float32. Here we initialize a tensor with shape (5, 5, 3) of int32 type with 0. 
-```python
-int_v = tf.get_variable("int_variable", [5, 5, 3], dtype=tf.int32, 
-  initializer=tf.zeros_initializer)
-```  
-
-#### Lost function and optimizer & trainer
-Define the Mean Square Error (MSE) cost function:
-```python
-loss = tf.reduce_sum(tf.square(model - y))
-```
-We define a gradient descent optimizer and trainer to find an optimal solution that can fit our training data with the minimum loss.
-```python
-# Optimizer with a 0.01 learning rate
-optimizer = tf.train.GradientDescentOptimizer(0.01)
-train = optimizer.minimize(loss)
-```
-
-#### Training (fitting)
-Before any execution, we need to initialize all the parameters:
-```python
-init = tf.global_variables_initializer()
-with tf.Session() as sess:
-    sess.run(init)
-```
-We train our data with 1000 iterations.  For every 100 iterations, we compute the loss and print it out.
-```python
-for i in range(1000):
-   sess.run(train, {x:x_train, y:y_train})
-   if i%100==0:
-        l_cost = sess.run(loss, {x:x_train, y:y_train})
-        print(f"i: {i} cost: {l_cost}")
-```
-Once 1000 iterations are done, we print out W, b and the loss:
-```python
-# Evaluate training accuracy
-l_W, l_b, l_cost  = sess.run([W, b, loss], {x:x_train, y:y_train})
-print(f"W: {l_W} b: {l_b} cost: {l_cost}")
-# W: [ 1.99999797] b: [-0.49999401] cost: 2.2751578399038408e-11
-```
-Here we model our training data as:
-$$
-y = 2x - 0.5
-$$
-
 
 ### Solving MNist
 
@@ -205,54 +273,61 @@ FLAGS = None
 
 def main(_):
   # Import data
-  mnist = input_data.read_data_sets(FLAGS.data_dir, one_hot=True)
+  mnist = input_data.read_data_sets(FLAGS.data_dir)
 
   # Create the model
   x = tf.placeholder(tf.float32, [None, 784])
-  W = tf.Variable(tf.zeros([784, 10]))
-  b = tf.Variable(tf.zeros([10]))
+
+  W = tf.get_variable("W", [784, 10], initializer=tf.zeros_initializer)
+  b = tf.get_variable("b", [10], initializer=tf.zeros_initializer)
+
   y = tf.matmul(x, W) + b
-
+  
   # Define loss and optimizer
-  y_ = tf.placeholder(tf.float32, [None, 10])
+  y_ = tf.placeholder(tf.int64, [None])
 
-  cross_entropy = tf.reduce_mean(
-      tf.nn.softmax_cross_entropy_with_logits(labels=y_, logits=y))
+  cross_entropy = tf.losses.sparse_softmax_cross_entropy(labels=y_, logits=y)
   train_step = tf.train.GradientDescentOptimizer(0.5).minimize(cross_entropy)
 
   sess = tf.InteractiveSession()
   tf.global_variables_initializer().run()
+
   # Train
   for _ in range(1000):
     batch_xs, batch_ys = mnist.train.next_batch(100)
     sess.run(train_step, feed_dict={x: batch_xs, y_: batch_ys})
 
   # Test trained model
-  correct_prediction = tf.equal(tf.argmax(y, 1), tf.argmax(y_, 1))
+  correct_prediction = tf.equal(tf.argmax(y, 1), y_)
   accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
-  print(sess.run(accuracy, feed_dict={x: mnist.test.images,
-                                      y_: mnist.test.labels}))
+  print(sess.run(
+      accuracy, feed_dict={
+          x: mnist.test.images,
+          y_: mnist.test.labels
+      }))
+
 
 if __name__ == '__main__':
   parser = argparse.ArgumentParser()
-  parser.add_argument('--data_dir', type=str, default='/tmp/tensorflow/mnist/input_data',
-                      help='Directory for storing input data')
+  parser.add_argument(
+      '--data_dir',
+      type=str,
+      default='/tmp/tensorflow/mnist/input_data',
+      help='Directory for storing input data')
   FLAGS, unparsed = parser.parse_known_args()
   tf.app.run(main=main, argv=[sys.argv[0]] + unparsed)
-
-# 0.9241
+  
+# 0.9198
 ```
 
-Read training, validation and testing dataset into “mnist”.
+We use an already made library to read training, validation and testing dataset into “mnist”.
 ```python
 from tensorflow.examples.tutorials.mnist import input_data
 
-def main(_):
-  # Import data
-  mnist = input_data.read_data_sets(FLAGS.data_dir, one_hot=True)
+mnist = input_data.read_data_sets(FLAGS.data_dir)
 ```
 
-Each image is 28x28 = 784. We use a linear classifier to classify the handwritten image from either 0 to 9.
+Each image is 28x28 = 784. We use a linear classifier to classify the handwritten image to one of the 10 classes. (with output 0 to 9)
 
 ```python
 x = tf.placeholder(tf.float32, [None, 784])
@@ -263,406 +338,245 @@ y = tf.matmul(x, W) + b
 
 We use cross-entropy as the cost functions:
 ```python
-  cross_entropy = tf.reduce_mean(
-      tf.nn.softmax_cross_entropy_with_logits(labels=y_, logits=y))
+cross_entropy = tf.losses.sparse_softmax_cross_entropy(labels=y_, logits=y)
 ```
 
 ### Solving MNist with a fully connected networking
 
-Now we replace the model using deep learning techniques. This example contains 2 hidden fully connected layers. The new model achieves an accuracy of **98%**.
+Now we replace the model using deep learning techniques. This example contains 2 hidden fully connected layers. The new model achieves an accuracy of **97%**.
 
 <div class="imgcap">
 <img src="/assets/tensorflow/fc.png" style="border:none; width:80%;">
 </div>
 
-For each hidden layer:
+To implement a fully connected layer:
+
+$$
+\begin{split}
+z & = Wx + b\\
+h & = ReLU(z) \\
+\end{split}
+$$
+
+We creates 2 trainable variables $$W$$ and $$b$$. We compute $$ Wx + b$$ and then apply the ReLU function:
+
 ```python
-with tf.name_scope('hidden1'):   # Create a name scope for hidden layer 1
-    weights = tf.Variable(       # Create a variable for weights initialized with truncated normal distribution
-        tf.truncated_normal([IMAGE_PIXELS, hidden1_units],
-                            stddev=1.0 / math.sqrt(float(IMAGE_PIXELS))),
-                            name='weights')
-    biases = tf.Variable(tf.zeros([hidden1_units]), name='biases') # Create avaraible for the biases
-    hidden1 = tf.nn.relu(tf.matmul(images, weights) + biases)      # Matrix multiplication followed by a RELU
+with tf.variable_scope('hidden1'):
+  weights = tf.get_variable("W", [784, 128], 
+  				initializer=tf.truncated_normal_initializer(stddev=0.1))
+  biases = tf.get_variable("b", [128], initializer=tf.zeros_initializer)
+  z = tf.matmul(x, weights) + biases
+  hidden1 = tf.nn.relu(z)
 ```
 
-Cost function using cross entropy.
+In our model, we have 2 fully connected hidden layers and one linear output layer. We also apply the He initialization for _stddev_.
+
 ```python
-def loss(logits, labels):
-  labels = tf.to_int64(labels)
-  cross_entropy = tf.nn.sparse_softmax_cross_entropy_with_logits(
-      labels=labels, logits=logits, name='xentropy')
-  return tf.reduce_mean(cross_entropy, name='xentropy_mean')
-```
+def mnist_fc(x):
+  # First fully connected net
+  with tf.variable_scope('hidden1'):
+    weights = tf.get_variable("W", [784, 128],
+          initializer=tf.truncated_normal_initializer(stddev=np.sqrt(2.0 / 784)))
+    biases = tf.get_variable("b", [128], initializer=tf.zeros_initializer)
+    hidden1 = tf.nn.relu(tf.matmul(x, weights) + biases)
 
-Training and evaluation:
-```
-def training(loss, learning_rate):
-  # Add a scalar summary for the snapshot loss.
-  tf.summary.scalar('loss', loss)
-
-  optimizer = tf.train.GradientDescentOptimizer(learning_rate)
-  global_step = tf.Variable(0, name='global_step', trainable=False)
-  train_op = optimizer.minimize(loss, global_step=global_step)
-  return train_op
-
-def evaluation(logits, labels):
-  correct = tf.nn.in_top_k(logits, labels, 1)
-  return tf.reduce_sum(tf.cast(correct, tf.int32))
-```
-
-The full code for defining the model:
-```python
-import math
-import tensorflow as tf
-
-NUM_CLASSES = 10
-IMAGE_SIZE = 28
-IMAGE_PIXELS = IMAGE_SIZE * IMAGE_SIZE
-
-def inference(images, hidden1_units, hidden2_units):
-  # Hidden 1
-  with tf.name_scope('hidden1'):
-    weights = tf.Variable(
-        tf.truncated_normal([IMAGE_PIXELS, hidden1_units],
-                            stddev=1.0 / math.sqrt(float(IMAGE_PIXELS))),
-                            name='weights')
-    biases = tf.Variable(tf.zeros([hidden1_units]),
-                         name='biases')
-    hidden1 = tf.nn.relu(tf.matmul(images, weights) + biases)
-  # Hidden 2
-  with tf.name_scope('hidden2'):
-    weights = tf.Variable(
-        tf.truncated_normal([hidden1_units, hidden2_units],
-                            stddev=1.0 / math.sqrt(float(hidden1_units))),
-        name='weights')
-    biases = tf.Variable(tf.zeros([hidden2_units]),
-                         name='biases')
+  # Second fully connected net
+  with tf.variable_scope('hidden2'):
+    weights = tf.get_variable("W", [128, 32],
+          initializer=tf.truncated_normal_initializer(stddev=np.sqrt(2.0 / 128)))
+    biases = tf.get_variable("b", [32], initializer=tf.zeros_initializer)
     hidden2 = tf.nn.relu(tf.matmul(hidden1, weights) + biases)
+
   # Linear
-  with tf.name_scope('softmax_linear'):
-    weights = tf.Variable(
-        tf.truncated_normal([hidden2_units, NUM_CLASSES],
-                            stddev=1.0 / math.sqrt(float(hidden2_units))),
-        name='weights')
-    biases = tf.Variable(tf.zeros([NUM_CLASSES]),
-                         name='biases')
-    logits = tf.matmul(hidden2, weights) + biases
-  return logits
+  with tf.variable_scope('softmax_linear'):
+    weights = tf.get_variable("W", [32, 10],
+          initializer=tf.truncated_normal_initializer(stddev=np.sqrt(2.0 / 32)))
+    biases = tf.get_variable("b", [10], initializer=tf.zeros_initializer)
+    logits = tf.nn.relu(tf.matmul(hidden2, weights) + biases)
 
-def loss(logits, labels):
-  labels = tf.to_int64(labels)
-  cross_entropy = tf.nn.sparse_softmax_cross_entropy_with_logits(
-      labels=labels, logits=logits, name='xentropy')
-  return tf.reduce_mean(cross_entropy, name='xentropy_mean')
-
-def training(loss, learning_rate):
-  # Add a scalar summary for the snapshot loss.
-  tf.summary.scalar('loss', loss)
-
-  optimizer = tf.train.GradientDescentOptimizer(learning_rate)
-  global_step = tf.Variable(0, name='global_step', trainable=False)
-  train_op = optimizer.minimize(loss, global_step=global_step)
-  return train_op
-
-def evaluation(logits, labels):
-  correct = tf.nn.in_top_k(logits, labels, 1)
-  return tf.reduce_sum(tf.cast(correct, tf.int32))
+  return logits  
 ```
 
-Here is the main program:
+We use cross entropy for our cost function and Adam optimizer as our trainer:
+```python
+# Model
+
+x = tf.placeholder(tf.float32, [None, 784])
+y_labels = tf.placeholder(tf.int64, [None])
+
+y = mnist_fc(x)
+
+# Loss, optimizer and trainer
+
+with tf.name_scope('loss'):
+  cross_entropy = tf.losses.sparse_softmax_cross_entropy(
+      labels=y_labels, logits=y)
+cross_entropy = tf.reduce_mean(cross_entropy)
+
+with tf.name_scope('adam_optimizer'):
+  train_step = tf.train.AdamOptimizer(1e-4).minimize(cross_entropy)
+```
+
+For every 100 iterations, we also evaluate the accuracy of the model by computing the mean of correct predictions. (for example, 0.93)
+```
+# Evaluation
+with tf.name_scope('accuracy'):
+  correct_prediction = tf.equal(tf.argmax(y, 1), y_labels)
+  correct_prediction = tf.cast(correct_prediction, tf.float32)
+accuracy = tf.reduce_mean(correct_prediction)   
+```
+
+Here is the full source code:
 ```python
 import argparse
-import os
 import sys
-import time
+import numpy as np
+
+from tensorflow.examples.tutorials.mnist import input_data
 
 import tensorflow as tf
 
-from tensorflow.examples.tutorials.mnist import input_data
-from tensorflow.examples.tutorials.mnist import mnist
-
-# Basic model parameters as external flags.
 FLAGS = None
 
-def placeholder_inputs(batch_size):
-  images_placeholder = tf.placeholder(tf.float32, shape=(batch_size, mnist.IMAGE_PIXELS))
-  labels_placeholder = tf.placeholder(tf.int32, shape=(batch_size))
-  return images_placeholder, labels_placeholder
 
-def fill_feed_dict(data_set, images_pl, labels_pl):
-  images_feed, labels_feed = data_set.next_batch(FLAGS.batch_size, FLAGS.fake_data)
-  feed_dict = {images_pl: images_feed, labels_pl: labels_feed,}
-  return feed_dict
+def mnist_fc(x):
+  # First fully connected net
+  with tf.variable_scope('hidden1'):
+    weights = tf.get_variable("W", [784, 128],
+          initializer=tf.truncated_normal_initializer(stddev=np.sqrt(2.0 / 784)))
+    biases = tf.get_variable("b", [128], initializer=tf.zeros_initializer)
 
-def do_eval(sess, eval_correct, images_placeholder, labels_placeholder, data_set):
-  true_count = 0
-  steps_per_epoch = data_set.num_examples // FLAGS.batch_size
-  num_examples = steps_per_epoch * FLAGS.batch_size
-  for step in range(steps_per_epoch):
-    feed_dict = fill_feed_dict(data_set, images_placeholder, labels_placeholder)
-    true_count += sess.run(eval_correct, feed_dict=feed_dict)
-  precision = float(true_count) / num_examples
-  print('  Num examples: %d  Num correct: %d  Precision @ 1: %0.04f' % (num_examples, true_count, precision))
+    hidden1 = tf.nn.relu(tf.matmul(x, weights) + biases)
 
-def run_training():
-  data_sets = input_data.read_data_sets(FLAGS.input_data_dir, FLAGS.fake_data)
+  # Second fully connected net
+  with tf.variable_scope('hidden2'):
+    weights = tf.get_variable("W", [128, 32],
+          initializer=tf.truncated_normal_initializer(stddev=np.sqrt(2.0 / 128)))
+    biases = tf.get_variable("b", [32], initializer=tf.zeros_initializer)
 
-  with tf.Graph().as_default():
-    images_placeholder, labels_placeholder = placeholder_inputs(FLAGS.batch_size)
+    hidden2 = tf.nn.relu(tf.matmul(hidden1, weights) + biases)
 
-    logits = mnist.inference(images_placeholder, FLAGS.hidden1, FLAGS.hidden2)
-    loss = mnist.loss(logits, labels_placeholder)
+  # Linear
+  with tf.variable_scope('softmax_linear'):
+    weights = tf.get_variable("W", [32, 10],
+          initializer=tf.truncated_normal_initializer(stddev=np.sqrt(2.0 / 32)))
+    biases = tf.get_variable("b", [10], initializer=tf.zeros_initializer)
 
-    train_op = mnist.training(loss, FLAGS.learning_rate)
-    eval_correct = mnist.evaluation(logits, labels_placeholder)
+    logits = tf.nn.relu(tf.matmul(hidden2, weights) + biases)
 
-    saver = tf.train.Saver()
-    init = tf.global_variables_initializer()
-
-    summary = tf.summary.merge_all()
-
-    sess = tf.Session()
-	
-    summary_writer = tf.summary.FileWriter(FLAGS.log_dir, sess.graph)
-
-    sess.run(init)
-
-    for step in range(FLAGS.max_steps):
-      start_time = time.time()
-
-      feed_dict = fill_feed_dict(data_sets.train, images_placeholder, labels_placeholder)
-
-      _, loss_value = sess.run([train_op, loss], feed_dict=feed_dict)
-
-      duration = time.time() - start_time
-
-      if step % 100 == 0:
-        print('Step %d: loss = %.2f (%.3f sec)' % (step, loss_value, duration))
-        summary_str = sess.run(summary, feed_dict=feed_dict)
-        summary_writer.add_summary(summary_str, step)
-        summary_writer.flush()
-
-      if (step + 1) % 1000 == 0 or (step + 1) == FLAGS.max_steps:
-        checkpoint_file = os.path.join(FLAGS.log_dir, 'model.ckpt')
-        saver.save(sess, checkpoint_file, global_step=step)
-
-        print('Training Data Eval:')
-        do_eval(sess, eval_correct, images_placeholder, labels_placeholder, data_sets.train)
-				
-        print('Validation Data Eval:')
-        do_eval(sess, eval_correct, images_placeholder, labels_placeholder, data_sets.validation)
-				
-        print('Test Data Eval:')
-        do_eval(sess, eval_correct, images_placeholder, labels_placeholder, data_sets.test)
+  return logits
 
 
 def main(_):
-  if tf.gfile.Exists(FLAGS.log_dir):
-    tf.gfile.DeleteRecursively(FLAGS.log_dir)
-  tf.gfile.MakeDirs(FLAGS.log_dir)
-  run_training()
+  # Import data
+  mnist = input_data.read_data_sets(FLAGS.data_dir)
 
+  # Model
+
+  x = tf.placeholder(tf.float32, [None, 784])
+  y_labels = tf.placeholder(tf.int64, [None])
+
+  y = mnist_fc(x)
+
+  # Loss, optimizer and trainer
+
+  with tf.name_scope('loss'):
+    cross_entropy = tf.losses.sparse_softmax_cross_entropy(
+        labels=y_labels, logits=y)
+  cross_entropy = tf.reduce_mean(cross_entropy)
+
+  with tf.name_scope('adam_optimizer'):
+    train_step = tf.train.AdamOptimizer(1e-4).minimize(cross_entropy)
+
+  # Evaluation
+  with tf.name_scope('accuracy'):
+    correct_prediction = tf.equal(tf.argmax(y, 1), y_labels)
+    correct_prediction = tf.cast(correct_prediction, tf.float32)
+  accuracy = tf.reduce_mean(correct_prediction)
+
+  with tf.Session():
+    tf.global_variables_initializer().run()
+    for i in range(20000):
+      batch = mnist.train.next_batch(50)
+      train_step.run(feed_dict={x: batch[0], y_labels: batch[1]})
+
+      if i % 100 == 0:
+        train_accuracy = accuracy.eval(feed_dict={x: batch[0], y_labels: batch[1]})
+        print('step %d, training accuracy %g' % (i, train_accuracy))
+
+    print('test accuracy %g' % accuracy.eval(feed_dict={
+        x: mnist.test.images, y_labels: mnist.test.labels}))
 
 if __name__ == '__main__':
   parser = argparse.ArgumentParser()
-  parser.add_argument('--learning_rate', type=float, default=0.01, help='Initial learning rate.')
-  parser.add_argument('--max_steps', type=int, default=2000, help='Number of steps to run trainer.')
-  parser.add_argument('--hidden1', type=int, default=128, help='Number of units in hidden layer 1.')
-  parser.add_argument('--hidden2', type=int, default=32, help='Number of units in hidden layer 2.')
-  parser.add_argument('--batch_size', type=int, default=100, help='Batch size.  Must divide evenly into the dataset sizes.')
-  parser.add_argument('--input_data_dir', type=str, default=os.path.join(os.getenv('TEST_TMPDIR', '/tmp'),  'tensorflow/mnist/input_data'), help='Directory to put the input data.')
-  parser.add_argument('--log_dir', type=str, default=os.path.join(os.getenv('TEST_TMPDIR', '/tmp'), 'tensorflow/mnist/logs/fully_connected_feed'), help='Directory to put the log data.')
-  parser.add_argument('--fake_data', default=False, help='If true, uses fake data for unit testing.', action='store_true')
-
+  parser.add_argument('--data_dir', type=str,
+                      default='/tmp/tensorflow/mnist/input_data',
+                      help='Directory for storing input data')
   FLAGS, unparsed = parser.parse_known_args()
   tf.app.run(main=main, argv=[sys.argv[0]] + unparsed)
-```
 
-Collecting data for TensorBoard
-In mnist.py:
-```python
-def training(loss, learning_rate):
-  ...
-  tf.summary.scalar('loss', loss)
-  ...
-```
-
-```python
-def run_training():
-    ...
-    loss = mnist.loss(logits, labels_placeholder)
-    train_op = mnist.training(loss, FLAGS.learning_rate)
-	
-    summary = tf.summary.merge_all()
-    sess = tf.Session()
-    summary_writer = tf.summary.FileWriter(FLAGS.log_dir, sess.graph)
-
-    ...
-    for step in range(FLAGS.max_steps):
-      ...
-      _, loss_value = sess.run([train_op, loss], feed_dict=feed_dict)
-      ...
-
-      if step % 100 == 0:
-        summary_str = sess.run(summary, feed_dict=feed_dict)
-        summary_writer.add_summary(summary_str, step)
-        summary_writer.flush()  
 ```
 
 Further accuracy improvement can be achieved by:
-* Increase the number of iterations.
-* Change to a CNN architect.
-* Replace the regularization with more advanced methods like batch normalization or dropout.
-* Fine tuning of the learning rate in the Adam optimizer and the lambda in the L2 regularization.
+
+* Increase the number of training iterations.
+* Change to a CNN model.
+* Add L2 regularization into the cost function. 
+* Add batch normalization or dropout.
+* Fine tuning the learning rate and the $$\lambda$$ in the L2 regularization.
 
 In next section, we will cover the CNN and dropout implementation.
 
 ### MNist with a Convolution network (CNN)
 
-To push the accuracy higher, we will create a model with 2 CNN layers followed by 2 hidden fully connected (FC) layers and the final linear classifier. We also apply:
-* a 5x5 filter for both CNN layers.
-* a 2x2 max pooling max(z11, z12, z21, z22) for both CNN layers.
-* Use RELU max(0, z) for both CNN and FC layer.
-* Use dropout for regularization.
+To push the accuracy higher, we create a model with :
+
+* 1st CNN layer using 5x5 filter with strides 1 and 32 output channels
+* 2nd CNN layer (32 channels -> 64 channels)
+* One hidden fully connected layer of (7x7x65 -> 1024)
+* Output fully connected layer (1024 -> 10 classes)
 * Use cross entropy cost function with Adam optimizer.
 
-The following code reaches an accuracy of **99.4%** with little parameter tuning.
+It reaches an accuracy of **99.4%** with little parameter tuning.
+
+Each convolution layer includes: 
+
+* _tf.nn.conv2d_ to perform the 2D convolution
+* _tf.nn.relu_ for the ReLU
+* _tf.nn.max_pool_ for the max pool.
 
 ```python
-import argparse
-import sys
+with tf.variable_scope('conv1'):
+  W_conv1 = tf.get_variable("W", [5, 5, 1, 32],
+        initializer=tf.truncated_normal_initializer(stddev=np.sqrt(2.0 / 784)))
+  b_conv1 = tf.get_variable("b", initializer=tf.constant(0.1, shape=[32]))
+  z = tf.nn.conv2d(x_image, W_conv1, strides=[1, 1, 1, 1], padding='SAME')
+  z += b_conv1
+  h_conv1 = tf.nn.relu(z + b_conv1)
 
-from tensorflow.examples.tutorials.mnist import input_data
+# Pooling layer - downsamples by 2X.
+with tf.variable_scope('pool1'):
+  h_pool1 = tf.nn.max_pool(h_conv1, ksize=[1, 2, 2, 1],
+                   strides=[1, 2, 2, 1], padding='SAME')
 
-import tensorflow as tf
-import numpy as np
+```
 
-FLAGS = None
-
-
-def main(_):
-  # Import data
-  mnist = input_data.read_data_sets(FLAGS.data_dir, one_hot=True)
-
-  ### Building a model with 2 Convolution layers
-  ### followed by 2 fully connected hidden layers and a linear classification layer.
-  x = tf.placeholder(tf.float32, [None, 784])
-
-  # Parameters for the 2 convolution layer
-  with tf.variable_scope("CNN"):
-      cnn_W1 = tf.get_variable("W1", [5, 5, 1, 32], initializer=tf.truncated_normal_initializer(stddev=0.1))
-      cnn_b1 = tf.get_variable("b1", [32], initializer=tf.constant_initializer(0.1))
-      cnn_W2 = tf.get_variable("W2", [5, 5, 32, 64], initializer=tf.truncated_normal_initializer(stddev=0.1))
-      cnn_b2 = tf.get_variable("b2", [64], initializer=tf.constant_initializer(0.1))
-
-  # Parameters for 2 hidden layers with dropout and the linear classification layer.
-  # 3136 = 7 * 7 * 64
-  W1 = tf.get_variable("W1", [3136, 1000], initializer=tf.truncated_normal_initializer(stddev=np.sqrt(2.0 / 3136)))
-  b1 = tf.get_variable("b1", [1000], initializer=tf.zeros_initializer)
-  W2 = tf.get_variable("W2", [1000, 100], initializer=tf.truncated_normal_initializer(stddev=np.sqrt(2.0 / 1000)))
-  b2 = tf.get_variable("b2", [100], initializer=tf.zeros_initializer)
-  W3 = tf.get_variable("W3", [100, 10], initializer=tf.truncated_normal_initializer(stddev=np.sqrt(2.0 / 100)))
-  b3 = tf.get_variable("b3", [10], initializer=tf.zeros_initializer)
-
+We also apply _tf.nn.dropout_ (Dropout) to regulate the first hidden layer:
+ 
+```python
+# Dropout - regulate the complexity of the model
+with tf.variable_scope('dropout'):
   keep_prob = tf.placeholder(tf.float32)
-
-  # First CNN with RELU and max pooling.
-  x_image = tf.reshape(x, [-1, 28, 28, 1])
-  cnn1 = tf.nn.conv2d(x_image, cnn_W1, strides=[1, 1, 1, 1], padding='SAME')
-  z1 = tf.nn.relu(cnn1 + cnn_b1)
-  h1 = tf.nn.max_pool(z1, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME')
-
-  # Second CNN
-  cnn2 = tf.nn.conv2d(h1, cnn_W2, strides=[1, 1, 1, 1], padding='SAME')
-  z2 = tf.nn.relu(cnn2 + cnn_b2)
-  h2 = tf.nn.max_pool(z2, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME')
-
-  # First FC layer with dropout.
-  h2_flat = tf.reshape(h2, [-1, 3136])
-  h_fc1 = tf.nn.relu(tf.matmul(h2_flat, W1) + b1)
   h_fc1_drop = tf.nn.dropout(h_fc1, keep_prob)
-
-  # Second FC
-  h_fc2 = tf.nn.relu(tf.matmul(h_fc1_drop, W2) + b2)
-  h_fc2_drop = tf.nn.dropout(h_fc2, keep_prob)
-
-  # Linear classification.
-  y = tf.matmul(h_fc2_drop, W3) + b3
-
-  # True label
-  labels = tf.placeholder(tf.float32, [None, 10])
-
-  # Cost function & optimizer
-  # Use cross entropy with the Adam gradient descent optimizer.
-  cross_entropy = tf.reduce_mean(
-      tf.nn.softmax_cross_entropy_with_logits(labels=labels, logits=y) )
-  train_step = tf.train.AdamOptimizer(learning_rate=0.001).minimize(cross_entropy)
-
-  init = tf.global_variables_initializer()
-  with tf.Session() as sess:
-      sess.run(init)
-      # Train
-      for i in range(10001):
-        batch_xs, batch_ys = mnist.train.next_batch(100)
-        sess.run(train_step, feed_dict={x: batch_xs, labels: batch_ys, keep_prob:0.5})
-        if i%50==0:
-          # Test trained model
-          correct_prediction = tf.equal(tf.argmax(y, 1), tf.argmax(labels, 1))
-          accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
-          result = sess.run(accuracy, feed_dict={x: mnist.test.images,
-                                              labels: mnist.test.labels,
-                                              keep_prob:1.0})
-          print(f"Iteration {i}: accuracy = {result}")
-
-if __name__ == '__main__':
-  parser = argparse.ArgumentParser()
-  parser.add_argument('--data_dir', type=str, default='/tmp/tensorflow/mnist/input_data',
-                      help='Directory for storing input data')
-  FLAGS, unparsed = parser.parse_known_args()
-  tf.app.run(main=main, argv=[sys.argv[0]] + unparsed)
-
-# Iteration 10000: accuracy = 0.9943000078201294
 ```
 
-Define the convolution layer with a 5x5 filter using RELU activation following by a 2x2 max pool:
-```python
-with tf.variable_scope("CNN"):
-    cnn_W1 = tf.get_variable("W1", [5, 5, 1, 32], initializer=tf.truncated_normal_initializer(stddev=0.1))
-    cnn_b1 = tf.get_variable("b1", [32], initializer=tf.constant_initializer(0.1))
-    cnn_W2 = tf.get_variable("W2", [5, 5, 32, 64], initializer=tf.truncated_normal_initializer(stddev=0.1))
-    cnn_b2 = tf.get_variable("b2", [64], initializer=tf.constant_initializer(0.1))
-```
 
-We can add scope to a variable by _ tf.variable_scope_. Here, _cnn_W1_ will have the name 'CNN/W1:0'.
-
-```python
-# First CNN with RELU and max pooling.
-x_image = tf.reshape(x, [-1, 28, 28, 1])
-cnn1 = tf.nn.conv2d(x_image, cnn_W1, strides=[1, 1, 1, 1], padding='SAME')
-z1 = tf.nn.relu(cnn1 + cnn_b1)
-h1 = tf.nn.max_pool(z1, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME')
-```
-We flatten the 2D features into a 1D array for the fully connected layer. We apply dropout for the regularization.
-```python
-# First FC layer with dropout.
-h2_flat = tf.reshape(h2, [-1, 3136])
-h_fc1 = tf.nn.relu(tf.matmul(h2_flat, W1) + b1)
-h_fc1_drop = tf.nn.dropout(h_fc1, keep_prob)
-```
-
-Further possible accuracy improvement:
-* Apply ensemble learning.
-* Use a smaller filter like 3x3.
-* Add batch normalization.
-* Whitening of the input image.
-* Further tuning of the learning rate and dropout parameter.
-
-Here is another CNN implementation example from the TensorFlow distribution:
+Here is the full source code:
 ```python
 import argparse
 import sys
 import tempfile
+import numpy as np
 
 from tensorflow.examples.tutorials.mnist import input_data
 
@@ -675,96 +589,97 @@ def deepnn(x):
   with tf.name_scope('reshape'):
     x_image = tf.reshape(x, [-1, 28, 28, 1])
 
-  with tf.name_scope('conv1'):
-    W_conv1 = weight_variable([5, 5, 1, 32])
-    b_conv1 = bias_variable([32])
-    h_conv1 = tf.nn.relu(conv2d(x_image, W_conv1) + b_conv1)
+  # First convolutional layer - maps one grayscale image to 32 feature maps.
+  with tf.variable_scope('conv1'):
+    W_conv1 = tf.get_variable("W", [5, 5, 1, 32],
+          initializer=tf.truncated_normal_initializer(stddev=np.sqrt(2.0 / 784)))
+    b_conv1 = tf.get_variable("b", initializer=tf.constant(0.1, shape=[32]))
+    z = tf.nn.conv2d(x_image, W_conv1, strides=[1, 1, 1, 1], padding='SAME')
+    z += b_conv1
+    h_conv1 = tf.nn.relu(z + b_conv1)
 
-  with tf.name_scope('pool1'):
-    h_pool1 = max_pool_2x2(h_conv1)
+  # Pooling layer - downsamples by 2X.
+  with tf.variable_scope('pool1'):
+    h_pool1 = tf.nn.max_pool(h_conv1, ksize=[1, 2, 2, 1],
+                     strides=[1, 2, 2, 1], padding='SAME')
 
-  with tf.name_scope('conv2'):
-    W_conv2 = weight_variable([5, 5, 32, 64])
-    b_conv2 = bias_variable([64])
-    h_conv2 = tf.nn.relu(conv2d(h_pool1, W_conv2) + b_conv2)
+  # Second convolutional layer -- maps 32 feature maps to 64.
+  with tf.variable_scope('conv2'):
+    W_conv2 = tf.get_variable("W", [5, 5, 32, 64],
+          initializer=tf.truncated_normal_initializer(stddev=np.sqrt(2.0 / 32)))
+    b_conv2 = tf.get_variable("b", initializer=tf.constant(0.1, shape=[64]))
+    z = tf.nn.conv2d(h_pool1, W_conv2, strides=[1, 1, 1, 1], padding='SAME')
+    z += b_conv2
+    h_conv2 = tf.nn.relu(z + b_conv2)
 
-  with tf.name_scope('pool2'):
-    h_pool2 = max_pool_2x2(h_conv2)
+  # Pooling layer with 2nd convolutional layer
+  with tf.variable_scope('pool2'):
+    h_pool2 = tf.nn.max_pool(h_conv2, ksize=[1, 2, 2, 1],
+                     strides=[1, 2, 2, 1], padding='SAME')
 
-  with tf.name_scope('fc1'):
-    W_fc1 = weight_variable([7 * 7 * 64, 1024])
-    b_fc1 = bias_variable([1024])
+  # Fully connected layer 1 -- after 2 round of downsampling, our 28x28 image
+  # is down to 7x7x64 feature maps -- maps this to 1024 features.
+  with tf.variable_scope('fc1'):
+    input_size = 7 * 7 * 64
+    W_fc1 = tf.get_variable("W", [input_size, 1024],
+          initializer=tf.truncated_normal_initializer(stddev=np.sqrt(2.0/input_size)))
+    b_fc1 = tf.get_variable("b", initializer=tf.constant(0.1, shape=[1024]))
 
-    h_pool2_flat = tf.reshape(h_pool2, [-1, 7*7*64])
+    h_pool2_flat = tf.reshape(h_pool2, [-1, 7 * 7 * 64])
     h_fc1 = tf.nn.relu(tf.matmul(h_pool2_flat, W_fc1) + b_fc1)
 
-  with tf.name_scope('dropout'):
+  # Dropout - regulate the complexity of the model
+  with tf.variable_scope('dropout'):
     keep_prob = tf.placeholder(tf.float32)
     h_fc1_drop = tf.nn.dropout(h_fc1, keep_prob)
 
-  with tf.name_scope('fc2'):
-    W_fc2 = weight_variable([1024, 10])
-    b_fc2 = bias_variable([10])
+  # Map the 1024 features to 10 classes, one for each digit
+  with tf.variable_scope('fc2'):
+    W_fc2 = tf.get_variable("W", [1024, 10],
+          initializer=tf.truncated_normal_initializer(stddev=np.sqrt(2.0/1024)))
+    b_fc2 = tf.get_variable("b", initializer=tf.constant(0.1, shape=[10]))
 
     y_conv = tf.matmul(h_fc1_drop, W_fc2) + b_fc2
   return y_conv, keep_prob
 
 
-def conv2d(x, W):
-  return tf.nn.conv2d(x, W, strides=[1, 1, 1, 1], padding='SAME')
-
-
-def max_pool_2x2(x):
-  return tf.nn.max_pool(x, ksize=[1, 2, 2, 1],
-                        strides=[1, 2, 2, 1], padding='SAME')
-
-
-def weight_variable(shape):
-  initial = tf.truncated_normal(shape, stddev=0.1)
-  return tf.Variable(initial)
-
-
-def bias_variable(shape):
-  initial = tf.constant(0.1, shape=shape)
-  return tf.Variable(initial)
-
-
 def main(_):
-  mnist = input_data.read_data_sets(FLAGS.data_dir, one_hot=True)
+  # Import data
+  mnist = input_data.read_data_sets(FLAGS.data_dir)
 
+  # Create the model
+  
   x = tf.placeholder(tf.float32, [None, 784])
 
-  y_ = tf.placeholder(tf.float32, [None, 10])
+  # placeholder for true label
+  y_ = tf.placeholder(tf.int64, [None])
 
   y_conv, keep_prob = deepnn(x)
 
   with tf.name_scope('loss'):
-    cross_entropy = tf.nn.softmax_cross_entropy_with_logits(labels=y_,
-                                                            logits=y_conv)
+    cross_entropy = tf.losses.sparse_softmax_cross_entropy(
+        labels=y_, logits=y_conv)
   cross_entropy = tf.reduce_mean(cross_entropy)
 
   with tf.name_scope('adam_optimizer'):
     train_step = tf.train.AdamOptimizer(1e-4).minimize(cross_entropy)
 
   with tf.name_scope('accuracy'):
-    correct_prediction = tf.equal(tf.argmax(y_conv, 1), tf.argmax(y_, 1))
+    correct_prediction = tf.equal(tf.argmax(y_conv, 1), y_)
     correct_prediction = tf.cast(correct_prediction, tf.float32)
   accuracy = tf.reduce_mean(correct_prediction)
-
-  graph_location = tempfile.mkdtemp()
-  print('Saving graph to: %s' % graph_location)
-  train_writer = tf.summary.FileWriter(graph_location)
-  train_writer.add_graph(tf.get_default_graph())
 
   with tf.Session() as sess:
     sess.run(tf.global_variables_initializer())
     for i in range(20000):
+
       batch = mnist.train.next_batch(50)
+      train_step.run(feed_dict={x: batch[0], y_: batch[1], keep_prob: 0.5})
+
       if i % 100 == 0:
         train_accuracy = accuracy.eval(feed_dict={
             x: batch[0], y_: batch[1], keep_prob: 1.0})
         print('step %d, training accuracy %g' % (i, train_accuracy))
-      train_step.run(feed_dict={x: batch[0], y_: batch[1], keep_prob: 0.5})
 
     print('test accuracy %g' % accuracy.eval(feed_dict={
         x: mnist.test.images, y_: mnist.test.labels, keep_prob: 1.0}))
@@ -778,7 +693,149 @@ if __name__ == '__main__':
   tf.app.run(main=main, argv=[sys.argv[0]] + unparsed)
 ```
 
+Further possible accuracy improvement includes:
+
+* Apply ensemble learning.
+* Use a smaller filter like 3x3.
+* Add batch normalization.
+* Whitening of the input image.
+* Further tuning of the learning rate and dropout parameter.
+
+### tf.layers
+
+TensorFlow provides a higher-level API _tf.layers_ which builds on top of _tf.nn_. By combining calls, _tf.layers_ is easier to construct a neural network comparing with _tf.nn_. For example, _tf.layers.conv2d_ combines variables creation, convolution and relu into one single call.
+
+```python
+h_conv1 = tf.layers.conv2d(
+    inputs=x_image, filters=32, kernel_size=[5, 5], padding="same",
+    activation=tf.nn.relu)
+```
+
+Here is the _tf.nn_ code for your comparison:
+
+```python
+with tf.variable_scope('conv1'):
+  W_conv1 = tf.get_variable("W", [5, 5, 1, 32],
+        initializer=tf.truncated_normal_initializer(stddev=np.sqrt(2.0 / 784)))
+  b_conv1 = tf.get_variable("b", initializer=tf.constant(0.1, shape=[32]))
+  z = tf.nn.conv2d(x_image, W_conv1, strides=[1, 1, 1, 1], padding='SAME')
+  z += b_conv1
+  h_conv1 = tf.nn.relu(z + b_conv1)
+```	
+
+We will use _tf.layers_ to replace our previous code in max pools, dropouts and fully connected layers:
+
+```python
+h_pool1 = tf.layers.max_pooling2d(inputs=h_conv1, pool_size=[2, 2], strides=2)
+...
+
+h_fc1_drop = tf.layers.dropout(
+      inputs=h_fc1, rate=keep_prob, training=keep_prob<1.0)
+...
+
+y_conv = tf.layers.dense(inputs=h_fc1_drop, units=10)	
+...
+```
+
+The code to build the same CNN model can be simplified to:
+
+```python
+def deepnn(x):
+  with tf.name_scope('reshape'):
+    x_image = tf.reshape(x, [-1, 28, 28, 1])
+
+  # First convolutional layer - maps one grayscale image to 32 feature maps.
+  with tf.variable_scope('conv1'):
+    h_conv1 = tf.layers.conv2d(
+      inputs=x_image,
+      filters=32,
+      kernel_size=[5, 5],
+      padding="same",
+      activation=tf.nn.relu)
+
+  # Pooling layer - downsamples by 2X.
+  with tf.variable_scope('pool1'):
+    h_pool1 = tf.layers.max_pooling2d(inputs=h_conv1, pool_size=[2, 2], strides=2)
+
+  # Second convolutional layer -- maps 32 feature maps to 64.
+  with tf.variable_scope('conv2'):
+    h_conv2 = tf.layers.conv2d(
+      inputs=h_pool1,
+      filters=64,
+      kernel_size=[5, 5],
+      padding="same",
+      activation=tf.nn.relu)
+
+  # Pooling layer with 2nd convolutional layer
+  with tf.variable_scope('pool2'):
+    h_pool2 = tf.layers.max_pooling2d(inputs=h_conv2, pool_size=[2, 2], strides=2)
+
+  # Fully connected layer 1 -- after 2 round of downsampling, our 28x28 image
+  # is down to 7x7x64 feature maps -- maps this to 1024 features.
+  with tf.variable_scope('fc1'):
+    keep_prob = tf.placeholder(tf.float32)
+
+    h_pool2_flat = tf.reshape(h_pool2, [-1, 7 * 7 * 64])
+    h_fc1 = tf.layers.dense(inputs=h_pool2_flat, units=1024, activation=tf.nn.relu)
+    h_fc1_drop = tf.layers.dropout(
+      inputs=h_fc1, rate=keep_prob, training=keep_prob<1.0)
+
+  # Map the 1024 features to 10 classes, one for each digit
+  with tf.variable_scope('fc2'):
+    y_conv = tf.layers.dense(inputs=h_fc1_drop, units=10)
+  return y_conv, keep_prob
+```  
+
+### Layers functions
+
+Here is a snapshot of what is provided by _tf.layers_ currently:
+```
+Input(...): Input() is used to instantiate an input tensor for use with a Network.
+average_pooling1d(...): Average Pooling layer for 1D inputs.
+average_pooling2d(...): Average pooling layer for 2D inputs (e.g. images).
+average_pooling3d(...): Average pooling layer for 3D inputs (e.g. volumes).
+batch_normalization(...): Functional interface for the batch normalization layer.
+conv1d(...): Functional interface for 1D convolution layer (e.g. temporal convolution).
+conv2d(...): Functional interface for the 2D convolution layer.
+conv2d_transpose(...): Functional interface for transposed 2D convolution layer.
+conv3d(...): Functional interface for the 3D convolution layer.
+conv3d_transpose(...): Functional interface for transposed 3D convolution layer.
+dense(...): Functional interface for the densely-connected layer.
+dropout(...): Applies Dropout to the input.
+flatten(...): Flattens an input tensor while preserving the batch axis (axis 0).
+max_pooling1d(...): Max Pooling layer for 1D inputs.
+max_pooling2d(...): Max pooling layer for 2D inputs (e.g. images).
+max_pooling3d(...): Max pooling layer for 3D inputs (e.g. volumes).
+separable_conv2d(...): Functional interface for the depthwise separable 2D convolution layer.
+```
+
+### Eager execution in TensorFlow v1.5
+
+Starting from TensorFlow v1.5, TensorFlow includes a preview version of eager execution which operations are executed immediately. Nevertheless, it is a pre-alpha version and requires separate installation. It will take a few more versions before production ready. With eager execution, operations will execute immediately:
+
+```
+x = [[2.]]
+m = tf.matmul(x, x)
+
+print(m)
+```
+
+instead of
+
+```python
+x = tf.placeholder(tf.float32, shape=[1, 1])
+m = tf.matmul(x, x)
+
+with tf.Session() as sess:
+  print(sess.run(m, feed_dict={x: [[2.]]}))
+```  
+
+> Until TensorFlow releases a production version of eager execution, all graphs should be executed in a session.
+
 ### Reshape Numpy
+
+For the remaining sections, we will detail some common tasks in coding TensorFlow.
+ 
 Find the shape of a Numpy array and reshape it.
 ```python
 import tensorflow as tf
@@ -823,7 +880,8 @@ W = tf.reshape(W, [5, -1])
 print(W.get_shape())    # (5, 4)
 ```
 
-tf.unique(x) returns a 1D tensor contains all unique elements. The shape is dynamic which depends on "x" and need to evaluate at runtime:
+Sometimes, the shape of a Tensor is not known until runtime. For example, tf.unique(x) returns a 1D tensor containing only unique elements. To get this runtime information, we need to call _tf.shape_ instead:
+
 ```python
 import tensorflow as tf
 import numpy as np
@@ -844,35 +902,32 @@ with tf.Session() as sess:
 
 ### Initialize variables
 
-Initialize variables with constant:
+Initialize variables:
+
 ```python
 import tensorflow as tf
 import numpy as np
 
-v1 =  tf.get_variable("v1", [5, 5, 3])   # A tensor with shape (5, 5, 3) filled with random values
+v1 =  tf.get_variable("v1", [5, 5, 3])  # A tensor with shape (5, 5, 3) filled with random values
+v2 =  tf.get_variable("v2", [5, 5, 3], dtype=tf.int32, trainable=True)
 
-v2 = tf.get_variable("v2", shape=(), initializer=tf.zeros_initializer())
+v3 = tf.get_variable("v3", [3, 2], initializer=tf.zeros_initializer) # Set to 0
+v4 = tf.get_variable("v4", [3, 2], initializer=tf.ones_initializer)  # Set to 1
 
-v3 = tf.get_variable("v3", initializer=tf.constant(2))    # 2, float32 scalar
-v4 = tf.get_variable("v4", initializer=tf.constant([2]))  # [2]
-v5 = tf.get_variable("v5", initializer=tf.constant([[2, 3], [4, 5]]))  # [[2, 3], [4, 5]]
+v5 = tf.get_variable("v5", initializer=tf.constant(2))    # scalar: 2. float32.
+v6 = tf.get_variable("v6", initializer=tf.constant([2]))  # [2]
+v7 = tf.get_variable("v7", initializer=tf.constant([[2, 3], [4, 5]]))  # [[2, 3], [4, 5]]
 
-v6 = tf.get_variable("v6", initializer=tf.constant(2.0), dtype=tf.float64, trainable=True)
-```
-
-Note: when we use _tf.constant_ in _tf.get_variable_, we do not need to specify the tensor shape.
-
-Fill with 0, 1 or specific values.
-```python
-v1 = tf.get_variable("v1", [3, 2], initializer=tf.zeros_initializer)
-v2 = tf.get_variable("v2", [3, 2], initializer=tf.ones_initializer)
+v8 = tf.get_variable("v8", initializer=tf.constant(0.1, shape=[3, 2]))
 
 # [[ 1.  2.], [ 3.  4.], [ 5.  6.]]
-v3 = tf.get_variable("v3", [3, 2], initializer=tf.constant_initializer([1, 2, 3, 4, 5, 6])) 
+v9 = tf.get_variable("v3", [3, 2], initializer=tf.constant_initializer([1, 2, 3, 4, 5, 6])) 
 
 # [[ 1.  2.], [ 2.  2.], [ 2.  2.]]
-v4 = tf.get_variable("v4", [3, 2], initializer=tf.constant_initializer([1, 2])) 
+v10 = tf.get_variable("v4", [3, 2], initializer=tf.constant_initializer([1, 2])) 
 ```
+
+Note: when we use _tf.constant_ in _tf.get_variable_, we do not need to specify the tensor shape unless we want to change the shape of the Tensor from the constant data. By default, variable is of type float32. _tf.get_variable_ assumes the variable is trainable.
 
 
 Randomized the value of variables:
@@ -883,6 +938,23 @@ import numpy as np
 W = tf.get_variable("W", [784, 256], initializer=tf.truncated_normal_initializer(stddev=np.sqrt(2.0 / 784)))
 Z = tf.get_variable("z", [4, 5], initializer=tf.random_uniform_initializer(-1, 1)) 
 ```
+
+### Evaluate & print a tensor
+
+Since nodes are running as a graph in a session, it is not easy for debugging. We often use _tf.print_ to print out Tensor information for debugging.
+
+```
+m1 = tf.constant([[3, 5]])
+m2 = tf.constant([[2],[4]])
+product = tf.matmul(m1, m2)   
+
+with tf.Session() as sess:     
+    v = product.eval()    
+    t = tf.Print(v, [v])  # tf.Print return the first parameter
+    result = t + 1  # v will be printed only if t is accessed
+    result.eval()
+```
+
 
 ### Slicing
 
@@ -933,18 +1005,23 @@ with tf.Session() as sess:
 ```
 
 ### Casting
+
 ```python
 s0 = tf.cast(s0, tf.int32)
 s0 = tf.to_int64(s0)
 ```
 
 ### Training using gradient
-During training, we may interest in the gradients for each variable. For example, from the gradients, we may tell how well the gradient descent is working for the deep network. To expose the gradient, replace the following code:
+
+During training, we may want to examine or manipulate the gradients. 
+
 ```python
 optimizer = tf.train.GradientDescentOptimizer(0.01)
 optimizer = optimizer.minimize(loss)
 ```
-With:
+
+Here, we retrieve all the gradients from the optimizer. Then we can select which variables to train.
+
 ```python
 global_step = tf.Variable(0)
 
@@ -953,59 +1030,62 @@ gradients, v = zip(*optimizer.compute_gradients(loss))
 optimizer = optimizer.apply_gradients(zip(gradients, v), global_step=global_step)
 ```
 
+Sometimes, we want to clip the gradient to avoid exploding gradients.
+```
+A = tf.Variable(tf.random_normal([10, 20], stddev=0.1))
+B = tf.Variable(tf.random_normal([20, 30], stddev=0.1))
+...
+
+lr = tf.Variable(0.00001)      # the learning rate
+opt = tf.train.GradientDescentOptimizer(lr)
+
+# Set the parameters that need to be clippled
+params = [A, B] 
+
+grads_and_vars = opt.compute_gradients(loss, params)
+clipped_grads_and_vars = [(tf.clip_by_norm(gv[0], 50), gv[1]) \
+                           for gv in grads_and_vars]
+
+optim = opt.apply_gradients(clipped_grads_and_vars)
+```
+
+
 ### Download and reading CSV file
-```
-import tempfile
 
+```
+import pandas as pd
 import tensorflow as tf
-import urllib.request
-import numpy as np
 
-FLAGS = None
+TRAIN_URL = "http://download.tensorflow.org/data/iris_training.csv"
+TEST_URL = "http://download.tensorflow.org/data/iris_test.csv"
 
-tf.logging.set_verbosity(tf.logging.INFO)
+CSV_COLUMN_NAMES = ['SepalLength', 'SepalWidth',
+                    'PetalLength', 'PetalWidth', 'Species']
+SPECIES = ['Setosa', 'Versicolor', 'Virginica']
 
-def maybe_download(train_data):
-  if train_data:
-    train_file_name = train_data
-  else:
-    train_file = tempfile.NamedTemporaryFile(delete=False)
-    urllib.request.urlretrieve(
-        "http://download.tensorflow.org/data/abalone_train.csv",
-        train_file.name)
-    train_file_name = train_file.name
-    train_file.close()
-    print("Training data is downloaded to %s" % train_file_name)
-  return train_file_name
+def maybe_download():
+    train_path = tf.keras.utils.get_file(TRAIN_URL.split('/')[-1], TRAIN_URL)
+    test_path = tf.keras.utils.get_file(TEST_URL.split('/')[-1], TEST_URL)
 
+    return train_path, test_path
 
-training_local_file = ""
-training_local_file = maybe_download(training_local_file)
+def load_data(y_name='Species'):
+    """Returns the iris dataset as (train_x, train_y), (test_x, test_y)."""
+    train_path, test_path = maybe_download()
 
-training_set = tf.contrib.learn.datasets.base.load_csv_without_header(
-  filename=training_local_file, target_dtype=np.int, features_dtype=np.float64)
+    train = pd.read_csv(train_path, names=CSV_COLUMN_NAMES, header=0)
+    train_x, train_y = train, train.pop(y_name)
 
-print(f"data shape = {training_set.data.shape}")      # (3320, 7)
-print(f"label shape = {training_set.target.shape}")   # (3320,)
-```
+    test = pd.read_csv(test_path, names=CSV_COLUMN_NAMES, header=0)
+    test_x, test_y = test, test.pop(y_name)
 
-### Evaluate & print a tensor
-
-A quick way to evaluate a Tensor in particular for debugging.
-```
-m1 = tf.constant([[3, 5]])
-m2 = tf.constant([[2],[4]])
-product = tf.matmul(m1, m2)   
-
-with tf.Session() as sess:     
-    v = product.eval()    
-    t = tf.Print(v, [v])  # tf.Print return the first parameter
-    result = t + 1  # v will be printed only if t is accessed
-    result.eval()
+    return (train_x, train_y), (test_x, test_y)
 ```
 
 ### InteractiveSession
+
 TensorFlow provides another way to execute a computational graph using *tf.InteractiveSession* which is more convenient for an ipython environment.
+
 ```python
 import tensorflow as tf
 import numpy as np
@@ -1027,30 +1107,6 @@ print(f"{v1}, {p}")
 sess.close()
 ```
 
-### Layers Module (Pre-built DNN layers)
 
-Convolution
-```python
-conv1 = tf.layers.conv2d(inputs=input_layer, filters=32, kernel_size=[5, 5], padding="same", activation=tf.nn.relu)
-```
 
-Maximum pool
-```python
-pool1 = tf.layers.max_pooling2d(inputs=conv1, pool_size=[2, 2], strides=2)
-```
 
-Dense layer with ReLU
-```python
-pool2_flat = tf.reshape(pool2, [-1, 7 * 7 * 64])
-dense = tf.layers.dense(inputs=pool2_flat, units=1024, activation=tf.nn.relu)
-```
-
-Dropout
-```
-dropout = tf.layers.dropout(inputs=dense, rate=0.4, training=mode == tf.estimator.ModeKeys.TRAIN)
-```
-
-One hot
-```python
-onehot_labels = tf.one_hot(indices=tf.cast(labels, tf.int32), depth=10)
-```
