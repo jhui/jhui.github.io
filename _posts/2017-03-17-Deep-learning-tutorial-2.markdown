@@ -1289,6 +1289,20 @@ So far, we try to find the best models. In machine learning, we can take a vote 
 
 > A lot of production system uses model ensembles to push the accuracy up for few percentage points.
 
+### Reproducible Results
+
+We initialize our model's parameters with random values. It is hard to trouble shoot a model when output is constantly changing. It adds complexity for others to reproduce your experiments. Hence, we should set the seeds to be a known value so our result is reproducible.
+
+```python
+import random
+import numpy as np
+import tensorflow as tf
+
+random.seed(567)
+np.random.seed(1234)
+tf.set_random_seed(245)
+```
+
 ### Convolution Net (CNN) & Long short term memory (LSTM)
 
 FC network is rarely used alone. Exploring all possible connections among nodes in the previous layer provides a complex model that can be wasteful with small returns. A lot of information is localized. For an image, we want to extract features from neighboring pixels. CNN applies filters to explore localized features first, and then apply FC to make predictions. LSTM applies time feedback loop to extract time sequence information. This article covers the fundermental in DL that will be needed for CNN and LSTM. 
@@ -1297,43 +1311,48 @@ FC network is rarely used alone. Exploring all possible connections among nodes 
 
 ### Troubleshooting
 
-Many places can go wrong when training a deep network. Here are some simple tips:
+Many places can go wrong when training a deep network. Here are some tips:
 
-* Always start with a simple network that works. 
-* Create simple scenarios to verify the network:
-	* Does early training beats random guessing?
-	* Verify if loss and accuracy improves during training.
-	* Drop regularization - training accuracies should go up.	
-	* Overfit with a small dataset to see if the loss drops towards 0 with regularization off.
+* Create a baseline with a simple or known network (like VGG) for data verification and comparison.
+* Always start with a simple network that works. Use few layers, less customization and less regularization layers.
+* Sample and verify training data, labels in a few batches.
 * Do not waste time on a large dataset with long iterations during early development.
-* Verify how trainable parameters are initialized.	
-* Always keep track of the shape of the data and document it in the code.
-* Sample and display some training data and its predictions.
+* Verify the trainable parameters initialization.
+* Create simple scenarios for verification during **early development**:
+	* Does early training beats random guessing?
+	* Turn off non-critical options first (e.g. regularization, data pre-processing).
+	* Verify if loss and accuracy improves during training.
+	* Overfit with a very small dataset to see if the loss drops towards 0 with regularization off.
+	* Use fewer loss functions to reduce scaling problems of the regularization factors.
+* If loss remains high or gradient approaches NaN, experiment different learning rates. 
+	* For NaN, decrease the rate every time by a factor of 3.
+	* If $$\Delta W$$ is tiny and loss does not drop, increase the rate every time by a factor of 3.
+* Sample and visualize model's outputs.
+* Visualize the model's parameters and activations.
+	* Ideal activations should be zero centered. Add batch normalization if needed.
+	* Sign of exploding/diminishing gradients if too many nodes are saturated.
+	* Ideal $$W$$ and $$b$$ should be normal distributed and not too high.
+* Monitor gradients and $$\Delta W$$ closely.
 * Display and analysis samples that have wrong predictions.
+* Start your tuning from overfit first (with less regularization).
+
+Design consideration:
+
+* Always keep track of the shape of the data and document it in the code.
+* Scale your input features in particular for non-imaging data.
+* Initialize all seeds to produce repeatable result for trouble shooting.
+* Use standard dataset first if possible. Verify the quality of any custom dataset.
+* Start with standard loss functions before any customization.
+* Record output periodically for verification.
+* Add data shuffling after early development.
+* If NaN happens and gradient is too high, apply gradient clipping. (In particular for RNN)
 
 If you need to implement custom layers:
 
 * Unit test the forward pass and back propagation code.
 * At the beginning, test with non-random data.
 * Compare the backpropagation result with the naive gradient check.
-
-#### Monitor loss
-We want to plot the cost vs iterations. Monitor the loss to see its trend:
-* If loss goes up early, the learning rate is way too high.
-* If loss drops fast and flattens very quickly, the learning rate is high.
-* If loss drops too slow, the learning rate is too slow.
-
-<div class="imgcap">
-<img src="/assets/dl/mont1.png" style="border:none;width:50%">
-</div>
-
-#### Train vs validation accuracy
-Plot out accuracy between validation and training to identify overfit issues.
-* If validation error is much lower than the training error, the model is overfit.
-
-<div class="imgcap">
-<img src="/assets/dl/mont2.png" style="border:none;width:50%">
-</div>
+* Add tiny $$\epsilon$$ for divison or log computation to avoid NaN.
 
 #### Monitor Gradient descent
 
@@ -1353,6 +1372,26 @@ Plot weight, activation and gradient histograms for all layers.
 
 <div class="imgcap">
 <img src="/assets/dl/hhist.png" style="border:none;width:40%">
+</div>
+
+#### Monitor loss
+
+We want to plot the cost vs iterations. Monitor the loss to see its trend:
+* If loss goes up early, the learning rate is way too high.
+* If loss drops fast and flattens very quickly, the learning rate is high.
+* If loss drops too slow, the learning rate is too slow.
+
+<div class="imgcap">
+<img src="/assets/dl/mont1.png" style="border:none;width:50%">
+</div>
+
+#### Train vs validation accuracy
+
+Plot out accuracy between validation and training to identify overfit issues.
+* If validation error is much lower than the training error, the model is overfit.
+
+<div class="imgcap">
+<img src="/assets/dl/mont2.png" style="border:none;width:50%">
 </div>
 
 #### Visualize filters and activation
