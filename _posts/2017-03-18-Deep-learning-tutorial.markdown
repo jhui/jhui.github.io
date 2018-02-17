@@ -24,22 +24,19 @@ $$
 z_j = \sum_{i} W_{ij} x_{i} + b_{j}
 $$
 
-where $$ x_{i} $$ are the input from the previous layer, $$W_{ij}$$ are the weights between node $$i$$ and $$j$$, and $$b_j$$ is the bias.  Finally, the node convert $$z_j$$ to a value between 0 and 1 using a sigmoid function. 
+where $$ x_{i} $$ are the output from the previous layer, $$W_{ij}$$ are the weights between node $$i$$ and $$j$$, and $$b_j$$ is the bias.  Finally, the node convert $$z_j$$ to a value between 0 and 1 using a sigmoid function. 
  
 $$
 f(z_j) = \frac{1}{1 + e^{-z_j}}
 $$
 
-For example, we have a grayscale image with just four pixels (0.1, 0.3, 0.2, 0.1). We assume the weights $$W$$ and the bias $$b$$ are (0.3, 0.2, 0.4, 0.3) and -0.8 respectively. The output of the top node of the first hidden layer is (circled in red):
+For example, we have a grayscale image with just four pixels (0.1, 0.3, 0.2, 0.1). We assume the weights $$W$$ and the bias $$b$$ are (0.3, 0.2, 0.4, 0.3) and -0.8 respectively. The output of the node is:
 
 $$
-z_j =  0.3 \cdot 0.1 + 0.2\cdot 0.3 + 0.4\cdot0.2 + 0.3\cdot0.1  - 0.8 = -0.6
-$$
-
-The output of the node is:
-
-$$
-f(z) =  \frac{1}{1 + e^{0.6}} = 0.35
+\begin{split}
+z_j & =  0.3 \cdot 0.1 + 0.2\cdot 0.3 + 0.4\cdot0.2 + 0.3\cdot0.1  - 0.8 = -0.6 \\
+f(z_j) &=  \frac{1}{1 + e^{0.6}} = 0.35
+\end{split}
 $$
 
 In this network, we make 3 predictions. $$Y_1$$ is the probability that the image is a school bus. The other two outputs represent the probability of two other object classes.
@@ -168,7 +165,7 @@ The steps are:
 1. Take a first guess on W and b.
 2. Use the model to compute the result for each sample in the training dataset.
 3. Find the average error between the computed values and the true values.
-4. Compute how this error may change relative to W and b. (**Gradient descent**)
+4. Compute how fast the error may increase or drop relative to W and b. (**Gradient descent**)
 5. Re-adjust W & b accordingly to reduce the average error.
 
 We repeat step 2 to 5 many times until $$W$$ and $$b$$ until the average error is very small for our samples.
@@ -180,7 +177,7 @@ $$
 MSE= J(\hat{y}, y, W, b) = \frac{1}{N} \sum_i (\hat{y}_i - y_i)^2
 $$
 
-where $$ \hat{y}_i $$ is the model prediction and $$ y_i $$ is the true value for sample $$ i $$. We add all the sample errors and take the average. We can visualize the cost below with x-axis being $$ W_1 $$, y-axis being $$ W_2 $$ and z-axis being the average cost $$J$$. To find our model, we need to find the optimal values for $$ W_1 $$ and $$ W_2 $$ with the lowest average cost. In short, what are the model parameters with the lowest error for our samples.The mechanism to find the lowest cost is similar to dropping a marble at a random point $$ (W_1, W_2) $$ and let gravity do its work.
+where $$ \hat{y}_i $$ is the model prediction and $$ y_i $$ is the true value for sample $$ i $$. We add all the sample errors and take the average. We can visualize the cost below with x-axis being $$ W_1 $$, y-axis being $$ W_2 $$ and z-axis being the average cost $$J$$. To find our model, we need to find the optimal values for $$ W_1 $$ and $$ W_2 $$ with the lowest cost. In short, what are the model parameters with the lowest error for our samples.The mechanism to find the lowest cost is similar to dropping a marble at a random point $$ (W_1, W_2) $$ and let gravity do its work.
 
 <div class="imgcap">
 <img src="/assets/dl/solution2.png" style="border:none;">
@@ -206,7 +203,7 @@ Let's simplify it in 2-D first. Consider a point at (L1, L2) where we cut throug
 
 The x-axis is $$ W $$ and the y-axis is the cost.
 
-**Training a model with gradients**. To lower cost, we move $$ L_1 $$ to the right to find the lowest cost. But by how much? L2 has a smaller gradient than L1. i.e. the cost drop faster alone $$ W_1$$ direction than $$W_2$$. Like dropping a ball at (L1, L2), we expect the ball drops faster in the $$ W_1$$ direction. Therefore, the adjustment for $$ (W_1, W_2) $$ should be proportional to its partial gradient at that point. i.e.
+**Train a model with gradients**: To lower cost, we move $$ L_1 $$ to the right to find the lowest cost. But by how much? L2 has a smaller gradient than L1. i.e. the cost drop faster alone $$ W_1$$ direction than $$W_2$$. Like dropping a ball at (L1, L2), we expect the ball drops faster in the $$ W_1$$ direction. Therefore, the adjustment for $$ (W_1, W_2) $$ should be proportional to its partial gradient at that point. i.e.
 
 $$
 \Delta W_i \propto \frac{\partial J}{\partial W_i} 
@@ -315,7 +312,7 @@ def mean_square_loss(out, y):
 
 #### Backpropagation pass
 
-**Find the derivative by backpropagation**. We backpropagate the gradient from the right most layer to the left in one single pass. In the DL code, we often name our backpropagation derivative as:
+**Find the derivative by backpropagation**. We backpropagate the gradient from the right most layer to the left in one single pass. In the programming code, we often name our backpropagation derivative as:
 
 $$
 \frac{\partial J}{\partial out} \text{ as dout}
@@ -646,9 +643,9 @@ This is a U shape curve that is different from a bowl shape curve that we used i
 <img src="/assets/dl/solution.png" style="border:none;width:50%">
 </div>
 
-Monthly income ranges from 0 to 10,000 and years of education range from 0 to 30. The gradient relative to the income is much smaller than the education at the current scale. We cannot have a single learning rate that works well for both of them. We can tune a learning rate for $$ W_2 $$ so we can learn the weight for the income at a resonable speed. But since $$W_1$$ has a much bigger gradient, the jump for $$W_1$$ is huge at this learning rate.
+Monthly income ranges from 0 to 10,000 and years of education range from 0 to 30. The cost gradient relative to the income is much smaller than the education at the current scale. We cannot have a single learning rate that works well for both of them. We can tune a learning rate for $$ W_2 $$ so we can learn the weight for the income at a resonable speed. But since $$W_1$$ has a much bigger gradient, the jump for $$W_1$$ is huge at this learning rate.
 
-The solution is pretty simple. We re-scale the income value which is now range from 0 to 10. Income unit is now in 1K.
+The solution is pretty simple. We re-scale the income value into a new range from 0 to 10. Income unit is now in 1K.
 
 ```python
 def true_y(education, income):
@@ -687,8 +684,6 @@ which is close to the true world
 $$
 dates = 0.8 \text{ education } + 0.3 \text { (income in 1k) } + 2
 $$
-
-
 
 
 ### Non-linearity
@@ -732,15 +727,16 @@ Adding both output:
 Adding a non-linear function after a linear equation enriches the complexity of our model. These methods are called **activation functions**. Common functions are tanh and ReLU.
  
 #### Sigmoid function
-Sigmoid function is one of the earliest functions used in deep networks. But it is hard to train a sigmoid function. For the purpose of an activation function, ReLU is used instead. The discussion of a sigmoid function as an activation function usually acts as a showcase of explaining training problems with deep networks.
+Sigmoid function is one of the earliest functions used in deep networks. 
 
 <div class="imgcap">
 <img src="/assets/dl/sigmoid.png" style="border:none;width:50%">
 </div>
 
-Sigmoid function is often used as the final output layer for a binary classifier. 
+The far left and right region is flat. These areas are where neuron (node) is saturated: any change in input results in tiny change in the output. The gradient is near zero. Since backpropagation depends on the magnitude of the gradient, we learn very slow if the gradient is very small ($$ \Delta W \propto gradient $$). Therefore sigmoid function is no longer used as an activation function. Instead, sigmoid function is used as the final output layer for a binary classifier (a classifier that has only one node in the output layer.)
 
 #### ReLU
+
 ReLU is one of the most popular activation functions. 
 
 $$
@@ -751,13 +747,13 @@ $$
 <img src="/assets/dl/relu.png" style="border:none;width:50%">
 </div>
 
-It converges faster to the optimized solution because it is less easy to be saturated comparing with sigmoid or tanh. The far right or the far left region of the sigmoid and tanh function has near zero gradient. Since backpropagation depends on the magnitude of the gradient, we learn very slow if the gradients are very small ($$ \Delta W \propto gradient $$). Also computing ReLU is simple without expensive exponential function. 
+It converges faster to the optimized solution because it is less easy to be saturated comparing with sigmoid or tanh. Also computing ReLU is simple without expensive exponential function. 
 
 > ReLU is most common comparing with other activation functions
 
 #### Leaky ReLU
 
-However, ReLU may have some disadvantage. A ReLU node can die, but even worst stay stays dead in the flat saturated region. A dead node keep data from feeding forward and stop training $$W$$ backward in the backpropagation. Some deep network with ReLU has large amount of dead nodes if the learning rate is set too high. Leaky ReLU addresses the problem by having a slightly slopped line instead of a flat region when $$x < 0$$.
+However, ReLU may have some disadvantage. A ReLU node can die, but even worst stays dead in the flat saturated region. A dead node keep data from feeding forward and stop training $$W$$ backward in the backpropagation. Some deep network with ReLU has large amount of dead nodes if the learning rate is set too high. Leaky ReLU addresses the problem by having a slightly slopped line instead of a flat region when $$x < 0$$.
 
 <div class="imgcap">
 <img src="/assets/dl/lrelu.png" style="border:none;width:50%">
@@ -784,7 +780,7 @@ $$
 \frac {\partial l_{k}}{\partial W} = x\frac {\partial J}{\partial l_{k+1}} 
 $$
 
-So all $$ W $$ in this layer move in the same direction. The gradient descent follows a zip zap pattern instead. Since tanh has both positive and negative outputs, tanh does not have this problem as sigmoid.
+So all $$ W $$ in this layer move in the same direction (all to the right or all to the left). The gradient descent will therefore follow a zip zap pattern instead. Since tanh has both positive and negative outputs, tanh does not have this problem as sigmoid.
 
 #### Activation functions with NumPy
 
@@ -896,7 +892,7 @@ $$
 
 For the layer before the output, we apply only the linear equation but not the ReLU.
 
-We will use for 3 hidden layers.
+We will use 3 hidden layers.
 ```python
 z1, cache_z1 = affine_forward(X, W[0], b[0])
 h1, cache_relu1 = relu_forward(z1)
@@ -1058,7 +1054,7 @@ print(f"testing: loss (compare with Oracle)={loss_model:.6}")
 print(f"testing: loss (compare with sample)={loss_sample:.4}")
 ```
 
-We plot the predicted values over the true values. The values derived from our Oracle model. For the first plot, we temporarily downsize the network to 2 hidden layers and fix the years of education to 22. We plot the number of dates with respect to income. The orange dots are our predictions. The blue dots are from the Oracle model after adding some random noise. The data match pretty well with each other.
+We plot the predicted values over the true values. The values derived from our Oracle model. For the first plot, we temporarily downsize the network to 1 hidden layers and fix the years of education to 22. We plot the number of dates with respect to income. The orange dots are our predictions. The blue dots are from the Oracle model after adding some random noise. The data match pretty well with each other.
 
 <div class="imgcap">
 <img src="/assets/dl/fc_2l.png" style="border:none;width:60%">
@@ -1066,7 +1062,7 @@ We plot the predicted values over the true values. The values derived from our O
 
 > Congratulations! We just solved a problem using deep learning!
 
-Now, we increase the number of hidden layers from 2 to 4. Do we improve the accuracy? In fact, our prediction's accuracy drops. And the training requires more iterations and tuning. 
+Now, we increase the number of hidden layers from 1 to 3. Do we improve the accuracy? In fact, our prediction's accuracy drops. And the training requires more iterations and tuning. 
 
 <div class="imgcap">
 <img src="/assets/dl/fc_4l.png" style="border:none;width:60%">
