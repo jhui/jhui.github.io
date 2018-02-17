@@ -563,11 +563,6 @@ class DigiCap(layers.Layer):
 
 Here is the code to implement the following Iterative dynamic Routing pseudo code.
 
-### Credits
-
-https://github.com/Sarasra/models/tree/master/research/capsules
-
-
 <div class="imgcap">
 <img src="/assets/capsule/alg.jpg" style="border:none;width:90%;">
 </div>
