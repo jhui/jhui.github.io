@@ -1325,8 +1325,8 @@ Many places can go wrong when training a deep network. Here are some tips:
 	* Overfit with a very small dataset to see if the loss drops towards 0 with regularization off.
 	* Use fewer loss functions to reduce scaling problems of the regularization factors.
 * If loss remains high or gradient approaches NaN, experiment different learning rates. 
-	* For NaN, decrease the rate every time by a factor of 3.
-	* If $$\Delta W$$ is tiny and loss does not drop, increase the rate every time by a factor of 3.
+	* For NaN, decrease the rate every time by a factor of 10.
+	* If $$\Delta W$$ is tiny and loss does not drop, increase the rate every time by a factor of 10.
 * Sample and visualize model's outputs.
 * Visualize the model's parameters and activations.
 	* Ideal activations should be zero centered. Add batch normalization if needed.
@@ -1354,26 +1354,6 @@ If you need to implement custom layers:
 * Compare the backpropagation result with the naive gradient check.
 * Add tiny $$\epsilon$$ for divison or log computation to avoid NaN.
 
-#### Monitor Gradient descent
-
-Monitor the updates to $$W$$ ratio:
-
-$$
-\frac{\| \alpha \cdot dw \|}{\| W \|}
-$$
-
-* If the ratio is $$ > 1e-3 $$, consider lower the learning rate.
-* If the ratio is $$ < 1e-3 $$, consider increase the learning rate.
-
-Plot weight, activation and gradient histograms for all layers.
-* Verify if you are having gradient diminishing or explode problem.
-* Identify layers that have very low gradients. 
-* Verify whether you have too many saturated nodes.
-
-<div class="imgcap">
-<img src="/assets/dl/hhist.png" style="border:none;width:40%">
-</div>
-
 #### Monitor loss
 
 We want to plot the cost vs iterations. Monitor the loss to see its trend:
@@ -1392,6 +1372,26 @@ Plot out accuracy between validation and training to identify overfit issues.
 
 <div class="imgcap">
 <img src="/assets/dl/mont2.png" style="border:none;width:50%">
+</div>
+
+#### Monitor Gradient descent
+
+Monitor the updates to $$W$$ ratio:
+
+$$
+\frac{\| \alpha \cdot dw \|}{\| W \|}
+$$
+
+* If the ratio is $$ > 1e-3 $$, consider lower the learning rate.
+* If the ratio is $$ < 1e-3 $$, consider increase the learning rate.
+
+Plot weight, activation and gradient histograms for all layers.
+* Verify if you are having gradient diminishing or explode problem.
+* Identify layers that have very low gradients. 
+* Verify whether you have too many saturated nodes.
+
+<div class="imgcap">
+<img src="/assets/dl/hhist.png" style="border:none;width:40%">
 </div>
 
 #### Visualize filters and activation
