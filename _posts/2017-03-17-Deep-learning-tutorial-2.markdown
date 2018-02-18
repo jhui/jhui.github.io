@@ -1349,7 +1349,10 @@ Design consideration:
 * Always keep track of the shape of the data and document it in the code.
 * Rescale your input features in particular for non-imaging data.
 * Initialize all random seeds to produce repeatable results.
-* Use standard dataset first if possible. Verify the quality of any custom dataset.
+* Use standard dataset first if possible. 
+* Verify the quality of any custom dataset.
+	* Choose related categories addressing your target problem. 
+	* Filter out low quality samples.
 * Start with standard loss functions before any customization.
 * Record output periodically for verification.
 * Version control models and save model checkpoints for different hyperparameters for easy reproduction.
