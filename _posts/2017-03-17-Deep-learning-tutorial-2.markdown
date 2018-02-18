@@ -1152,9 +1152,9 @@ If we want to bypass this node such that the input $$C_{t-1}$$ becomes the outpu
 
 > Diminish gradient can be mitigated by designing computation nodes that providing a bypassing pathway for the node.
 
-#### Gradient clipping
+#### Gradient clipping for gradient explosion
 
-To avoid gradient explosion, we can apply gradient clipping to restrict values of the gradient.
+To avoid gradient explosion, we can apply gradient clipping to restrict values of the gradient. Gradient explosion happens more often in NLP.
 
 In the example below, we use TensorFlow (a popular deep learning platform from Google) to clip the gradient if it is too big.
 ```python
@@ -1173,6 +1173,13 @@ The gradients are rescaled according to the ratio $$\frac{5}{max(\| gradient \|,
 global_norm = sqrt(sum([l2norm(t)**2 for t in t_list]))
 t_list[i] * clip_norm / max(global_norm, clip_norm)
 ```
+
+#### Dead nodes in gradient diminishing
+
+> The most effective method to resolve gradient diminishing in deep networks is layers bypassing.
+
+ReLU remains the most popular activation functions. However, if there are too many dead nodes (activation=0), we can experiment leaky ReLU or other more advance activation functions like Maxout. In ReLU, $$ y = max(0, Wx+b)$$. In Maxout, we maintain 2 set of $$W$$s and $$b$$s. the output is computed as: $$ y = max(W_1x+b_1, W_2x+b_2)$$. 
+
 
 ### L0, L1, L2 regularization
 
@@ -1314,38 +1321,40 @@ FC network is rarely used alone. Exploring all possible connections among nodes 
 Many places can go wrong when training a deep network. Here are some tips:
 
 * Create a baseline with a simple or known network (like VGG) for data verification and comparison.
-* Always start with a simple network that works. Use few layers, less customization and less regularization layers.
+* Start with a simple network that works: fewer layers, customization and regularization layers.
 * Sample and verify training data, labels in a few batches.
 * Do not waste time on a large dataset with long iterations during early development.
 * Verify the trainable parameters initialization.
 * Create simple scenarios for verification during **early development**:
 	* Does early training beats random guessing?
-	* Turn off non-critical options first (e.g. regularization, data pre-processing).
+	* Turn off non-critical options (e.g. regularization, data pre-processing).
 	* Verify if loss and accuracy improves during training.
-	* Overfit with a very small dataset to see if the loss drops towards 0 with regularization off.
+	* Overfit with a tiny dataset. The loss should drop quickly towards 0 with regularization off.
 	* Use fewer loss functions to reduce scaling problems of the regularization factors.
 * If loss remains high or gradient approaches NaN, experiment different learning rates. 
 	* For NaN, decrease the rate every time by a factor of 10.
-	* If $$\Delta W$$ is tiny and loss does not drop, increase the rate every time by a factor of 10.
+	* If $$\Delta W$$ is tiny, increase the rate every time by a factor of 10.
 * Sample and visualize model's outputs.
 * Visualize the model's parameters and activations.
 	* Ideal activations should be zero centered. Add batch normalization if needed.
-	* Sign of exploding/diminishing gradients if too many nodes are saturated.
+	* Sign of exploding gradients or diminishing gradients (too many dead nodes).
 	* Ideal $$W$$ and $$b$$ should be normal distributed and not too high.
 * Monitor gradients and $$\Delta W$$ closely.
 * Display and analysis samples that have wrong predictions.
 * Start your tuning from overfit first (with less regularization).
+* The dataset should have similar amount of datapoints in each class.
 
 Design consideration:
 
 * Always keep track of the shape of the data and document it in the code.
-* Scale your input features in particular for non-imaging data.
-* Initialize all seeds to produce repeatable result for trouble shooting.
+* Rescale your input features in particular for non-imaging data.
+* Initialize all random seeds to produce repeatable results.
 * Use standard dataset first if possible. Verify the quality of any custom dataset.
 * Start with standard loss functions before any customization.
 * Record output periodically for verification.
+* Version control models and save model checkpoints for different hyperparameters for easy reproduction.
 * Add data shuffling after early development.
-* If NaN happens and gradient is too high, apply gradient clipping. (In particular for RNN)
+* If NaN happens and gradient is too high, apply gradient clipping. (in particular for RNN)
 
 If you need to implement custom layers:
 

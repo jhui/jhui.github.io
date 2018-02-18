@@ -12,7 +12,7 @@ We need a wider spectrum of expertises including engineers that understand both 
 
 > In Theoretical Physics, Professor Susskind once said "Fat advanced textbooks are are not suitable to people who have no teacher to ask questions of, and the popular literature does not go deeply enough to satisfy these curious people." 
 
-Many articles here served as my personal and professional notes. I develop better understanding when I re-organize my thought in my notes. I wish some of the articles give you better insights beyond the equations and also give you enough details to become an insider. Nevertheless, some articles need further polish. If you are interested in a specific article, feel free to click the "recommend" button before the discussion section. If time permitted, I will spend more time on them.
+Many articles here served as my personal and professional notes. I develop better understanding when I re-organize my thought in my notes. I wish some of the articles give you better insights beyond the equations and also give you enough details to explore. If you are interested in a specific article, feel free to click the "recommend" button before the discussion section. If time permitted, I will spend more time to refine them.
 
 For those intersted in connecting with me professionally, you can find me at Linkedin.
 
