@@ -1015,7 +1015,11 @@ $$
 z = \frac{x - \mu}{\sigma}
 $$
 
-which the mean and variance is computed from the current mini-batch data. 
+For a feature map with 100 elements, we compute 100 means and 100 variance from the batch samples. For example, if the batch size is 16, the mean for element $$i$$ is computed by:
+
+$$
+\mu_{i} = \frac{o^{(1)}_{i} + o^{(1)}_{i} + \dots + o^{(16)}_{i}}{16} \quad \text{which } o^{(k)} \text{ is the output from batch sample } k \in (1, 16)\\
+$$
 
 We feed $$z$$ to a linear equation with the trainable scalar values $$ \gamma $$ and $$ \beta$$ (1 pair for each normalized layer). 
 
@@ -1037,10 +1041,10 @@ def batchnorm_forward(x, gamma, beta, bn_param):
     out = gamma * xhat + beta
 ```
 
-Batch normalization solves a problem called internal covariate shift. As weights are updated, the distribution of outputs at each layer changes. Batch normalization normalized data at each layer again. So we can use a higher learning rate that speed up learning.
-Batch normalization also help regularize $$W$$.
+Batch normalization solves a problem called internal covariate shift. As weights are updated, the distribution of outputs at each layer changes. With many deep layers, the distribution is not normalized even we start from a normalized input. Batch normalization normalized data at each layer again. So the gradient descent can train the model faster and more accurate. As a side bonus, we can increase the learning rate higher without lower the accuracy. Batch normalization also help regularize $$W$$.
 
 In the training, we use the mean and variance of the current training sample. But for testing, we do not use the mean/variance of the testing data. Instead, we record a running mean & variance during the training and apply it in validation or testing.
+
 ```python
 running_mean = momentum * running_mean + (1 - momentum) * sample_mean
 running_var = momentum * running_var + (1 - momentum) * sample_var
@@ -1119,7 +1123,9 @@ As indicated, the gradient descent depends on the loss $$ \frac{\partial J}{\par
 <img src="/assets/dl/sigmoid2.png" style="border:none;width:80%">
 </div>
 
-The derivative of a sigmoid function behaves like a gate to the loss signal. If the input is > 5 or <-5, it blocks most of the loss signal to propagate backwards. So, nodes on its left side layers learn little.
+The derivative of a sigmoid function behaves like a gate to the loss signal. If the input is > 5 or <-5, it blocks most of the loss signal to propagate backwards. So, nodes on its left side layers learn little. 
+
+The deeper the networks, the more non-linearity and it makes gradient-based methods less efficient. (each layer composes more non-linearity on top of the previous ones)
 
 In addition, the chain rule in the gradient descent has a multiplication effect. If we multiple numbers smaller than one, it diminishes quickly. On the contrary, if we multiple numbers greater than one, it explodes. 
 
@@ -1130,6 +1136,8 @@ $$
 $$ 
 5 \cdot 5 \cdot 5 \cdot 5 \cdot 5 = 3125
 $$
+
+x
 
 These problems happen more frequently for networks with very deep layers. Natural language networks use a looping layers with sharing parameters. Hence, their gradients may move in the same direction together, and vulnerable to these problems. To solve it, we have designed new computation nodes that can bypass an individual layer. Microsoft Resnet has 152 layers. Instead of backpropagate the cost through a long chain of nodes, Resnet have both pathways to backpropagate it through the convolution layer or by-passed through the arc.
 (Source Kaiming He, Xiangyu Zhang … etc)
@@ -1274,15 +1282,22 @@ def dropout_backward(dout, cache):
 
 > Dropout forces the decision not to dependent on few features. It behave like other regularization in constraining the magnitude of $$W$$.
 
-### Hyperparameter tuning
+### Grid search for hyperparameters
 
-Because we know very little in our model for real life problems, the hyperparameter tuning is usually a try and error process. Some parameters are dependent on each other and cannot tune separately. Sometimes those relationship is subtle. For example, the regularization rate changes the shape of the cost function. Therefore it impacts how we tune the learning rate. We can create a mesh of values to tune both parameters together. For example, with learning rates of $$1e^{-1}, 1e^{-2}, … $$ and $$1e^{-8}$$ and regularization rate of $$1e^{-3}, 1e^{-4}, ... $$ and $$1e^{-6}$$, we have a potential of 8x4 combinations to test $$(1e^{-1}, 1e^{-3}), (1e^{-1}, 1e^{-3}), \dots , (1e^{-8}, 1e^{-5}) $$ and $$(1e^{-8}, 1e^{-6}) )$$. We may not want to use an exactly rectangular shape of a mesh. For example, we may want to slightly deviate at each mesh point with the hope that some irregularity helps us to explore more.
+Some hyperparameters are strongly related. We should tune them together with a mesh of possible combinations in a logarithmic scale. For example, for 2 hyperparameters $$\lambda$$ and $$\gamma$$, we start from the corresponding initial value and drop it by a factor of 10 in each step:
+
+* ($$e^{-1}, e^{-2}, … $$ and $$e^{-8}$$) and,
+* ($$e^{-3}, e^{-4}, ... $$ and $$e^{-6}$$). 
+
+The corresponding mesh will be $$[(e^{-1}, e^{-3}), (e^{-1}, e^{-4}), \dots , (e^{-8}, e^{-5}) $$ and $$(e^{-8}, e^{-6})]$$. 
+
+Instead of using the exact cross points, we randomly shift those points slightly. This randomness may lead us to some surprises that otherwise hidden. If the optimal point lays in the border of the mesh (the blue dot), we retest it further in the boarder region.
 
 <div class="imgcap">
-<img src="/assets/dl/mesh.png" style="border:none;width:60%">
+<img src="/assets/dl/grid.png" style="border:none;width:30%">
 </div>
 
-> Start tuning parameters from coarse grain with fewer iterations before fine tuning.
+We start tuning parameters in coarse grain using fewer training iterations. In later fine tuning, we increase the iterations and drop the grid value by a factor of 3 or even smaller.  
 
 ### Data augmentation
 
@@ -1292,9 +1307,12 @@ One significant improvement for the DL training is to have more data. This avoid
 
 ### Model ensembles
 
-So far, we try to find the best models. In machine learning, we can take a vote from different decision trees to make the final prediction. This is based on the assumption that mistakes are localized. There is a smaller chance for 2 different models to make the same mistake. In DL, each training starts with random guesses and therefore the models optimized are not unique.  We can pick the best models after repeating the training multiple times. We take votes from those models for the final predictions. This requires us to run the program multiple times, and can be prohibitively expensive. Alternatively, we run the training once and checkpoints multiple times. We pick the best models from the checkpoints. We can also use the validation phase to pick our best models to ensemble. Instead of running multiple models, we can also run a running average for our training parameters. With ensemble models, we can have one vote per model, taking an average or use weights based on the confidence level for each prediction.
+In machine learning, we can take votes from a number of decision trees to make predictions. It works because mistakes are often localized: there is a smaller chance for two models making the same mistakes. In DL, we start training with random guesses (providing random seeds are not explicitly set) and the optimized models are not unique. We pick the best models after many runs using the validation dataset. We take votes from those models to make final predictions. This method requires running multiple sessions, and can be prohibitively expensive. Alternatively, we run the training once and checkpoints multiple models. We pick the best models from the checkpoints. With ensemble models, the predictions can based on:
 
-> A lot of production system uses model ensembles to push the accuracy up for few percentage points.
+* one vote per model, 
+* weighted votes based on the confidence level of it's prediction.
+
+Model ensembles are very effective in pushing the accuracy up a few percentage points in some problems and very common in some DL competitions.
 
 ### Reproducible Results
 
@@ -1310,6 +1328,8 @@ np.random.seed(1234)
 tf.set_random_seed(245)
 ```
 
+However, if we use model ensembles or model averaging, we may undo the code for our final model selections so we can have different models trained from different seeds.
+
 ### Convolution Net (CNN) & Long short term memory (LSTM)
 
 FC network is rarely used alone. Exploring all possible connections among nodes in the previous layer provides a complex model that can be wasteful with small returns. A lot of information is localized. For an image, we want to extract features from neighboring pixels. CNN applies filters to explore localized features first, and then apply FC to make predictions. LSTM applies time feedback loop to extract time sequence information. This article covers the fundermental in DL that will be needed for CNN and LSTM. 
@@ -1323,14 +1343,14 @@ Many places can go wrong when training a deep network. Here are some tips:
 * Create a baseline with a simple or known network (like VGG) for data verification and comparison.
 * Start with a simple network that works: fewer layers, customization and regularization layers.
 * Sample and verify training data, labels in a few batches.
-* Do not waste time on a large dataset with long iterations during early development.
+* Do not waste time on a large dataset with long iterations or large data batch during early development.
 * Verify the trainable parameters initialization.
+* Verify the range of the input and the output. (like [-1, 1] or [0, 1])
 * Create simple scenarios for verification during **early development**:
 	* Does early training beats random guessing?
-	* Turn off non-critical options (e.g. regularization, data pre-processing).
+	* Turn off non-critical options (e.g. regularization, data augmentation).
 	* Verify if loss and accuracy improves during training.
 	* Overfit with a tiny dataset. The loss should drop quickly towards 0 with regularization off.
-	* Use fewer loss functions to reduce scaling problems of the regularization factors.
 * If loss remains high or gradient approaches NaN, experiment different learning rates. 
 	* For NaN, decrease the rate every time by a factor of 10.
 	* If $$\Delta W$$ is tiny, increase the rate every time by a factor of 10.
@@ -1343,13 +1363,14 @@ Many places can go wrong when training a deep network. Here are some tips:
 * Display and analysis samples that have wrong predictions.
 * Start your tuning from overfit first (with less regularization).
 * The dataset should have similar amount of datapoints in each class.
+* When adding regularization, tune the regularization factor properly.
 
 Design consideration:
 
 * Always keep track of the shape of the data and document it in the code.
 * Rescale your input features in particular for non-imaging data.
 * Initialize all random seeds to produce repeatable results.
-* Use standard dataset first if possible. 
+* Use academic dataset first if possible. 
 * Verify the quality of any custom dataset.
 	* Choose related categories addressing your target problem. 
 	* Filter out low quality samples.
@@ -1376,6 +1397,14 @@ We want to plot the cost vs iterations. Monitor the loss to see its trend:
 <div class="imgcap">
 <img src="/assets/dl/mont1.png" style="border:none;width:50%">
 </div>
+
+If the learning rate is too large, we may also see a sudden jump in loss:
+
+<div class="imgcap">
+<img src="/assets/dl/wallner.png" style="border:none; width:80%;">
+</div>
+
+(Image source Emil Wallner)
 
 #### Train vs validation accuracy
 
@@ -1405,6 +1434,40 @@ Plot weight, activation and gradient histograms for all layers.
 <div class="imgcap">
 <img src="/assets/dl/hhist.png" style="border:none;width:40%">
 </div>
+
+Here is the gradient plot for a variable. It will be un-healthy if 
+
+* All close to 0. (gradient is diminishing)
+* Too large positively or negatively. (gradient is exploding)
+* All positive or all negative. (the gradient descent is zip-zapping)  
+
+<div class="imgcap">
+<img src="/assets/dl/lgrad.png" style="border:none; width:50%;">
+</div>
+
+Here is the code in creating gradient summary:
+```python
+with tf.name_scope('train'):
+    optimizer = tf.train.AdamOptimizer()
+    # Get the gradient pairs (Tensor, Variable)
+    grads = optimizer.compute_gradients(cross_entropy)
+    # Update the weights wrt to the gradient
+    train_step = optimizer.apply_gradients(grads)
+    # Save the grads with tf.summary.histogram
+    for index, grad in enumerate(grads):
+        tf.summary.histogram("{}-grad".format(grads[index][1].name), grads[index])
+```
+
+(Source LH Franc)
+
+#### Activation
+
+For gradient descent to perform the best, the nodes' outputs before the activation function should be normal distributed. For example, we should apply a batch normalization to correct the non-zero centered pre-activation output below. The right side plot is the activation output of a ReLU function. It will be bad if there are too many dead or highly activated nodes. 
+
+<div class="imgcap">
+<img src="/assets/dl/actt.png" style="border:none; width:80%;">
+</div>
+
 
 #### Visualize filters and activation
 

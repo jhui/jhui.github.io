@@ -83,15 +83,20 @@ The right side shows images with the highest activation in some feature maps at 
 
 #### Batch normalization & ReLU
 
-After applying filters on the input, we feed them to a batch normalization layer. Initially, the batch normalization normalize data to make learning faster with the Gradient descent. Later, we apply ReLU for the non-linearity purpose. 
+After applying filters on the input, we apply a batch normalization followed by a ReLU for non-linearity. The batch normalization renormalizes data to make learning faster with the Gradient descent. 
 
-Batch normalization applies the normalization formula to the input:
+Batch normalization applies this equation to the input:
 
 $$
 z = \frac{x - \mu}{\sigma}
 $$
 
-which the mean and variance is computed from the current mini-batch data. 
+For a feature map with the spatial dimension 10x10, we compute 100 means and 100 variance from the batch samples. For example, if the batch size is 16, the mean for the feature at location (i, j) is computed by:
+
+$$
+\mu_{i, j} = \frac{o^{(1)}_{i, j} + o^{(1)}_{i, j} + \dots + o^{(16)}_{i, j}}{16} \quad \text{which } o^{(k)} \text{ is the output from batch sample } k \in (1, 16)\\
+$$
+
 
 We feed $$z$$ to a linear equation with the trainable scalar values $$ \gamma $$ and $$ \beta$$ (1 pair for each normalized layer). 
 

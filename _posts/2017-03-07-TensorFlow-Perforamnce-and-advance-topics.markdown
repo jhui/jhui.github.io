@@ -3,8 +3,8 @@ layout: post
 comments: true
 mathjax: true
 priority: 840
-title: “TensorFlow performance, GPU and advance topics”
-excerpt: “Cover TensorFlow advance topics including performance, GPU and other advance topics.”
+title: “TensorFlow performance and advance topics”
+excerpt: “Cover TensorFlow advance topics including performance and other advance topics.”
 date: 2017-03-07 14:00:00
 ---
 ### Performance
@@ -154,111 +154,6 @@ if __name__ == '__main__':
   main(args.data_dir)
 ```
 
-### GPU
-
-To determine where your computation node is running on (CPU/GPU)?
-
-```python
-import tensorflow as tf
-
-# Construct 2 op nodes (m1, m2) representing 2 matrix.
-m1 = tf.constant([[3, 5]])
-m2 = tf.constant([[2],[4]])
-
-product = tf.matmul(m1, m2)    # A matrix multiplication op node
-
-sess = tf.Session(config=tf.ConfigProto(log_device_placement=True))
-print(sess.run(product))
-
-sess.close()
-
-# MatMul: (MatMul): /job:localhost/replica:0/task:0/cpu:0
-# Const_1: (Const): /job:localhost/replica:0/task:0/cpu:0
-# Const: (Const): /job:localhost/replica:0/task:0/cpu:0
-```
-
-Run constant op m1, m2 on the specific device _CPU 0_.
-```python
-import tensorflow as tf
-
-# Construct 2 op nodes (m1, m2) representing 2 matrix.
-with tf.device('/cpu:0'):
-    m1 = tf.constant([[3, 5]])
-    m2 = tf.constant([[2],[4]])
-
-product = tf.matmul(m1, m2)    # A matrix multiplication op node
-
-sess = tf.Session(config=tf.ConfigProto(log_device_placement=True))
-print(sess.run(product))
-
-sess.close()
-```
-
-Run operations on different device:
-```python
-with tf.device('/cpu:0'):
-  # Pinned to the CPU.
-  img = tf.decode_jpeg(tf.read_file("img.jpg"))
-
-with tf.device('/gpu:0'):
-  result = tf.matmul(weights, img)
-```
-  
-Using multiple GPUs
-```python
-# Creates a graph.
-c = []
-for d in ['/gpu:2', '/gpu:3']:
-  with tf.device(d):
-    a = tf.constant([1.0, 2.0, 3.0, 4.0, 5.0, 6.0], shape=[2, 3])
-    b = tf.constant([1.0, 2.0, 3.0, 4.0, 5.0, 6.0], shape=[3, 2])
-    c.append(tf.matmul(a, b))
-	
-with tf.device('/cpu:0'):
-  sum = tf.add_n(c)
-
-# Creates a session with log_device_placement set to True.
-sess = tf.Session(config=tf.ConfigProto(log_device_placement=True))
-
-# Runs the op.
-print(sess.run(sum))
-```
-
-Soft placement: If GPU 2 does not exist, allow_soft_placement=True will place it onto an alternative device to run the operation.  Otherwise, the operation will throw an exception if GPU 2 does not exist.
-```python
-with tf.device('/gpu:2'):
-	...
-sess = tf.Session(config=tf.ConfigProto(
-      allow_soft_placement=True, log_device_placement=True))
-```
-
-### GPU Optimization
-
-Data parallelism involves making multiple copies of the model (towers), and place one tower on each of the GPUs. Each tower is trained on a different mini-batch of data and then updates trainable variables that shared between the towers. The variable placement and gradient update are important to scale this solution.
-
-* Tesla K80: If the GPUs are on the same PCI Express and are able to communicate using NVIDIA GPUDirect Peer to Peer, we place the variables equally across the GPUs. Otherwise, we place the variables on the CPU.
-
-* Titan X, P100: For models like ResNet and InceptionV3, placing variables on the CPU. But for models with a lot of variables like AlexNet and VGG, using GPUs with NCCL is better.
-
-The coding is still evolving. We refer reader to the original [tutorial](https://www.tensorflow.org/performance/performance_guide#optimizing_for_gpu) for the latest development.
-
-#### Variable Distribution and Gradient Aggregation
-
-* parameter_server where each replica of the training model reads the variables from a parameter server and updates the variable independently. When each model needs the variables, they are copied over through the standard implicit copies added by the TensorFlow runtime. 
-
-Source TensorFlow
-<div class="imgcap">
-<img src="/assets/tensorflow/vv1.png" style="border:none;width:100%;">
-</div>
-
-* replicated places a copy of each training variable on each GPU. Gradients are accumulated across all GPUs, and the aggregated total is applied to each GPU's copy.
-
-* distributed_replicated places a copy of the training parameters on each GPU along with a master copy on the parameter servers.  Gradients are accumulated across all GPUs on each server and the per-server aggregated gradients are applied to the master copy. After all workers are done, each worker updates its copy from the master.
-
-Source TensorFlow
-<div class="imgcap">
-<img src="/assets/tensorflow/dvv1.png" style="border:none;width:100%;">
-</div>
 
 ### CPU optimization
 

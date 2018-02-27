@@ -117,6 +117,46 @@ def main(_):
         ...
 ```
 
+### Multimodal distributions
+
+We can concatenate 2 Tensors to be plotted together in the same graph:
+
+```python
+normal_combined = tf.concat([mean_moving_normal, variance_shrinking_normal], 0)
+tf.summary.histogram("normal/bimodal", normal_combined)
+```
+
+### Plot training and validation loss/accuracy 
+
+We use the same tensor to compute the loss for the training samples and validation samples. To plot the same tensor with different datasets together, Barzin provides a solution using 2 file writers:
+
+```python
+import tensorflow as tf
+from numpy import random
+
+writer_1 = tf.summary.FileWriter("./logs/plot_1")
+writer_2 = tf.summary.FileWriter("./logs/plot_2")
+
+log_var = tf.Variable(0.0)
+tf.summary.scalar("loss", log_var)
+
+write_op = tf.summary.merge_all()
+
+session = tf.InteractiveSession()
+session.run(tf.global_variables_initializer())
+
+for i in range(100):
+    # for writer 1
+    summary = session.run(write_op, {log_var: random.rand()})
+    writer_1.add_summary(summary, i)
+    writer_1.flush()
+
+    # for writer 2
+    summary = session.run(write_op, {log_var: random.rand()})
+    writer_2.add_summary(summary, i)
+    writer_2.flush()
+```	
+
 ### View the TensorBoard
 Open the terminal and run the Tensorboard command with you log file location.
 ```
@@ -145,15 +185,6 @@ We can add runtime performance information into the TensorBoard
 <div class="imgcap">
 <img src="/assets/tensorboard/run.png" style="border:none; width:100%;">
 </div>
-
-
-### Multimodal distributions
-
-We can concatenate distributions for displays:
-```python
-normal_combined = tf.concat([mean_moving_normal, variance_shrinking_normal], 0)
-tf.summary.histogram("normal/bimodal", normal_combined)
-```
 
 
 ### Full program listing
