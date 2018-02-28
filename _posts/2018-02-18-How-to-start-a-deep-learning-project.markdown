@@ -455,13 +455,13 @@ Once we have our models debugged, we can focus on increasing the model capacity 
 
 ### Increase model capacity
 
-We add layers, feature maps and hidden nodes to a DN gradually to increase its capacity. Deeper models produce more complex models. For convolutional layers, the key factors are:
+We add layers, feature maps, and hidden nodes to a DN gradually to increase its capacity. Deeper models produce more complex models. For convolutional layers, the key factors are:
 
 * Number of convolution layers
 * Number of output feature maps (channels)
 * Filter sizes
 
-We increase the number of convolution layers with smaller filter size. Smaller filters (3x3 or 5x5) usually performs better than larger filters. Each convolution layer will reduce or retain the spatial dimension while widen the depth of the channels. (Or vice versa in upsampling transposed convolution.)
+We increase the number of convolution layers with smaller filter size. Smaller filters (3x3 or 5x5) usually perform better than larger filters. Each convolution layer will reduce or retain the spatial dimension while widening the depth of the channels. (Or vice versa in upsampling transposed convolution.)
 
 <div class="imgcap">
 <img src="/assets/cnn/cnn3d2.png" style="border:none; width:65%;">
@@ -469,7 +469,7 @@ We increase the number of convolution layers with smaller filter size. Smaller f
 
 The tuning process is more empirical than theoretical. An easier approach is to locate proven model designs for related problems and use their values as a starting tuning point. If none found, we start from a simple model and add layers and feature maps gradually to increase training accuracy and to overfit the model. This is manageable since we can tone down the overfitting with regularizations. We repeat such iterations until we have diminishing validation accuracy improvements to justify the drop in training and computation performance.
 
-In the fully connected layer, we gradually decrease the hidden nodes to get closer to the output dimension. For example, the last FC layer below is reduced to 256 to classify objects into 10 classes. For my intuition, I often ask how much features (channels or hidden nodes) the machine needs at each layer to solve the problem? And this number is usually higher than you thought. However, GPUs do not page out memory. As of early 2018, the high end NVIDIA GeForce GTX 1080 TI has 11GB memory. The number of hidden nodes between two layers are in particular restricted by the memory size.
+In the fully connected layer, we gradually decrease the hidden nodes to get closer to the output dimension. For example, the last FC layer below is reduced to 256 to classify objects into 10 classes. For my intuition, I often ask how much features (channels or hidden nodes) the machine needs at each layer to solve the problem? And this number is usually higher than you thought. However, GPUs do not page out memory. As of early 2018, the high-end NVIDIA GeForce GTX 1080 TI has 11GB memory. The number of hidden nodes between two layers are in particular restricted by the memory size.
 
 <div class="imgcap">
 <img src="/assets/cnn/cnn3d5.png" style="border:none; width:65%;">
@@ -493,17 +493,17 @@ Here is the checklist for the model design to improve performance:
 * Monitor the percentage of dead nodes.
 * Apply gradient clipping (in particular NLP) to control exploding gradients.
 * Shuffle dataset (manually or programmatically).
-* Un-balance dataset (Different amount of datapoints for each class).
+* Un-balance dataset (Different amount of data points for each class).
 
 If the DN has a huge amount of dead nodes, we should trace the problem further. It can be a problem in the code, weight initializations or diminishing gradients. If none of them is the cause, experiment some advance ReLU functions like leaky ReLU.
 
 ### Dataset collection & cleanup
 
-One of the most effective way to avoid overfitting and to improve performance is collecting more training data. We analyze the errors in our project. We find images with highly entangled structure perform badly. We can make change to the model like adding more convolution layers with smaller filters. We can also collect more entangled samples for further training. Alternatively, we can limit what the model can handle. Remove those samples (outliners) so the training can be more focus. Custom dataset requires much cleanup work than standard dataset.
+One of the most effective ways to avoid overfitting and to improve performance is collecting more training data. We analyze the errors in our project. We find images with highly entangled structure perform badly. We can make a change to the model like adding more convolution layers with smaller filters. We can also collect more entangled samples for further training. Alternatively, we can limit what the model can handle. Remove those samples (outliners) so the training can be more focus. Custom dataset requires much cleanup work than the standard dataset.
 
 ### Data augmentation
 
-For the labeled data in the supervising learning, collect new data can be expensive. For images, we can apply data augmentation with simple techniques like rotation, clipping, shifting, shear and flipping to create more samples from existing data. If low contrast images are not performing, we can augment existing images to include different level of contrast. 
+For the labeled data in the supervising learning, collect new data can be expensive. For images, we can apply data augmentation with simple techniques like rotation, clipping, shifting, shear and flipping to create more samples from existing data. If low contrast images are not performing, we can augment existing images to include a different level of contrast. 
 
 <div class="imgcap">
 <img src="/assets/dl/darg.png" style="border:none; width:70%;">
@@ -516,7 +516,7 @@ We can also supplement data with unsupervised pre-training. We use our model to 
 
 #### Learning rate tuning
 
-Let's have a short recap on tuning the learning rate. In early development, we turn off or set them to zero for any un-critical hyperparameters including regularizations. With the Adam optimizer, the default learning rate usually works well. If we are confidence about the code but yet the loss does not drop, start testing the learning rate. Typical learning rate is from $$1$$ to $$1e^{-7}$$. Drop the rate each time by a factor of 10. Test it in short iterations. Monitor the loss closely. If it goes up consistently, the learning rate is too high. If it does not go down, the learning rate is too low. Increase it until it prematurely flattens.
+Let's have a short recap on tuning the learning rate. In early development, we turn off or set them to zero for any un-critical hyperparameters including regularizations. With the Adam optimizer, the default learning rate usually works well. If we are confident in the code but yet the loss does not drop, start testing the learning rate. Typical learning rate is from $$1$$ to $$1e^{-7}$$. Drop the rate each time by a factor of 10. Test it in short iterations. Monitor the loss closely. If it goes up consistently, the learning rate is too high. If it does not go down, the learning rate is too low. Increase it until it prematurely flattens.
 
 <div class="imgcap">
 <img src="/assets/dl/mont1.png" style="border:none; width:50%;">
@@ -544,11 +544,11 @@ Once the model design is stabled, we can tune the model further. The most tuned 
 * Mini-batch size
 * Learning rate
 * Regularization factors
-* Layer specific hyperparameters (like dropout)
+* Layer-specific hyperparameters (like dropout)
 
 #### Mini-batch size
 
-We use our first implementation as a baseline for comparison. You can use proven models as a baseline instead. Typical batch size is either 8, 16, 32 or 64. If the batch size is too small, the gradient descent will not be smooth. The model is slow to learn and the he loss may oscillates. If the batch size is too high, the time to complete one training iteration (one round of update) will be long with relatively small returns. For our project, we drop the batch size lower because each training iteration takes too long. We monitor the overall learning speed and the loss closely. If it oscillates too much, we know we are going too far. Batch size impacts hyperparameters like regularization factors. Once we determine the batch size, we usually lock the value.
+We use our first implementation as a baseline for comparison. You can use proven models as a baseline instead. Typical batch size is either 8, 16, 32 or 64. If the batch size is too small, the gradient descent will not be smooth. The model is slow to learn and the loss may oscillate. If the batch size is too high, the time to complete one training iteration (one round of update) will be long with relatively small returns. For our project, we drop the batch size lower because each training iteration takes too long. We monitor the overall learning speed and the loss closely. If it oscillates too much, we know we are going too far. Batch size impacts hyperparameters like regularization factors. Once we determine the batch size, we usually lock the value.
 
 #### Learning rate & regularization factors
  
@@ -562,14 +562,14 @@ Tuning is not a linear process. Hyperparameters are related, and we will come ba
 
 #### Dropout
 
-The dropout rate is typically from 20% to 50%. We should start from 20%. Monitor the accuracy gap again until the model is just slightly overfit.
+The dropout rate is typically from 20% to 50%. We should start with 20%. Monitor the accuracy gap again until the model is slightly overfitted.
 
 #### Other tuning
 
 * Sparsity
 * Activation functions
 
-Model parameters' sparsity reduces power consumption in particular for mobile devices, and the computation is easier to optimize. If needed, we may replace (or add) the regularizations with the L1 regularization. ReLU is the most popular activation function. For some deep learning competitions, people experiment more advance variants of ReLU to move the bar slightly higher. It also reduce dead nodes in some scenarios.
+Model parameters' sparsity reduces power consumption in particular for mobile devices, and the computation is easier to optimize. If needed, we may replace (or add) the regularizations with the L1 regularization. ReLU is the most popular activation function. For some deep learning competitions, people experiment more advanced variants of ReLU to move the bar slightly higher. It also reduces dead nodes in some scenarios.
 
 #### Advance tuning
 
@@ -585,7 +585,7 @@ Instead of a fixed learning rate, we can decay the learning rate regularly. The 
 
 Advance optimizers use momentum to smooth out the gradient descent. In the Adam optimizer, there are two momentum settings controlling the first order (default 0.9) and the second order (default 0.999) momentum. For problem domains with steep gradients like NLP, we may increase the value slightly to check whether cost drops faster.
 
-Overfitting can be reduced by stopping the training when the validation errors increases persistently with increasing iterations of training. 
+Overfitting can be reduced by stopping the training when the validation errors increase persistently with increasing iterations of training. 
 
 <div class="imgcap">
 <img src="/assets/dl/ears.png" style="border:none; width:35%;">
@@ -593,7 +593,7 @@ Overfitting can be reduced by stopping the training when the validation errors i
 
 [(source)](http://page.mi.fu-berlin.de/prechelt/Biblio/stop_tricks1997.pdf)
 
-This is only a visualization of the concept. The real time error may go up temporarily and then drop again. We can checkpoint models regularly with the corresponding validation errors and select the correct model later.
+This is only a visualization of the concept. The real-time error may go up temporarily and then drop again. We can checkpoint models regularly with the corresponding validation errors and select the correct model later.
 
 #### Grid search for hyperparameters
 
@@ -604,26 +604,26 @@ Some hyperparameters are strongly related. We should tune them together with a m
 
 The corresponding mesh will be $$[(e^{-1}, e^{-3}), (e^{-1}, e^{-4}), \dots , (e^{-8}, e^{-5}) $$ and $$(e^{-8}, e^{-6})]$$. 
 
-Instead of using the exact cross points, we randomly shift those points slightly. This randomness may lead us to some surprises that otherwise hidden. If the optimal point lays in the border of the mesh (the blue dot), we retest it further in the boarder region.
+Instead of using the exact cross points, we randomly shift those points slightly. This randomness may lead us to some surprises that otherwise hidden. If the optimal point lays in the border of the mesh (the blue dot), we retest it further in the border region.
 
 <div class="imgcap">
 <img src="/assets/dl/grid.png" style="border:none;width:30%">
 </div>
 
-Grid search is computational intense. For smaller projects, this is used sporadically. We can start tuning parameters in coarse grain using fewer training iterations. To fine tune the result, we use longer iterations and we drop each value by a factor of 3 (or even smaller).
+A grid search is computationally intense. For smaller projects, this is used sporadically. We can start tuning parameters in coarse grain using fewer training iterations. To fine-tune the result, we use longer iterations and we drop each value by a factor of 3 (or even smaller).
 
 ### Model ensembles
 
-In machine learning, we can take votes from a number of decision trees to make predictions. It works because mistakes are often localized: there is a smaller chance for two models making the same mistakes. In DL, we start training with random guesses (providing random seeds are not explicitly set) and the optimized models are not unique. We pick the best models after many runs using the validation dataset. We take votes from those models to make final predictions. This method requires running multiple sessions, and can be prohibitively expensive. Alternatively, we run the training once and checkpoints multiple models. We pick the best models from the checkpoints. With ensemble models, the predictions can based on:
+In machine learning, we can take votes from a number of decision trees to make predictions. It works because mistakes are often localized: there is a smaller chance for two models making the same mistakes. In DL, we start training with random guesses (providing random seeds are not explicitly set) and the optimized models are not unique. We pick the best models after many runs using the validation dataset. We take votes from those models to make final predictions. This method requires running multiple sessions and can be prohibitively expensive. Alternatively, we run the training once and checkpoints multiple models. We pick the best models from the checkpoints. With ensemble models, the predictions can base on:
 
 * one vote per model, 
-* weighted votes based on the confidence level of it's prediction.
+* weighted votes based on the confidence level of its prediction.
 
 Model ensembles are very effective in pushing the accuracy up a few percentage points in some problems and very common in some DL competitions.
 
 ### Model improvement
 
-Instead of fine tuning a model, we can try out different model variants to leap frog the model performance. For example, we have consider replacing the color generator partially or completely with a LSTM based design. This concept is not completely foreign: we draw pictures in steps. 
+Instead of fine-tuning a model, we can try out different model variants to leapfrog the model performance. For example, we have considered replacing the color generator partially or completely with an LSTM based design. This concept is not completely foreign: we draw pictures in steps. 
 
 [Image source](http://webneel.com/how-draw-faces-drawings)
 
@@ -631,21 +631,21 @@ Instead of fine tuning a model, we can try out different model variants to leap 
 <img src="/assets/gm/face.png" style="border:none; width:30%;">
 </div>
 
-Intuitively, there are merits in introducing a time sequence method in image generation. This method has proven with some success in DRAW: A Recurrent Neural Network For Image Generation.
+Intuitively, there are merits in introducing a time sequence method in image generation. This method has proven some success in DRAW: A Recurrent Neural Network For Image Generation.
 
 
 #### Fine tune vs model improvement
 
-Major breakthroughs require model design changes. However, some studies indicate fine tuning a model can be more beneficial than making incremental model changes. The final verdicts are likely based on your own benchmarking results.
+Major breakthroughs require model design changes. However, some studies indicate fine-tuning a model can be more beneficial than making incremental model changes. The final verdicts are likely based on your own benchmarking results.
 
 ### Kaggle
 
-You may have a simple question like should I use Leak ReLU. It sounds so simple but you will never get a straight answer anywhere. Some research papers may show empirical proof that leaky ReLU is superior, but yet some projects see no improvement. There are too many variables and many projects do not have the resources to benchmark even a resonable portions of the possibilities. [Kaggle](https://www.kaggle.com) is an online platform for data science competitions including deep learning. Dig through some of the competitions. You can find what are the most common performance metrics. Some teams publish their code (called kernels) and with some patience, it is a great source of information.
+You may have a simple question like should I use Leak ReLU. It sounds so simple but you will never get a straight answer anywhere. Some research papers may show empirical proof that leaky ReLU is superior, but yet some projects see no improvement. There are too many variables and many projects do not have the resources to benchmark even a reasonable portion of the possibilities. [Kaggle](https://www.kaggle.com) is an online platform for data science competitions including deep learning. Dig through some of the competitions. You can find what are the most common performance metrics. Some teams publish their code (called kernels) and with some patience, it is a great source of information.
 
 
 ### Experiment framework
 
-DL requires many experiments and tuning hyperparameters is tedious. Creating an experiment framework can expedite the process. For example, some people develop code to externalize the model definitions into a string for easy modification. Those efforts are usually counter productive for a small team. I personally find the drop in code simplicity and traceability is far worsen than the benefit. Those coding makes simple code modification harder that it should. Easy to read code has less bugs and more flexible. Many AI cloud offerings start providing automatic hyperparameters tuning. It is still in early development but should be a general trend that we do not code the framework ourself. Stay tuned for any development!
+DL requires many experiments and tuning hyperparameters is tedious. Creating an experiment framework can expedite the process. For example, some people develop code to externalize the model definitions into a string for easy modification. Those efforts are usually counterproductive for a small team. I personally find the drop in code simplicity and traceability is far worse than the benefit. Such coding makes simple code modification harder than it should. Easy to read code has fewer bugs and more flexible. Many AI cloud offerings start providing automatic hyperparameters tuning. It is still in early development but should be a general trend that we do not code the framework ourselves. Stay tuned for any development!
 
 
 
