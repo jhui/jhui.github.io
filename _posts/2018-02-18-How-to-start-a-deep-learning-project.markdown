@@ -78,9 +78,9 @@ Deep learning (DL) codes are condensed but difficult to troubleshoot. Research p
 
 > Garbage in and garbage out. Good data trains good models.
 
-For research projects, search for academic datasets. Collect samples for custom datasets may not be difficult. However, building custom datasets require careful data cleaning and require significant resource to produce quality dataset. Bad quality data creates bad models. Academic datasets are pre-filtered and cleaner for training. There are published model performance that you can reference for your progress. If you have more than one options, select the one with the highest quality samples for your target category. 
+For research projects, search for academic datasets. Collect samples for custom datasets may not be difficult. However, building custom datasets require careful data cleaning and require a significant effort to produce quality dataset. Bad quality data creates bad models. Academic datasets are pre-filtered and cleaner for training. There are published model performance that you can reference for your progress. If you have more than one options, select the one with the highest quality samples for your target category. 
 
-For real life problems, we need samples originated from the problem domains. Smaller projects rarely collect as many samples comparing with academic datasets. Apply transfer learning if needed. Many projects collect samples by clawing data from web sites. The quality of the samples varies. Some samples are not relevant. Even we collect Manga tagged as single females, we filter out about 10% of our crawled data.
+For real-life problems, we need samples originated from the problem domains. Smaller projects rarely collect as many samples comparing with academic datasets. Apply transfer learning if needed. Many projects collect samples by clawing data from websites. The quality of the samples varies. Some samples are not relevant. Even we collect Manga tagged as single females, we filter out about 10% of our crawled data.
 
 I re-visit the progress on the Manga colorization when I write this article. Deepcolor was inspired by PaintsChainer. We did not spend much time on PaintsChainer when we started the project. But I am glad to play them a visit. (Feb. 2018).
 
@@ -90,7 +90,7 @@ The left is an image provided by the application and the right is the drawing co
 <img src="/assets/dl/gaa1.png" style="border:none; width:80%;">
 </div>
 
-We decide to test it with some of our training samples. It is less impressive. Fewer colors are applied and the style is not correct.
+We decided to test it with some of our training samples. It is less impressive. Fewer colors are applied and the style is not correct.
 
 <div class="imgcap">
 <img src="/assets/dl/gaa2.png" style="border:none; width:50%;">
@@ -100,21 +100,21 @@ We decide to test it with some of our training samples. It is less impressive. F
 <img src="/assets/dl/gaa3.png" style="border:none; width:50%;">
 </div>
 
-Since we trained our model for a while, we knew what drawings will perform badly. As expected, it has hard time for drawings with entangled structures.
+Since we trained our model for a while, we knew what drawings will perform badly. As expected, it has a hard time for drawings with entangled structures.
 
 <div class="imgcap">
 <img src="/assets/dl/gaa4.png" style="border:none; width:50%;">
 </div>
   
-This illustrates a very important point: choose your dataset well. As a product offering, PaintsChainer makes a smart move on focusing the type of scratches that they excel. To proof that, I use a clean lineart picked from the internet. The result is impressive again.
+This illustrates a very important point: choose your dataset well. As a product offering, PaintsChainer makes a smart move on focusing the type of scratches that they excel. To proof that I use a clean line-art picked from the internet. The result is impressive again.
 
 <div class="imgcap">
 <img src="/assets/dl/gaag.png" style="border:none; width:50%;">
 </div>
 
-There are a few lessons learned here. There is no bad data, just the data is not solving your needs. Focus on what your product wants to offer. As samples' categories increased, it is much harder to train and to maintain output quality. Many Anime drawings are well tagged. Crawl the web site and store the samples under different categories. Train with one category before expanding them for what the model can handle. For example, start the training with Anime portraits first. If your samples are not tagged, use a DN classifier. If the Anime needs to categorize in finder details, for example hair color, use tool like Illustration2Vec to estimate tags by extracting semantic feature vectors. 
+There are a few lessons learned here. There is no bad data, just the data is not solving your needs. Focus on what your product wants to offer. As samples' categories increased, it is much harder to train and to maintain output quality. Many Anime drawings are well tagged. Crawl the website and store the samples under different categories. Train with one category before expanding them for what the model can handle. For example, start the training with Anime portraits first. If your samples are not tagged, use a DN classifier. If the Anime needs to categorize in finer details, for example, hair color, use tool like Illustration2Vec to estimate tags by extracting semantic feature vectors. 
  
-Verify the quality of the data and the accuracy of the labels. Before crawling data, look for any other possible web sites. Even some web sites are popular for mining deep learning samples, a better source of samples can put your over others. Filter out weird samples or samples that out of the scope. In early development, we realize some drawings are too entangled. Without significant increasing the model capacity, those drawings produce little values in training and better be left off. It just makes the training much inefficient.
+Verify the quality of the data and the accuracy of the labels. Before crawling data, look for any other possible websites. Even some websites are popular for mining deep learning samples, a better source of samples can put you over others. Filter out weird samples or samples that out of the scope. In early development, we realize some drawings are too entangled. Without significantly increasing the model capacity, those drawings produce little values in training and better be left off. It just makes the training much inefficient.
 
 >  Trimming dataset can be beneficial. It will result in a more focused model for your purposes.
 
@@ -124,13 +124,13 @@ For classification problem, verify the amount of samples for each class is relat
 
 #### Simple and smart
 
-Start your design simple and small. In the study phase, people are flooded with many cool ideas. We tend to code all the bots and nuts in one shoot. This will not work. Try to beat the state-of-the-art too early is not practical. Ironically, try to beat the odd of random guessing first. Design with few layers and less customizations first. Avoid solutions that require un-necessary hyperparameters tuning at the early phase. Verify the loss is dropping and check whether the model shows signs of "intelligence". Do not waste time training the model with too many iterations or too large batch size. After a short debugging, our model produces pretty un-impressive results after 5000 iterations. But colors start confined to regions. There is hope that skin tone is showing up. 
+Start your design simple and small. In the study phase, people are flooded with many cool ideas. We tend to code all the bots and nuts in one shoot. This will not work. Try to beat the state-of-the-art too early is not practical. Ironically, trying to beat the odds of random guessing first. Design with fewer layers and customizations first. Avoid solutions that require un-necessary hyperparameters tuning at the early phase. Verify the loss is dropping and check whether the model shows signs of "intelligence". Do not waste time training the model with too many iterations or too large batch size. After a short debugging, our model produces pretty un-impressive results after 5000 iterations. But colors start confined to regions. There is hope that skin tone is showing up. 
 
 <div class="imgcap">
 <img src="/assets/dl/gaaw.jpg" style="border:none; width:40%;">
 </div>
 
-This gives us valuable feedbacks on whether the model starts coloring. Do not start with something big. You will spend most of your time debugging this or wondering do we just need another hour to train the model.
+This gives us valuable feedback on whether the model starts coloring. Do not start with something big. You will spend most of your time debugging this or wondering do we just need another hour to train the model.
 
 <div class="imgcap">
 <img src="/assets/dl/gaan.jpg" style="border:none; width:40%;">
@@ -140,17 +140,17 @@ Nevertheless, this is easier to say than doing it. We jump steps. But you are wa
 
 #### Priority & incremental driven design
 
-To create simple designs first, we need to sort out the top priorities. For a complex problem, we may break in down into smaller problems and solve them in steps. Our first design involves convolutions, transposed convolutions and a discriminative network. This may be too complex as a first design. But since we already fully test our public code, it is still manageable. To maximize the chance of success, we analyse what is our top issue. GAN is hard to train. From our previous experience, we know the gradient diminishing problem will be an issue for us. So we research a couple skip connections to mitigate the problem. 
+To create simple designs first, we need to sort out the top priorities. For a complex problem, we may break in down into smaller problems and solve them in steps. Our first design involves convolutions, transposed convolutions, and a discriminative network. This may be too complex as a first design. But since we already fully test our public code, it is still manageable. To maximize the chance of success, we analyze what is our top issue. GAN is hard to train. From our previous experience, we know the gradient diminishing problem will be an issue for us. So we research a couple skip connections to mitigate the problem. 
 
-Everyone has a plan 'till they get punched in the mouth. (Mike Tyson) The right strategy in a DL project is to maneuver quickly from what you see. Before jumping to a model using no hints, we start with one with spatial color hints. We do not move to a "no hint" design in one step. We first move to a model with color hints but dropping the hints' spatial information. The color quality drops significantly. We know our priority is shifted. We refine our deep learning (DN) model first before making the next big jump. Instead of making a long term plan that keeps changing, adopt a shorter lean process driven by priorities. Model changes usually have many surprises, bugs and new issues. Use shorter and smaller design iterations to make it manageable.
+Everyone has a plan 'till they get punched in the mouth. (Mike Tyson) The right strategy in a DL project is to maneuver quickly from what you see. Before jumping to a model using no hints, we start with one with spatial color hints. We do not move to a "no hint" design in one step. We first move to a model with color hints but dropping the hints' spatial information. The color quality drops significantly. We know our priority is shifted. We refine our deep learning (DN) model first before making the next big jump. Instead of making a long-term plan that keeps changing, adopt a shorter lean process driven by priorities. Model changes usually have many surprises, bugs and new issues. Use shorter and smaller design iterations to make it manageable.
 
 #### Transfer learning with pre-trained models
 
-Training from scratch takes a long time. As stated from the VGG paper in 2014: the VGG model was originally trained with four NVIDIA Titan Black GPUs, training a single net took 2–3 weeks depending on the architecture. Training a complex CNN model like VGG19 on a small dataset will overfit the model. We can implement a much smaller capacity model to improve generalization. For other problem, accuracy strongly depends on how well the CNN extracts latent factors. Training from scratch is not practical. Instead, we fine tune pre-trained model like VGG19 or ResNet using our sample data. We can repurpose the network in shorter time. Usually, the first few convolution layers perform common tasks like detecting edges and color. We can freeze those layers from updates. We can have further speedup the training at the cost of accuracy if we only retrain the last few fully connected layers. Because we start with pretty good model parameters, we often use smaller learning rate to retrain the mode. Pre-trained models can be used across multiple disciplines. Indeed, we can model the Chinese language with a pre-trained English model.
+Training from scratch takes a long time. As stated from the VGG paper in 2014: the VGG model was originally trained with four NVIDIA Titan Black GPUs, training a single net took 2–3 weeks depending on the architecture. Training a complex CNN model like VGG19 on a small dataset will overfit the model. We can implement a much smaller capacity model to improve generalization. For other problem, accuracy strongly depends on how well the CNN extracts latent factors. Training from scratch is not practical. Instead, we fine-tune pre-trained model like VGG19 or ResNet using our sample data. We can repurpose the network in shorter time. Usually, the first few convolution layers perform common tasks like detecting edges and color. We can freeze those layers from updates. We can have further speed up the training at the cost of accuracy if we only retrain the last few fully connected layers. Because we start with pretty good model parameters, we often use smaller learning rate to retrain the model. Pre-trained models can be used across multiple disciplines. Indeed, we can model the Chinese language with a pre-trained English model.
 
 #### Constraints 
 
-From the Boltzmann machine to the Restricted Boltzmann machine, we apply constraints to the network design to make training more effective. In CNN, nodes are only connected to their neighbors in the previous layer. For Variational Autoencoders, the latent factors are suppose to be Normal distributed. In Batch normalization, the node output is normalized. Building deep learning is not only putting layers together. Adding good constraints make learning more efficient or more "intelligent". In our first design, we apply denoising to restrict the amount of information that the spatial color hints may provide. We purposely soften those hints or corrupt it by zeroing a large fraction of hints. Ironically, it generalizes the model better and less sensitive to variants.
+From the Boltzmann machine to the Restricted Boltzmann machine, we apply constraints to the network design to make training more effective. In CNN, nodes are only connected to their neighbors in the previous layer. For Variational Autoencoders, the latent factors are supposed to be Normal distributed. In Batch normalization, the node output is normalized. Building deep learning is not only putting layers together. Adding good constraints make learning more efficient or more "intelligent". In our first design, we apply denoising to restrict the amount of information that the spatial color hints may provide. We purposely soften those hints or corrupt it by zeroing a large fraction of hints. Ironically, it generalizes the model better and less sensitive to variants.
 
 >  DL is more than adding layers.
 
@@ -169,29 +169,29 @@ Not all cost functions are created equally. It impacts how easy to train the mod
 | Word embedding | Noise Contrastive Estimation (NCE) |
 | Word vectors | Cosine similarity |
 
-Cost functions looking good in the theoretical analysis may not perform well in practice. For example, the cost function for the discriminator network in GAN adopts a more practical and empirical approach than the theoretical one. In some problem domains, the cost functions can be part guessing and part experimental. It can be a combinations of a few cost functions. In our project, we start with the standard GAN cost functions. We also add a reconstruction cost using MSE and other regularization costs. However, our brain does not judge styling by MSE. One of the un-resolved areas in our project is to finding a better reconstruction cost function. We believe it will have significant impact on the color fidelity.
+Cost functions looking good in the theoretical analysis may not perform well in practice. For example, the cost function for the discriminator network in GAN adopts a more practical and empirical approach than the theoretical one. In some problem domains, the cost functions can be part guessing and part experimental. It can be a combination of a few cost functions. In our project, we start with the standard GAN cost functions. We also add a reconstruction cost using MSE and other regularization costs. However, our brain does not judge styling by MSE. One of the unresolved areas in our project is to find a better reconstruction cost function. We believe it will have a significant impact on the color fidelity.
 
 > Finding good cost functions becomes more important when we move into less familiar problem domains.
 
-Good metrics help you to compare and tune models better. Search for established metrics for your type of problem. Unfortunately, for our project, it is very hard to define a precise accuracy formula for artistics rendering.
+Good metrics help you to compare and tune models better. Search for established metrics for your type of problem. Unfortunately, for our project, it is very hard to define a precise accuracy formula for artistic rendering.
 
 #### Regularization
 
 > L1 and L2 regularization are both common but L2 regularization is more popular in DL. 
 
-L1 regularization promotes sparsity in parameters. Sparsity courage representations that disentangle the underlying representation. Since each non-zero parameter adds penalty to the cost, it prefers more zero parameters. i.e. it prefers many zero and a slightly larger parameter than many tiny parameters like L2. L1 regularization makes filters cleaner and therefore easier to interpret. Since one way to train larger models for less computation and energy is to introduce sparsity, L1 is more suitable for mobile device. L1 is also less vulnerable to outliners and works better if the data is less clean. L2 regularization can be used for feature selection.
+L1 regularization promotes sparsity in parameters. Sparsity courage representations that disentangle the underlying representation. Since each non-zero parameter adds a penalty to the cost, it prefers more zero parameters. i.e. it prefers many zero and a slightly larger parameter than many tiny parameters like L2. L1 regularization makes filters cleaner and therefore easier to interpret. Since one way to train larger models for less computation and energy is to introduce sparsity, L1 is more suitable for the mobile device. L1 is also less vulnerable to outliners and works better if the data is less clean. L2 regularization can be used for feature selection.
 
-Dropout can be applied to the fully connected layers as another regularization technique. Like many advance techniques, the benefit of combining dropout with L2 regularization can be domain specific. Usually we apply those techniques in fine tuning and only the collected empirical data can verify whether it is beneficial. Generally, use a dropout value between 20% and 50% of nodes. Dropouts make noticeable difference for a bigger network.
+Dropout can be applied to the fully connected layers as another regularization technique. Like many advanced techniques, the benefit of combining dropout with L2 regularization can be domain specific. Usually, we apply those techniques in fine-tuning and only the collected empirical data can verify whether it is beneficial. Generally, use a dropout value between 20% and 50% of nodes. Dropouts make a noticeable difference for a bigger network.
 
 #### Gradient descent
 
-Always monitor gradient closely for diminishing or exploding gradients.  Gradient descent problems have many possible causes which are very hard to verify. Do not jump into the learning rate tuning or model design changes too quickly. In early debugging, the small gradients may simply cause by programming bugs. For example, the input data is not scaled properly, or the weights are all initialized to zero. Tuning takes time. It will have better returns if we have verify other causes that is easier to check or more likely to be happened in early development.
+Always monitor gradient closely for diminishing or exploding gradients.  Gradient descent problems have many possible causes which are very hard to verify. Do not jump into the learning rate tuning or model design changes too quickly. In early debugging, the small gradients may simply cause by programming bugs. For example, the input data is not scaled properly, or the weights are all initialized to zero. Tuning takes time. It will have better returns if we have verified other causes that is easier to check or more likely to happen in early development.
 
-If other possible causes are eliminated, apply gradient clipping (in particular for NLP) when gradient explode. Skip connections are common technique to mitigate gradient diminishing problem. In ResNet, a residual layer allows the input to be bypassing the current block directly to the next block. Effectively, it reduces the depth of the network in early training to make training easier.
+If other possible causes are eliminated, apply gradient clipping (in particular for NLP) when gradient explode. Skip connections are a common technique to mitigate gradient diminishing problem. In ResNet, a residual layer allows the input to be bypassing the current block directly to the next block. Effectively, it reduces the depth of the network in early training to make training easier.
 
 #### Activation functions
 
-In DL, ReLU is the most popular activation function to introduce non-linearity to the model. If the learning rate is too high, many node can be dead and stay dead. If changing the learning rate does not help, we can try leaky ReLU or PReLU.  In a leaky ReLU, instead of outputting zero when $$x < 0$$, it has a small predefined downward slope (say 0.01 or set by a hyperparameter). Parameter ReLU (PReLU) pushes a step further. Each node will have a trainable slope.
+In DL, ReLU is the most popular activation function to introduce non-linearity to the model. If the learning rate is too high, many nodes can be dead and stay dead. If changing the learning rate does not help, we can try leaky ReLU or PReLU.  In a leaky ReLU, instead of outputting zero when $$x < 0$$, it has a small predefined downward slope (say 0.01 or set by a hyperparameter). Parameter ReLU (PReLU) pushes a step further. Each node will have a trainable slope.
 
 #### Scaling
 
@@ -201,7 +201,7 @@ We often scale input features using a mean and a variance computed from the trai
 
 Apply batch normalization (BN) to CNN. DN learns faster and better if inputs are properly normalized. In BN, we compute the means and the variances for each location from each batch of training data. For example, with a batch size of 16 and a feature map of 10x10 spatial dimension, we compute 100 means and 100 variances (one per location). The mean at each location is the average of the corresponding locations from the 16 samples. We use the means and the variance to renormalize the node output at each location. BN improves accuracy and reduces training time. As a side bonus, we can increase the learning rate further to make training faster.
 
-However, BN is not effective for RNN. We use Layer normalization instead. In RNN, the means and variances from the BN are not suitable to renormalize the output of RNN cells. It is likely because of the recurrent nature of the RNN and the sharing parameters. In Layer normalization, the output is renormalize by the mean and the variance calculated by the layer's output of the current sample. A 100 elements layer have only one mean and one variance from the current sample.
+However, BN is not effective for RNN. We use Layer normalization instead. In RNN, the means and variances from the BN are not suitable to renormalize the output of RNN cells. It is likely because of the recurrent nature of the RNN and the sharing parameters. In Layer normalization, the output is renormalized by the mean and the variance calculated by the layer's output of the current sample. A 100 elements layer has only one mean and one variance from the current sample.
 
 #### Baseline 
 
@@ -214,37 +214,37 @@ We save models' output and metrics periodically for comparison. Sometimes, we wa
 
 #### Split dataset
 
-To test the real performance, we split our data into three parts: 70% for training, 20% for validation and 10% for testing. Make sure samples are randomized probably in each dataset and each batch of training samples. During training, we use the training dataset to build models with different hyperparameters. We run those models with the validation dataset and pick the one with the highest accuracy. This strategy works if the validation dataset is similar to what we want to predict. But, as a last safeguard, we use the 10% testing data for a final insanity check. This testing data is for a final verification, but not for model selection. If your testing result is dramatically different from the validation result, the data should be randomized more, or more data should be collected.
+To test the real performance, we split our data into three parts: 70% for training, 20% for validation and 10% for testing. Make sure samples are randomized probably in each dataset and each batch of training samples. During training, we use the training dataset to build models with different hyperparameters. We run those models with the validation dataset and pick the one with the highest accuracy. This strategy works if the validation dataset is similar to what we want to predict. But, as the last safeguard, we use the 10% testing data for a final insanity check. This testing data is for a final verification, but not for model selection. If your testing result is dramatically different from the validation result, the data should be randomized more, or more data should be collected.
 
 #### DL framework
 
-In just six months after the release of TensorFlow from Google in Nov 2015, it became the most popular deep learning framework. While it seems implausible for any challengers soon, PyTorch was released by Facebook a year later and get a lot of traction from the research community. As of 2018, there are many choices of deep learning platform including TensorFlow, PyTorch, Caffe, Caffe2, MXNet, CNTK etc ... In TensorFlow, you build a computation graph and submit it to a session later for computation. In PyTorch, every computation is executed immediately. TensorFlow's approach creates a black box that makes debugging in-convenient. That is why tf.print become so dominant in debugging TensorFlow. The TensorFlow approach should be easier to optimize but yet we have not seen the speedup as it may indicates. Nevertheless, the competition is so fierce that any feature comparison will be obsolete in months. For example, Google already released an alpha version of eager execution in v1.5 to address this issue. But there is one key factor triggers the defection of some researchers to PyTorch. PyTorch design is end user focus. The API is simple and intuitive. The error messages make sense and the documentation is well organized. The pre-trained model and data pre-processing in PyTorch is very popular. TensorFlow does a great job in matching features. But so far, it adopts a bottom-up approach that make things un-necessary complex. It may provide flexibility but many of them is rarely used. The design thinking in TensorFlow can be chaotic. For example, it has about half a dozen set of APIs to build models: result of many consolidations and matching competitor offerings.
+In just six months after the release of TensorFlow from Google on Nov 2015, it became the most popular deep learning framework. While it seems implausible for any challengers soon, PyTorch was released by Facebook a year later and get a lot of traction from the research community. As of 2018, there are many choices of deep learning platform including TensorFlow, PyTorch, Caffe, Caffe2, MXNet, CNTK etc ... In TensorFlow, you build a computation graph and submit it to a session later for computation. In PyTorch, every computation is executed immediately. TensorFlow's approach creates a black box that makes debugging in-convenient. That is why tf.print become so dominant in debugging TensorFlow. The TensorFlow approach should be easier to optimize but yet we have not seen the speed up as it may indicate. Nevertheless, the competition is so fierce that any feature comparison will be obsolete in months. For example, Google already released an alpha version of eager execution in v1.5 to address this issue. But there is one key factor triggers the defection of some researchers to PyTorch. The PyTorch design is end-user focused. The API is simple and intuitive. The error messages make sense and the documentation is well organized. The pre-trained model and data pre-processing in PyTorch are very popular. TensorFlow does a great job in matching features. But so far, it adopts a bottom-up approach that makes things un-necessary complex. It may provide flexibility but many of them are rarely used. The design thinking in TensorFlow can be chaotic. For example, it has about half a dozen set of APIs to build models: the result of many consolidations and matching competitor offerings.
 
-By no mistakes, TensorFlow is still dominating as of Feb 2018. The developer community is still much bigger. This may be the only factor matters. If you want to train the model with hundred machines or deploy the inference engine onto a mobile phone, TensorFlow is the only choice. Nevertheless, if other platforms prove themselves to provide what end user needs, we will foresee more deflection for small to mid size projects.
+Make no mistakes, TensorFlow is still dominating as of Feb 2018. The developer community is still much bigger. This may be the only factor matters. If you want to train the model with hundred machines or deploy the inference engine onto a mobile phone, TensorFlow is the only choice. Nevertheless, if other platforms prove themselves to provide what end-user needs, we will foresee more deflection for small to mid-size projects.
 
 
 #### Custom layers
 
 Built-in layers from DL software packages are better tested and optimized. Nevertheless, if custom layers are needed:
 
-* Unit test the forward pass and back propagation code.
+* Unit test the forward pass and backpropagation code.
 * At the beginning, test with non-random data.
 * Compare the backpropagation result with the naive gradient check.
-* Add tiny ϵ for divison or log computation to avoid NaN.
+* Add tiny ϵ for the division or log computation to avoid NaN.
 
 #### Randomization
 
-One of the challenge in DL is reproducibility.
+One of the challenges in DL is reproducibility.
 
 During debugging, if the input or the initial model parameters are changed from the last session, we need to recompute what the result should be. Hence, we explicitly initialize the seed of the randomizer. We often use more than one randomizer. In our project, we initialize the seeds for python, the NumPy and the TensorFlow.
 
-For final tuning, we may want to turn off those explicitly seed initialization so we can explore different models for each run. To reproduce the result of a model, we need need to save (checkpoint) a model and reload the model later.
+For final tuning, we may want to turn off those explicit seed initialization so we can explore different models for each run. To reproduce the result of a model, we need need to save (checkpoint) a model and reload the model later.
 
 ### Optimizer
 
-Adam optimizer is one of the most popular optimizer in DL, if not the most popular. It suites for many problems including models with sparse or noisy gradients. It achieves good results fast with the greatest benefit of easy to tune. Default configuration parameters often do well.
+Adam optimizer is one of the most popular optimizers in DL, if not the most popular. It suits many problems including models with sparse or noisy gradients. It achieves good results fast with the greatest benefit of easy to tune. Default configuration parameters often do well.
 
-It combines the advantages of AdaGrad and RMSProp. Instead of one single learning rate for all parameters, Adam internally maintains a learning rate for each parameter and separately adapted them as learning unfolds. Adam is momentum based with a running record of the gradients. Therefore, the gradient descent runs smoother and it dampens the parameter oscillation problem due to large gradient and learning rate.
+It combines the advantages of AdaGrad and RMSProp. Instead of one single learning rate for all parameters, Adam internally maintains a learning rate for each parameter and separately adapted them as learning unfolds. Adam is momentum based using a running record of the gradients. Therefore, the gradient descent runs smoother and it dampens the parameter oscillation problem due to large gradient and learning rate.
 
 A less popular option is the SGD using Nesterov Momentum.
 
@@ -255,9 +255,9 @@ Adam has 4 configurable parameters.
 * The learning rate (default 0.001)
 * $$\beta_1$$ is the exponential decay rate for the first moment estimates (default 0.9). 
 * $$\beta_2$$ is the exponential decay rate for the second-moment estimates (default 0.999). This value should be set close to 1.0 on problems with a sparse gradient. 
-* $$\epsilon$$ (default $$1e^{-8}$$) is a small value add to mathematical operation to avoid illegal operations like divide by zero. However, in the TensorFlow documentation, it states "The default value of 1e-8 for epsilon might not be a good default in general. For example, when training an Inception network on ImageNet a current good choice is 1.0 or 0.1."
+* $$\epsilon$$ (default $$1e^{-8}$$) is a small value added to the mathematical operation to avoid illegal operations like divide by zero. However, in the TensorFlow documentation, it states "The default value of 1e-8 for epsilon might not be a good default in general. For example, when training an Inception network on ImageNet a current good choice is 1.0 or 0.1."
 
-β temporally smooth out the stochastic gradient descent by accumulate information on previous descent to smooth the changes by the current data sample. 
+β temporally smooth out the stochastic gradient descent by accumulate information on the previous descent to smooth the changes by the current data sample. 
 
 The default configuration, including $$\epsilon$$, works well for early development usually. The most likely tunned parameter is the learning rate. 
 
