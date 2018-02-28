@@ -1,6 +1,6 @@
 ---
 layout: post
-comments: false
+comments: true
 mathjax: true
 priority: 840
 title: “TensorFlow with multiple GPUs”
