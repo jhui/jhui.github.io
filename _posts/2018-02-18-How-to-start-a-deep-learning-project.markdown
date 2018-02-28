@@ -265,9 +265,9 @@ The default configuration, including $$\epsilon$$, works well for early developm
 
 ### Instrumentation
 
-> Never shot in the dark. Make educated guess.
+> Never shot in the dark. Make an educated guess.
 
-We fall into the hype of DL by exaggerating how easy it is by counting the lines of code. This is deceptive because tracing DL problems are extremely hard. It is important to track every move and to examine results at each step. We often ignore the instrumentation needs and end up trouble shooting problems in the dark. Nevertheless, with the help of pre-built package, integrating instrumentation code is not hard and the rewards are almost instantaneously. 
+We fall into the hype of DL by exaggerating how easy it is by counting the lines of code. This is deceptive because tracing DL problems are extremely hard. It is important to track every move and to examine results at each step. We often ignore the instrumentation needs and end up troubleshooting problems in the dark. Nevertheless, with the help of pre-built package, integrating instrumentation code is not hard and the rewards are almost instantaneously. 
 
 #### Data visualization (input, output)
 
@@ -293,13 +293,13 @@ We also save the model's output regularly for verification and future reference.
 
 #### Metrics (Loss & accuracy)
 
-Beside displaying the loss and the accuracy to the stdout regularly, we record and plot them to analysis its long term trend. The diagram below is the accuracy and the cross entropy loss displayed by the TensorBoard. 
+Besides displaying the loss and the accuracy to the stdout regularly, we record and plot them to analysis its long-term trend. The diagram below is the accuracy and the cross entropy loss displayed by the TensorBoard. 
 
 <div class="imgcap">
 <img src="/assets/dl/mm1.png" style="border:none; width:80%;">
 </div>
 
-Plotting the cost helps us to tune the learning rate. Any prolonged jump of cost indicate the learning rate is too high. As indicated below, if it is too low, we learn slowly. If it is too high, we cannot reach the lowest cost.
+Plotting the cost helps us to tune the learning rate. Any prolonged jump in cost indicates the learning rate is too high. As indicated below, if it is too low, we learn slowly. If it is too high, we cannot reach the lowest cost.
 
 <div class="imgcap">
 <img src="/assets/dl/mont1.png" style="border:none; width:50%;">
@@ -313,7 +313,7 @@ Here is another real example when the learning rate is too high.
 
 (Image source Emil Wallner)
 
-Below we monitor the accuracy. If there a major difference between the validation accuracy and the training accuracy, we know the model is overfit. We can increase the regularization factor to reduce overfit. We can use this technique to verify the coding in computing regularization.
+Below we monitor the accuracy. If there a major difference between the validation accuracy and the training accuracy, we know the model is overfitting. We can increase the regularization factor to reduce overfitting. We can use this technique to verify the coding in computing regularization.
 
 <div class="imgcap">
 <img src="/assets/dl/mont2.png" style="border:none; width:50%;">
@@ -321,7 +321,7 @@ Below we monitor the accuracy. If there a major difference between the validatio
 
 #### History summary 
 
-**Weight & bias**: We want to monitor the weights and the biases closely. Here is the Layer 1's weights and biases distributions at different training iterations. Seeing large (postive or negative) weights or bias are abnormal. A Normal distribution for weight is a good sign that the training is going well (but not absolutely necessary).
+**Weight & bias**: We want to monitor the weights and the biases closely. Here are the Layer 1's weights and biases distributions at different training iterations. Seeing large (positive or negative) weights or bias are abnormal. A Normal distribution for weight is a good sign that the training is going well (but not absolutely necessary).
 
 <div class="imgcap">
 <img src="/assets/dl/lss1.png" style="border:none; width:100%;">
@@ -331,27 +331,27 @@ Below we monitor the accuracy. If there a major difference between the validatio
 <img src="/assets/dl/actt.png" style="border:none; width:90%;">
 </div>
 
-**Gradients**: Monitor gradients at different layers are important in identifying one of the most serious problem in DL: gradient diminishing or exploding problems. If gradient diminish quickly from the right most layers to the left most layers, we have a gradient diminishing problem.
+**Gradients**: Monitor gradients at different layers are important in identifying one of the most serious problems in DL: gradient diminishing or exploding problems. If gradient diminishes quickly from the rightmost layers to the leftmost layers, we have a gradient diminishing problem.
 
 <div class="imgcap">
 <img src="/assets/dl/lgrad.png" style="border:none; width:50%;">
 </div>
 
-Even not common done, we can visualize the filters $$W$$s for CNN in the first couple layers. This helps us to identify what type of features that the model is extracting. The first layer should extract simple structures like edge and color.
+Even not commonly done, we can visualize the filters $$W$$s for CNN in the first couple layers. This helps us to identify what type of features that the model is extracting. The first layer should extract simple structures like edge and color.
 
 <div class="imgcap">
 <img src="/assets/cnn/cnnfilter.png" style="border:none; width:50%;">
 </div>
 
-**Activation**: For gradient descent to perform the best, the nodes' outputs before the activation function should be normal distributed. For example, we should apply a batch normalization to correct the non-zero centered pre-activation output below. The right side plot is the activation output of a ReLU function. It will be bad if there are too many dead or highly activated nodes. 
+**Activation**: For gradient descent to perform the best, the nodes' outputs before the activation function should be Normal distributed. For example, we should apply a batch normalization to correct the non-zero centered pre-activation output below. The right side plot is the activation output of a ReLU function. It will be bad if there are too many dead or highly activated nodes. 
 
-For CNN based networks, we can visualize what a feature map is learning. In the following picture, it captures the top 9 pictures (right picture) having the highest activation in a particular map. It aslo applies a deconvolution network to reconstruct the spatial image (left picture) from the feature map.
+For CNN based networks, we can visualize what a feature map is learning. In the following picture, it captures the top 9 pictures (right picture) having the highest activation in a particular map. It also applies a deconvolution network to reconstruct the spatial image (left picture) from the feature map.
 
 <div class="imgcap">
 <img src="/assets/dl/viss.png" style="border:none; width:50%;">
 </div>
 
-(Source from Visualizing and Understanding Convolutional Networks, Matthew D Zeiler et al.)
+(Source: Visualizing and Understanding Convolutional Networks, Matthew D Zeiler et al.)
 
 The image reconstruction is rarely done. But in a generative model, we often vary just one factor while holding other constant to verify whether the model is learning anything smart. 
 
@@ -374,13 +374,13 @@ In the early development, we are fighting multiple battles at the same time. Imp
 * Scale your input data but no un-necessary pre-processing.
 * Don't waste time in long training iterations or large batch size.
 
-Overfitting the model with a small amount of training data is the best way for debugging. If loss does not drop within a few thousand iterations, debug the code further. Achieve your first milestone by beating the odd of guessing. Then make incremental modifications to the model: add more layers and customization. Train it with the full training dataset. Add regularization to control the overfit by monitor the accuracy gap between the training and validation dataset. 
+Overfitting the model with a small amount of training data is the best way for debugging. If the loss does not drop within a few thousand iterations, debug the code further. Achieve your first milestone by beating the odds of guessing. Then make incremental modifications to the model: add more layers and customization. Train it with the full training dataset. Add regularization to control the overfit by monitor the accuracy gap between the training and validation dataset. 
 
 > If stuck, take out all bells and whistles and make your problem smaller.
 
 #### Initial hyperparameters
 
-Many hyperparameters are not relevant until model optimization. Turn them off or use default values. Use Adam optimizer. It is fast, efficient and the default learning rate does well. Early problems are mostly from bugs rather from the model design or tuning problems. Go through the checklist in the next section before any tunings. It is more common and easier to verify. If loss still does not drop, tune the learning rate. If the loss drops too slow, increase the learning rate by 10. If the loss goes up or the gradient explodes, decrease the learning rate by 10. Repeat the process until the loss drop gradually and nicely. Typical learning rates are between 1 and $$1e^{-7}$$.
+Many hyperparameters are not relevant to model optimization. Turn them off or use default values. Use Adam optimizer. It is fast, efficient and the default learning rate does well. Early problems are mostly from bugs rather from the model design or tuning problems. Go through the checklist in the next section before any tunings. It is more common and easier to verify. If loss still does not drop, tune the learning rate. If the loss drops too slow, increase the learning rate by 10. If the loss goes up or the gradient explodes, decrease the learning rate by 10. Repeat the process until the loss drops gradually and nicely. Typical learning rates are between 1 and $$1e^{-7}$$.
 
 <div class="imgcap">
 <img src="/assets/dl/mont1.png" style="border:none; width:40%;">
@@ -394,7 +394,7 @@ Data:
 * Verify the accuracy of the input labels (with or without data shuffle).
 * Do not feed the same batch of data over and over.
 * Scale your input properly (likely between -1 and 1 and zero centered). 
-* Verify the range of your output (e.g. beween -1 and 1).
+* Verify the range of your output (e.g. between -1 and 1).
 * Always use the mean/variance from the training dataset to rescale the validation/testing dataset.
 * All input data to the model has the same dimensions.
 * Access the overall quality of the dataset. (Are there too many outliners or bad samples?)
@@ -402,7 +402,7 @@ Data:
 Model:
 
 * The model parameters are initialized correctly. The weights are not set to all 0.
-* Debug layers that the activations or gradients diminish/explode. (from right most to left most layers)
+* Debug layers that the activations or gradients diminish/explode. (from rightmost to leftmost layers)
 * Debug layers that weights are mostly zero or too large.
 * Verify and test your loss function.
 * For pre-trained model, your input data range matches the range used in the model.
@@ -412,7 +412,7 @@ Weight should be initialized with Gaussian distribution with $$\mu =0$$ and $$\s
 
 #### Analysis errors
 
-Your design iterations need constant review of what is doing badly (errors) and improve it. Visualize your errors. In our project, the model performs badly for images with highly entangled structure. Identify the model weakness to make changes. For example, add more convolution layers with smaller filters to disentangle small features. Augment data if necessary, or collect more similar samples to train the model better. In some situtation, you may want to remove those samples and constraint yourself to a more focus model.
+Your design iterations need a constant review of what is doing badly (errors) and improve it. Visualize your errors. In our project, the model performs badly for images with highly entangled structure. Identify the model weakness to make changes. For example, add more convolution layers with smaller filters to disentangle small features. Augment data if necessary, or collect more similar samples to train the model better. In some situations, you may want to remove those samples and constrain yourself to a more focus model.
 
 <div class="imgcap">
 <img src="/assets/dl/badd.jpg" style="border:none; width:50%;">
@@ -422,9 +422,9 @@ Your design iterations need constant review of what is doing badly (errors) and 
 
 > Turn off regularization until the model code makes reasonable predictions for the training data.
 
-Once the model code is working, the next tuning parameters are the regularization factors. We increase the regularizations to narrow the gap between the validation and training accuracy. Do not overdo it as we often want a slightly overfit model to work with. Monitor both data and regularization cost closely, regularization loss should not dominate the data loss over prolonged periods. If we significant increase the regularization rate but yet the gap does not narrow, we need to debug the regularization code or use a different type of regularization. 
+Once the model code is working, the next tuning parameters are the regularization factors. We increase the regularizations to narrow the gap between the validation and training accuracy. Do not overdo it as we often want a slightly overfit model to work with. Monitor both data and regularization cost closely, regularization loss should not dominate the data loss over prolonged periods. If we significantly increase the regularization rate but yet the gap does not narrow, we need to debug the regularization code or use a different type of regularization. 
 
-We start with the most important regularization factor. We increase the volume of our training data and then increase the regularizations to narrow the gap. Similar to the learning rate, we change testing values in the logarithmic scale. (for example, change by a factor of 10 at the beginning) After this is done, we move onto the next regularization factor. Beware that each regularization factor can be in a total different order of magnitude.
+We start with the most important regularization factor. We increase the volume of our training data and then increase the regularizations to narrow the gap. Similar to the learning rate, we change testing values in the logarithmic scale. (for example, change by a factor of 10 at the beginning) After this is done, we move onto the next regularization factor. Beware that each regularization factor can be in a totally different order of magnitude.
 
 <div class="imgcap">
 <img src="/assets/dl/mont2.png" style="border:none; width:50%;">
@@ -432,7 +432,7 @@ We start with the most important regularization factor. We increase the volume o
 
 #### Multiple cost functions
 
-For the first implementations, avoid using multiple cost functions. If more than one cost functions are used later. Tune their corresponding weights accordingly. Notice that each weight can be in different order of magnitude.
+For the first implementations, avoid using multiple cost functions. If more than one cost functions are used later. Tune their corresponding weights accordingly. Notice that each weight may be in different order of magnitude.
 
 #### Frozen variables
 
@@ -440,7 +440,7 @@ When we use pre-trained models, we may freeze those model parameters in certain 
 
 ### Unit testing the code
 
-As less often talked, we should unit test some core modules so the implementation is less vulnerable to code changes. We can mock the input data with Tensors with fixed values (not random values). For each modules (layers), We can verify 
+As less often talked, we should unit test some core modules so the implementation is less vulnerable to code changes. We can mock the input data with Tensors with fixed values (not random values). For each module (layers), We can verify 
 
 * the shape of the output in both training and inference.
 * the number of trainable variables (not the number of parameters).
