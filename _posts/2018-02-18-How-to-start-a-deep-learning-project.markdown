@@ -432,7 +432,7 @@ We start with the most important regularization factor. We increase the volume o
 
 #### Multiple cost functions
 
-For the first implementations, avoid using multiple cost functions. If more than one cost functions are used later. Tune their corresponding weights accordingly. Notice that each weight may be in different order of magnitude.
+For the first implementations, avoid using multiple cost functions. If more than one cost functions are used later. Tune their corresponding weights accordingly. Notice that each weight may be in a different order of magnitude.
 
 #### Frozen variables
 
