@@ -8,7 +8,7 @@ excerpt: “How to start and finish a Deep Learning project?”
 date: 2018-02-11 14:00:00
 ---
 
-This is an archive for an article I posted on Medium on Deep Learning project. [People interested in the article should read in my Medium blog since it has the updates version.](https://medium.com/@jonathan_hui/how-to-start-a-deep-learning-project-d9e1db90fa72)
+This is an archive for an article I posted on Medium on Deep Learning project. [People interested in the article should read in my Medium blog since it has the latest updated version.](https://medium.com/@jonathan_hui/how-to-start-a-deep-learning-project-d9e1db90fa72)
 
 <div class="imgcap">
 <img src="/assets/dl/gaa0.png" style="border:none; width:80%;">
