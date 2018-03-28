@@ -12,7 +12,7 @@ I am retiring this page now.
 
 * If you are interested in Fast R-CNN, Faster R-CNN & FPN, we have better updated information at [medium.com/@jonathan_hui/what-do-we-learn-from-region-based-object-detectors-faster-r-cnn-r-fcn-fpn-7e354377a7c9].
 
-* If you are interested in single shot object detector like SSD and YOLO, please visit [medium.com/@jonathan_hui/what-do-we-learn-from-single-shot-object-detectors-ssd-yolo-fpn-focal-loss-3888677c5f4d].
+* If you are interested in single shot object detector like SSD and YOLO including YOLOv3, please visit [medium.com/@jonathan_hui/what-do-we-learn-from-single-shot-object-detectors-ssd-yolo-fpn-focal-loss-3888677c5f4d].
 
 
 ### Object detection
