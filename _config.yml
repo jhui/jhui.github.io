@@ -1,7 +1,7 @@
 # Site settings
 title: Jonathan Hui blog
 email: 
-description: “Deep learning”
+description: Deep learning
 baseurl: ""
 url: "https://jhui.github.io"
 github_username:  jhui
