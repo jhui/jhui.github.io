@@ -239,7 +239,7 @@ y_train = [1.5, 3.5, 5.5, 7.5]
 
 with tf.Session() as sess:
     # Retrieve the variable initializer op and initialize variable W & b.
-    sess.run(session.run(tf.global_variables_initializer()))
+    sess.run(tf.global_variables_initializer())
     for i in range(1000):
         sess.run(train, {x:x_train, y:y_train})
         if i%100==0:
