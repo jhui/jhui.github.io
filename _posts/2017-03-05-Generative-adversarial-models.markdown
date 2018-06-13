@@ -349,12 +349,12 @@ $$f$$ be the feature vector of datapoint $$i$$ in the intermediate layer of the 
 
 $$
 \begin{split}
-f(x_i) & ∈ R^A \\
-T & ∈ R^{A×B×C} \\
-M_i & = f(x_i)  T ∈ R^{B×C} \\
-c_b(x_i, x_j ) & = exp(−\| M_{i,b} − M_{j,b} \|_1) ∈ R \\
-o(x_i)_b & = \sum^n_{j=1} c_b(x_i, x_j ) ∈ R^B \\
-o(x_i) & = [ o(x_i)_1, o(x_i)_2, . . . , o(x_i)_B] ∈ R^B \\
+f(x_i) & ∈ \mathbb{R}^A \\
+T & ∈ \mathbb{R}^{A×B×C} \\
+M_i & = f(x_i)  T ∈ \mathbb{R}^{B×C} \\
+c_b(x_i, x_j ) & = exp(−\| M_{i,b} − M_{j,b} \|_1) ∈ \mathbb{R} \\
+o(x_i)_b & = \sum^n_{j=1} c_b(x_i, x_j ) ∈ \mathbb{R} \\
+o(x_i) & = [ o(x_i)_1, o(x_i)_2, . . . , o(x_i)_B] ∈ \mathbb{R}^B \\
 \end{split}
 $$
 

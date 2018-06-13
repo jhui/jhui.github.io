@@ -8,14 +8,17 @@ excerpt: “TensorFlow - Deploy TensorFlow application in AWS EC2 P2 with CUDA &
 date: 2017-09-07 14:00:00
 ---
 
-We deploy our TensorFlow applications to the AWS EC2 with Nvidia GPU(s). In the first half, we use an Amazon Deep Learning AMI which carries extra hourly charge with simply deployment and many other DL software platforms (including TensorFlow). In the second half, we build a TensorFlow platform from Ubuntu.
+
+> This article is written in 2017 which is likely obsolete by now. In particular the Amazon AMI instance is free now. Nevertheless, sometimes building a AMI for your software platform is needed and therefore I will leave this article AS IS. You are warned and please proceded with cares.
+
+We deploy our TensorFlow applications to the AWS EC2 with Nvidia GPU(s). In the first half, we use an Amazon Deep Learning AMI. In the second half, we build a TensorFlow platform from scratch using Ubuntu.
 
 ### EC2 P2 spot instance with Deep Learning AMI 
 Amazon EC2 instances with GPU are expensive. Therefore, we pick the spot instances to reduce the cost. Nevertheless, spot instances can be terminated when your maximum bidding price falls below the current price. To mitigate that, we can create and attach another EBS volume to the instance. This additional volume stores training data, results and checkpoints. When an instance is terminated, we create a new instance and re-attach the EBS volume to the new instance. The training can later be resumed from the checkpoints.
 
 > Different AWS regions have different pricing. Usually N. Virginia, Ohio, Oregon have cheaper price. Terminate the instance when it is not needed.
 
-In this section, we use the Amazon Deep learning AMI. The cheapest instance with a GPU is **p2.xlarge**. Here is the [charge for the AMI and the EC2 spot instance](https://aws.amazon.com/marketplace/pp/B01M0AXXQB). Note that the Deep learning AMI (software pricing) is charged by hour on top of the spot instance charge (infrastructure charge). For a p2.xlarge instance in 2017, the lowest AMI charge is $0.9/hour while the lowest spot instance charge is $0.2/hour.
+The cheapest instance with a GPU is **p2.xlarge**. For a p2.xlarge instance in 2017, the lowest AMI charge is $0.9/hour while the lowest spot instance charge is $0.2/hour.
 
 #### p2.xlarge and Deep Learning AMI
 
@@ -25,7 +28,7 @@ In the AWS console, we create a new p2.xlarge spot instance.
 <img src="/assets/tensorflow/s1.png" style="border:none;width:120%">
 </div>
 
-The pre-built deep learning AMI can be located [**here**]( https://aws.amazon.com/marketplace/search/results?x=12&y=20&searchTerms=Deep+Learning+AMI&page=1&ref_=nav_search_box). To select the AMI, we click on "Select for AMI" and enter the AMI ID found in the link above.
+Then locate the Deep learning AMI.
 
 <div class="imgcap">
 <img src="/assets/tensorflow/s2.png" style="border:none;width:80%">
