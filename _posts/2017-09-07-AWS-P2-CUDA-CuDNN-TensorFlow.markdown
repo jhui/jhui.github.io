@@ -9,7 +9,7 @@ date: 2017-09-07 14:00:00
 ---
 
 
-> This article is written in 2017 which is likely obsolete by now. In particular the Amazon AMI instance is free now. Nevertheless, sometimes building a AMI for your software platform is needed and therefore I will leave this article AS IS. You are warned and please proceded with cares.
+> This article is written in 2017 which is likely obsolete by now. In particular the Amazon AMI instance is free now. Nevertheless, sometimes building a AMI for your software platform is needed and therefore I will leave this article AS IS. You are warned and please proceed with cares.
 
 We deploy our TensorFlow applications to the AWS EC2 with Nvidia GPU(s). In the first half, we use an Amazon Deep Learning AMI. In the second half, we build a TensorFlow platform from scratch using Ubuntu.
 
