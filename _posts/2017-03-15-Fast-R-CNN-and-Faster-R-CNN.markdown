@@ -114,13 +114,8 @@ Here, the R-CNN classifies objects in a picture and produces the corresponding b
 <img src="/assets/rcnn/bound3.png" style="border:none;width:60%">
 </div>
 
-The feature maps in a CNN convolution layer represent spatial features in an image. Why don't we generate the proposals from the feature maps instead? 
 
-<div class="imgcap">
-<img src="/assets/rcnn/st1.png" style="border:none;width:70%">
-</div>
-
-Hence, instead of converting 2,000 regions into the corresponding features maps, we convert the whole image once and generate regional proposals from them.
+Hence, instead of converting 2,000 regions into the corresponding features maps, we convert the whole image once.
 <div class="imgcap">
 <img src="/assets/rcnn/frcnn.png" style="border:none">
 </div>
@@ -156,7 +151,7 @@ We pass it to a fully-connected network, and use a SVM for classification and a 
 
 #### Fast R-CNN
 
-Same as SPPnet, we use the features maps at the CNN layer "conv5" for region proposals. However, instead of generating a pyramid of layers, Fast R-CNN warps ROIs into one single layer using the RoI pooling.
+Instead of generating a pyramid of layers, Fast R-CNN warps ROIs into one single layer using the RoI pooling.
 <div class="imgcap">
 <img src="/assets/rcnn/st2.png" style="border:none;width:70%">
 </div>
