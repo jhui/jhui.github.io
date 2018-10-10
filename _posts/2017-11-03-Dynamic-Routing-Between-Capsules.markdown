@@ -103,7 +103,7 @@ Let's assume $$W_m =2, W_e=3$$, and we calculate a vote from the mouth and the e
 $$
 \begin{split}
 v^{(1)}_m & = W_m \times width_m = 2 \times 100 = 200 \\
-v^{(1)}_e & = W_e \times width_e = 3 \times 65 = 198 \\
+v^{(1)}_e & = W_e \times width_e = 3 \times 66 = 198 \\
 \end{split}
 $$
 
