@@ -146,10 +146,10 @@ The CNN above composes of 3 convolution layer. We start with a 32x32 pixel image
 </div>
 
 ### Fully connected (FC) layers
-After using convolution layers to extract the spatial features of an image, we apply fully connected layers for the final classification. First, we flatten the output of the convolution layers. For example, if the final features maps have a dimension of 4x4x512, we will flatten it to an array of 4096 elements. We apply 2 more hidden layers here before we perform the final classification. The techniques needed are no difference from a FC network in deep learning.
+After using convolution layers to extract the spatial features of an image, we apply fully connected layers for the final classification. First, we flatten the output of the convolution layers. For example, if the final features maps have a dimension of 4x4x512, we will flatten it to an array of 8192 elements. We apply 2 more hidden layers here before we perform the final classification. The techniques needed are no difference from a FC network in deep learning.
 
 <div class="imgcap">
-<img src="/assets/cnn/convolution_b2.png" style="border:none;width:50%">
+<img src="/assets/cnn/convolution_b2.jpg" style="border:none;width:50%">
 </div>
 
 ### Tips
