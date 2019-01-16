@@ -235,8 +235,8 @@ $$
 \begin{bmatrix}
 20 - \lambda & 14 & 0 & 0\\
 14 & 10- \lambda & 0 & 0 \\
-0 & 0 & 0 & 0 \\
-0 & 0 & 0 & 0 \\
+0 & 0 & - \lambda & 0 \\
+0 & 0 & 0 & - \lambda \\
 \end{bmatrix} = 0
 \end{split}
 $$ 
