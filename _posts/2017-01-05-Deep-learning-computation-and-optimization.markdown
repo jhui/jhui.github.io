@@ -66,7 +66,7 @@ $$
 ### Jacobian matrix
 
 $$ 
-f: \mathbb{R}^{m} \rightarrow \mathbb{R}^{n}
+f: \mathbb{R}^{n} \rightarrow \mathbb{R}^{m}
 $$
 
 $$
