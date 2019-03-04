@@ -149,7 +149,7 @@ $$
 \end{split}
 $$
 
-However, multiplications overflow or underflow easily. Since $$\log(x)$$ is monotonic, optimize $$log(f(x))$$ is the same as optimize $$f(x)$$. We add the negative sign because the log of a probability invert the direction of $$p(x)$$. So instead of the MLE, we take the $$\log$$ and minimize the **negative log likelihood (NLL)**. 
+However, multiplications overflow or underflow easily. Since $$\log(x)$$ is monotonic, optimize $$log(f(x))$$ is the same as optimize $$f(x)$$. So instead of the MLE, we take the $$\log$$ and minimize the **negative log likelihood (NLL)**. 
 
 $$
 \begin{split}
