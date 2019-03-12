@@ -392,7 +392,7 @@ $$
 
 #### Negative log likelihood (NNL)
 
-Logarithm is monotonic. Taking the log of a probability function changes the sign and the direction of the function. Hence, to maximize a probability function is the same as minimize the negative log of the function.
+Logarithm is monotonic. Hence, to maximize a probability function is the same as minimize the negative log of the function.
 
 $$
 \arg\max_w P(Y \vert X, w) = \arg\min_w - \log(P(Y \vert X, w))
