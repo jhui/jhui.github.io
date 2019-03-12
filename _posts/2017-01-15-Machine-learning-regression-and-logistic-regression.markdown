@@ -339,7 +339,7 @@ To have the lowest cost, we want $$ w \cdot x > 1 $$ with the smallest $$\| w\|$
 
 $$
 \begin{split}
-J(W) & =  \sum^N_{i=1} max(0, 1 - y^i wx^i) + \frac{\lambda}{2} w^T w  ( \frac{\lambda}{2} \| w\| ) \\
+J(W) & =  \sum^N_{i=1} max(0, 1 - y^i wx^i) + \frac{\lambda}{2} w^T w  \quad \quad( \frac{\lambda}{2} \| w\| ) \\
 \end{split}
 $$
 
