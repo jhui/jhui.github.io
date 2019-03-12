@@ -140,7 +140,7 @@ To avoid overfitting, we use L2-norm as a regularization to the cost function $$
  
 $$
 \begin{split}
-J(W) & = \frac{1}{2} \| xw - y \|^2 + \frac{\lambda}{2} w w^T \\
+J(W) & = \frac{1}{2} \| xw - y \|^2 + \frac{\lambda}{2} w^Tw \\
 \nabla_w J & = x^Txw - x^Ty + \lambda w \\
 \end{split}
 $$
