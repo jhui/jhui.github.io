@@ -520,7 +520,7 @@ Calculate $$\mathbb{E} [\hat{\sigma}^2_m]$$ first:
 
 $$
 \begin{split}
-\mathbb{E} [\hat{\sigma}^2_m] & = \mathbb{E} [\frac{1}{m}\sum_{i = 1}^N (x^{(i)} - \mu_m)^2] = \frac{1}{m} \mathbb{E} [\sum_{i = 1}^m ((x^{(i)})^2 - 2x^{(i)}x^{(i)} \mu_m + \mu_m^2)]  \\
+\mathbb{E} [\hat{\sigma}^2_m] & = \mathbb{E} [\frac{1}{m}\sum_{i = 1}^m (x^{(i)} - \mu_m)^2] = \frac{1}{m} \mathbb{E} [\sum_{i = 1}^m ((x^{(i)})^2 - 2x^{(i)} \mu_m + \mu_m^2)]  \\
 & = \frac{1}{m} \big( \mathbb{E} [\sum_{i = 1}^m (x^{(i)})^2] - \mathbb{E} [\sum_{i = 1}^m  2x^{(i)} \mu_m] + \mathbb{E} [\sum_{i = 1}^m  \mu_m^2)]  \big) \\
 & = \frac{1}{m} \big( \mathbb{E} [\sum_{i = 1}^m (x^{(i)})^2] - \mathbb{E} [\sum_{i = 1}^m  2 \mu_m \mu_m] + \mathbb{E} [\sum_{i = 1}^m  \mu_m^2)]  \big) \\
 &= \frac{1}{m} \big( \mathbb{E} [\sum_{i = 1}^m (x^{(i)})^2] -  \mathbb{E} [\sum_{i = 1}^m  \mu_m^2)] \big) \\
