@@ -10,13 +10,13 @@ date: 2017-01-15 12:00:00
 
 
 ### Gaussian distribution (Quick review)
-We often define a function $$ y = g(x) $$ to map input $$x$$ to $$y$$. In statistic, however, we use a stochastic model to define a probability distribution for such relationship.  For example, a 3.8 GPA student can earn an average of $60K salary with a variance ($$\sigma^2$$) of $10K.
+We define a function $$ y = g(x) $$ to map input $$x$$ to $$y$$. In statistic, we use a stochastic model to define a probability distribution for such relationship.  For example, a 3.8 GPA student can earn an average of $60K salary with a variance ($$\sigma^2$$) of $10K.
 
 <div class="imgcap">
 <img src="/assets/ml/gpa.png" style="border:none;width:40%">
 </div>
 
-$$ p(Salary=x|GPA=3.8) = f(x)  \quad \text{ (a Gaussian distribution with } \mu = $60K \text{ and } \sigma^2=$10k)$$
+$$ p(Salary=x|GPA=3.8) = Ɲ(x)  \quad \text{ (a Gaussian distribution with } \mu = $60K \text{ and } \sigma^2=$10k)$$
 
 **Probability density function (PDF)** measures the probability p(X=x).
 
