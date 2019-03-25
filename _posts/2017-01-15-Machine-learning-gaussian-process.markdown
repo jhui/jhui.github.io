@@ -16,7 +16,7 @@ We define a function $$ y = g(x) $$ to map input $$x$$ to $$y$$. In statistic, w
 <img src="/assets/ml/gpa.png" style="border:none;width:40%">
 </div>
 
-$$ p(Salary=x|GPA=3.8) = Ɲ(x)  \quad \text{ (a Gaussian distribution with } \mu = $60K \text{ and } \sigma^2=$10k)$$
+$$ p(Salary=x|GPA=3.8)  \quad \text{ (a Gaussian distribution with } \mu = $60K \text{ and } \sigma^2=$10k)$$
 
 **Probability density function (PDF)** measures the probability p(X=x).
 
