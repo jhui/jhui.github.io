@@ -26,7 +26,7 @@ In the following diagram, $$p(X=x)$$ follows a gaussian distribution:
 </div>
 
 $$
-PDF = f(x) = \frac{1}{\sigma\sqrt{2\pi}}e^{-(x - \mu)^{2}/2\sigma^{2} } 
+PDF = \frac{1}{\sigma\sqrt{2\pi}}e^{-(x - \mu)^{2}/2\sigma^{2} } 
 $$
 
 In a Gaussian distribution, 68% of data is within 1 $$\sigma $$ from the $$ \mu $$ and 95% of data is within 2 $$  \sigma $$. 
@@ -50,7 +50,7 @@ Here, let's model the relationship between the body height and the body weight f
 <img src="/assets/gm/auto.png" style="border:none;width:80%">
 </div>
 
-The corresponding of $$ PDF = probability(height=h, weight=w)$$ in 3D:
+The corresponding PDF in 3D:
 
 <div class="imgcap">
 <img src="/assets/gm/auto2.png" style="border:none;width:60%">
