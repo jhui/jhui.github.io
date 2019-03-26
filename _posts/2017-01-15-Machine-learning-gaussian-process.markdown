@@ -18,7 +18,7 @@ We define a function $$ y = g(x) $$ to map input $$x$$ to $$y$$. In statistic, w
 
 $$ p(Salary=x|GPA=3.8)  \quad \text{ (a Gaussian distribution with } \mu = $60K \text{ and } \sigma^2=$10k)$$
 
-**Probability density function (PDF)** measures the probability p(X=x).
+**Probability density function (PDF)** 
 
 In the following diagram, $$p(X=x)$$ follows a gaussian distribution: 
 <div class="imgcap">
@@ -27,16 +27,6 @@ In the following diagram, $$p(X=x)$$ follows a gaussian distribution:
 
 $$
 PDF = f(x) = \frac{1}{\sigma\sqrt{2\pi}}e^{-(x - \mu)^{2}/2\sigma^{2} } 
-$$
-
-For example, the probability of $$x$$ equal to the mean salary for a 3.8 GPA student is:
-
-$$
-\begin{split}
-prob(x=\mu) &= f(\mu) \\
-& = \frac{e^{-(\mu - \mu)^{2}/(2\sigma^{2}) }} {\sigma\sqrt{2\pi}} \\
-& = \frac{1} {\sigma\sqrt{2\pi}}
-\end{split}
 $$
 
 In a Gaussian distribution, 68% of data is within 1 $$\sigma $$ from the $$ \mu $$ and 95% of data is within 2 $$  \sigma $$. 
