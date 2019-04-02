@@ -126,13 +126,13 @@ $$
 dist^i_c = \| x^i - w^c \|_2
 $$
 
-* Find the minimum
+* Find the distance of each point from its closest centroid
 
 $$
 dist^i = \min \| x^i - w^c \|_2
 $$
 
-* We randomly pick $$x^i$$ as the next centroids with the probability
+* We pick $$x^i$$ randomly as the next centroids with probability proportional to $$dist^i$$
 
 $$
 P(x_i) = \frac{dist_i^2}{\sum^{k'}_{j=1} (dist^j)^2}
