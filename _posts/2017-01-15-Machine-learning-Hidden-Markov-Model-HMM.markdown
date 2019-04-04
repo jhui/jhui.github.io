@@ -119,7 +119,7 @@ We re-calculate our objective:
 $$
 \begin{split}
 P(x_t \vert y_{1:{t-1}} ) & = \sum_{x_{t-1}} P(x_t, x_{t-1} \vert y_{1:{t-1}}) \\
-& = \sum_{x_{t-1}} P(x_t \vert x_{t-1}, y_{1:t}) P(x_{t-1} \vert y_{1:{t-1}} ) \\
+& = \sum_{x_{t-1}} P(x_t \vert x_{t-1}, y_{1:{t-1}}) P(x_{t-1} \vert y_{1:{t-1}} ) \\
 & = \sum_{x_{t-1}} P(x_t \vert x_{t-1}) P(x_{t-1} \vert y_{1:{t-1}} ) \\
 \end{split}
 $$
