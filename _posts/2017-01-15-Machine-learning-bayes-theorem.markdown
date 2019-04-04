@@ -206,7 +206,7 @@ $$
 P(H \vert E) = \frac{P(E \vert H) P(H)}{P(E)}
 $$
 
-**Evidence H** (observation) is some data we observed . For example, 4 tests out of the 10 collected test positive. We can treat **belief H** as a hypothesis. For example, we can start with a belief of 0.14 infection rate with a variance 0.02 and later use Bayes inference to refine it with data that we collect.
+**Evidence E** (observation) is some data we observed . For example, 4 tests out of the 10 collected test positive. We can treat **belief H** as a hypothesis. For example, we can start with a belief of 0.14 infection rate with a variance 0.02 and later use Bayes inference to refine it with data that we collect.
 
 | **posterior probability**| $$P(H \vert E) $$ | The refined belief given the   new observed evidence. <br> The new belief after merging prior belief with the evidence. |
 | **likelihood** | <nobr>$$ P(E \vert H) $$ </nobr>| The probability of the evidence given the belief. <br> The chance of have 4 positive samples out of 10 for different infection rates.|
