@@ -90,7 +90,7 @@ Plot data to locate outliner visually:
 <div class="imgcap">
 <img src="/assets/ml/dde4.png" style="border:none;width:35%">
 </div>
-* Far away from the center of the cluster, (K-means) or
+* Far away from the center of the cluster, (K-medians) or
 <div class="imgcap">
 <img src="/assets/ml/med.png" style="border:none;width:40%">
 </div>
