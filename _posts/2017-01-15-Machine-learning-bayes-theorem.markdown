@@ -211,7 +211,7 @@ $$
 | **posterior probability**| $$P(H \vert E) $$ | The refined belief given the   new observed evidence. <br> The new belief after merging prior belief with the evidence. |
 | **likelihood** | <nobr>$$ P(E \vert H) $$ </nobr>| The probability of the evidence given the belief. <br> The chance of have 4 positive samples out of 10 for different infection rates.|
 | **prior** | <nobr>$$ P(H) $$ </nobr>| The probability of the belief prior to new evidence. <br> This is likely from some prior knowledge or experience.|
-| **marginal probability** | <nobr>$$ P(E) $$ </nobr>| The probability  $$ \sum_x P(E, H) for all possible infection rates $$ <br> The probability of seeing 4 positive samples under all possible infection rates . | 
+| **marginal probability** | <nobr>$$ P(E) $$ </nobr>| The probability  $$ \sum_x P(E, H) $$ for all possible infection rates $$ <br> The probability of seeing 4 positive samples under all possible infection rates . | 
 
 #### Bayesian inference (continue)
 
