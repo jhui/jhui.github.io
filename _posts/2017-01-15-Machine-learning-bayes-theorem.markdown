@@ -203,15 +203,15 @@ We either suspect that the much higher infection rate of the new evidence is cau
 >  People discuss Bayes with a lot of terminologies. We pause a while to summarize the terms again.
 
 $$
-P(H \vert D) = \frac{P(D \vert H) P(H)}{P(D)}
+P(H \vert E) = \frac{P(E \vert H) P(H)}{P(E)}
 $$
 
-**Evidence** is some data we observed. For example, 4 samples out of 10 are infected. We can treat **belief** as a hypothesis. For example, we can start with a belief of 0.14 infection rate with a variance 0.02 and later use Bayes inference to refine it with data that we collect.
+**Evidence H** (observation) is some data we observed . For example, 4 tests out of the 10 collected test positive. We can treat **belief H** as a hypothesis. For example, we can start with a belief of 0.14 infection rate with a variance 0.02 and later use Bayes inference to refine it with data that we collect.
 
-| **posterior probability**| $$P(H \vert D) $$ | The refined belief with additional given new evidence. <br> The new belief after we collect 1000 samples. |
-| **likelihood** | <nobr>$$ P(D \vert H) $$ </nobr>| The probability of the evidence given the belief. <br> The chance of have 4 positive samples out of 10 for different values of the infection rate.|
-| **prior** | <nobr>$$ P(H) $$ </nobr>| The probability of the belief prior to new evidence. <br> Our hypothesis which will later combine with new data to refine it to a posterior.|
-| **marginal probability** | <nobr>$$ P(D) $$ </nobr>| The probability of seeing that data. $$ \sum_x P(D, x) $$ <br> The probability of seeing 4 positive samples under all possible infection rate values. |
+| **posterior probability**| $$P(H \vert E) $$ | The refined belief given the   new observed evidence. <br> The new belief after merging prior belief with the evidence. |
+| **likelihood** | <nobr>$$ P(E \vert H) $$ </nobr>| The probability of the evidence given the belief. <br> The chance of have 4 positive samples out of 10 for different infection rates.|
+| **prior** | <nobr>$$ P(H) $$ </nobr>| The probability of the belief prior to new evidence. <br> This is likely from some prior knowledge or experience.|
+| **marginal probability** | <nobr>$$ P(E) $$ </nobr>| The probability  $$ \sum_x P(E, x) $$ <br> The probability of seeing 4 positive samples under all possible infection rates . |
 
 #### Bayesian inference (continue)
 
