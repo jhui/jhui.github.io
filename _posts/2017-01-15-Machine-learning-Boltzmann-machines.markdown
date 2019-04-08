@@ -290,8 +290,8 @@ $$
 which
 
 $$
-h ^{(k)} ~ \sigma(W v^{(k)} + b) \\
-v ^{(k+1)} ~ \sigma(W h^{(k)} + a) \\
+h ^{(k)} \sim \sigma(W v^{(k)} + b) \\
+v ^{(k+1)} \sim \sigma(W h^{(k)} + a) \\
 $$
 
 $$v = v^{(0)} $$ and $$h^{(1)}$$ is the prediction from $$ v^{(0)} $$, $$ v^{(1)} $$ is the prediction from $$ h^{(1)} $$.
