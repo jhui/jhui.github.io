@@ -54,12 +54,12 @@ Let's calculate the Gini value based on splitting by gender:
 Gini  value is calculated as
 
 $$
-p^2 + (1-p)^2
+1 - p^2 + (1-p)^2
 $$
 
-For the sub-node Female, 40% goes to the engineer school. So $$ Gini_f = 0.4 * 0.4 + 0.6 * 0.6 $$. 
+For the sub-node Female, 40% goes to the engineer school. So $$ Gini_f = 1 - 0.4 * 0.4 + 0.6 * 0.6 $$. 
 
-For the sub-node Male, 55% goes to the engineer school. So $$ Gini_m = 0.55 * 0.55 + 0.45 * 0.45 $$. 
+For the sub-node Male, 55% goes to the engineer school. So $$ Gini_m = 1- 0.55 * 0.55 + 0.45 * 0.45 $$. 
 
 Weighted $$ Gini = (\frac{10}{30} Gini_f + \frac{20}{30} Gini_m ) $$ (10 out of 30 students are female.)
 
