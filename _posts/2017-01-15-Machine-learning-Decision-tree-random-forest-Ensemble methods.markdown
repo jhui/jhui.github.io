@@ -46,7 +46,7 @@ $$
 H(Engineer) - H(Engineer \vert GPA>2.5) \\
 $$
 
-#### GIni
+#### Gini
 
 Let's say a class have 30 students. 15 students (50%) go to an Engineering school. The class has 10 female students and 4 go to the Engineering school (40%). The class has 20 male students and 11 goes to the engineer school. 
 
