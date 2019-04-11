@@ -20,7 +20,7 @@ date: 2017-01-15 12:00:00
 	* Select features and transform data
 		* One-hot vector, bag of words, bucketize
 		* Logarithm scale, spectrogram
-	* Remove noise or outliers (Based on algorithms)
+	* Remove noise or outliers
 	* Remove invalid and duplicate data	
 	* Scaling or whiten data
 * Split datasets for training, validation and testing
