@@ -54,7 +54,7 @@ Let's calculate the Gini value based on splitting by gender:
 Gini  value is calculated as
 
 $$
-1 - p^2 + (1-p)^2
+1 - p^2 - (1-p)^2
 $$
 
 For the sub-node Female, 40% goes to the engineer school. So $$ Gini_f = 1 - 0.4 * 0.4 + 0.6 * 0.6 $$. 

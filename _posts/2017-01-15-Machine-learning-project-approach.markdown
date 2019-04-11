@@ -43,7 +43,7 @@ date: 2017-01-15 12:00:00
 		* Add layers and nodes
 		* Optimization tricks
 * Hyper-parameters fine tunings
-* Try our model variants
+* Try other model variants
 
 ### Deep learning resources
  
