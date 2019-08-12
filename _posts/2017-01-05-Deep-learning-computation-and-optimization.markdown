@@ -125,7 +125,7 @@ With the second derivative, we may take advantage of the curvature information t
 Hessian matrix is defined as:
 
 <div class="imgcap">
-<img src="/assets/dl/hh.jpg" style="border:none;width:15%">
+<img src="/assets/dl/hh.jpg" style="border:none;width:45%">
 </div>
 
 
