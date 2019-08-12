@@ -111,7 +111,7 @@ When $$f''(x)<0$$, $$f(x)$$ curves down and when $$f''(x)>0$$, $$f(x)$$ curves u
 The second derivative indicates whether a gradient step drops the cost as much as the gradient alone may imply. For example, at $$x=1.0$$ (the orange dot on the right below), the gradient is positive and the cost drops towards $$x=0$$ direction. Since the second derivative is positive, the function curves upwards towards zero. i.e. the cost drops less than one predicted by the gradient alone. 
 
 <div class="imgcap">
-<img src="/assets/ml/der.jpg" style="border:none;width:100%">
+<img src="/assets/ml/der.jpg" style="border:none;width:20%">
 </div>
 
 With the second derivative, we may take advantage of the curvature information to create a better gradient descent method to reduce overshoot. For example, instead of descending to a local minimum from $$L_1$$, we may overshoot to $$L_2$$ in the left diagram below. In some NLP problem, the gradient is so steep that we may bound upward to much higher cost.
