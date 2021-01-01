@@ -377,7 +377,6 @@ D_{KL}\left(q(x) \Vert p(x)\right) & = \sum_{x} q(x) \log (\frac{q(x)}{p(x)}) \\
 & = \mathbb{E}_q[log (q(x))−log (p(x))] \\
 \end{align}
 $$
-𝜃
 
 Apply it with:
 
