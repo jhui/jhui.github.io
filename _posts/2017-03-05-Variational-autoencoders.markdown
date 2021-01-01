@@ -388,7 +388,7 @@ D_{KL}[q(z \vert x) \Vert p(z \vert x)] &= \mathbb{E}_q[\log q(z \vert x) - \log
 $$
 
 
-Let $$ q_\lambda (z \vert x) $$ be the distribution of $$ z $$ predicted by our encoder deep network. We want it to match the true distribution $$ p(z \vert x) $$. We want the distribution approximated by the deep network has little divergence from the true distribution. i.e. we want to optimize $$ \lambda $$ with the smallest KL divergence.
+Let $$ q_ϕ (z \vert x) $$ be the distribution of $$ z $$ predicted by our encoder deep network. We want it to match the true distribution $$ p(z \vert x) $$. We want the distribution approximated by the deep network has little divergence from the true distribution. i.e. we want to optimize $$ \lambda $$ with the smallest KL divergence.
 
 $$
 D_{KL} [ q_λ (z \vert x) \Vert p(z \vert x) ] = \mathbb{E}_q [ \log q_λ (z \vert x)  -   \log p (z \vert x) ]
@@ -402,13 +402,13 @@ $$
 
 $$
 \begin{align}
-D_{KL} [ q_\lambda (z \vert x) \Vert p(z \vert x)  ] & = \mathbb{E}_q [ \log q_λ (z \vert x) - \log \frac{ p (x \vert z) p(z)}{p(x)}  ] \\
+D_{KL} [ q_ϕ (z \vert x) \Vert p(z \vert x)  ] & = \mathbb{E}_q [ \log q_ϕ (z \vert x) - \log \frac{ p (x \vert z) p(z)}{p(x)}  ] \\
 & = \mathbb{E}_q [ \log q_λ (z \vert x)  - \log p (x \vert z) - \log p(z)  + \log p(x)]   \\
 & = \mathbb{E}_q [ \log q_λ (z \vert x)  - \log p (x \vert z) - \log p(z) ] + \log p(x) \\
- D_{KL} [ q_\lambda (z \vert x) \Vert p(z \vert x)  ]  - \log p(x) & = \mathbb{E}_q [ \log q_λ (z \vert x)  - \log p (x \vert z) - \log p(z) ] \\
- \log p(x) - D_{KL} [ q_\lambda (z \vert x) \Vert p(z \vert x)  ]  & = \mathbb{E}_q [   \log p (x \vert z) - ( \log q_λ (z \vert x) - \log p(z)) ] \\
-&=  \mathbb{E}_q [   \log p (x \vert z)] - \mathbb{E}_q [ \log q_λ (z \vert x) - \log p(z)) ] \\
-&=  \mathbb{E}_q [   \log p (x \vert z)] - D_{KL} [q_λ (z \vert x) \Vert p(z)] \\
+ D_{KL} [ q_ϕ (z \vert x) \Vert p(z \vert x)  ]  - \log p(x) & = \mathbb{E}_q [ \log q_ϕ (z \vert x)  - \log p (x \vert z) - \log p(z) ] \\
+ \log p(x) - D_{KL} [ q_ϕ (z \vert x) \Vert p(z \vert x)  ]  & = \mathbb{E}_q [   \log p (x \vert z) - ( \log q_ϕ (z \vert x) - \log p(z)) ] \\
+&=  \mathbb{E}_q [   \log p (x \vert z)] - \mathbb{E}_q [ \log q_ϕ (z \vert x) - \log p(z)) ] \\
+&=  \mathbb{E}_q [   \log p (x \vert z)] - D_{KL} [q_ϕ (z \vert x) \Vert p(z)] \\
 \end{align}
 $$
 
