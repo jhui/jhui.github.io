@@ -363,7 +363,7 @@ self.optimizer = tf.train.AdamOptimizer(0.001).minimize(self.cost)
  
 ### Cost function in detail
 
-In VAE, we  model the data distribution $$p(x)$$ with an encoder $$ q_𝜙(z \vert x)$$ , </br>
+In VAE, we  model the data distribution $$p(x)$$ with an encoder $$ q_𝜙(z \vert x)$$ , <br />
 a decoder $$p_𝜃(x  \vert z) $$ and a latent variable $$p(z)$$ using the objective function:
 
 $$
