@@ -389,7 +389,7 @@ $$
 
 
 Let $$ q_𝜙 (z \vert x) $$ be the distribution of $$ z $$ predicted by the encoder. <br/>
-Our objective is to minimize the KL divergence betwee the decoder $$ q_𝜙 (z \vert x) $$ and br/> 
+Our objective is to minimize the KL divergence betwee the decoder $$ q_𝜙 (z \vert x) $$ and <br/> 
 the ground truth distribution $$ p(z \vert x) $$. <br/>
 We want the distribution approximated by the deep network has little divergence from the true distribution. i.e. we want to optimize $$ 𝜙 $$ with the smallest KL divergence.
 
