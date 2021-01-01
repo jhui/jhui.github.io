@@ -439,7 +439,7 @@ Instead of the distribution $$p(x)$$, we can model the data $$x$$ with $$ \log p
 Maximizing $$\log p (x \vert z)$$ can be done by building a decoder network and maximize its likelihood. So with an encoder $$ q_𝜙(z \vert x)$$ , a decoder $$p_𝜃(x  \vert z) $$, our objective become optimizing:
 
 $$
-ELBO(\theta, \phi) = E_{q_\theta(z \vert x) }  [  \log (p_{\theta}(x_{i}|z))  ] - D_{KL} [ q_\phi (z \vert x) \Vert p(z) ]
+ELBO(\theta, \phi) = E_{q_\theta(z \vert x) }  [  \log (p_{\theta}(x|z))  ] - D_{KL} [ q_\phi (z \vert x) \Vert p(z) ]
 $$
 
 We can apply a constrain to $$ p(z) $$ such that we can evaluate $$D_{KL} [ q_\phi (z \vert x) \Vert p(z) ]$$ easily. In AVE, we use  $$ p(z) = \mathcal{N} (0, 1) $$. For optimal solution, we want $$ q_\phi (z \vert x) $$ to be as close as $$\mathcal{N} (0, 1) $$.
