@@ -363,13 +363,6 @@ self.optimizer = tf.train.AdamOptimizer(0.001).minimize(self.cost)
  
 ### Cost function in detail
 
-$$
-\min_{\theta} \quad E_q[x^2] \\
-\\
-\nabla_{\theta} E_p[x^2] = \nabla_{\theta} \int p_{\theta}(x) x^2 dx = \int x^2 \nabla_{\theta} p_{\theta}(x) \frac{p_{\theta}(x)}{p_{\theta}(x)} dx \\ 
-& = \int p_{\theta}(x)  x^2 \nabla_{\theta} \log p_{\theta}(x) dx = E_p[x^2 \nabla_{\theta} \log p_{\theta}(x)]\\
-$$
-
 In VAE, we  model the data distribution $$p(x)$$ with an encoder $$ q_𝜙(z \vert x)$$ ,
 a decoder $$p_𝜃(x  \vert z) $$ and a latent variable $$p(z)$$ using the objective function:
 
