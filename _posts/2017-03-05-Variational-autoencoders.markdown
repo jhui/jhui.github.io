@@ -363,10 +363,10 @@ self.optimizer = tf.train.AdamOptimizer(0.001).minimize(self.cost)
  
 ### Cost function in detail
 
-In VAE, we  model the data distribution $$p(x)$$ with an encoder $$ q_𝜙(z \vert x)$$ , a decoder $$p_𝜃(x  \vert z) $$ and a latent variable model $$p(z)$$ through the VAE objective function:
+In VAE, we  model the data distribution $$p(x)$$ with an encoder $$ q_𝜙(z \vert x)$$ , a decoder $$p_𝜃(x  \vert z) $$ and a latent variable $$p(z)$$ using the objective function:
 
 $$
-\log p(x) \approx \mathbb{E}_q [   \log p_𝜃 (x \vert z)] - D_{KL} [q_𝜙 (z \vert x) \Vert p(z)]   \\
+\log p(x) \approx \mathbb{E}_{q_\phi(z \vert x) } [   \log p_𝜃 (x \vert z)] - D_{KL} [q_𝜙 (z \vert x) \Vert p(z)]   \\
 $$
 
 To draw this conclusion, we start with the KL divergence which measures the difference of 2 distributions. By definition, KL divergence is defined as: 
@@ -415,8 +415,8 @@ Define the term ELBO (Evidence lower bound) as:
 
 $$
 \begin{align}
-ELBO(λ) & =  \mathbb{E}_q [   \log p (x \vert z)] - D_{KL} [q_𝜙 (z \vert x) \Vert p(z)] \\
-\log p(x) - D_{KL} [ q_𝜙 (z \vert x) \Vert p(z \vert x)  ] & = ELBO(λ)  \\
+ELBO(𝜙) & =  \mathbb{E}_q [   \log p (x \vert z)] - D_{KL} [q_𝜙 (z \vert x) \Vert p(z)] \\
+\log p(x) - D_{KL} [ q_𝜙 (z \vert x) \Vert p(z \vert x)  ] & = ELBO(𝜙)  \\
 \end{align}
 $$
 
