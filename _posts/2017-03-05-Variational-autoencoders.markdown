@@ -371,7 +371,7 @@ $$
 $$
 
 $$
-q_𝜙 (z) \text{ is very different from } p(z)]   \\
+q_𝜙 (z) \text{ is different from } p(z)]   \\
 $$
 
 To draw this conclusion, we start with the KL divergence which measures the difference of 2 distributions. By definition, KL divergence is defined as: 
