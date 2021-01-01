@@ -388,7 +388,8 @@ D_{KL}[q(z \vert x) \Vert p(z \vert x)] &= \mathbb{E}_q[\log q(z \vert x) - \log
 $$
 
 
-Let $$ q_𝜙 (z \vert x) $$ be the distribution of $$ z $$ predicted by the encoder. We want it to match the ground true distribution $$ p(z \vert x) $$. We want the distribution approximated by the deep network has little divergence from the true distribution. i.e. we want to optimize $$ 𝜙 $$ with the smallest KL divergence.
+Let $$ q_𝜙 (z \vert x) $$ be the distribution of $$ z $$ predicted by the encoder. <br/>
+We want $$ q_𝜙 (z \vert x) $$ to match the ground true distribution $$ p(z \vert x) $$. We want the distribution approximated by the deep network has little divergence from the true distribution. i.e. we want to optimize $$ 𝜙 $$ with the smallest KL divergence.
 
 $$
 D_{KL} [ q_𝜙 (z \vert x) \Vert p(z \vert x) ] = \mathbb{E}_q [ \log q_𝜙 (z \vert x)  -   \log p (z \vert x) ]
