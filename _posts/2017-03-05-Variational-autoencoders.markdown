@@ -383,7 +383,7 @@ Apply it with:
 
 $$
 \begin{align}
-D_{KL}[q(z \vert x) \Vert p(z \vert x)] &= \mathbb{E}[\log q(z \vert x) - \log p(z \vert x)] \\
+D_{KL}[q(z \vert x) \Vert p(z \vert x)] &= \mathbb{E}_q[\log q(z \vert x) - \log p(z \vert x)] \\
 \end{align}
 $$
 
