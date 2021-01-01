@@ -462,6 +462,13 @@ D_{KL} [ q_\phi (z \vert x) \Vert p(z) ] &= D_{KL}[N(\mu, \Sigma) \Vert N(0, 1)]
 \end{align}
 $$
 
+$$
+\begin{align}
+D_{KL} [ q_\phi (z \vert x) \Vert p(z) ] &= D_{KL}[N(\mu, \Sigma) \Vert N(0, 1)] \\
+& = \frac{1}{2} \, \sum_k ( \Sigma + \mu^2 - 1 - \log \Sigma )
+\end{align}
+$$
+
 ### KL-divergence of 2 Gaussian distributions
 
 Here is an exercise in computing the KL divergence of 2 simple gaussian distributions:
