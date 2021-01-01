@@ -370,6 +370,10 @@ $$
 \log p(x) \approx \mathbb{E}_{q_\phi(z \vert x) } [   \log p_𝜃 (x \vert z)] - D_{KL} [q_𝜙 (z \vert x) \Vert p(z)]   \\
 $$
 
+$$
+q_𝜙 (z) \text{ is very different from } p(z)]   \\
+$$
+
 To draw this conclusion, we start with the KL divergence which measures the difference of 2 distributions. By definition, KL divergence is defined as: 
 
 $$
