@@ -455,9 +455,6 @@ In VAE, we model $$ q_\phi (z \vert x) $$ as $$ \mathcal{N} (\mu, \Sigma)$$, the
 $$
 \begin{align}
 D_{KL} [ q_\phi (z \vert x) \Vert p(z) ] &= D_{KL}[N(\mu, \Sigma) \Vert N(0, 1)] \\
-& = \frac{1}{2} \, ( \textrm{tr}(\Sigma) + \mu^T\mu - k - \log \, \det(\Sigma) ) \\
-& = \frac{1}{2} \, ( \sum_k \Sigma + \sum_k \mu^2 - \sum_k 1 - \log \, \prod_k \Sigma ) \\
-& = \frac{1}{2} \, ( \sum_k \Sigma(X) + \sum_k \mu^2(X) - \sum_k 1 - \sum_k \log \Sigma(X) ) \\
 & = \frac{1}{2} \, \sum_k ( \Sigma + \mu^2 - 1 - \log \Sigma )
 \end{align}
 $$
@@ -465,9 +462,13 @@ $$
 $$
 \begin{align}
 D_{KL} [ q_\phi (z \vert x) \Vert p(z) ] &= D_{KL}[N(\mu, \Sigma) \Vert N(0, 1)] \\
+& = \frac{1}{2} \, ( \textrm{tr}(\Sigma) + \mu^T\mu - k - \log \, \det(\Sigma) ) \\
+& = \frac{1}{2} \, ( \sum_k \Sigma + \sum_k \mu^2 - \sum_k 1 - \log \, \prod_k \Sigma ) \\
+& = \frac{1}{2} \, ( \sum_k \Sigma(X) + \sum_k \mu^2(X) - \sum_k 1 - \sum_k \log \Sigma(X) ) \\
 & = \frac{1}{2} \, \sum_k ( \Sigma + \mu^2 - 1 - \log \Sigma )
 \end{align}
 $$
+
 
 ### KL-divergence of 2 Gaussian distributions
 
