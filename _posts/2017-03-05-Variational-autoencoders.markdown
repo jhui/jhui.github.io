@@ -450,7 +450,7 @@ $$
 
 We can apply a constrain to $$ p(z) $$ such that we can evaluate $$D_{KL} [ q_\phi (z \vert x) \Vert p(z) ]$$ easily. In AVE, we use  $$ p(z) = \mathcal{N} (0, 1) $$. For optimal solution, we want $$ q_\phi (z \vert x) $$ to be as close as $$\mathcal{N} (0, 1) $$.
 
-In VAE, we model $$ q_\phi (z \vert x) $$ as $$ \mathcal{N} (\mu, \Sigma)$$
+In VAE, we model $$ q_\phi (z \vert x) $$ as $$ \mathcal{N} (\mu, \Sigma)$$, the KL-divergence can be computed as:
 
 $$
 \begin{align}
