@@ -388,8 +388,8 @@ D_{KL}[q(z \vert x) \Vert p(z \vert x)] &= \mathbb{E}_q[\log q(z \vert x) - \log
 $$
 
 
-Let $$ q_𝜙 (z \vert x) $$ be the distribution of $$ z $$ predicted by the encoder. <br/>
-Our objective is to minimize the KL divergence betwee the decoder $$ q_𝜙 (z \vert x) $$ and <br/> 
+Let $$ q_𝜙 (z \vert x) $$ be the distribution of $$ z $$ predicted by the encoder. 
+Our objective is to minimize the KL divergence betwee the decoder $$ q_𝜙 (z \vert x) $$ and 
 the ground truth distribution $$ p(z \vert x) $$. <br/>
 We want the distribution approximated by the deep network has little divergence from the true distribution. i.e. we want to optimize $$ 𝜙 $$ with the smallest KL divergence.
 
@@ -437,7 +437,7 @@ $$
 
 Here, we define our VAE objective function
 
-> $$ \log p(x) - D_{KL} [ q_𝜙 (z \vert x) \Vert p(z \vert x)  ] = \mathbb{E}_q [   \log p (x \vert z)] - D_{KL} [q_λ (z \vert x) \Vert p(z)]  $$
+> $$ \log p(x) - D_{KL} [ q_𝜙 (z \vert x) \Vert p(z \vert x)  ] = \mathbb{E}_q [   \log p (x \vert z)] - D_{KL} [q_𝜙 (z \vert x) \Vert p(z)]  $$
 
 
 Instead of the distribution $$p(x)$$, we can model the data $$x$$ with $$ \log p(x) $$. With the error term, $$D_{KL} [ q_𝜙 (z \vert x) \Vert p(z \vert x)  ]$$, we can establish a lower bound $$ELBO$$ for $$ \log p(x) $$ which in practice is good enough in modeling the data distribution. In the VAE objective function, maximize our model probability $$ \log p(x) $$ is the same as maximize $$ \log p (x \vert z)]$$ while minimize the divergence of $$D_{KL} [q_𝜙 (z \vert x) \Vert p(z)] $$. 
