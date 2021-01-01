@@ -363,7 +363,7 @@ self.optimizer = tf.train.AdamOptimizer(0.001).minimize(self.cost)
  
 ### Cost function in detail
 
-In VAE, we  model the data distribution $$p(x)$$ with an encoder $$ q_𝜙(z \vert x)$$ , <br />
+In VAE, we  model the data distribution $$p(x)$$ with an encoder $$ q_𝜙(z \vert x)$$ ,
 a decoder $$p_𝜃(x  \vert z) $$ and a latent variable $$p(z)$$ using the objective function:
 
 $$
@@ -410,6 +410,7 @@ D_{KL} [ q_𝜙 (z \vert x) \Vert p(z \vert x)  ] & = \mathbb{E}_q [ \log q_𝜙
 &=  \mathbb{E}_q [   \log p (x \vert z)] - \mathbb{E}_q [ \log q_𝜙 (z \vert x) - \log p(z)) ] \\
 &=  \mathbb{E}_q [   \log p (x \vert z)] - D_{KL} [q_𝜙 (z \vert x) \Vert p(z)] \\
  D_{KL} [ q_𝜙 (z \vert x) \Vert p(z \vert x)  ]  & = \log p(x) -  \mathbb{E}_q [   \log p (x \vert z)] + D_{KL} [q_𝜙 (z \vert x) \Vert p(z)]
+ \log p(x)   & = D_{KL} [ q_𝜙 (z \vert x) \Vert p(z \vert x)  ] +  \mathbb{E}_q [   \log p (x \vert z)] - D_{KL} [q_𝜙 (z \vert x) \Vert p(z)]
 \end{align}
 $$
 
