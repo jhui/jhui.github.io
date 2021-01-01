@@ -427,8 +427,8 @@ We call ELBO the evidence lower bound because:
 
 $$
 \begin{align}
-\log p(x) - D_{KL} [ q_𝜙 (z \vert x) \Vert p(z \vert x)  ] & = ELBO(λ) \\
-\log p(x) & \geqslant ELBO(λ) \quad \text{since KL is always positive} \\
+\log p(x) - D_{KL} [ q_𝜙 (z \vert x) \Vert p(z \vert x)  ] & = ELBO(𝜙) \\
+\log p(x) & \geqslant ELBO(𝜙) \quad \text{since KL is always positive} \\
 \end{align}
 $$
 
