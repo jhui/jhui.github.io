@@ -6,9 +6,9 @@ mathjax: true
 permalink: /about/
 ---
 
-My name is Jonathan Hui. I started this blog to share my excitement about Deep Learning and Reinforcement Learning. Many articles here served as my personal notes. I wish that some of them give you better insights beyond the equations and give you enough details to explore.
+Hello, I'm Jonathan Hui. I created this blog to share my enthusiasm for Deep Learning and Reinforcement Learning with others. Most of the articles here are my personal notes, which I hope will provide you with valuable insights beyond just the equations. My aim is to offer enough details to encourage exploration and a deeper understanding of these topics.
 
-I also maintain a second blog in https://jonathan-hui.medium.com/ which have more latest article. Here is an index to this article: https://medium.com/@jonathan-hui/index-page-for-my-articles-in-deep-learning-19821810a14.
+I also maintain a second blog in https://jonathan-hui.medium.com/ which have more latest articles. Here is an index to those articles: https://medium.com/@jonathan-hui/index-page-for-my-articles-in-deep-learning-19821810a14.
 
 <script type="text/javascript" src="https://platform.linkedin.com/badges/js/profile.js" async defer></script>
 
